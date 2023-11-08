@@ -38,8 +38,8 @@ app.post('/message', async (req, res) => {
         { role: "system", content: "You are a helpful assistant knowledgeable about a wide range of topics." },
         { role: "user", content: user_message }
       ],
-      max_tokens: 150,
-      temperature: 0.7,
+      max_tokens: 950,
+      temperature: 1.0,
       top_p: 1,
       frequency_penalty: 0,
       presence_penalty: 0,
