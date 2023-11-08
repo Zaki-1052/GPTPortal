@@ -1,0 +1,90 @@
+/* chat.css */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #121212; /* Dark background */
+    color: white;
+    margin: 0;
+    padding: 0;
+  }
+  
+  #chat-container {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #202124; /* Slightly lighter dark shade for the container */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Subtle shadow */
+  }
+  
+  #chat-box {
+    height: 500px;
+    overflow-y: auto;
+    background-color: #121212; /* Same as body for seamless design */
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  
+  #message-input {
+    width: calc(100% - 100px);
+    padding: 10px 15px;
+    margin-right: 10px;
+    background-color: #303134; /* Input background */
+    border: 1px solid #5f6368; /* Border color */
+    border-radius: 20px;
+    color: white;
+    margin-bottom: 10px; /* Add some space above the send button */
+  }
+  
+  #send-button {
+    width: 80px;
+    padding: 10px 15px;
+    background-color: #1a73e8; /* Google blue for the button */
+    border: none;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s; /* Transition for hover effect */
+  }
+  
+  #send-button:hover {
+    background-color: #1669c2; /* Darker shade on hover */
+  }
+
+  #clipboard-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    /* Add your desired styling for the button */
+  }
+  
+  .message {
+    background-color: #303134; /* Matching input field background */
+    color: white;
+    padding: 10px 15px;
+    margin: 5px 0;
+    border-radius: 10px;
+    max-width: 75%;
+    word-wrap: break-word;
+    margin-bottom: 10px; /* Add space below each message */
+  }
+
+  .message span {
+    display: block; /* Make the span a block element to allow for margins */
+    margin-bottom: 5px; /* Add space below the message text */
+  }
+  
+  .copy-btn {
+    /* Add styles for the copy button if needed */
+  }
+  
+  .message.response {
+    margin-left: auto; /* Align responses to the right */
+    background-color: #1a73e8; /* Using the button color to differentiate */
+  }
+  
+  .message.error {
+    color: #e66767; /* Error color */
+  }
+  
