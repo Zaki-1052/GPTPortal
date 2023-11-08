@@ -33,12 +33,12 @@ app.post('/message', async (req, res) => {
   
     // Define the data payload with system message and additional parameters
     const data = {
-      model: "gpt-4",
+      model: "gpt-3.5-turbo-1106",
       messages: [
-        { role: "system", content: "You are a helpful assistant knowledgeable about a wide range of topics." },
+        { role: "system", content: "You're a helpful assistant." },
         { role: "user", content: user_message }
       ],
-      max_tokens: 950,
+      max_tokens: 50,
       temperature: 1.0,
       top_p: 1,
       frequency_penalty: 0,
