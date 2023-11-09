@@ -27,9 +27,14 @@ app.get('/uploads/:filename', (req, res) => {
   res.sendFile(filename, { root: 'public/uploads' });
 });
 
+let conversationHistory = [];
+
 // Handle POST request to '/message'
 app.post('/message', async (req, res) => {
     const user_message = req.body.message;
+
+     // Add user message to the conversation history
+     conversationHistory.push({ role: "user", content: user_message });
   
     // Define the data payload with system message and additional parameters
     const data = {
@@ -39,6 +44,7 @@ app.post('/message', async (req, res) => {
         { role: "user", content: user_message }
       ],
       max_tokens: 50,
+      messages: conversationHistory,
       temperature: 1.0,
       top_p: 1,
       frequency_penalty: 0,
@@ -62,12 +68,22 @@ app.post('/message', async (req, res) => {
 
       
       // Send back the last message content from the response
-      const lastMessageContent = response.data.choices[0].message.content; // Accessing the content field
-      if (lastMessageContent) {
-        res.json({ text: lastMessageContent.trim() }); // Send this back to the client
-      } else {
-        res.status(500).json({ error: "No text was returned from the API" });
-      }
+      // Extract the last message content from the response
+    const lastMessageContent = response.data.choices[0].message.content;
+
+    if (lastMessageContent) {
+      // Add assistant's message to the conversation history
+      conversationHistory.push({ role: "assistant", content: lastMessageContent.trim() });
+
+      // Send this back to the client
+      res.json({ text: lastMessageContent.trim() });
+    } else {
+      // If for some reason the last message content is not defined,
+      // which would be unusual given that you've received a 200 OK response,
+      // you still want to handle this scenario.
+      res.status(500).json({ error: "No text was returned from the API" });
+    }
+      
     } catch (error) {
       console.error('Error calling OpenAI API:', error.message);
       if (error.response) {
