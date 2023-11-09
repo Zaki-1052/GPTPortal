@@ -31,7 +31,24 @@ let conversationHistory = [];
 
 // Handle POST request to '/message'
 app.post('/message', async (req, res) => {
-    const user_message = req.body.message;
+  const user_message = req.body.message;
+
+  // Check for shutdown command
+  if (user_message === "Bye!") {
+      console.log("Shutdown message received. Closing server...");
+
+      // Optionally, respond to the user before shutting down
+      res.json({ text: "Shutting down the server. Goodbye!" });
+
+      // Gracefully shut down the server
+      server.close(() => {
+          console.log("Server successfully shut down.");
+      });
+
+      // If using Node.js 17+, use the following line instead
+      // process.exit(0);
+      return; // End the execution of the function here
+  }
 
      // Add user message to the conversation history
      conversationHistory.push({ role: "user", content: user_message });
@@ -101,6 +118,7 @@ app.get('/portal', (req, res) => {
 
 // Start the server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
