@@ -57,10 +57,18 @@ app.post('/message', async (req, res) => {
       // Make the POST request to the OpenAI API with the defined data and headers
       const response = await axios.post('https://api.openai.com/v1/chat/completions', data, { headers });
       
+      // Log the response data for debugging
+      console.log(JSON.stringify(response.data, null, 2));
+
+      
       // Send back the last message content from the response
-      const messages = response.data.choices[0].message;
-      const lastMessage = messages[messages.length - 1].content;
-      res.json({ text: lastMessage.trim() });
+      const lastMessage = response.data.choices[0].text;
+      // Check if lastMessage is defined
+      if (lastMessage) {
+        res.json({ text: lastMessage.trim() });
+      } else {
+        res.status(500).json({ error: "No text was returned from the API" });
+      }
     } catch (error) {
       console.error('Error calling OpenAI API:', error.message);
       if (error.response) {

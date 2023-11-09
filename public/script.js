@@ -45,7 +45,7 @@ async function sendMessageToServer(message) {
 
     const data = await response.json();
     // Use the response from the server
-    displayMessage(data.response, 'response');
+    displayMessage(data.text, 'response'); // Changed from data.response to data.text
   } catch (error) {
     console.error('Error sending message to server:', error);
     // Handle any errors that occurred during the send
