@@ -38,7 +38,7 @@ app.post('/message', async (req, res) => {
   
     // Define the data payload with system message and additional parameters
     const data = {
-      model: "gpt-3.5-turbo-0613",
+      model: "gpt-3.5-turbo",
       messages: [
         { role: "system", content: "You're a helpful assistant." },
         { role: "user", content: user_message }
