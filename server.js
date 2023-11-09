@@ -55,7 +55,7 @@ app.post('/message', async (req, res) => {
   
     try {
       // Make the POST request to the OpenAI API with the defined data and headers
-      const response = await axios.post('https://api.openai.com/v1/completions', data, { headers });
+      const response = await axios.post('https://api.openai.com/v1/chat/completions', data, { headers });
       
       // Send back the last message content from the response
       const messages = response.data.choices[0].message;
