@@ -62,10 +62,9 @@ app.post('/message', async (req, res) => {
 
       
       // Send back the last message content from the response
-      const lastMessage = response.data.choices[0].text;
-      // Check if lastMessage is defined
-      if (lastMessage) {
-        res.json({ text: lastMessage.trim() });
+      const lastMessageContent = response.data.choices[0].message.content; // Accessing the content field
+      if (lastMessageContent) {
+        res.json({ text: lastMessageContent.trim() }); // Send this back to the client
       } else {
         res.status(500).json({ error: "No text was returned from the API" });
       }

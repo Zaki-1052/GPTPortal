@@ -28,7 +28,6 @@ document.getElementById('clipboard-button').addEventListener('click', () => {
     // Send the message to the server and handle the response
 async function sendMessageToServer(message) {
   try {
-    // Replace 'http://localhost:3000/message' with your Flask server's URL
     const response = await fetch('http://localhost:3000/message', {
       method: 'POST',
       headers: {
