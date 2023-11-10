@@ -32,6 +32,7 @@ let conversationHistory = [];
 // Handle POST request to '/message'
 app.post('/message', async (req, res) => {
   const user_message = req.body.message;
+  const instructions = req.body.instructions; // Get instructions from the request
 
   // Check for shutdown command
   if (user_message === "Bye!") {
@@ -57,12 +58,12 @@ app.post('/message', async (req, res) => {
     const data = {
       model: "gpt-4",
       messages: [
-        { role: "system", content: "You're a helpful assistant." },
+        { role: "system", content: "You're a helpful assistant. \n Specifically: ${instructions}" },
         { role: "user", content: user_message }
       ],
-      max_tokens: 600,
+      max_tokens: 4000,
       messages: conversationHistory,
-      temperature: 1.2,
+      temperature: 1.1,
       top_p: 1,
       frequency_penalty: 0,
       presence_penalty: 0,

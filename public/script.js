@@ -26,17 +26,19 @@ document.getElementById('clipboard-button').addEventListener('click', () => {
 });
   
     // Send the message to the server and handle the response
-async function sendMessageToServer(message) {
-  try {
-    const response = await fetch('http://localhost:3000/message', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // Add an Authorization header if your Flask server requires authentication
-        // 'Authorization': 'Bearer YOUR_SECRET_TOKEN'
-      },
-      body: JSON.stringify({ message }) // Send the message content as JSON
-    });
+    async function sendMessageToServer(message) {
+      const instructions = await fetchInstructions(); // Fetch instructions
+    
+      try {
+        const response = await fetch('http://localhost:3000/message', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // Add other headers as needed
+          },
+          body: JSON.stringify({ message, instructions }) // Include instructions in the payload
+        });
+    
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -49,6 +51,18 @@ async function sendMessageToServer(message) {
     console.error('Error sending message to server:', error);
     // Handle any errors that occurred during the send
     displayMessage('Error sending message. Please try again.', 'error');
+  }
+}
+async function fetchInstructions() {
+  try {
+    const response = await fetch('/instructions.md');
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return await response.text();
+  } catch (error) {
+    console.error('Error fetching instructions:', error);
+    return ''; // Return empty string in case of an error
   }
 }
 
