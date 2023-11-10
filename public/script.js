@@ -15,20 +15,37 @@ document.addEventListener('DOMContentLoaded', () => {
       const message = messageInput.value.trim();
       if (message) {
         displayMessage(message, 'user');
-        sendMessageToServer(message);
+        sendMessageToServer(message, selectedImage); // Pass the image data
         messageInput.value = ''; // Clear the input after sending
+        selectedImage = null; // Reset the image variable
       }
     });
 
     // Placeholder function for clipboard button (to be implemented)
-document.getElementById('clipboard-button').addEventListener('click', () => {
-  // This will handle the file upload functionality in the future
-});
+    document.getElementById('clipboard-button').addEventListener('click', () => {
+      document.getElementById('file-input').click(); // Trigger file input
+    });
+    document.getElementById('file-input').addEventListener('change', handleFileSelect, false);
+
+    function handleFileSelect(event) {
+      const reader = new FileReader();
+      reader.onload = function (fileLoadEvent) {
+        const base64Image = fileLoadEvent.target.result;
+        // Here you can either store this base64Image in a variable to send it with the message
+        // Or you can directly call sendMessageToServer function with this image as an argument
+      };
+      reader.readAsDataURL(event.target.files[0]); // Read the image file as a data URL.
+    }
+        
   
     // Send the message to the server and handle the response
-    async function sendMessageToServer(message) {
-      const instructions = await fetchInstructions(); // Fetch instructions
-    
+    async function sendMessageToServer(message, image = null) {
+      const instructions = await fetchInstructions();
+      
+      let payload = { message, instructions };
+      if (image) {
+        payload.image = image; // Add the image to the payload
+      }
       try {
         const response = await fetch('http://localhost:3000/message', {
           method: 'POST',
@@ -36,7 +53,7 @@ document.getElementById('clipboard-button').addEventListener('click', () => {
             'Content-Type': 'application/json',
             // Add other headers as needed
           },
-          body: JSON.stringify({ message, instructions }) // Include instructions in the payload
+          body: JSON.stringify(payload) // Use the updated payload
         });
     
 
@@ -64,6 +81,16 @@ async function fetchInstructions() {
     console.error('Error fetching instructions:', error);
     return ''; // Return empty string in case of an error
   }
+}
+
+let selectedImage = null;
+
+function handleFileSelect(event) {
+  const reader = new FileReader();
+  reader.onload = function (fileLoadEvent) {
+    selectedImage = fileLoadEvent.target.result; // Store the base64Image
+  };
+  reader.readAsDataURL(event.target.files[0]); // Read the image file as a data URL.
 }
 
   

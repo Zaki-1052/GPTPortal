@@ -32,6 +32,7 @@ let conversationHistory = [];
 // Handle POST request to '/message'
 app.post('/message', async (req, res) => {
   const user_message = req.body.message;
+  const user_image = req.body.image; // Add this line to accept an image in the request
   const instructions = req.body.instructions; // Get instructions from the request
 
   // Check for shutdown command
@@ -49,6 +50,20 @@ app.post('/message', async (req, res) => {
       // If using Node.js 17+, use the following line instead
       // process.exit(0);
       return; // End the execution of the function here
+  }
+
+  // Check if there's an image and format the message accordingly
+  let user_input = { role: "user", content: user_message };
+  if (user_image) {
+    user_input = {
+      role: "user",
+      content: [
+        { type: "text", text: user_message },
+        user_image.startsWith("http") 
+          ? { type: "image_url", image_url: { "url": user_image } }
+          : { type: "image_base64", image_base64: user_image }
+      ]
+    };
   }
 
      // Add user message to the conversation history

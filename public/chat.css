@@ -59,6 +59,10 @@ body {
     /* Add your desired styling for the button */
   }
   
+  #file-input {
+    display: none;
+  }
+
   .message {
     background-color: #303134; /* Matching input field background */
     color: white;
