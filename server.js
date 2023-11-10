@@ -4,7 +4,6 @@ const axios = require('axios');
 const basicAuth = require('express-basic-auth');
 
 const app = express();
-app.use(express.json());
 app.use(express.static('public')); // Serves your static files from 'public' directory
 
 const cors = require('cors');
@@ -21,6 +20,13 @@ app.use(basicAuth({
   challenge: true
 }));
 
+const bodyParser = require('body-parser');
+
+// Increase the limit for JSON bodies
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
+
+
 // Serve uploaded files from the 'public/uploads' directory
 app.get('/uploads/:filename', (req, res) => {
   const filename = req.params.filename;
@@ -34,7 +40,7 @@ app.post('/message', async (req, res) => {
   const user_message = req.body.message;
   const user_image = req.body.image; // Add this line to accept an image in the request
   const instructions = req.body.instructions; // Get instructions from the request
-
+  console.log("Received request with size: ", JSON.stringify(req.body).length);
   // Check for shutdown command
   if (user_message === "Bye!") {
       console.log("Shutdown message received. Closing server...");
@@ -59,9 +65,7 @@ app.post('/message', async (req, res) => {
       role: "user",
       content: [
         { type: "text", text: user_message },
-        user_image.startsWith("http") 
-          ? { type: "image_url", image_url: { "url": user_image } }
-          : { type: "image_base64", image_base64: user_image }
+        { type: "image_base64", image_base64: user_image }
       ]
     };
   }
@@ -71,10 +75,10 @@ app.post('/message', async (req, res) => {
   
     // Define the data payload with system message and additional parameters
     const data = {
-      model: "gpt-4",
+      model: "gpt-4-vision-preview",
       messages: [
-        { role: "system", content: "You are a helpful and intelligent assistant, knowledgeable about a wide range of topics. \nSpecifically: ${instructions}" },
-        { role: "user", content: user_message }
+        { role: "system", content: `You are a helpful and intelligent assistant, knowledgeable about a wide range of topics. \nSpecifically: ${instructions}` },
+        user_input, // This now includes the image if present
       ],
       max_tokens: 4000,
       messages: conversationHistory,
@@ -91,6 +95,9 @@ app.post('/message', async (req, res) => {
       // If you're using an organization ID, uncomment the following line
       // 'OpenAI-Organization': 'org-0HgL8mXie7vQHDsWYemKZgkz'
     };
+
+    // Log the data payload just before sending it to the OpenAI API
+  console.log("Sending to OpenAI API:", JSON.stringify(data, null, 2));
   
     try {
       // Make the POST request to the OpenAI API with the defined data and headers

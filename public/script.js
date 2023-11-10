@@ -28,13 +28,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('file-input').addEventListener('change', handleFileSelect, false);
 
     function handleFileSelect(event) {
+      const file = event.target.files[0];
       const reader = new FileReader();
+      
       reader.onload = function (fileLoadEvent) {
-        const base64Image = fileLoadEvent.target.result;
-        // Here you can either store this base64Image in a variable to send it with the message
-        // Or you can directly call sendMessageToServer function with this image as an argument
+        // Include the MIME type in the base64 string
+        const base64Image = 'data:' + file.type + ';base64,' + btoa(fileLoadEvent.target.result);
+        selectedImage = base64Image;
       };
-      reader.readAsDataURL(event.target.files[0]); // Read the image file as a data URL.
+    
+      reader.readAsBinaryString(file); // Read the file as a binary string
     }
         
   
@@ -46,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (image) {
         payload.image = image; // Add the image to the payload
       }
+      console.log("Sending payload: ", payload); // Add this line for debugging
       try {
         const response = await fetch('http://localhost:3000/message', {
           method: 'POST',
