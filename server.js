@@ -58,7 +58,7 @@ app.post('/message', async (req, res) => {
     const data = {
       model: "gpt-4",
       messages: [
-        { role: "system", content: "You're a helpful assistant. \n Specifically: ${instructions}" },
+        { role: "system", content: "You are a helpful and intelligent assistant, knowledgeable about a wide range of topics. \nSpecifically: ${instructions}" },
         { role: "user", content: user_message }
       ],
       max_tokens: 4000,
