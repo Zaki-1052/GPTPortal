@@ -60,9 +60,9 @@ app.post('/message', async (req, res) => {
         { role: "system", content: "You're a helpful assistant." },
         { role: "user", content: user_message }
       ],
-      max_tokens: 50,
+      max_tokens: 600,
       messages: conversationHistory,
-      temperature: 1.0,
+      temperature: 1.2,
       top_p: 1,
       frequency_penalty: 0,
       presence_penalty: 0,
