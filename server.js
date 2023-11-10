@@ -11,7 +11,7 @@ app.use(cors());
 
 // Basic Authentication users
 const users = {
-  'Zakir': '3003334'
+  'Zakir': 'Password'
 };
 
 // Apply basic authentication middleware
