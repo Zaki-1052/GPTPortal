@@ -1,15 +1,15 @@
 # ChatBot Portal with GPT-4 API
 
-Welcome to the Chat-Bot Portal, a *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision* capabilities and superior Model Performance.
+Welcome to the Chat-Bot Portal, a *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision* capabilities and superior *Model Performance*.
 
 ## Features
 
-- Interactive chat interface with support for text messages.
-- Image upload functionality for visual context in discussions.
-- Server-side integration with OpenAI GPT-4 API.
-- Basic authentication for secure access.
-- Customized system instructions and model parameters.
-- Simple and intuitive UI with copy-to-clipboard feature for chat messages.
+- Interactive **chat interface** with support for *text messages*.
+- **Image upload** functionality for *visual context* in discussions.
+- Server-side integration with *OpenAI* **GPT-4 API**.
+- **Basic authentication** for *secure access*.
+- Customizable *System-Defined Instructions* and *Model Parameters*.
+- Simple and intuitive **UI** with *copy-to-clipboard* feature for chat messages.
 
 ## Structure
 
@@ -93,7 +93,7 @@ Be aware that at base usage of this web application, you send roughly 1000 token
 
 Model behavior will be primarily influenced by whatever *context* is first provided to the API; it lacks a severe filter compared to ChatGPT with increased **steerability**, but is more *expensive* than the regular Chat Interface and will *restrict* you from sending messages once you are **rate-limited**.
 
-- Consult the provided links and **documentation** for more guidance on setup and prompting.
+- Consult the provided links and **documentation** for more guidance on *Setup* and *Prompting*.
 - More information will be added about *Model Behavior* and *API Usage* to the **ReadMe** in the future.
 
 ## Relevant Links
