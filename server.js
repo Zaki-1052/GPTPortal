@@ -37,6 +37,59 @@ app.get('/uploads/:filename', (req, res) => {
   res.sendFile(filename, { root: 'public/uploads' });
 });
 
+
+
+// VOICE
+
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
+
+app.post('/transcribe', upload.single('audio'), async (req, res) => {
+  try {
+    const audioBuffer = req.file.buffer;
+
+    // Construct the request to the Whisper API
+    const transcriptionResponse = await axios.post(
+      'https://api.openai.com/v1/audio/transcriptions',
+      { file: audioBuffer, model: 'whisper-1' },
+      { headers: { 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` } }
+    );
+
+    // Send the transcription back to the client
+    res.json({ text: transcriptionResponse.data.text });
+  } catch (error) {
+    console.error('Error transcribing audio:', error.message);
+    res.status(500).json({ error: "Error transcribing audio", details: error.message });
+  }
+});
+
+
+
+app.post('/tts', async (req, res) => {
+  try {
+    const { text } = req.body;
+
+    // Call the OpenAI TTS API
+    const ttsResponse = await axios.post(
+      'https://api.openai.com/v1/audio/speech',
+      { model: "tts-1", voice: "alloy", input: text },
+      { headers: { 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` }, responseType: 'arraybuffer' }
+    );
+
+    // Send the audio file back to the client
+    res.set('Content-Type', 'audio/mpeg');
+    res.send(ttsResponse.data);
+  } catch (error) {
+    console.error('Error generating speech:', error.message);
+    res.status(500).json({ error: "Error generating speech", details: error.message });
+  }
+});
+
+
+
+// END
+
+
 let conversationHistory = [];
 
 // Function to read instructions from the file

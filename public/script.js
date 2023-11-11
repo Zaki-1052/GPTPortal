@@ -16,16 +16,106 @@ document.addEventListener('DOMContentLoaded', () => {
     if (message) {
       displayMessage(message, 'user');
       sendMessageToServer(message, selectedImage); // Pass the image data
+      if (voiceMode) {
+        // Call to TTS API to read the response
+        // This will be implemented in the displayMessage function
+      }
       messageInput.value = ''; // Clear the input after sending
       selectedImage = null; // Reset the image variable
     }
   });
+  
+
+  // VOICE
+
+  let voiceMode = false;
 
   function voice() {
-    // Placeholder function
-    console.log("Voice button clicked");
-    // Implement voice-related functionality here
+    if (voiceMode) {
+      // If already in voice mode, we stop and process the recording
+      stopRecordingAndTranscribe();
+    } else {
+      // If not in voice mode, start recording
+      startRecording();
+    }
+    toggleVoiceMode();
   }
+  
+
+// Toggle Voice Mode
+function toggleVoiceMode() {
+  voiceMode = !voiceMode;
+  const voiceIndicator = document.getElementById('voice-indicator');
+  if (voiceMode) {
+    voiceIndicator.textContent = 'Voice Mode ON';
+    voiceIndicator.style.display = 'block';
+  } else {
+    voiceIndicator.style.display = 'none';
+  }
+}
+
+
+
+let mediaRecorder;
+let audioChunks = [];
+
+function startRecording() {
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.ondataavailable = e => {
+        audioChunks.push(e.data);
+      };
+      mediaRecorder.onstop = sendAudioToServer;
+      mediaRecorder.start();
+    });
+}
+
+function stopRecordingAndTranscribe() {
+  mediaRecorder.stop();
+}
+
+function sendAudioToServer() {
+  const audioBlob = new Blob(audioChunks);
+  const formData = new FormData();
+  formData.append('audio', audioBlob);
+
+  fetch('/transcribe', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.text())
+  .then(transcribedText => {
+    document.getElementById('message-input').value = transcribedText;
+  })
+  .catch(console.error);
+}
+
+
+async function recordAndTranscribe() {
+  toggleVoiceMode();
+  // Implement audio recording here
+  // Send recorded audio to the server for transcription
+  // Update message input with the transcribed text
+  // toggleVoiceMode(); // Consider turning off voice mode after transcription
+}
+
+sendButton.addEventListener('click', () => {
+  if (voiceMode) {
+    // Call TTS API to read the response after it's received
+  }
+  // Rest of the send logic
+});
+
+// Modify the existing displayMessage function to handle TTS
+function displayMessage(message, type) {
+  if (voiceMode && type === 'response') {
+    // Call TTS API to read the message
+  }
+  // Rest of the displayMessage logic
+}
+
+// END
   
 
   // Placeholder function for clipboard button (to be implemented)
@@ -113,6 +203,24 @@ const messageElement = document.createElement('div');
 const messageText = document.createElement('span'); // Create a span for the text
 const copyButton = document.createElement('button'); // Create a copy button
 
+if (voiceMode && type === 'response') {
+  // Call TTS API to read the message
+  fetch('/tts', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ text: message })
+  })
+  .then(response => response.blob())
+  .then(blob => {
+    const audioURL = URL.createObjectURL(blob);
+    new Audio(audioURL).play();
+  })
+  .catch(console.error);
+}
+
+
 messageText.textContent = message;
 copyButton.textContent = 'Copy';
 copyButton.onclick = function() { copyToClipboard(messageText); }; // Set the click handler
@@ -124,6 +232,8 @@ messageElement.appendChild(copyButton); // Append the button to the message elem
 chatBox.appendChild(messageElement);
 chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest message
 }
+
+
 
 function copyToClipboard(messageText) {
 navigator.clipboard.writeText(messageText.textContent).then(() => {

@@ -77,6 +77,22 @@ body {
   background-color: #1669c2; /* Darker shade on hover */
 }
 
+#voice-indicator {
+  display: none; /* Hidden by default */
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  margin-top: 10px;
+  background-color: #4caf50; /* Green background for visibility */
+  color: white;
+  transition: background-color 0.3s;
+}
+
+.voice-active {
+  background-color: #4caf50; /* Green background for active mode */
+  color: white;
+}
+
 .message {
   background-color: #303134; /* Matching input field background */
   color: white;
