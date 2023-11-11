@@ -10,9 +10,13 @@ const cors = require('cors');
 app.use(cors());
 
 // Basic Authentication users
+const username = process.env.USER_USERNAME;
+const password = process.env.USER_PASSWORD;
+
 const users = {
-  'Username': 'Password'
+  [username]: password
 };
+
 
 // Apply basic authentication middleware
 app.use(basicAuth({
