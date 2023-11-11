@@ -102,9 +102,9 @@ app.post('/message', async (req, res) => {
 
     // Define the data payload with system message and additional parameters
     const data = {
-      model: "gpt-3.5-turbo",
+      model: "gpt-4-vision-preview",
       messages: conversationHistory,
-      max_tokens: 2000,
+      max_tokens: 4000,
       temperature: 1.1,
       top_p: 1,
       frequency_penalty: 0,
