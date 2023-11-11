@@ -93,8 +93,8 @@ Be aware that at base usage of this web application, you send roughly 1000 token
 
 Model behavior will be primarily influenced by whatever context is first provided to the API; it lacks a severe filter compared to ChatGPT with increased steerability, but is more expensive than the regular Chat Interface and will restrict you from sending messages once you are rate-limited.
 
-Consult the provided links and documentation for more guidance on setup and prompting.
-More information will be added about model behavior and API usage to the ReadMe in the future.
+- Consult the provided links and documentation for more guidance on setup and prompting.
+- More information will be added about model behavior and API usage to the ReadMe in the future.
 
 ## Relevant Links
 
