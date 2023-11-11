@@ -51,7 +51,7 @@ Welcome to the Chatbot Portal, a Node.js-based web application that allows users
    - Add your OpenAI API key and basic authentication:
 
      ```env
-     OPENAI_API_KEY=your_api_key_here
+      OPENAI_API_KEY=your_api_key_here
       USER_USERNAME=Username
       USER_PASSWORD=Password
      ```
