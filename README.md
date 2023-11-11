@@ -133,6 +133,7 @@ Model behavior will be primarily influenced by whatever context is first provide
 - [Automatic CoT Prompting in LLMs](https://arxiv.org/pdf/2210.03493.pdf)
 - [Self-Consistency Improvements in LLMs via CoT](https://arxiv.org/pdf/2203.11171.pdf)
 - [GPT-4V System Card](https://cdn.openai.com/papers/GPTV_System_Card.pdf)
+- [Optimizing Large Language Model Prompting](https://arxiv.org/pdf/2309.03409.pdf)
 
 ## Contributions
 
