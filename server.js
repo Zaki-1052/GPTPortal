@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const basicAuth = require('express-basic-auth');
-
+const fs = require('fs').promises;
 const app = express();
 app.use(express.static('public')); // Serves your static files from 'public' directory
 
@@ -11,7 +11,7 @@ app.use(cors());
 
 // Basic Authentication users
 const users = {
-  'Zakir': 'Password'
+  'Username': 'Password'
 };
 
 // Apply basic authentication middleware
@@ -35,11 +35,33 @@ app.get('/uploads/:filename', (req, res) => {
 
 let conversationHistory = [];
 
+// Function to read instructions from the file
+async function readInstructionsFile() {
+  try {
+      // Adjust the path if your folder structure is different
+      const instructions = await fs.readFile('./public/instructions.md', 'utf8');
+      return instructions;
+  } catch (error) {
+      console.error('Error reading instructions file:', error);
+      return ''; // Return empty string or handle error as needed
+  }
+}
+
+// Function to initialize the conversation history with instructions
+async function initializeConversationHistory() {
+  const fileInstructions = await readInstructionsFile();
+  let systemMessage = `You are a helpful and intelligent assistant, knowledgeable about a wide range of topics.\nSpecifically: ${fileInstructions}`;
+  conversationHistory.push({ role: "system", content: systemMessage });
+}
+
+// Call this function when the server starts
+initializeConversationHistory();
+
+
 // Handle POST request to '/message'
 app.post('/message', async (req, res) => {
   const user_message = req.body.message;
   const user_image = req.body.image; // Add this line to accept an image in the request
-  const instructions = req.body.instructions; // Get instructions from the request
   console.log("Received request with size: ", JSON.stringify(req.body).length);
   // Check for shutdown command
   if (user_message === "Bye!") {
@@ -59,7 +81,6 @@ app.post('/message', async (req, res) => {
   }
 
   // Check if there's an image and format the message accordingly
-  let user_input = { role: "user", content: user_message };
   if (user_image) {
     user_input = {
       role: "user",
@@ -70,18 +91,20 @@ app.post('/message', async (req, res) => {
     };
   }
 
-     // Add user message to the conversation history
-     conversationHistory.push({ role: "user", content: user_message });
-  
+     
+  // Include the user's input in the conversation history
+  let user_input = {
+    role: "user",
+    content: user_image ? [{ type: "text", text: user_message }, { type: "image_base64", image_base64: user_image }] : user_message
+  };
+  conversationHistory.push(user_input);
+
+
     // Define the data payload with system message and additional parameters
     const data = {
-      model: "gpt-4-vision-preview",
-      messages: [
-        { role: "system", content: `You are a helpful and intelligent assistant, knowledgeable about a wide range of topics. \nSpecifically: ${instructions}` },
-        user_input, // This now includes the image if present
-      ],
-      max_tokens: 4000,
+      model: "gpt-3.5-turbo",
       messages: conversationHistory,
+      max_tokens: 2000,
       temperature: 1.1,
       top_p: 1,
       frequency_penalty: 0,
@@ -109,6 +132,7 @@ app.post('/message', async (req, res) => {
       
       // Send back the last message content from the response
       // Extract the last message content from the response
+    // Extract the last message content from the response
     const lastMessageContent = response.data.choices[0].message.content;
 
     if (lastMessageContent) {
@@ -118,20 +142,19 @@ app.post('/message', async (req, res) => {
       // Send this back to the client
       res.json({ text: lastMessageContent.trim() });
     } else {
-      // If for some reason the last message content is not defined,
-      // which would be unusual given that you've received a 200 OK response,
-      // you still want to handle this scenario.
+      // Handle no content scenario
       res.status(500).json({ error: "No text was returned from the API" });
     }
-      
-    } catch (error) {
-      console.error('Error calling OpenAI API:', error.message);
-      if (error.response) {
-        console.error(error.response.data);
-      }
-      res.status(500).json({ error: "An error occurred when communicating with the OpenAI API.", details: error.message });
+  } catch (error) {
+    // Handle request error
+    console.error('Error calling OpenAI API:', error.message);
+    if (error.response) {
+      console.error(error.response.data);
     }
-  });
+    res.status(500).json({ error: "An error occurred when communicating with the OpenAI API.", details: error.message });
+  }
+});
+
   
 
 app.get('/portal', (req, res) => {
@@ -144,4 +167,3 @@ const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
