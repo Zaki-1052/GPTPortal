@@ -89,7 +89,7 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 ## Author Notes
 
 - **Smartest Snapshot of ChatGPT**: This application uses the latest GPT-4 model with vision capabilities. However, users can and perhaps should switch to the standard `gpt-4` model and adjust token limits (default is 4000) for different use cases.
-  - The Model Paramters, including the mode itself, can be found on/around Line 200 in `server.js`, and has multiple comments to guide you if you're just getting starting with customizing the API Responses.
+  - The Model Parameters, including the mode itself, can be found on/around Line 200 in `server.js`, and has multiple comments to guide you if you're just getting started with customizing the API Responses.
   - Be aware that although the API returns will be objectively better than what you receive on ChatGPT, usage adds up, and you may soon run out of credits.
   - Always keep track of your token usage (relevant link found below), and adjust instructions and/or parameters when needed.
 - **Voice Chat**: Calls to OpenAI's proprietary *multi-modal APIs* via your key; be sure to keep an eye on your *expenses*.
@@ -114,8 +114,11 @@ Model behavior will be primarily influenced by whatever *context* is first provi
 - Users are encouraged to modify the **User Profile** in `instructions.md`, which can be found in the `public` directory, as well as the model name via `server.js`, found in the root of **GPTPortal**.
 - More information will be added about *Model Behavior* and *API Usage* to the **ReadMe** in the future.
 
-**IMPORTANT Note** : For the **Voice Functionality** *Feature*, due to *WebKit's*'s lack of codec support and firewalling, *Whisper* and *TTS* will **NOT** work on the **Safari** *Browser*; you will to switch to Chrome (or any other Chromium fork, including Edge, Opera, Brave, etc.) or Firefox if you want to you the *Voice Chat*. If you'd like to add Apple-Support to *MediaRecording* via *JavaScript* feel free to install the [RecordRTC](https://github.com/muaz-khan/RecordRTC) GitHub repo and fork this project, as according to *Stack Overflow* and *Apple Community*, that should fix the issue, but I don't want this repository to get bloated. If you know of a better way, feel free to submit a **Pull Request**!
+**IMPORTANT Note** : For the **Voice Functionality** *Feature*, due to *WebKit's*'s lack of codec support and firewalling, *Whisper* and *TTS* will **NOT** work on the **Safari** *Browser*; you will to switch to Chrome (or any other Chromium fork, including Edge, Opera, Brave, etc.) or Firefox if you want to use the *Voice Chat*. 
 
+If you'd like to add Apple-Support to *MediaRecording* via *JavaScript* feel free to install the [RecordRTC](https://github.com/muaz-khan/RecordRTC) GitHub repo and fork this project, as according to *Stack Overflow* and *Apple Community*, that should fix the issue, but I don't want this repository to get bloated. 
+
+- If you know of a better way, feel free to submit a **Pull Request**!
 - The Relevant *Stack Overflow* Links are in this [*Arc Folder*](https://arc.net/space/04350A44-1A64-49DD-8196-FEA54DF31BDF).
 
 ### Guide to Setting Up and Using the ChatBot Portal
@@ -149,7 +152,7 @@ Model behavior will be primarily influenced by whatever *context* is first provi
 - **Configuration**:
 - Find the `.env.example` file in the `GPTPortal` folder. Rename it to `.env`. This is where you'll put sensitive settings, like your OpenAI key.
 - Open this `.env` file in a text editor and follow the format shown in the file to fill in your **OpenAI API Key** and **Login Credentials** (*Username and Password*).
-  - Be sure to fill out the **HTTP Authentication** shown in the environment example as well, where you can simply make up your credentials for signing into the port. This information cannot be accessed over the internet and runs localy on your machine.
+  - Be sure to fill out the **HTTP Authentication** shown in the environment example as well, where you can simply make up your credentials for signing into the port. This information cannot be accessed over the internet and runs locally on your machine.
 
 #### 5. **Obtaining an OpenAI API Key**
 
@@ -215,7 +218,7 @@ Model behavior will be primarily influenced by whatever *context* is first provi
 - [GPT-4 Technical Report](https://arxiv.org/pdf/2303.08774.pdf)
 - [Reflexion: Verbal Reinforcement Learning](https://arxiv.org/pdf/2303.11366.pdf)
 - [Step-By-Step Verification](https://cdn.openai.com/improving-mathematical-reasoning-with-process-supervision/Lets_Verify_Step_by_Step.pdf)
-- [Probabalistic Prompting Methods in NLP](https://arxiv.org/pdf/2107.13586.pdf)
+- [Probabilistic Prompting Methods in NLP](https://arxiv.org/pdf/2107.13586.pdf)
 - [Sparks of Artificial General Intelligence](https://arxiv.org/pdf/2303.12712.pdf)
 - [Few-Shot Prompting](https://arxiv.org/pdf/2005.14165.pdf)
 - [Zero-Shot Reasoning](https://arxiv.org/pdf/2205.11916.pdf)
