@@ -1,6 +1,6 @@
 # ChatBot Portal with GPT-4 API
 
-Welcome to the Chat-Bot Portal, a *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision* capabilities and superior *Model Performance*.
+Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision*, *Hearing*, and *Speaking* capabilities with superior *Model Performance*.
 
 ## Features
 
