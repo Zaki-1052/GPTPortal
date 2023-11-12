@@ -231,6 +231,40 @@ If you'd like to add Apple-Support to *MediaRecording* via *JavaScript* feel fre
 - [GPT-4V System Card](https://cdn.openai.com/papers/GPTV_System_Card.pdf)
 - [Optimizing Large Language Model Prompting](https://arxiv.org/pdf/2309.03409.pdf)
 
+### FAQ
+
+#### How do I obtain an OpenAI API key to use this portal?
+
+To use the ChatBot Portal, you need an OpenAI API key. Register or log in to your account on [OpenAI's Website](https://openai.com/). Navigate to the API section and generate a new key. Remember to keep this key confidential, as it is used for billing purposes.
+
+#### What are the system requirements for running this portal?
+
+The ChatBot Portal requires Node.js, which is cross-platform and should run on most modern operating systems. Ensure your browser is up to date for the best experience. Refer to Node.js's official site for specific version requirements.
+
+#### Can I customize the chatbot’s responses?
+
+Yes, you can customize the chatbot's responses by adjusting the model parameters and system-defined instructions in the `server.js` and `instructions.md` files. These include settings for response length, style, and context sensitivity.
+
+#### Is it possible to integrate this chatbot into my existing website?
+
+Integrating this chatbot into your existing website requires some web development knowledge. You can embed the chat interface by referencing the `portal.html` in your site and ensuring that the server is correctly set up to handle requests from your domain.
+
+#### How do I troubleshoot common issues during installation or operation?
+
+For installation issues, ensure that all prerequisites are met and that you've followed the installation steps correctly. Common operational issues can often be resolved by checking your OpenAI API key and internet connection. For more specific problems, refer to the troubleshooting section in this README.
+
+#### What are the costs associated with using this portal?
+
+The costs depend on your usage of the OpenAI API. OpenAI charges based on the number of tokens processed. Monitor your usage on your OpenAI dashboard, and consider setting limits to control expenses. The API key section in this README has links to OpenAI's pricing details.
+
+#### Is my data secure when using this chatbot portal?
+
+Data security is a priority. However, as with any web application, ensure that you follow best practices such as using secure connections and not sharing sensitive information through the chatbot. The `.env` file ensures your API key and other sensitive data are stored securely.
+
+### Where can I find more resources to learn about GPT-4 and API integrations?
+
+For more in-depth knowledge about GPT-4 and API integrations, visit [OpenAI's Documentation](https://platform.openai.com) and explore the various guides and tutorials available there. Additionally, the links provided in the 'Relevant Links' section of this README offer valuable resources. Please fully read the entire page before raising an issue. Thank you!
+
 ## Contributions
 
 Contributions are welcome! Please fork the repository and submit a pull request with your updates.
