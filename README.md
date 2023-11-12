@@ -5,6 +5,7 @@ Welcome to the Chat-Bot Portal, a *Node.js*-based web application that allows us
 ## Features
 
 - Interactive **chat interface** with support for *text messages*.
+- **Voice Conversation** via *Whisper* transcriptions and *spoken responses*.
 - **Image upload** functionality for *visual context* in discussions.
 - Server-side integration with *OpenAI* **GPT-4 API**.
 - **Basic authentication** for *secure access*.
@@ -13,7 +14,7 @@ Welcome to the Chat-Bot Portal, a *Node.js*-based web application that allows us
 
 ## Structure
 
-- **portal.html**: The main HTML file for user interaction. It includes the chat interface layout, a message input area, an image upload button, and it links to the `script.js` file.
+- **portal.html**: The main HTML file for user interaction. It includes the chat interface layout, a message input area, an image upload button, voice chat functionality, and it links to the `script.js` file.
 - **script.js**: Contains client-side logic for handling user inputs, sending messages and images to the server, and displaying responses in the chat interface. It also includes file selection for image uploads and a copy-to-clipboard function.
 - **server.js**: The server-side Node.js file using Express.js. It processes POST requests to `/message`, interacts with the OpenAI GPT-4 API, and manages CORS, authentication, and static file serving.
 
@@ -71,6 +72,11 @@ Welcome to the Chat-Bot Portal, a *Node.js*-based web application that allows us
 - **Sending a Message**:
   - Type your message in the text box.
   - Press Enter or click the Send button to submit.
+- **Starting a Voice Conversation**:
+  - Click the 🎤 microphone icon to activate voice input.
+  - Speak your query or message, and toggle the button to end recording. 
+  - It will be processed by the *Whisper API* and seen in the input box.
+  - The model's response will be read back to you through a text-to-speech API.
 - **Uploading an Image**:
   - Click the 🖼️ button to open the file selector.
   - Choose an image file. It will be sent with your next message.
