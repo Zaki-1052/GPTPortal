@@ -83,6 +83,8 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - **Uploading an Image**:
   - Click the 🖼️ button to open the file selector.
   - Choose an image file. It will be sent with your next message.
+- Type: "**Bye!**" in the text input box in order to end the conversation and kill the server.
+  - Please save the conversation with the Copy to Clipboard feature beforehand, as the history is lost between sessions.
 
 ## Author Notes
 
@@ -99,14 +101,17 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - **API Chat Completions**: Tailor chat completions to your specific use case.
 - **Session Management**: Each page reload starts a new session. Session history isn't preserved.
 - **Custom Instructions**: Found in `instructions.md`. Modify user profile and instructions as needed. These are optimized for GPT-4 based on extensive research.
+- For **security reasons*, this *web portal* requires the user to do some work of their own: *installing* the necessary dependencies and packages, adding their own *environment* variables like API Key and HTTP Auth Credentials (you can make these up) in a `.env` file, and manually running the *server* in your terminal.
+  - Be assured that this repo is incapable of grabbing any information from the User, including their Key, but they should still be careful when experimenting with *Pull Requests*, regardless of the `.gitignore` file in the root of this repository.
 
-The OpenAI **API**, or *Application Programming Interface*, directly sends **HTTP** requests to the unsanitized and original *GPT-4 model* and lets you customize certain weights of the model’s responses, like randomness or "temperature", and length or "tokens". You'll need to monitor your usage of the more expensive but intelligent **GPT-4** model, which will cost just over *10-15 Cents* per full session, and needs you to add *Five Dollars* in credit to be able to use your **API Key**.
+The OpenAI **API**, or *Application Programming Interface*, directly sends **HTTP** requests to the unsanitized and original *GPT-4 model* and lets you customize certain weights of the model’s responses, like randomness or "temperature", and length or "tokens". You'll need to monitor your usage of the more expensive but intelligent **GPT-4** model, which will cost just over *10-20 Cents* per full session, and needs you to add *Five Dollars* in credit to be able to use your **API Key**.
 
 Be aware that at base usage of this web application, you send roughly 1000 tokens for one message to GPT-4, or three cents, and another six cents will be used when it responds with over 1000 words. This is due to the information *concatenated* to the **System Prompt** in the *Custom Instructions*. This file will be sent in the **Conversation History** with each request.
 
 Model behavior will be primarily influenced by whatever *context* is first provided to the API; it lacks a severe filter compared to ChatGPT with increased **steerability**, but is more *expensive* than the regular Chat Interface and will *restrict* you from sending messages once you are **rate-limited**.
 
 - Consult the provided links and **documentation** for more guidance on *Setup* and *Prompting*.
+- Users are encouraged to modify the **User Profile** in `instructions.md`, which can be found in the `public` directory, as well as the model name via `server.js`, found in the root of **GPTPortal**.
 - More information will be added about *Model Behavior* and *API Usage* to the **ReadMe** in the future.
 
 ## Relevant Links

@@ -42,7 +42,7 @@ app.get('/uploads/:filename', (req, res) => {
 
 
 
-// VOICE
+// VOICE Functionality
 
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
@@ -191,13 +191,14 @@ app.post('/message', async (req, res) => {
 
 
 
+  
 // Model Parameters Below!
 
 
 
     // Define the data payload with system message and additional parameters
     const data = {
-      
+
       model: "gpt-4-vision-preview", // Use "gpt-4" for non-vision capabilities.
       // Model is specified here as the vision-capable GPT-4. 
       // If users are using this portal solely for its intelligence, and do not care about "vision", then they should change the model name.
