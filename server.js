@@ -7,6 +7,7 @@ const axios = require('axios');
 const basicAuth = require('express-basic-auth');
 const fs = require('fs');
 const app = express();
+app.use(express.json()); // for parsing application/json
 app.use(express.static('public')); // Serves your static files from 'public' directory
 
 const cors = require('cors');
@@ -45,8 +46,6 @@ app.get('/uploads/:filename', (req, res) => {
 
 
 
-// VOICE Functionality
-
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -58,12 +57,12 @@ const path = require('path');
 app.post('/transcribe', upload.single('audio'), async (req, res) => {
   try {
     // Write the buffer to a temporary file
-    const tempFilePath = path.join(__dirname, 'tempAudioFile.mp3');
+    const tempFilePath = path.join(__dirname, 'tempAudioFile.mpeg');
     fs.writeFileSync(tempFilePath, req.file.buffer);
 
     // Create FormData and append the temporary file
     const formData = new FormData();
-    formData.append('file', fs.createReadStream(tempFilePath), 'tempAudioFile.mp3');
+    formData.append('file', fs.createReadStream(tempFilePath), 'tempAudioFile.mpeg');
     formData.append('model', 'whisper-1');
 
     // API request
@@ -91,6 +90,7 @@ app.post('/transcribe', upload.single('audio'), async (req, res) => {
     res.status(500).json({ error: "Error transcribing audio", details: error.message });
   }
 });
+
 
 
 // function to run text to speech api
