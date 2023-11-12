@@ -5,7 +5,7 @@ Welcome to the Chat-Bot Portal, a *Node.js*-based web application that allows us
 ## Features
 
 - Interactive **chat interface** with support for *text messages*.
-- **Voice Conversation** via *Whisper* transcriptions and *spoken responses*.
+- **Voice Conversations** via *Whisper* transcriptions and *spoken responses*.
 - **Image upload** functionality for *visual context* in discussions.
 - Server-side integration with *OpenAI* **GPT-4 API**.
 - **Basic authentication** for *secure access*.
