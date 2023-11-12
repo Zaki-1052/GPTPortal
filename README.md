@@ -116,7 +116,7 @@ Model behavior will be primarily influenced by whatever *context* is first provi
 
 **IMPORTANT Note** : For the **Voice Functionality** *Feature*, due to *WebKit's*'s lack of codec support and firewalling, *Whisper* and *TTS* will **NOT** work on the **Safari** *Browser*; you will to switch to Chrome (or any other Chromium fork, including Edge, Opera, Brave, etc.) or Firefox if you want to you the *Voice Chat*. If you'd like to add Apple-Support to *MediaRecording* via *JavaScript* feel free to install the [RecordRTC](https://github.com/muaz-khan/RecordRTC) GitHub repo and fork this project, as according to *Stack Overflow* and *Apple Community*, that should fix the issue, but I don't want this repository to get bloated. If you know of a better way, feel free to submit a *Pull Request*!
 
-- The Relevant Stack Overflow Links are in this [Arc Folder]().
+- The Relevant Stack Overflow Links are in this [Arc Folder]([_](https://arc.net/space/04350A44-1A64-49DD-8196-FEA54DF31BDF)).
 
 ### Guide to Setting Up and Using the ChatBot Portal
 
@@ -176,7 +176,7 @@ Model behavior will be primarily influenced by whatever *context* is first provi
 - **Consult README**:
 - The README file in the `GPTPortal` directory has more detailed instructions and troubleshooting tips. Refer to it if you encounter issues or need more information.
 
-## Relevant Links
+## Relevant [Links](https://arc.net/folder/B777A318-2A95-4C36-86AA-156166895CC2)
 
 - [Pricing](https://openai.com/pricing) - OpenAI's pricing details for different API Models.
 - [API Keys](https://platform.openai.com/api-keys) - Where to create and manage your OpenAI API keys.
@@ -199,7 +199,7 @@ Model behavior will be primarily influenced by whatever *context* is first provi
 - [Chemistry Companion](https://chat.openai.com/g/g-gDkC33NG6-chemistry-companion) - *Expert Chemistry tutor offering detailed problem-solving explanations.*
 - [Calculus Companion](https://chat.openai.com/g/g-CVy3YLpLY-calculus-companion) - *Expert Calculus tutor offering detailed explanations and guided problem-solving.*
 
-### Research Papers: Chain and Tree of Thought Prompting
+### [Research Papers](https://arc.net/folder/AEE28E72-9795-42D7-9D49-D48ABA0ED00C): Chain and Tree of Thought Prompting
 
 - [Chain of Thought Prompting Elicits Reasoning in Large Language Models](https://arxiv.org/pdf/2201.11903.pdf)
 - [Tree of Thoughts: Deliberate Problem Solving with Large Language Models](https://arxiv.org/pdf/2305.10601.pdf)
