@@ -23,8 +23,8 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 
 ## Prerequisites
 
-- **Node.js** installed on your machine.
-- An OpenAI **API** key for accessing *GPT-4.*
+- **Node.js** installed on your machine from [nodejs.org](https://nodejs.org/).
+- An OpenAI **API** key for accessing *GPT-4.* Billing Credit needed.
 
 ## Installation
 
@@ -86,13 +86,16 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 
 ## Author Notes
 
-- **Smartest Snapshot of ChatGPT**: This application uses the latest GPT-4 model with vision capabilities. However, users can switch to the standard `gpt-4` model and adjust token limits (default is 4000) for different use cases.
-- **Voice Chat**: Calls to OpenAI's proprietary *multi-modal APIs* via your key; keep an eye on *expenses*.
+- **Smartest Snapshot of ChatGPT**: This application uses the latest GPT-4 model with vision capabilities. However, users can and perhaps should switch to the standard `gpt-4` model and adjust token limits (default is 4000) for different use cases.
+  - The Model Paramters, including the mode itself, can be found on/around Line 200 in `server.js`, and has multiple comments to guide you if you're just getting starting with customizing the API Responses.
+  - Be aware that although the API returns will be objectively better than what you receive on ChatGPT, usage adds up, and you may soon run out of credits.
+  - Always keep track of your token usage (relevant link found below), and adjust instructions and/or parameters when needed.
+- **Voice Chat**: Calls to OpenAI's proprietary *multi-modal APIs* via your key; be sure to keep an eye on your *expenses*.
 - **Billing for API Use**: A $5 deposit is required to access the *paid tier* of the OpenAI API. See OpenAI *Documentation* for billing setup.
-- **Understanding GPT Parameters**:
+- **Understanding GPT Parameters**: The *Basics*
   - **Temperature**: Controls randomness. Lower values make responses more predictable.
   - **Max Tokens**: Determines the length of each completion.
-  - **Other Parameters**: Explore prompt engineering for custom behaviors.
+  - **Other Parameters**: Explore prompt engineering and comments for custom behaviors.
 - **API Chat Completions**: Tailor chat completions to your specific use case.
 - **Session Management**: Each page reload starts a new session. Session history isn't preserved.
 - **Custom Instructions**: Found in `instructions.md`. Modify user profile and instructions as needed. These are optimized for GPT-4 based on extensive research.
@@ -115,8 +118,9 @@ Model behavior will be primarily influenced by whatever *context* is first provi
   - [Payment Balance](https://platform.openai.com/account/billing/overview) - Check and increase your API Credit and add your information.
   - [Rate Limiting](https://platform.openai.com/docs/guides/rate-limits) - Guide on rate limits for OpenAI API usage.
   - [Usage Tiers](https://platform.openai.com/docs/guides/rate-limits/usage-tiers) - Details on different usage tiers and their limits.
-- [Tokenizer](https://platform.openai.com/tokenizer) - Visit the OpenAI Token Counter to determine message lengths.
 - [Prompt Engineering](https://platform.openai.com/docs/guides/prompt-engineering) - A guide to effective prompt engineering with OpenAI models.
+- [OpenAI Tokenizer](https://platform.openai.com/tokenizer) - Visit the OpenAI Token Counter to determine message lengths.
+- [Vision Documentation](https://platform.openai.com/docs/guides/vision) - OpenAI insists that the Vision model called in this API Portal is no different from the regular GPT-4, but of course, if you'd like to be sure that you're using the old version that we all miss, please change the model name as specified.
 
 ### Author Links and Custom GPTs
 

@@ -189,24 +189,80 @@ app.post('/message', async (req, res) => {
   conversationHistory.push(user_input);
 
 
+
+
+// Model Parameters Below!
+
+
+
     // Define the data payload with system message and additional parameters
     const data = {
-      model: "gpt-4-vision-preview",
-      messages: conversationHistory,
-      max_tokens: 4000,
-      temperature: 1.1,
-      top_p: 1,
-      frequency_penalty: 0,
-      presence_penalty: 0,
-      // Add more parameters here as needed
+      
+      model: "gpt-4-vision-preview", // Use "gpt-4" for non-vision capabilities.
+      // Model is specified here as the vision-capable GPT-4. 
+      // If users are using this portal solely for its intelligence, and do not care about "vision", then they should change the model name.
+      // The Model Name can be changed to: 
+      // model: "gpt-4",
+      // So Delete the "// " before "model" labelling GPT-4 and add/put them before "model: "gpt-4-vision-preview", if you'd like to switch.
+      // This is called "commenting out", and is good practice for code maintainability, like:
+      // model: "gpt-4-vision-preview",
+
+
+      messages: conversationHistory, // Includes the System Prompt, previous queries and responses, and your most recently sent message.
+      
+      max_tokens: 4000, // The maximum number of tokens to **generate** shared between the prompt and completion. The exact limit varies by model. 
+      // (One token is roughly 4 characters for standard English text)
+      
+      temperature: 1.1, // Controls randomness: Lowering results in less random completions. 
+      // As the temperature approaches zero, the model will become deterministic and repetitive.
+      
+      top_p: 1,  // Controls diversity via nucleus sampling: 0.5 means half of all likelihood-weighted options are considered.
+      
+      frequency_penalty: 0, // How much to penalize new tokens based on their existing frequency in the text so far. 
+      // Decreases the model's likelihood to repeat the same line verbatim.
+      
+      presence_penalty: 0, // How much to penalize new tokens based on whether they appear in the text so far.
+      // Increases the model's likelihood to talk about new topics.
+      
+       // Additional Parameters
+  // Stop Sequences
+    // stop: ["<YOUR_STOP_SEQUENCE_HERE>", "<ANOTHER_STOP_SEQUENCE>"],
+      // Up to four sequences where the API will stop generating further tokens. 
+      // The returned text will not contain the stop sequence.
+
+  // Best Of - returns the best one out of multiple generations
+    // best_of: 3,
+      // Uncomment this line for better responses; Warning: This is expensive.
+      // This parameter allows you to generate multiple completions in the backend and return the best one.
+
+  // Logprobs - number of log probabilities to return
+    // logprobs: 10,
+      // This parameter specifies the number of log probabilities to return. 
+      // For example, setting logprobs: 10 will return the top 10 log probabilities for each token generated.
+
+  // N - number of completions to generate
+    // n: 2,
+      // This parameter determines how many completions to generate for each prompt.
+      // If set to a number greater than 1, the model will return multiple responses, 
+      // Useful if you want options.
+
+  // Logit Bias - adjusts likelihood of certain tokens
+  // logit_bias: {"<TOKEN_ID>": <BIAS_VALUE>, "<ANOTHER_TOKEN_ID>": <BIAS_VALUE>},
+      // This allows you to increase or decrease the likelihood of certain tokens appearing in the output.
+      // It can be used to guide the model towards or away from specific themes or topics.
+
+  // Add more parameters here as needed
+
     };
+
+    // END
   
     // Define the headers with the Authorization and, if needed, Organization
     const headers = {
       'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       // If you're using an organization ID, uncomment the following line
-      // 'OpenAI-Organization': 'org-0HgL8mXie7vQHDsWYemKZgkz'
-    };
+      // 'OpenAI-Organization': 'process.env.ORGANIZATION'
+    }; // And add it to the `.env` file. This is inapplicable to most users.
 
     // Log the data payload just before sending it to the OpenAI API
   console.log("Sending to OpenAI API:", JSON.stringify(data, null, 2));
