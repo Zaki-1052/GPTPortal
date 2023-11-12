@@ -12,6 +12,10 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - Customizable *System-Defined Instructions* and *Model Parameters*.
 - Simple and intuitive **UI** with *copy-to-clipboard* feature for chat messages.
 
+## Example
+
+![Example Portal View](example.png)
+
 ## Structure
 
 - **portal.html**: The main HTML file for user interaction. It includes the chat interface layout, a message input area, an image upload button, voice chat functionality, and it links to the `script.js` file.
