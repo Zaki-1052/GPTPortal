@@ -18,6 +18,8 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - **script.js**: Contains client-side logic for handling user inputs, sending messages and images to the server, and displaying responses in the chat interface. It also includes file selection for image uploads and a copy-to-clipboard function.
 - **server.js**: The server-side Node.js file using Express.js. It processes POST requests to `/message`, interacts with the OpenAI GPT-4-Vision API, along with Whisper and TTS, and manages CORS, authentication, and static file serving.
 - **instructions.md**: The model's System Instructions, customized for optimal responses and contextual prompt enhancement.
+- **.env**: The *Environment Variable* file for your *sensitive passwords*. Must be modeled after the `.env.example` template.
+- **chat.css**: The *stylesheet* for the portal's *look* and *formatting*.
 
 ## Prerequisites
 
