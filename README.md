@@ -77,7 +77,7 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
   - Press Enter or click the Send button to submit.
 - **Starting a Voice Conversation**:
   - Click the 🎤 microphone icon to activate voice input.
-  - Speak your query or message, and toggle the button to end recording. 
+  - Speak your query or message, and toggle the button to end recording.
   - It will be processed by the *Whisper API* and seen in the input box.
   - The model's response will be read back to you through a text-to-speech API.
 - **Uploading an Image**:
@@ -113,6 +113,64 @@ Model behavior will be primarily influenced by whatever *context* is first provi
 - Consult the provided links and **documentation** for more guidance on *Setup* and *Prompting*.
 - Users are encouraged to modify the **User Profile** in `instructions.md`, which can be found in the `public` directory, as well as the model name via `server.js`, found in the root of **GPTPortal**.
 - More information will be added about *Model Behavior* and *API Usage* to the **ReadMe** in the future.
+
+### Guide to Setting Up and Using the ChatBot Portal
+
+#### 1. **Understanding the Basics**
+
+- **GitHub**: A platform for *hosting and sharing code*. Think of it as a library of code projects.
+- **Node.js**: An *open-source*, cross-platform *JavaScript* runtime environment. It's like the *engine* that will run the chatbot on your computer.
+- **API Key**: A *unique identifier* used to authenticate requests to OpenAI's services.
+
+#### 2. **Setting Up the Environment**
+
+- **Create a GitHub Account**: Visit [GitHub](https://github.com/) and sign up for an account.
+- **Install Git**: Download Git from [git-scm.com](https://git-scm.com/).
+  - *Git* is a tool that allows you to download and manage code from GitHub.
+- **Install Node.js**: Download and install Node.js from [nodejs.org](https://nodejs.org/). This will also install **npm** (*Node Package Manager*), which is used to manage JavaScript packages.
+
+#### 3. **Cloning the Repository**
+
+- **Clone via Git**:
+- On a Mac, open '*Terminal*'; on *Windows*, open '*Command Prompt*'. These programs allow you to interact with your computer using text commands.
+- Type `git clone https://github.com/Zaki-1052/GPTPortal.git` and press Enter. This command copies the ChatBot Portal code from GitHub to your computer.
+- **Navigate to the Directory**:
+- In the same window, type `cd GPTPortal` and press Enter. This moves you into the folder where the ChatBot Portal code is stored.
+  - Be aware that in order to run the server for this repo, you will need to be in the root directory in your terminal. This means that if you rename and place it elsewhere (your Desktop, for example), you will need to `cd ~/Desktop/GPTPortal`, and use its new name before running.
+
+#### 4. **Setting Up the ChatBot Portal**
+
+- **Install Dependencies**:
+- Still in Terminal or Command Prompt, ensure you're in the `GPTPortal` directory. Now, type `npm install` and press Enter. This installs additional code packages that the ChatBot Portal needs to function.
+- **Configuration**:
+- Find the `.env.example` file in the `GPTPortal` folder. Rename it to `.env`. This is where you'll put sensitive settings, like your OpenAI key.
+- Open this `.env` file in a text editor and follow the format shown in the file to fill in your **OpenAI API Key** and **Login Credentials** (*Username and Password*).
+  - Be sure to fill out the **HTTP Authentication** shown in the environment example as well, where you can simply make up your credentials for signing into the port. This information cannot be accessed over the internet and runs localy on your machine.
+
+#### 5. **Obtaining an OpenAI API Key**
+
+- **Sign Up for OpenAI**:
+- Visit [OpenAI's Website](https://openai.com/) and create an account.
+- **API Key Generation**:
+- Once you're logged in, find the API section (linked below in *Relevant Links*) and generate a new API key. This key is like a password that lets your ChatBot Portal access OpenAI's features.
+- **Insert API Key**:
+- Copy the generated API key and paste it into your `.env` file in the place of `your_api_key_here`.
+  - Never share your key with anyone. This is what is used to pay for the API. Their billing system is explained in the Relevant Links, but basically, you pay out of your API Credit Balance for what you actually use, and it carries over from month to month. Refer to your personal usage page for more information. Your API is private and cannot be accessed by anyone online unless you post it.
+
+#### 6. **Running the ChatBot Portal**
+
+- **Start the Application**:
+  - Go back to *Terminal* or *Command Prompt*. Make sure you're in the `GPTPortal` directory and type `node server.js`, then press Enter. This starts the ChatBot Portal on your computer.
+- **Accessing the Portal**:
+- Open a web browser and type `http://localhost:3000/portal` in the address bar. Press Enter to access the ChatBot Portal.
+  - You will need to sign in with the "**Username**" and "**Password**" that you chose. If you simply copied or renamed the example template, the default settings are eponymously named.
+
+#### 7. **Basic Troubleshooting**
+
+- **Common Issues**:
+- If the ChatBot doesn't start, check if you missed any steps like installing Node.js, running `npm install`, or correctly entering your API key in the `.env` file.
+- **Consult README**:
+- The README file in the `GPTPortal` directory has more detailed instructions and troubleshooting tips. Refer to it if you encounter issues or need more information.
 
 ## Relevant Links
 

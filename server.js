@@ -12,6 +12,9 @@ app.use(express.static('public')); // Serves your static files from 'public' dir
 const cors = require('cors');
 app.use(cors());
 
+
+// Authenticates your login
+
 // Basic Authentication users
 const username = process.env.USER_USERNAME;
 const password = process.env.USER_PASSWORD;
@@ -191,7 +194,7 @@ app.post('/message', async (req, res) => {
 
 
 
-  
+
 // Model Parameters Below!
 
 
