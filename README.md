@@ -12,7 +12,7 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - Customizable *System-Defined Instructions* and *Model Parameters*.
 - Simple and intuitive **UI** with *copy-to-clipboard* feature for chat messages.
 
-## Example: [**Showcase**](https://youtu.be/v3GVu0ZuXk4?si=CeUti5hJBY23YCHs)
+## Example: [**Showcase**](https://youtu.be/v3GVu0ZuXk4)
 
 ![Example Portal View](example.png)
 
