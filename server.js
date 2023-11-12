@@ -1,3 +1,6 @@
+// importing required node packages
+
+
 require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
@@ -47,6 +50,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 const FormData = require('form-data');
 const path = require('path');
 
+// transcribing audio with Whisper api
 
 app.post('/transcribe', upload.single('audio'), async (req, res) => {
   try {
@@ -86,7 +90,7 @@ app.post('/transcribe', upload.single('audio'), async (req, res) => {
 });
 
 
-
+// function to run text to speech api
 
 app.post('/tts', async (req, res) => {
   try {
@@ -113,6 +117,8 @@ app.post('/tts', async (req, res) => {
 // END
 
 
+// custom instructions read
+
 let conversationHistory = [];
 
 // Function to read instructions from the file using fs promises
@@ -130,6 +136,7 @@ async function readInstructionsFile() {
 
 
 // Function to initialize the conversation history with instructions
+// giving the model a system prompt and adding tp 
 async function initializeConversationHistory() {
   const fileInstructions = await readInstructionsFile();
   let systemMessage = `You are a helpful and intelligent assistant, knowledgeable about a wide range of topics.\nSpecifically: ${fileInstructions}`;

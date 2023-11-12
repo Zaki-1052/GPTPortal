@@ -1,5 +1,7 @@
 // script.js
 
+  // Event Listener for buttons
+
 document.addEventListener('DOMContentLoaded', () => {
   const sendButton = document.getElementById('send-button');
   const messageInput = document.getElementById('message-input');
@@ -11,6 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
       sendButton.click(); // Trigger the send button click on Enter key press
     }
   });
+
+
+  // Result of Send Button
 
   sendButton.addEventListener('click', () => {
     const message = messageInput.value.trim();
@@ -36,6 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let mediaRecorder;
   let audioChunks = [];
 
+  // Voice Function
+
   function voice() {
     console.log("Voice button clicked. Current mode:", voiceMode);
     if (voiceMode) {
@@ -45,6 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     toggleVoiceMode();
   }
+
+  // Recording Functions
 
   function startRecording() {
     navigator.mediaDevices.getUserMedia({ audio: true })
@@ -71,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Voice Mode
 
   function toggleVoiceMode() {
     voiceMode = !voiceMode;
@@ -84,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
 
-
+  // Sending the audio to backend
 
   function sendAudioToServer() {
     const audioBlob = new Blob(audioChunks);
@@ -105,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   
-  
+  // Calling Text to speech
 
 function callTTSAPI(text) {
   fetch('/tts', {
@@ -124,6 +134,7 @@ function callTTSAPI(text) {
 
 // END
   
+// Functions for handling image input files
 
   // Placeholder function for clipboard button (to be implemented)
   document.getElementById('clipboard-button').addEventListener('click', () => {
@@ -143,6 +154,8 @@ function callTTSAPI(text) {
   
     reader.readAsBinaryString(file); // Read the file as a binary string
   }
+
+  // Defining the messages sent
       
 
   // Send the message to the server and handle the response
@@ -154,6 +167,8 @@ async function sendMessageToServer(message, image = null) {
     payload.image = image; // Add the image to the payload
   }
   console.log("Sending payload: ", payload); // Add this line for debugging
+
+  // Uses localhost server to send
 
   try {
     const response = await fetch('http://localhost:3000/message', {
@@ -181,6 +196,8 @@ async function sendMessageToServer(message, image = null) {
 }
 
 
+// function to get custom instructions
+
 async function fetchInstructions() {
 try {
   const response = await fetch('/instructions.md');
@@ -194,6 +211,8 @@ try {
 }
 }
 
+// reading the image
+
 let selectedImage = null;
 
 function handleFileSelect(event) {
@@ -205,7 +224,7 @@ reader.readAsDataURL(event.target.files[0]); // Read the image file as a data UR
 }
 
 
-  // ... existing code ...
+  // code for showing the message and speaking it
 
 // Display the message in the chat box
 function displayMessage(message, type) {
@@ -230,7 +249,7 @@ function displayMessage(message, type) {
 }
 
 
-
+// copy button feature
 
 function copyToClipboard(messageText) {
 navigator.clipboard.writeText(messageText.textContent).then(() => {
