@@ -95,7 +95,7 @@ app.post('/tts', async (req, res) => {
     // Call the OpenAI TTS API
     const ttsResponse = await axios.post(
       'https://api.openai.com/v1/audio/speech',
-      { model: "tts-1", voice: "alloy", input: text },
+      { model: "tts-1", voice: "echo", input: text },
       { headers: { 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` }, responseType: 'arraybuffer' }
     );
 
