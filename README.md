@@ -16,7 +16,8 @@ Welcome to the Chat-Bot Portal, a *Node.js*-based web application that allows us
 
 - **portal.html**: The main HTML file for user interaction. It includes the chat interface layout, a message input area, an image upload button, voice chat functionality, and it links to the `script.js` file.
 - **script.js**: Contains client-side logic for handling user inputs, sending messages and images to the server, and displaying responses in the chat interface. It also includes file selection for image uploads and a copy-to-clipboard function.
-- **server.js**: The server-side Node.js file using Express.js. It processes POST requests to `/message`, interacts with the OpenAI GPT-4 API, and manages CORS, authentication, and static file serving.
+- **server.js**: The server-side Node.js file using Express.js. It processes POST requests to `/message`, interacts with the OpenAI GPT-4-Vision API, along with Whisper and TTS, and manages CORS, authentication, and static file serving.
+- **instructions.md**: The model's System Instructions, customized for optimal responses and contextual prompt enhancement.
 
 ## Prerequisites
 
@@ -84,6 +85,7 @@ Welcome to the Chat-Bot Portal, a *Node.js*-based web application that allows us
 ## Author Notes
 
 - **Smartest Snapshot of ChatGPT**: This application uses the latest GPT-4 model with vision capabilities. However, users can switch to the standard `gpt-4` model and adjust token limits (default is 4000) for different use cases.
+- **Voice Chat**: Calls to OpenAI's proprietary *multi-modal APIs* via your key; keep an eye on *expenses*.
 - **Billing for API Use**: A $5 deposit is required to access the *paid tier* of the OpenAI API. See OpenAI *Documentation* for billing setup.
 - **Understanding GPT Parameters**:
   - **Temperature**: Controls randomness. Lower values make responses more predictable.
@@ -95,7 +97,7 @@ Welcome to the Chat-Bot Portal, a *Node.js*-based web application that allows us
 
 The OpenAI **API**, or *Application Programming Interface*, directly sends **HTTP** requests to the unsanitized and original *GPT-4 model* and lets you customize certain weights of the model’s responses, like randomness or "temperature", and length or "tokens". You'll need to monitor your usage of the more expensive but intelligent **GPT-4** model, which will cost just over *10-15 Cents* per full session, and needs you to add *Five Dollars* in credit to be able to use your **API Key**.
 
-Be aware that at base usage of this web application, you send roughly 1000 tokens for one message to GPT-4, or three cents, and another six cents will be used when it responds with over 1000 words. This is due to the information *concatenated* to the **System Prompt** in the *Custom Instructions*.
+Be aware that at base usage of this web application, you send roughly 1000 tokens for one message to GPT-4, or three cents, and another six cents will be used when it responds with over 1000 words. This is due to the information *concatenated* to the **System Prompt** in the *Custom Instructions*. This file will be sent in the **Conversation History** with each request.
 
 Model behavior will be primarily influenced by whatever *context* is first provided to the API; it lacks a severe filter compared to ChatGPT with increased **steerability**, but is more *expensive* than the regular Chat Interface and will *restrict* you from sending messages once you are **rate-limited**.
 
