@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const basicAuth = require('express-basic-auth');
-const fs = require('fs').promises;
+const fs = require('fs');
 const app = express();
 app.use(express.static('public')); // Serves your static files from 'public' directory
 
@@ -44,24 +44,47 @@ app.get('/uploads/:filename', (req, res) => {
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
 
+const FormData = require('form-data');
+const path = require('path');
+
+
 app.post('/transcribe', upload.single('audio'), async (req, res) => {
   try {
-    const audioBuffer = req.file.buffer;
+    // Write the buffer to a temporary file
+    const tempFilePath = path.join(__dirname, 'tempAudioFile.mp3');
+    fs.writeFileSync(tempFilePath, req.file.buffer);
 
-    // Construct the request to the Whisper API
+    // Create FormData and append the temporary file
+    const formData = new FormData();
+    formData.append('file', fs.createReadStream(tempFilePath), 'tempAudioFile.mp3');
+    formData.append('model', 'whisper-1');
+
+    // API request
     const transcriptionResponse = await axios.post(
       'https://api.openai.com/v1/audio/transcriptions',
-      { file: audioBuffer, model: 'whisper-1' },
-      { headers: { 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` } }
+      formData,
+      { 
+        headers: { 
+          ...formData.getHeaders(),
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` 
+        } 
+      }
     );
 
-    // Send the transcription back to the client
-    res.json({ text: transcriptionResponse.data.text });
+    // Cleanup: delete the temporary file
+    fs.unlinkSync(tempFilePath);
+
+    // Prepend "Voice Transcription: " to the transcription
+    const transcription = "Voice Transcription: " + transcriptionResponse.data.text;
+
+    // Send the modified transcription back to the client
+    res.json({ text: transcription });
   } catch (error) {
     console.error('Error transcribing audio:', error.message);
     res.status(500).json({ error: "Error transcribing audio", details: error.message });
   }
 });
+
 
 
 
@@ -92,17 +115,19 @@ app.post('/tts', async (req, res) => {
 
 let conversationHistory = [];
 
-// Function to read instructions from the file
+// Function to read instructions from the file using fs promises
 async function readInstructionsFile() {
   try {
       // Adjust the path if your folder structure is different
-      const instructions = await fs.readFile('./public/instructions.md', 'utf8');
+      const instructions = await fs.promises.readFile('./public/instructions.md', 'utf8');
       return instructions;
   } catch (error) {
       console.error('Error reading instructions file:', error);
       return ''; // Return empty string or handle error as needed
   }
 }
+
+
 
 // Function to initialize the conversation history with instructions
 async function initializeConversationHistory() {

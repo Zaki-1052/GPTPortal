@@ -4,7 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const sendButton = document.getElementById('send-button');
   const messageInput = document.getElementById('message-input');
   const chatBox = document.getElementById('chat-box');
-
+  const voiceButton = document.getElementById('voice-button');
+  voiceButton.addEventListener('click', voice);
   messageInput.addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
       sendButton.click(); // Trigger the send button click on Enter key press
@@ -28,92 +29,98 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // VOICE
 
+  let isVoiceTranscription = false;
+
+
   let voiceMode = false;
+  let mediaRecorder;
+  let audioChunks = [];
 
   function voice() {
+    console.log("Voice button clicked. Current mode:", voiceMode);
     if (voiceMode) {
-      // If already in voice mode, we stop and process the recording
       stopRecordingAndTranscribe();
     } else {
-      // If not in voice mode, start recording
       startRecording();
     }
     toggleVoiceMode();
   }
+
+  function startRecording() {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = e => {
+          audioChunks.push(e.data);
+        };
+        mediaRecorder.onstop = sendAudioToServer;
+        mediaRecorder.start();
+        console.log("Recording started. MediaRecorder state:", mediaRecorder.state);
+      })
+      .catch(error => {
+        console.error("Error accessing media devices:", error);
+      });
+  }
+
+  function stopRecordingAndTranscribe() {
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+      mediaRecorder.stop();
+      console.log("Recording stopped. MediaRecorder state:", mediaRecorder.state);
+    } else {
+      console.error("MediaRecorder not initialized or not recording. Current state:", mediaRecorder ? mediaRecorder.state : "undefined");
+    }
+  }
+
+
+  function toggleVoiceMode() {
+    voiceMode = !voiceMode;
+    const voiceIndicator = document.getElementById('voice-indicator');
+    if (voiceMode) {
+      voiceIndicator.textContent = 'Voice Mode ON';
+      voiceIndicator.style.display = 'block';
+    } else {
+      voiceIndicator.style.display = 'none';
+    }
+  }
   
 
-// Toggle Voice Mode
-function toggleVoiceMode() {
-  voiceMode = !voiceMode;
-  const voiceIndicator = document.getElementById('voice-indicator');
-  if (voiceMode) {
-    voiceIndicator.textContent = 'Voice Mode ON';
-    voiceIndicator.style.display = 'block';
-  } else {
-    voiceIndicator.style.display = 'none';
+
+
+  function sendAudioToServer() {
+    const audioBlob = new Blob(audioChunks);
+    const formData = new FormData();
+    formData.append('audio', audioBlob);
+  
+    fetch('/transcribe', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      messageInput.value = data.text;
+      isVoiceTranscription = data.text.startsWith("Voice Transcription: ");
+      voiceMode = false; // Turn off voice mode
+    })
+    .catch(console.error);
   }
-}
+  
+  
+  
 
-
-
-let mediaRecorder;
-let audioChunks = [];
-
-function startRecording() {
-  navigator.mediaDevices.getUserMedia({ audio: true })
-    .then(stream => {
-      mediaRecorder = new MediaRecorder(stream);
-      mediaRecorder.ondataavailable = e => {
-        audioChunks.push(e.data);
-      };
-      mediaRecorder.onstop = sendAudioToServer;
-      mediaRecorder.start();
-    });
-}
-
-function stopRecordingAndTranscribe() {
-  mediaRecorder.stop();
-}
-
-function sendAudioToServer() {
-  const audioBlob = new Blob(audioChunks);
-  const formData = new FormData();
-  formData.append('audio', audioBlob);
-
-  fetch('/transcribe', {
+function callTTSAPI(text) {
+  fetch('/tts', {
     method: 'POST',
-    body: formData
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: text })
   })
-  .then(response => response.text())
-  .then(transcribedText => {
-    document.getElementById('message-input').value = transcribedText;
+  .then(response => response.blob())
+  .then(blob => {
+    const audioURL = URL.createObjectURL(blob);
+    new Audio(audioURL).play();
   })
   .catch(console.error);
 }
 
-
-async function recordAndTranscribe() {
-  toggleVoiceMode();
-  // Implement audio recording here
-  // Send recorded audio to the server for transcription
-  // Update message input with the transcribed text
-  // toggleVoiceMode(); // Consider turning off voice mode after transcription
-}
-
-sendButton.addEventListener('click', () => {
-  if (voiceMode) {
-    // Call TTS API to read the response after it's received
-  }
-  // Rest of the send logic
-});
-
-// Modify the existing displayMessage function to handle TTS
-function displayMessage(message, type) {
-  if (voiceMode && type === 'response') {
-    // Call TTS API to read the message
-  }
-  // Rest of the displayMessage logic
-}
 
 // END
   
@@ -139,38 +146,41 @@ function displayMessage(message, type) {
       
 
   // Send the message to the server and handle the response
-  async function sendMessageToServer(message, image = null) {
-    const instructions = await fetchInstructions();
-    
-    let payload = { message, instructions };
-    if (image) {
-      payload.image = image; // Add the image to the payload
-    }
-    console.log("Sending payload: ", payload); // Add this line for debugging
-    try {
-      const response = await fetch('http://localhost:3000/message', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Add other headers as needed
-        },
-        body: JSON.stringify(payload) // Use the updated payload
-      });
-  
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+// Send the message to the server and handle the response
+async function sendMessageToServer(message, image = null) {
+  const instructions = await fetchInstructions();
+  let payload = { message, instructions };
+  if (image) {
+    payload.image = image; // Add the image to the payload
   }
+  console.log("Sending payload: ", payload); // Add this line for debugging
 
-  const data = await response.json();
-  // Use the response from the server
-  displayMessage(data.text, 'response'); // Changed from data.response to data.text
-} catch (error) {
-  console.error('Error sending message to server:', error);
-  // Handle any errors that occurred during the send
-  displayMessage('Error sending message. Please try again.', 'error');
+  try {
+    const response = await fetch('http://localhost:3000/message', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // Add other headers as needed
+      },
+      body: JSON.stringify(payload) // Use the updated payload
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    // Use the response from the server
+    displayMessage(data.text, 'response', isVoiceTranscription); // Display the response in the chat box
+    isVoiceTranscription = false; // Reset the flag for the next message
+  } catch (error) {
+    console.error('Error sending message to server:', error);
+    // Handle any errors that occurred during the send
+    displayMessage('Error sending message. Please try again.', 'error');
+  }
 }
-}
+
+
 async function fetchInstructions() {
 try {
   const response = await fetch('/instructions.md');
@@ -199,39 +209,26 @@ reader.readAsDataURL(event.target.files[0]); // Read the image file as a data UR
 
 // Display the message in the chat box
 function displayMessage(message, type) {
-const messageElement = document.createElement('div');
-const messageText = document.createElement('span'); // Create a span for the text
-const copyButton = document.createElement('button'); // Create a copy button
+  const messageElement = document.createElement('div');
+  const messageText = document.createElement('span'); // Create a span for the text
+  const copyButton = document.createElement('button'); // Create a copy button
 
-if (voiceMode && type === 'response') {
-  // Call TTS API to read the message
-  fetch('/tts', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ text: message })
-  })
-  .then(response => response.blob())
-  .then(blob => {
-    const audioURL = URL.createObjectURL(blob);
-    new Audio(audioURL).play();
-  })
-  .catch(console.error);
+  messageText.textContent = message;
+  copyButton.textContent = 'Copy';
+  copyButton.onclick = function() { copyToClipboard(messageText); }; // Set the click handler
+
+  messageElement.classList.add('message', type);
+  messageElement.appendChild(messageText);
+  messageElement.appendChild(copyButton); // Append the button to the message element
+
+  chatBox.appendChild(messageElement);
+  chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest message
+  if (type === 'response' && isVoiceTranscription) {
+    callTTSAPI(message); // Read out the response message only if it should be read aloud
+  }
+
 }
 
-
-messageText.textContent = message;
-copyButton.textContent = 'Copy';
-copyButton.onclick = function() { copyToClipboard(messageText); }; // Set the click handler
-
-messageElement.classList.add('message', type);
-messageElement.appendChild(messageText);
-messageElement.appendChild(copyButton); // Append the button to the message element
-
-chatBox.appendChild(messageElement);
-chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest message
-}
 
 
 
