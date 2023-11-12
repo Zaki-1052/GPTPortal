@@ -118,13 +118,13 @@ Model behavior will be primarily influenced by whatever *context* is first provi
 
 ### Author Links and Custom GPTs
 
-- [Discord](https://discord.gg/BVQd7Kdngr) - Contact me on my Discord server!
-- [Reddit: Zaki_1052_](https://www.reddit.com/user/Zaki_1052_) - My Reddit account for prompts and discussions.
-- [My Website](http://www.nazalibhai.com) - Visit my custom website for a look at my web development.
-- [NotesGPT](https://chat.openai.com/g/g-btAKVGisd-notesgpt) - Expert at creating clear, concise, and comprehensive bullet-point notes.
-- [Summary Specialist](https://chat.openai.com/g/g-apS8hdTpI-summary-specialist) - Expert at creating clear, concise, and comprehensive advanced summaries.
-- [Chemistry Companion](https://chat.openai.com/g/g-gDkC33NG6-chemistry-companion) - Expert Calculus tutor offering detailed problem-solving explanations.
-- [Calculus Companion](https://chat.openai.com/g/g-CVy3YLpLY-calculus-companion) - Expert Calculus tutor offering detailed explanations and guided problem-solving.
+- [Discord](https://discord.gg/BVQd7Kdngr) - Contact me on my *Discord* server!
+- [Reddit: Zaki_1052_](https://www.reddit.com/user/Zaki_1052_) - My *Reddit* account for prompts and discussions.
+- [My Website](http://www.nazalibhai.com) - Visit my *custom website* for a look at *web development*.
+- [NotesGPT](https://chat.openai.com/g/g-btAKVGisd-notesgpt) - *Expert at creating clear, concise, and comprehensive bullet-point notes.*
+- [Summary Specialist](https://chat.openai.com/g/g-apS8hdTpI-summary-specialist) - *Expert at creating clear, concise, and comprehensive advanced summaries.*
+- [Chemistry Companion](https://chat.openai.com/g/g-gDkC33NG6-chemistry-companion) - *Expert Chemistry tutor offering detailed problem-solving explanations.*
+- [Calculus Companion](https://chat.openai.com/g/g-CVy3YLpLY-calculus-companion) - *Expert Calculus tutor offering detailed explanations and guided problem-solving.*
 
 ### Research Papers: Chain and Tree of Thought Prompting
 
