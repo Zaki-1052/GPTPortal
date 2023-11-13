@@ -265,6 +265,13 @@ Data security is a priority. However, as with any web application, ensure that y
 
 For more in-depth knowledge about GPT-4 and API integrations, visit [OpenAI's Documentation](https://platform.openai.com) and explore the various guides and tutorials available there. Additionally, the links provided in the 'Relevant Links' section of this README offer valuable resources. Please fully read the entire page before raising an issue. Thank you!
 
+### TODOs
+
+- Add Export Button
+  - Connect to "Bye!" for Kill Server
+- Add GPTs and Token Costs for ReadMe
+- Fix Image Input File Sizes
+
 ## Contributions
 
 Contributions are welcome! Please fork the repository and submit a pull request with your updates.
