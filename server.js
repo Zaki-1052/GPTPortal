@@ -1,6 +1,6 @@
 // importing required node packages
 
-
+let isShuttingDown = false;
 require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
@@ -150,30 +150,63 @@ async function initializeConversationHistory() {
 // Call this function when the server starts
 initializeConversationHistory();
 
+ // Function to convert conversation history to HTML
+ function exportChatToHTML() {
+  let htmlContent = `
+    <html>
+    <head>
+      <title>Chat History</title>
+      <style>
+        body { font-family: Arial, sans-serif; }
+        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .system { background-color: #f0f0f0; }
+        .user { background-color: #d1e8ff; }
+        .assistant { background-color: #c8e6c9; }
+        /* Add more styles as needed */
+      </style>
+    </head>
+    <body>
+  `;
+
+  conversationHistory.forEach(entry => {
+    let formattedContent = marked(entry.content); // Convert Markdown to HTML
+    htmlContent += `<div class="message ${entry.role}"><strong>${entry.role.toUpperCase()}:</strong> ${formattedContent}</div>`;
+  });
+
+  htmlContent += '</body></html>';
+  return htmlContent;
+}
 
 // Handle POST request to '/message'
 app.post('/message', async (req, res) => {
+  if (isShuttingDown) {
+    return res.status(503).send('Server is shutting down');
+}
   const user_message = req.body.message;
-  const user_image = req.body.image; // Add this line to accept an image in the request
+  const user_image = req.body.image; // Accepting an image in the request
   console.log("Received request with size: ", JSON.stringify(req.body).length);
+
   // Check for shutdown command
   if (user_message === "Bye!") {
-      console.log("Shutdown message received. Closing server...");
+    console.log("Shutdown message received. Exporting chat and closing server...");
+    isShuttingDown = true; // Set the shutdown flag
+    // Export chat history to HTML and send it as a response
+    const htmlContent = exportChatToHTML();
+    res.set('Content-Type', 'text/html');
+    res.set('Content-Disposition', 'attachment; filename="chat_history.html"');
+    res.send(htmlContent);
 
-      // Optionally, respond to the user before shutting down
-      res.json({ text: "Shutting down the server. Goodbye!" });
-
-      // Gracefully shut down the server
+    // Delay before shutting down the server to allow file download
+    setTimeout(() => {
       server.close(() => {
           console.log("Server successfully shut down.");
       });
+    }, 5000); // 5 seconds delay
 
-      // If using Node.js 17+, use the following line instead
-      // process.exit(0);
-      return; // End the execution of the function here
+    return; // End the execution of the function here
   }
 
-  // Check if there's an image and format the message accordingly
+  // Include the user's input in the conversation history if it's not "Bye!"
   if (user_image) {
     user_input = {
       role: "user",
@@ -182,7 +215,16 @@ app.post('/message', async (req, res) => {
         { type: "image_base64", image_base64: user_image }
       ]
     };
+  } else {
+    user_input = {
+      role: "user",
+      content: user_message
+    };
   }
+  conversationHistory.push(user_input);
+
+
+ 
 
      
   // Include the user's input in the conversation history

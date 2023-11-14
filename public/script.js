@@ -34,9 +34,13 @@
             // Call to TTS API to read the response
             // This will be implemented in the displayMessage function
           }
+          
           messageInput.value = ''; // Clear the input after sending
           selectedImage = null; // Reset the image variable
+          if (message === "Bye!") {
+            exportChatOnShutdown();
         }
+      }
       });
 
       // export chat history function
@@ -55,6 +59,28 @@
             window.URL.revokeObjectURL(url);
           })
           .catch(err => console.error('Error exporting chat history:', err));
+      }
+      
+      // Function to handle chat export on shutdown
+      function exportChatOnShutdown() {
+        fetch('http://localhost:3000/message', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message: "Bye!" })
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'chat_history.html';
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+        })
+        .catch(err => console.error('Error exporting chat history on shutdown:', err));
       }
       
       
