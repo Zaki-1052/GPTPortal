@@ -20,8 +20,8 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 
 ## Structure
 
-- **portal.html**: The main HTML file for user interaction. It includes the chat interface layout, a message input area, an image upload button, voice chat functionality, and it links to the `script.js` file.
-- **script.js**: Contains client-side logic for handling user inputs, sending messages and images to the server, and displaying responses in the chat interface. It also includes file selection for image uploads and a copy-to-clipboard function.
+- **portal.html**: The main HTML file for user interaction. It includes the chat interface layout, a message input area, an image upload and export button for history, voice chat functionality, and it links to the `script.js` file.
+- **script.js**: Contains client-side logic for handling user inputs, sending messages and images to the server, and displaying responses in the chat interface. It also includes file selection for image uploads and a copy-to-clipboard function with support for exorting your current conversation history.
 - **server.js**: The server-side Node.js file using Express.js. It processes POST requests to `/message`, interacts with the OpenAI GPT-4-Vision API, along with Whisper and TTS, and manages CORS, authentication, and static file serving.
 - **instructions.md**: The model's System Instructions, customized for optimal responses and contextual prompt enhancement.
 - **.env**: The *Environment Variable* file for your *sensitive passwords*. Must be modeled after the `.env.example` template.
@@ -116,6 +116,8 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - For **security reasons*, this *web portal* requires the user to do some work of their own: *installing* the necessary dependencies and packages, adding their own *environment* variables like API Key and HTTP Auth Credentials (you can make these up) in a `.env` file, and manually running the *server* in your terminal.
   - Be assured that this repo is incapable of grabbing any information from the User, including their Key, but they should still be careful when experimenting with *Pull Requests*, regardless of the `.gitignore` file in the root of this repository.
 
+### Further Explanations
+
 The OpenAI **API**, or *Application Programming Interface*, directly sends **HTTP** requests to the unsanitized and original *GPT-4 model* and lets you customize certain weights of the model’s responses, like randomness or "temperature", and length or "tokens". You'll need to monitor your usage of the more expensive but intelligent **GPT-4** model, which will cost just over *10-20 Cents* per full session, and needs you to add *Five Dollars* in credit to be able to use your **API Key**.
 
 Be aware that at base usage of this web application, you send roughly 1000 tokens for one message to GPT-4, or three cents, and another six cents will be used when it responds with over 1000 words. This is due to the information *concatenated* to the **System Prompt** in the *Custom Instructions*. This file will be sent in the **Conversation History** with each request.
@@ -126,7 +128,7 @@ Model behavior will be primarily influenced by whatever *context* is first provi
 - Users are encouraged to modify the **User Profile** in `instructions.md`, which can be found in the `public` directory, as well as the model name via `server.js`, found in the root of **GPTPortal**.
 - More information will be added about *Model Behavior* and *API Usage* to the **ReadMe** in the future.
 
-**IMPORTANT Note** : For the **Voice Functionality** *Feature*, due to *WebKit's*'s lack of codec support and firewalling, *Whisper* and *TTS* will **NOT** work on the **Safari** *Browser*; you will to switch to Chrome (or any other Chromium fork, including Edge, Opera, Brave, etc.) or Firefox if you want to use the *Voice Chat*.
+**IMPORTANT Note** : For the **Voice Functionality** *Feature*, due to *WebKit's*'s lack of codec support and firewalling, *Whisper* and *TTS* will **NOT** work on the **Safari** *Browser*; you will need to switch to Chrome (or any other Chromium fork, including Edge, Opera, Brave, etc.) or Firefox if you want to use the *Voice Chat*.
 
 If you'd like to add Apple-Support to *MediaRecording* via *JavaScript* feel free to install the [RecordRTC](https://github.com/muaz-khan/RecordRTC) GitHub repo and fork this project, as according to *Stack Overflow* and *Apple Community*, that should fix the issue, but I don't want this repository to get bloated.
 
