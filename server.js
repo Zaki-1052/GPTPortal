@@ -6,6 +6,7 @@ const express = require('express');
 const axios = require('axios');
 const basicAuth = require('express-basic-auth');
 const fs = require('fs');
+const { marked } = require('marked');
 const app = express();
 app.use(express.json()); // for parsing application/json
 app.use(express.static('public')); // Serves your static files from 'public' directory
@@ -307,7 +308,41 @@ app.post('/message', async (req, res) => {
   }
 });
 
-  
+
+// export markdown to html
+
+
+app.get('/export-chat-html', (req, res) => {
+  let htmlContent = `
+    <html>
+    <head>
+      <title>Chat History</title>
+      <style>
+        body { font-family: Arial, sans-serif; }
+        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .system { background-color: #f0f0f0; }
+        .user { background-color: #d1e8ff; }
+        .assistant { background-color: #c8e6c9; }
+        /* Add more styles as needed for Markdown elements like headers, lists, etc. */
+      </style>
+    </head>
+    <body>
+  `;
+
+  conversationHistory.forEach(entry => {
+    let formattedContent = marked(entry.content); // Use marked to convert Markdown to HTML
+
+    htmlContent += `<div class="message ${entry.role}"><strong>${entry.role.toUpperCase()}:</strong> ${formattedContent}</div>`;
+  });
+
+  htmlContent += '</body></html>';
+
+  res.set('Content-Type', 'text/html');
+  res.set('Content-Disposition', 'attachment; filename="chat_history.html"');
+  res.send(htmlContent);
+});
+
+
 
 app.get('/portal', (req, res) => {
     res.sendFile('portal.html', { root: 'public' });

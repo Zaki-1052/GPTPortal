@@ -15,6 +15,7 @@
       const chatBox = document.getElementById('chat-box');
       const voiceButton = document.getElementById('voice-button');
       voiceButton.addEventListener('click', voice);
+      document.getElementById('export-button').addEventListener('click', exportChatHistory);
       messageInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
           sendButton.click(); // Trigger the send button click on Enter key press
@@ -37,6 +38,25 @@
           selectedImage = null; // Reset the image variable
         }
       });
+
+      // export chat history function
+
+      function exportChatHistory() {
+        fetch('/export-chat-html')
+          .then(response => response.blob())
+          .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'chat_history.html'; // or .json if you prefer
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+          })
+          .catch(err => console.error('Error exporting chat history:', err));
+      }
+      
       
     
       // VOICE
