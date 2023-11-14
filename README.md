@@ -282,6 +282,16 @@ For more in-depth knowledge about GPT-4 and API integrations, visit [OpenAI's Do
 - [x] Added Export Functionality
 - [x] Fixed Image Inputs
 
+### Updates
+
+![Updated Portal View](update.png)
+
+This **Updates** Section will showcase any further features added to this repository.
+
+#### Token Costs Explained
+
+In terms of API calls, they can certainly add up if you're running heavy sessions with GPT-4 the most intelligent (and expensive!) model. For now, this section will serve as a placeholder until I add full support for tracking your token and billing credit usage; I'll also explain mathematically how you can best budget your use of these models in order to get the best possible experience!
+
 ## Contributions
 
 Contributions are welcome! Please fork the repository and submit a pull request with your updates.

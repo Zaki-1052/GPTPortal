@@ -236,7 +236,7 @@ app.post('/message', async (req, res) => {
     // Define the data payload with system message and additional parameters
     const data = {
 
-      // model: "gpt-4-vision-preview", // Use "gpt-4" for non-vision capabilities.
+      model: "gpt-4-vision-preview", // Use "gpt-4" for non-vision capabilities.
       // Model is specified here as the vision-capable GPT-4. 
       // If users are using this portal solely for its intelligence, and do not care about "vision", then they should change the model name.
       // The Model Name can be changed to: 
@@ -244,10 +244,6 @@ app.post('/message', async (req, res) => {
       // So Delete the "// " before "model" labelling GPT-4 and add/put them before "model: "gpt-4-vision-preview", if you'd like to switch.
       // This is called "commenting out", and is good practice for code maintainability, like:
       // model: "gpt-4-vision-preview", 
-
-      // UPDATE: Users will have to change to the Vision model manually if they would like to use it;
-      // the default is now: 
-      model: "gpt-4",
 
       messages: conversationHistory, // Includes the System Prompt, previous queries and responses, and your most recently sent message.
       
