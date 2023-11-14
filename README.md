@@ -11,6 +11,8 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - **Basic authentication** for *secure access*.
 - Customizable *System-Defined Instructions* and *Model Parameters*.
 - Simple and intuitive **UI** with *copy-to-clipboard* feature for chat messages.
+- **Export** as *HTML* **button** for *conversation history*.
+- Integrated **shutdown** *functionality* at "**Bye!**"
 
 ## Example: [**Showcase Video**](https://youtu.be/v3GVu0ZuXk4)
 
@@ -85,10 +87,13 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
   - It will be processed by the *Whisper API* and seen in the input box.
   - The model's response will be read back to you through a text-to-speech API.
 - **Uploading an Image**:
-  - Click the 🖼️ button to open the file selector.
+  - Click the 📸 button to open the file selector.
   - Choose an image file. It will be sent with your next message.
-- Type: "**Bye!**" in the text input box in order to end the conversation and kill the server.
-  - Please save the conversation with the Copy to Clipboard feature beforehand, as the history is lost between sessions.
+- **Exporting Conversation**
+  - Click the 📤 to export the *Conversation History*.
+    - It will be an *HTML* document formatted in *Markdown*.
+- Type: "**Bye!**" in the text input box in order to *end the conversation* and *kill the server*.
+  - This will also *Export* the *Conversation History*.
 
 ## Author Notes
 
@@ -205,6 +210,11 @@ If you'd like to add Apple-Support to *MediaRecording* via *JavaScript* feel fre
 - [Summary Specialist](https://chat.openai.com/g/g-apS8hdTpI-summary-specialist) - *Expert at creating clear, concise, and comprehensive advanced summaries.*
 - [Chemistry Companion](https://chat.openai.com/g/g-gDkC33NG6-chemistry-companion) - *Expert Chemistry tutor offering detailed problem-solving explanations.*
 - [Calculus Companion](https://chat.openai.com/g/g-CVy3YLpLY-calculus-companion) - *Expert Calculus tutor offering detailed explanations and guided problem-solving.*
+- [GrammarGPT](https://chat.openai.com/g/g-4LlLCuKZ5-grammargpt) - *Expert proofreader and grammar checker, accurate to conventional linguistic standards.*
+- [LogicGPT](https://chat.openai.com/g/g-Cu2jouFyb-logicgpt) - *Expert at logical puzzles, reasoning, and thoughtful analysis. Uses CoT and ToT.*
+- [PromptGPT](https://chat.openai.com/g/g-MM7wxKtTg-promptgpt) - *Expert at designing and refining AI prompts for clarity and effectiveness.*
+- [StudyGuideGPT](https://chat.openai.com/g/g-Y6DEVGgvf-studyguidegpt) - *Expert at creating detailed study guide explanations for various topics.*
+- [Insightful Scholar](https://chat.openai.com/g/g-MEx354Wgq-insightful-scholar) - *Highly detailed assistant for a tech-savvy high school senior with a focus on BioTech and CompSci. My Default Settings.*
 
 ### [Research Papers](https://arc.net/folder/AEE28E72-9795-42D7-9D49-D48ABA0ED00C): Chain and Tree of Thought Prompting
 
@@ -267,10 +277,10 @@ For more in-depth knowledge about GPT-4 and API integrations, visit [OpenAI's Do
 
 ### TODOs
 
-- Add Export Button
-  - Connect to "Bye!" for Kill Server
-- Add GPTs and Token Costs for ReadMe
-- Fix Image Input File Sizes
+- [ ] Add Token Cost Explanation and Tracking
+- [ ] Update API Calls for Optional Models
+- [x] Added Export Functionality
+- [x] Fixed Image Inputs
 
 ## Contributions
 
