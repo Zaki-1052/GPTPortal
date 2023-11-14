@@ -14,7 +14,7 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - **Export** as *HTML* **button** for *conversation history*.
 - Integrated **shutdown** *functionality* at "**Bye!**"
 
-## Example: [**Showcase Video**](https://youtu.be/v3GVu0ZuXk4)
+## Example: [**Video Showcase**](https://youtu.be/v3GVu0ZuXk4)
 
 ![Example Portal View](example.png)
 
@@ -89,6 +89,9 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - **Uploading an Image**:
   - Click the 📸 button to open the file selector.
   - Choose an image file. It will be sent with your next message.
+    - **Important Update**: The Default model selector is now the more intelligent GPT-4 without vision.
+      - If you would like to utilize the *Vision-Preview* model, which uses GPT-4-Turbo, as in ChatGPT, please fully read this page and the documentation.
+      - Then, go to `server.js` in your preferred *Text Editor* and modify the "*model*" parameter to `gpt-4-vision-preview` as specified in the comments, which are there to guide you through the script and will be clearly marked.
 - **Exporting Conversation**
   - Click the 📤 to export the *Conversation History*.
     - It will be an *HTML* document formatted in *Markdown*.
@@ -192,6 +195,7 @@ If you'd like to add Apple-Support to *MediaRecording* via *JavaScript* feel fre
 
 - [Pricing](https://openai.com/pricing) - OpenAI's pricing details for different API Models.
 - [API Keys](https://platform.openai.com/api-keys) - Where to create and manage your OpenAI API keys.
+- [Models](https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo) - Where to view the GPT-4 model documentation.
 - [Billing Activity/Usage](https://platform.openai.com/usage) - Check your usage and billing activity for OpenAI models.
   - [Account Limits](https://platform.openai.com/account/limits) - Information on billing and rate limits per tokens.
   - [Payment Balance](https://platform.openai.com/account/billing/overview) - Check and increase your API Credit and add your information.
@@ -275,22 +279,90 @@ Data security is a priority. However, as with any web application, ensure that y
 
 For more in-depth knowledge about GPT-4 and API integrations, visit [OpenAI's Documentation](https://platform.openai.com) and explore the various guides and tutorials available there. Additionally, the links provided in the 'Relevant Links' section of this README offer valuable resources. Please fully read the entire page before raising an issue. Thank you!
 
-### TODOs
-
-- [ ] Add Token Cost Explanation and Tracking
-- [ ] Update API Calls for Optional Models
-- [x] Added Export Functionality
-- [x] Fixed Image Inputs
-
 ### Updates
 
 ![Updated Portal View](update.png)
 
-This **Updates** Section will showcase any further features added to this repository.
+This **Updates** Section will showcase any further features added to the repository.
 
 #### Token Costs Explained
 
 In terms of API calls, they can certainly add up if you're running heavy sessions with GPT-4 the most intelligent (and expensive!) model. For now, this section will serve as a placeholder until I add full support for tracking your token and billing credit usage; I'll also explain mathematically how you can best budget your use of these models in order to get the best possible experience!
+
+##### Understanding the Costs and Usage Pattern
+
+1. **Base Cost**: Each API call has a base cost of 3 cents for the system prompt (at default).
+2. **Token Costs**:
+   - Additional 1000 tokens in request: 3 cents.
+   - Each 1000 tokens in response: 6 cents.
+   - Audio adds a couple more cents (depending on length).
+3. **Context Accumulation**: Using previous messages in the API request, which cumulatively increases token count.
+4. **Spending**:
+   - Imagine a Monthly Budget: $10.
+
+##### Session Cost Breakdown
+
+###### Cost Components
+
+1. **Base Cost**: 3 cents for the system prompt (fixed 1k tokens).
+2. **Input Cost**: 3 cents per 1000 tokens.
+3. **Output Cost**: 6 cents per 1000 tokens.
+
+   **Total for Initial Request**: 3 (base) + 3 (input) + 6 (output) = 12 cents.
+
+###### Second Request
+
+Now, let's say for the second request, you include the initial request and response as part of the input, which cumulatively increases the token count.
+
+1. **Previous Input + Output**: 3000 tokens (2000 Input (1k System + 1k Query) + 1000 Output from the first request).
+2. **New Input**: Let's assume 1000 tokens.
+3. **Total Input #2**: 3000 (previous) + 1000 (new) = 4000 tokens ≈ 12 cents.
+4. **Output Tokens #2**: Let's assume another 1000 tokens (6 cents).
+   **Total for Second Request**: 12 (input) + 6 (output) = 18 cents.
+
+###### Cumulative Session Cost
+
+- **First Request**: 12 cents.
+- **Second Request**: 18 cents.
+
+   **Total Session Cost**: 12 + 18 = 30 cents.
+
+##### Key Considerations
+
+- **Cumulative Input**: Each subsequent request will have a larger input size due to the inclusion of previous inputs and outputs.
+- **Managing Token Count**: Being strategic about the number of tokens used in each request and response can help manage costs. This includes frontloading requests with tokens or limiting the scope of each request to manage the token count.
+- **Output Control**: While you have more control over the input size, the output size can vary. Planning for the maximum possible output cost in each session helps in staying within the budget.
+  - These can be managed in the "*parameters*" section on `server.js` (read the comments)
+- **Final Thoughts**: By understanding how the costs accumulate and the impact of including previous inputs and outputs in new requests, you can more accurately predict and manage your session costs. This step-by-step breakdown should help in visualizing how each component contributes to the total cost.
+
+##### Monthly Budget Analysis
+
+1. **Total Monthly Budget**: $10 (1000 cents).
+2. **Daily Session Cost**: 30 cents.
+3. **Monthly Session Projection**:
+   - Every day for a month: 30 cents x 30 days = $9 (900 cents), which is under budget.
+   - Every other day for a month: 30 cents x 15 days = $4.50 (450 cents).
+     - If token use is restrained, you could have a budget of $5 per month.
+     - This means that you could only use two (longer) messages in a session by alternating days.
+
+##### Further Token Use
+
+- If a heavier final output is needed (2000 tokens), you will reach the "*Max Tokens"* set in the parameters. While the context length of the model is 8000 tokens, 6000 is set manually here for safety.
+  - This will mean an additional cost of 6 cents for 36 cents, and still need "chunking" of messages.
+  - Please read OpenAI's linked *Prompt Engineering* Documentation if you expect to modify this.
+- If you do expect to modify the *parameters* to use more tokens, expect that your API credit use will increase exponentially.
+      - Example: A third request will mean an additional **15 cents** of input, and an output of up to an additional **20 cents** depending on the size of the response.
+       - This would then total up to **70 cents** per session if audio or images are included.
+       - Expect to budget the same amount as you are paying for **ChatGPT** if you are utilizing the API so heavily (*$20/month*).
+
+#### TODOs
+
+- [x] Add Token Cost Explanation and Tracking
+- [x] Update API Call for Vision to Default Model
+- [ ] Add Model Selector?
+- [ ] Make Updated Video Showcase
+- [x] Added Export Functionality
+- [x] Fixed Image Inputs
 
 ## Contributions
 

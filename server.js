@@ -236,7 +236,7 @@ app.post('/message', async (req, res) => {
     // Define the data payload with system message and additional parameters
     const data = {
 
-      model: "gpt-4-vision-preview", // Use "gpt-4" for non-vision capabilities.
+      // model: "gpt-4-vision-preview", // Use "gpt-4" for non-vision capabilities.
       // Model is specified here as the vision-capable GPT-4. 
       // If users are using this portal solely for its intelligence, and do not care about "vision", then they should change the model name.
       // The Model Name can be changed to: 
@@ -245,9 +245,14 @@ app.post('/message', async (req, res) => {
       // This is called "commenting out", and is good practice for code maintainability, like:
       // model: "gpt-4-vision-preview", 
 
+      model: "gpt-4",
+
+// The Default Model is now Default GPT-4, pointing to the snapshot released on August 13th. 
+// If users would like to use Vision capabilities, please comment out the above model and comment in the "vision-preview" at the top.
+
       messages: conversationHistory, // Includes the System Prompt, previous queries and responses, and your most recently sent message.
       
-      max_tokens: 4000, // The maximum number of tokens to **generate** shared between the prompt and completion. The exact limit varies by model. 
+      max_tokens: 6000, // The maximum number of tokens to **generate** shared between the prompt and completion. The exact limit varies by model. 
       // (One token is roughly 4 characters for standard English text)
       
       temperature: 1.1, // Controls randomness: Lowering results in less random completions. 
