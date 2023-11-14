@@ -101,7 +101,7 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 ## Author Notes
 
 - **Smartest Snapshot of ChatGPT**: This application uses the latest GPT-4 model with vision capabilities. However, users can and perhaps should switch to the standard `gpt-4` model and adjust token limits (default is 4000) for different use cases.
-  - The Model Parameters, including the mode itself, can be found on/around Line 200 in `server.js`, and has multiple comments to guide you if you're just getting started with customizing the API Responses.
+  - The Model Parameters, including the model itself, can be found on/around Line 200 in `server.js`, and has multiple comments to guide you if you're just getting started with customizing the API Responses.
   - Be aware that although the API returns will be objectively better than what you receive on ChatGPT, usage adds up, and you may soon run out of credits.
   - Always keep track of your token usage (relevant link found below), and adjust instructions and/or parameters when needed.
 - **Voice Chat**: Calls to OpenAI's proprietary *multi-modal APIs* via your key; be sure to keep an eye on your *expenses*.
@@ -113,7 +113,7 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - **API Chat Completions**: Tailor chat completions to your specific use case.
 - **Session Management**: Each page reload starts a new session. Session history isn't preserved.
 - **Custom Instructions**: Found in `instructions.md`. Modify user profile and instructions as needed. These are optimized for GPT-4 based on extensive research.
-- For **security reasons*, this *web portal* requires the user to do some work of their own: *installing* the necessary dependencies and packages, adding their own *environment* variables like API Key and HTTP Auth Credentials (you can make these up) in a `.env` file, and manually running the *server* in your terminal.
+- For *security reasons*, this *web portal* requires the user to do some work of their own: *installing* the necessary dependencies and packages, adding their own *environment* variables like API Key and HTTP Auth Credentials (you can make these up) in a `.env` file, and manually running the *server* in your terminal.
   - Be assured that this repo is incapable of grabbing any information from the User, including their Key, but they should still be careful when experimenting with *Pull Requests*, regardless of the `.gitignore` file in the root of this repository.
 
 ### Further Explanations
