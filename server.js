@@ -206,6 +206,8 @@ app.post('/message', async (req, res) => {
     return; // End the execution of the function here
   }
 
+  let user_input;
+
   // Include the user's input in the conversation history if it's not "Bye!"
   if (user_image) {
     user_input = {
@@ -226,13 +228,7 @@ app.post('/message', async (req, res) => {
 
  
 
-     
-  // Include the user's input in the conversation history
-  let user_input = {
-    role: "user",
-    content: user_image ? [{ type: "text", text: user_message }, { type: "image_base64", image_base64: user_image }] : user_message
-  };
-  conversationHistory.push(user_input);
+  
 
 
 
