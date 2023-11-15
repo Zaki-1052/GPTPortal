@@ -169,7 +169,23 @@ initializeConversationHistory();
   `;
 
   conversationHistory.forEach(entry => {
-    let formattedContent = marked(entry.content); // Convert Markdown to HTML
+    let formattedContent = '';
+    if (Array.isArray(entry.content)) {
+      entry.content.forEach(item => {
+        if (typeof item === 'string') {
+          // Convert text to HTML
+          formattedContent += marked(item);
+        } else if (item.type === 'image_url' && item.image_url && item.image_url.url) {
+          // Handle image content
+          formattedContent += `<img src="${item.image_url.url}" alt="User Uploaded Image"/>`;
+        }
+        // Add more conditions as needed for different types of content
+      });
+    } else {
+      // If the content is a string, convert it directly
+      formattedContent = marked(entry.content);
+    }
+
     htmlContent += `<div class="message ${entry.role}"><strong>${entry.role.toUpperCase()}:</strong> ${formattedContent}</div>`;
   });
 
@@ -179,34 +195,47 @@ initializeConversationHistory();
 
 // Handle POST request to '/message'
 app.post('/message', async (req, res) => {
-  if (isShuttingDown) {
-    return res.status(503).send('Server is shutting down');
-}
+  
   console.log("Received model ID:", req.body.modelID); // Add this line
   const user_message = req.body.message;
   const modelID = req.body.modelID || 'gpt-4'; // Extracting model ID from the request
   const user_image = req.body.image; // Accepting an image in the request
   console.log("Received request with size: ", JSON.stringify(req.body).length);
 
-  // Check for shutdown command
-  if (user_message === "Bye!") {
-    console.log("Shutdown message received. Exporting chat and closing server...");
+ // Check for shutdown command
+if (user_message === "Bye!") {
+  console.log("Shutdown message received. Exporting chat and closing server...");
+
+  // Export chat history to HTML
+  const htmlContent = exportChatToHTML();
+
+  // Set headers for file download
+  res.set('Content-Type', 'text/html');
+  res.set('Content-Disposition', 'attachment; filename="chat_history.html"');
+
+  // Send the HTML content
+  res.send(htmlContent);
+
+  // Wait for the response to be fully sent before shutting down
+  res.end(() => {
+    console.log("Chat history sent to client, initiating shutdown...");
+
+    if (isShuttingDown) {
+      return res.status(503).send('Server is shutting down');
+  }
     isShuttingDown = true; // Set the shutdown flag
-    // Export chat history to HTML and send it as a response
-    const htmlContent = exportChatToHTML();
-    res.set('Content-Type', 'text/html');
-    res.set('Content-Disposition', 'attachment; filename="chat_history.html"');
-    res.send(htmlContent);
 
     // Delay before shutting down the server to allow file download
     setTimeout(() => {
       server.close(() => {
-          console.log("Server successfully shut down.");
+        console.log("Server successfully shut down.");
       });
-    }, 5000); // 5 seconds delay
+    }, 10000); // 10 seconds delay
+  });
 
-    return; // End the execution of the function here
-  }
+  return; // End the execution of the function here
+}
+
 
    // Retrieve model from the request
   let user_input;
