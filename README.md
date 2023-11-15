@@ -14,11 +14,12 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - **Export** as *HTML* **button** for *conversation history*.
 - Integrated **shutdown** *functionality* at "**Bye!**"
 - **Model Selector** of various *OpenAI APIs*. Includes:
-  - GPT-4: Default (Most Intelligent)
-  - GPT-4-Vision: Sees Images
-  - GPT-4-32k: Longer Context Window
-  - GPT-4-Turbo: ChatGPT Plus
-  - GPT-3.5-Turbo: Cheapest
+  - GPT-4: Default – Snapshot of the Most Intelligent Version
+  - GPT-4-Vision: Able to View & Analyze Images
+  - GPT-4-32k: Longer Context Window – More Expensive
+  - GPT-4-Turbo: Currently used in ChatGPT Plus
+    - Cheaper and Longer Context, but Less Intelligent
+  - GPT-3.5-Turbo: Cheapest Model
 
 ## Example: [**Video Showcase**](https://youtu.be/v3GVu0ZuXk4)
 
@@ -299,7 +300,7 @@ For more in-depth knowledge about GPT-4 and API integrations, visit [OpenAI's Do
 This **Updates** Section will showcase any further features added to the repository.
 
 - **IMPORTANT UPDATE**: A *Model Selector* has now been added.
-  - This means that you no longer need to adjust this parameter in `server.js`.
+  - This means that you will no longer need to adjust this parameter in `server.js`.
 
 #### Token Costs Explained
 
