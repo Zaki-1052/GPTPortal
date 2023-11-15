@@ -13,6 +13,12 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - Simple and intuitive **UI** with *copy-to-clipboard* feature for chat messages.
 - **Export** as *HTML* **button** for *conversation history*.
 - Integrated **shutdown** *functionality* at "**Bye!**"
+- **Model Selector** of various *OpenAI APIs*. Includes:
+  - GPT-4: Default (Most Intelligent)
+  - GPT-4-Vision: Sees Images
+  - GPT-4-32k: Longer Context Window
+  - GPT-4-Turbo: ChatGPT Plus
+  - GPT-3.5-Turbo: Cheapest
 
 ## Example: [**Video Showcase**](https://youtu.be/v3GVu0ZuXk4)
 
@@ -82,16 +88,21 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
   - Type your message in the text box.
   - Press Enter or click the Send button to submit.
 - **Starting a Voice Conversation**:
-  - Click the 🎤 microphone icon to activate voice input.
+  - Click the 🎤 microphone icon to activate *voice input*.
   - Speak your query or message, and toggle the button to end recording.
   - It will be processed by the *Whisper API* and seen in the input box.
-  - The model's response will be read back to you through a text-to-speech API.
+  - The model's response will be read back to you through a *text-to-speech API*.
 - **Uploading an Image**:
-  - Click the 📸 button to open the file selector.
+  - Click the 📸 button to open the *file selector*.
   - Choose an image file. It will be sent with your next message.
-    - **Important Update**: The Default model selector is now the more intelligent GPT-4 without vision.
+    - **Update (DEPRECATED)**: The Default model selector is now the more intelligent GPT-4 without vision.
       - If you would like to utilize the *Vision-Preview* model, which uses GPT-4-Turbo, as in ChatGPT, please fully read this page and the documentation.
       - Then, go to `server.js` in your preferred *Text Editor* and modify the "*model*" parameter to `gpt-4-vision-preview` as specified in the comments, which are there to guide you through the script and will be clearly marked.
+- **Model Selector**:
+  - Click on the "*Select a Model*" button at the top.
+  - Hover your cursor over the options to view *descriptions*.
+  - Choose your preference based on current use-case.
+    - If no Model is chosen, the Portal will *Default* to the *GPT-4* snapshot.
 - **Exporting Conversation**
   - Click the 📤 to export the *Conversation History*.
     - It will be an *HTML* document formatted in *Markdown*.
@@ -287,6 +298,9 @@ For more in-depth knowledge about GPT-4 and API integrations, visit [OpenAI's Do
 
 This **Updates** Section will showcase any further features added to the repository.
 
+- **IMPORTANT UPDATE**: A *Model Selector* has now been added.
+  - This means that you no longer need to adjust this parameter in `server.js`.
+
 #### Token Costs Explained
 
 In terms of API calls, they can certainly add up if you're running heavy sessions with GPT-4 the most intelligent (and expensive!) model. For now, this section will serve as a placeholder until I add full support for tracking your token and billing credit usage; I'll also explain mathematically how you can best budget your use of these models in order to get the best possible experience!
@@ -361,7 +375,7 @@ Now, let's say for the second request, you include the initial request and respo
 
 - [x] Add Token Cost Explanation and Tracking
 - [x] Update API Call for Vision to Default Model
-- [ ] Add Model Selector?
+- [x] Add Model Selector
 - [ ] Make Updated Video Showcase
 - [x] Added Export Functionality
 - [x] Fixed Image Inputs

@@ -1,6 +1,6 @@
 /* chat.css */
 body {
-  font-family: 'Arial', sans-serif;
+  font-family: 'Calibre', sans-serif;
   background-color: #121212; /* Dark background */
   color: white;
   margin: 0;
@@ -8,7 +8,7 @@ body {
 }
 
 #chat-container {
-  max-width: 1050px;
+  max-width: 1100px;
   margin: 50px auto;
   padding: 20px;
   border-radius: 10px;
@@ -24,6 +24,7 @@ body {
   border-radius: 10px;
   padding: 15px;
   margin-bottom: 20px;
+  font-size: 17px;
 }
 
 #message-input {
@@ -34,7 +35,8 @@ body {
   border: 1px solid #5f6368; /* Border color */
   border-radius: 20px;
   color: white;
-  margin-bottom: 10px; /* Add some space above the send button */
+  margin-bottom: 15px; /* Add some space above the send button */
+  font-size: 14px;
 }
 
 #send-button {
@@ -46,6 +48,7 @@ body {
   color: white;
   cursor: pointer;
   transition: background-color 0.2s; /* Transition for hover effect */
+  font-size: 14px;
 }
 
 #send-button:hover {
@@ -58,10 +61,10 @@ body {
   right: 10px;
   /* Add your desired styling for the button */
   padding: 5px; /* Increase padding */
-  font-size: 18px; /* Increase font size */
+  font-size: 22px; /* Increase font size */
   background-color: #cacdd5;
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
 }
 
 #clipboard-button:hover {
@@ -77,14 +80,102 @@ body {
   top: 10px;
   left: 10px;
   padding: 5px; /* Increase padding */
-  font-size: 18px; /* Increase font size */
+  font-size: 22px; /* Increase font size */
   background-color: #acafb5;
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
 }
 
 #export-button:hover {
   background-color: #1669c2; /* Darker shade on hover */
+}
+
+#model-selector-container {
+  text-align: center; /* Center align the container */
+  padding: 6px; /* Add some padding */
+  margin-bottom: 4px; /* Space before the chat container */
+}
+
+#model-selector {
+  padding: 10px; /* Padding inside the selector */
+  border-radius: 5px; /* Rounded corners */
+  background-color: #303134; /* Background color */
+  color: white; /* Text color */
+  border: 1px solid #5f6368; /* Border color */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Shadow effect */
+  cursor: pointer; /* Cursor type */
+  font-size: 16px; /* Text size */
+  font-family: 'Courier New', Courier, monospace;
+}
+
+#model-selector:hover {
+  background-color: #404245; /* Background color on hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+}
+
+.custom-select {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  background-color: #303134;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  user-select: none;
+  font-size: 16px;
+}
+
+
+#selected-model {
+  text-align: center;
+  cursor: pointer;
+}
+
+.select-options {
+  display: none;
+  position: absolute;
+  background-color: #404245;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  border-radius: 5px;
+  padding: 5px;
+  z-index: 600;
+  width: 150px; /* Make the dropdown wider than the button */
+  align-self: center;
+  width: 12%; /* Adjusted to match the width of the parent */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Shift to the left by half of its own width */
+  font-size: 16px;
+}
+
+.select-options button {
+  background-color: #303134;
+  display: inline;
+  position: relative;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+  margin-bottom: 2px; /* Adjusted for spacing */
+}
+
+.select-options button:hover {
+  background-color: #505355;
+}
+
+.tooltip {
+  display: none;
+  position: absolute;
+  background-color: #303134;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  font-size: 14px;
+  z-index: 500;
 }
 
 
@@ -96,6 +187,7 @@ body {
   color: white;
   cursor: pointer;
   transition: background-color 0.2s; /* Transition for hover effect */
+  font-size: 16px; /* Text size */
 }
 
 #voice-button:hover {
@@ -135,7 +227,7 @@ body {
 }
 
 .copy-btn {
-  /* Add styles for the copy button if needed */
+  font-size: 15px;
 }
 
 .message.response {

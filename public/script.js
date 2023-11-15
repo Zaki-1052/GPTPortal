@@ -5,7 +5,163 @@
   function isSafariBrowser() {
     return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   }
+
+
+  const modelID = {
+    "GPT-4": "gpt-4",
+    "GPT-4-Vision": "gpt-4-vision-preview",
+    "GPT-4-32k": "gpt-4-32k",
+    "GPT-4-Turbo": "gpt-4-1106-preview",
+    "GPT-3.5-Turbo": "gpt-3.5-turbo-1106"
+  };
   
+  const customModelNames = {
+    "gpt-4": "GPT-4",
+    "gpt-4-vision-preview": "GPT-4-Vision",
+    "gpt-4-32k": "GPT-4-32k",
+    "gpt-4-1106-preview": "GPT-4-Turbo",
+    "gpt-3.5-turbo-1106": "GPT-3.5-Turbo"
+  };
+  
+
+
+// Default model functionality
+  function setDefaultModel() {
+  let selectedModelDiv = document.getElementById("selected-model");
+  let defaultModel = "gpt-4";
+
+  // Check if a model has been selected, if not, set to default model ID and update display
+  if (selectedModelDiv.textContent.trim() === "Select a Model") {
+    currentModelID = defaultModel; // Set the default model ID
+    selectedModelDiv.textContent = customModelNames[defaultModel]; // Update display to show default model name
+  }
+}
+
+let currentModelID = 'gpt-4'; // Global declaration
+
+
+    
+    // Function to select a model and update the displayed text
+// Global variable to store the current model ID
+
+// Function to update the current model ID
+function updateCurrentModelID(modelId) {
+  currentModelId = modelId;
+}
+
+// Modify your selectModel function
+function selectModel(modelID) {
+  const displayName = customModelNames[modelID];
+
+  // Update the selected model display
+  let selectedModelDiv = document.getElementById("selected-model");
+  selectedModelDiv.textContent = displayName;
+
+  // Update the current model ID
+  currentModelID = modelID;
+  console.log("Selected model ID:", modelID); // Add this line
+
+  toggleDropdown(); // Close the dropdown
+}
+
+
+
+
+const selectedModelDisplayName = document.getElementById('selected-model').textContent.trim();
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Define model descriptions
+    const modelDescriptions = {
+      "gpt-4": "GPT-4: Most Intelligent - Default",
+      "gpt-4-vision-preview": "GPT-4-Vision: View & Analyze Images",
+      "gpt-4-32k": "GPT-4 32k: Longer Context Window - Higher Price",
+      "gpt-4-1106-preview": "GPT-4-Turbo: Current Plus Model in ChatGPT",
+      "gpt-3.5-turbo-1106": "GPT-3.5-Turbo: Cheapest Option Available"
+    };
+    
+  
+    // Function to show the custom tooltip
+    function showCustomTooltip(text, targetElement) {
+      let tooltip = document.getElementById("custom-tooltip");
+      let rect = targetElement.getBoundingClientRect();
+  
+      tooltip.textContent = text;
+      tooltip.style.display = 'block';
+  
+      // Position the tooltip to the right and slightly above the targetElement
+      tooltip.style.left = `${rect.right + 10}px`; // 10 pixels to the right of the element
+      tooltip.style.top = `${window.scrollY + rect.top}px`; // 10 pixels above the top of the element
+    }
+  
+// Toggle dropdown on clicking the custom-select div
+document.querySelector('.custom-select').addEventListener('click', toggleDropdown);
+
+    // Function to hide the custom tooltip
+    function hideCustomTooltip() {
+      let tooltip = document.getElementById("custom-tooltip");
+      tooltip.style.display = 'none';
+    }
+    
+    document.getElementById('selected-model').addEventListener('click', toggleDropdown);
+
+    function toggleDropdown(event) {
+      console.log("toggleDropdown triggered", event.target); // Debugging line
+      let isClickInside = event.target.closest('.custom-select') || event.target.id === 'selected-model';
+      console.log("Is Click Inside: ", isClickInside); // Debugging line
+      if (isClickInside) {
+        let options = document.getElementById("model-options");
+        console.log("Current display: ", options.style.display); // Debugging line
+        options.style.display = options.style.display === "block" ? "none" : "block";
+        console.log("New display: ", options.style.display); // Debugging line
+      }
+    }
+    
+    
+
+
+
+
+
+
+// Add event listeners for selecting a model
+document.getElementById('model-gpt-4').addEventListener('click', () => selectModel('gpt-4'));
+document.getElementById('model-gpt-4-vision').addEventListener('click', () => selectModel('gpt-4-vision-preview'));
+document.getElementById('model-gpt-4-32k').addEventListener('click', () => selectModel('gpt-4-32k'));
+  
+    // Add event listeners for model buttons
+    document.getElementById('model-gpt-4').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4"], event.currentTarget));
+    document.getElementById('model-gpt-4-vision').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-vision-preview"], event.currentTarget));
+    document.getElementById('model-gpt-4-32k').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-32k"], event.currentTarget)); 
+  
+    // Add click event listeners for selecting a model
+    document.getElementById('model-gpt-4').addEventListener('click', () => selectModel('gpt-4'));
+    document.getElementById('model-gpt-4-vision').addEventListener('click', () => selectModel('gpt-4-vision-preview'));
+    document.getElementById('model-gpt-4-32k').addEventListener('click', () => selectModel('gpt-4-32k'));
+
+    document.getElementById('model-gpt-4-turbo').addEventListener('click', () => selectModel('gpt-4-1106-preview'));
+document.getElementById('model-gpt-3.5').addEventListener('click', () => selectModel('gpt-3.5-turbo-1106'));
+
+document.getElementById('model-gpt-4-turbo').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-1106-preview"], event.currentTarget));
+document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-3.5-turbo-1106"], event.currentTarget));
+
+
+  // Add mouseout event listener for all model buttons
+  document.querySelectorAll('.select-options button').forEach(button => {
+    button.addEventListener('mouseout', hideCustomTooltip);
+  });   
+  
+    // Close the dropdown if clicked outside
+    window.onclick = function(event) {
+      if (!event.target.matches('.custom-select') && !event.target.matches('.select-options button')) {
+        let options = document.getElementById("model-options");
+        if (options.style.display === "block") {
+          options.style.display = "none";
+        }
+      }
+    };
+  });
+
+
   
     // Event Listener for buttons
   
@@ -21,20 +177,24 @@
           sendButton.click(); // Trigger the send button click on Enter key press
         }
       });
+
     
       
       // Result of Send Button
     
       sendButton.addEventListener('click', async () => {
         const message = messageInput.value.trim();
-        const user_image = document.getElementById('file-input').files[0]; // Get the selected image file
-        messageInput.value = ''; // Clear the input immediately
-        selectedImage = null; // Reset the image variable
+        const user_image = document.getElementById('file-input').files[0];
+        messageInput.value = '';
+        selectedImage = null;
+      
+        // Get the selected model's display name and convert it to the actual model ID
+        setDefaultModel(); // Update default model if needed
       
         if (message || user_image) {
           displayMessage(message, 'user');
           try {
-            await sendMessageToServer(message, user_image); // Pass the message and image file to the server
+            await sendMessageToServer(message, user_image); // Pass the message, image file, and model to the server
             if (voiceMode) {
               // Call to TTS API to read the response
               // This will be implemented in the displayMessage function
@@ -49,6 +209,7 @@
           }
         }
       });
+      
       
 
       // export chat history function
@@ -255,9 +416,15 @@
   
       // Send the message to the server and handle the response
 
-  async function sendMessageToServer(message, imageFile = null) {
+      async function sendMessageToServer(message, imageFile = null) {
       const instructions = await fetchInstructions();
-      let payload = { message, instructions };
+      
+      // Prepare the payload with the current model ID
+  let payload = {
+    message: message,
+    modelID: currentModelID, // Include the current model ID in the payload
+    instructions: instructions
+  };
       
       if (imageFile) {
           try {

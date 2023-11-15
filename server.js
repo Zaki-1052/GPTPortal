@@ -182,7 +182,9 @@ app.post('/message', async (req, res) => {
   if (isShuttingDown) {
     return res.status(503).send('Server is shutting down');
 }
+  console.log("Received model ID:", req.body.modelID); // Add this line
   const user_message = req.body.message;
+  const modelID = req.body.modelID || 'gpt-4'; // Extracting model ID from the request
   const user_image = req.body.image; // Accepting an image in the request
   console.log("Received request with size: ", JSON.stringify(req.body).length);
 
@@ -206,6 +208,7 @@ app.post('/message', async (req, res) => {
     return; // End the execution of the function here
   }
 
+   // Retrieve model from the request
   let user_input;
 
   // Include the user's input in the conversation history if it's not "Bye!"
@@ -246,7 +249,7 @@ app.post('/message', async (req, res) => {
       
       // model: "gpt-4-vision-preview", 
 
-      model: "gpt-4",
+      // model: "gpt-4",
 
       // there's also the higher 32k context model
 
@@ -254,12 +257,16 @@ app.post('/message', async (req, res) => {
       
       // use this longer context model **only** if you've considered the expenses properly
 
-// The Default Model is now Default GPT-4, pointing to the snapshot released on August 13th. 
-// If users would like to use Vision capabilities, please comment out the above model and comment in the "vision-preview" at the top.
+      // The Default Model is now Default GPT-4, pointing to the snapshot released on August 13th. 
+      // If users would like to use Vision capabilities, please comment out the above model and comment in the "vision-preview" at the top.
+
+// UPDATE: Model Selector added for variability
+
+      model: modelID, // Use the model specified by the client
 
       messages: conversationHistory, // Includes the System Prompt, previous queries and responses, and your most recently sent message.
       
-      max_tokens: 6000, // The maximum number of tokens to **generate** shared between the prompt and completion. The exact limit varies by model. 
+      max_tokens: 4000, // The maximum number of tokens to **generate** shared between the prompt and completion. The exact limit varies by model. 
       // (One token is roughly 4 characters for standard English text)
       
       temperature: 1.1, // Controls randomness: Lowering results in less random completions. 
