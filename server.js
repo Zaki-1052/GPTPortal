@@ -214,7 +214,7 @@ app.post('/message', async (req, res) => {
       role: "user",
       content: [
         { type: "text", text: user_message },
-        { type: "image_base64", image_base64: user_image }
+        { type: "image_url", image_url: { url: `${user_image}` } }
       ]
     };
   } else {
@@ -243,9 +243,16 @@ app.post('/message', async (req, res) => {
       // model: "gpt-4",
       // So Delete the "// " before "model" labelling GPT-4 and add/put them before "model: "gpt-4-vision-preview", if you'd like to switch.
       // This is called "commenting out", and is good practice for code maintainability, like:
+      
       // model: "gpt-4-vision-preview", 
 
       model: "gpt-4",
+
+      // there's also the higher 32k context model
+
+      // model: "gpt-4-32k",
+      
+      // use this longer context model **only** if you've considered the expenses properly
 
 // The Default Model is now Default GPT-4, pointing to the snapshot released on August 13th. 
 // If users would like to use Vision capabilities, please comment out the above model and comment in the "vision-preview" at the top.

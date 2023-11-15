@@ -25,23 +25,31 @@
       
       // Result of Send Button
     
-      sendButton.addEventListener('click', () => {
+      sendButton.addEventListener('click', async () => {
         const message = messageInput.value.trim();
-        if (message) {
+        const user_image = document.getElementById('file-input').files[0]; // Get the selected image file
+        messageInput.value = ''; // Clear the input immediately
+        selectedImage = null; // Reset the image variable
+      
+        if (message || user_image) {
           displayMessage(message, 'user');
-          sendMessageToServer(message, selectedImage); // Pass the image data
-          if (voiceMode) {
-            // Call to TTS API to read the response
-            // This will be implemented in the displayMessage function
+          try {
+            await sendMessageToServer(message, user_image); // Pass the message and image file to the server
+            if (voiceMode) {
+              // Call to TTS API to read the response
+              // This will be implemented in the displayMessage function
+            }
+            if (message === "Bye!") {
+              exportChatOnShutdown();
+            }
+          } catch (error) {
+            // Handle error
+            console.error('Error sending message:', error);
+            displayMessage('Error sending message. Please try again.', 'error');
           }
-          
-          messageInput.value = ''; // Clear the input after sending
-          selectedImage = null; // Reset the image variable
-          if (message === "Bye!") {
-            exportChatOnShutdown();
         }
-      }
       });
+      
 
       // export chat history function
 
@@ -234,16 +242,32 @@
     
       // Defining the messages sent
           
-    
+    // converting image to base64
+
+    async function convertImageToBase64(imageFile) {
+      return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = error => reject(error);
+          reader.readAsDataURL(imageFile);
+      });
+  }
+  
       // Send the message to the server and handle the response
-    // Send the message to the server and handle the response
-    async function sendMessageToServer(message, image = null) {
+
+  async function sendMessageToServer(message, imageFile = null) {
       const instructions = await fetchInstructions();
       let payload = { message, instructions };
-      if (image) {
-        payload.image = image; // Add the image to the payload
+      
+      if (imageFile) {
+          try {
+              const base64Image = await convertImageToBase64(imageFile);
+              payload.image = base64Image; // Add the base64 image to the payload
+          } catch (error) {
+              console.error("Error converting image to base64:", error);
+          }
       }
-      console.log("Sending payload: ", payload); // Add this line for debugging
+      console.log("Sending payload: ", payload); // Debugging
     
       // Uses localhost server to send
     
