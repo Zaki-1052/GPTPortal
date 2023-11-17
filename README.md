@@ -2,6 +2,25 @@
 
 Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision*, *Hearing*, and *Speaking* capabilities with superior *Model Performance*.
 
+## Table of Contents
+
+- [Features](#features)
+- [Example](#example)
+- [Structure](#structure)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Author Notes](#author-notes)
+- [Further Explanations](#further-explanations)
+- [Guide: Basic Setup & Use](#guide-basic-setup--use)
+- [Relevant Links](#relevant-links)
+- [Author Links & Custom GPTs](#author-links--custom-gpts)
+- [Research Papers](#research-papers)
+- [FAQ](#faq)
+- [Updates](#updates)
+- [Contributions](#contributions)
+- [License](#license)
+
 ## Features
 
 - Interactive **chat interface** with support for *text messages*.
@@ -21,7 +40,7 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
     - Cheaper and Longer Context, but Less Intelligent
   - GPT-3.5-Turbo: Cheapest Model
 
-## Example: [**Video Showcase**](https://youtu.be/v3GVu0ZuXk4)
+## Example
 
 ![Example Portal View](example.png)
 
@@ -31,7 +50,9 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 
 ### Feature Demo
 
-![Updated Portal View](showcase.mov)
+![Updated Portal View](showcase.mp4)
+
+[**Video Showcase**](https://youtu.be/v3GVu0ZuXk4) - *Instructions*
 
 ## Structure
 
@@ -162,7 +183,7 @@ If you'd like to add Apple-Support to *MediaRecording* via *JavaScript* feel fre
 
 Lastly, if you have uploaded an image and are working with the Vision model, you may no longer switch models mid-conversation, as it will be unable to parse the content of the image in the conversation history. It is best to export the conversation and continue it separately.
 
-### Guide to Setting Up and Using the ChatBot Portal
+### Guide: Basic Setup & Use
 
 #### 1. **Understanding the Basics**
 
@@ -234,7 +255,7 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 - [OpenAI Tokenizer](https://platform.openai.com/tokenizer) - Visit the OpenAI Token Counter to determine message lengths.
 - [Vision Documentation](https://platform.openai.com/docs/guides/vision) - OpenAI insists that the Vision model called in this API Portal is no different from the regular GPT-4, but of course, if you'd like to be sure that you're using the old version that we all miss, please change the model name as specified.
 
-### Author Links and Custom GPTs
+### Author Links & Custom GPTs
 
 - [Discord](https://discord.gg/BVQd7Kdngr) - Contact me on my *Discord* server!
 - [Reddit: Zaki_1052_](https://www.reddit.com/user/Zaki_1052_) - My *Reddit* account for prompts and discussions.
@@ -249,7 +270,9 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 - [StudyGuideGPT](https://chat.openai.com/g/g-Y6DEVGgvf-studyguidegpt) - *Expert at creating detailed study guide explanations for various topics.*
 - [Insightful Scholar](https://chat.openai.com/g/g-MEx354Wgq-insightful-scholar) - *Highly detailed assistant for a tech-savvy high school senior with a focus on BioTech and CompSci. My Default Settings.*
 
-### [Research Papers](https://arc.net/folder/AEE28E72-9795-42D7-9D49-D48ABA0ED00C): Chain and Tree of Thought Prompting
+### [Research Papers](https://arc.net/folder/AEE28E72-9795-42D7-9D49-D48ABA0ED00C)
+
+Using **Chain and Tree of Thought Prompting**:
 
 - [Chain of Thought Prompting Elicits Reasoning in Large Language Models](https://arxiv.org/pdf/2201.11903.pdf)
 - [Tree of Thoughts: Deliberate Problem Solving with Large Language Models](https://arxiv.org/pdf/2305.10601.pdf)
