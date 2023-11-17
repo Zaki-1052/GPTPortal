@@ -1,4 +1,4 @@
-# ChatBot Portal with Multi-Modal GPT-4 API
+# ChatBot Portal for Multi-Modal GPT-4 API
 
 Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision*, *Hearing*, and *Speaking* capabilities with superior *Model Performance*.
 
@@ -24,6 +24,14 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 ## Example: [**Video Showcase**](https://youtu.be/v3GVu0ZuXk4)
 
 ![Example Portal View](example.png)
+
+### Updated View
+
+![Updated Portal View](update.png)
+
+### Feature Demo
+
+![Updated Portal View](showcase.mov)
 
 ## Structure
 
@@ -151,6 +159,8 @@ If you'd like to add Apple-Support to *MediaRecording* via *JavaScript* feel fre
 
 - If you know of a better way, feel free to submit a **Pull Request**!
 - The Relevant *Stack Overflow* Links are in this [*Arc Folder*](https://arc.net/space/04350A44-1A64-49DD-8196-FEA54DF31BDF).
+
+Lastly, if you have uploaded an image and are working with the Vision model, you may no longer switch models mid-conversation, as it will be unable to parse the content of the image in the conversation history. It is best to export the conversation and continue it separately.
 
 ### Guide to Setting Up and Using the ChatBot Portal
 
@@ -300,7 +310,7 @@ For more in-depth knowledge about GPT-4 and API integrations, visit [OpenAI's Do
 
 ### Updates
 
-![Updated Portal View](update.png)
+![Updated Portal View](showcase.png)
 
 This **Updates** Section will showcase any further features added to the repository.
 
@@ -382,7 +392,7 @@ Now, let's say for the second request, you include the initial request and respo
 - [x] Add Token Cost Explanation and Tracking
 - [x] Update API Call for Vision to Default Model
 - [x] Add Model Selector
-- [ ] Make Updated Video Showcase
+- [x] Make Updated Video Showcase
 - [x] Added Export Functionality
 - [x] Fixed Image Inputs
 
