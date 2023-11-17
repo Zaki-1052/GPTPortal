@@ -58,6 +58,8 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 
 [**Video Showcase**](https://youtu.be/v3GVu0ZuXk4) - *Instructions*
 
+![Feature Showcase](showcase.mp4)
+
 ## Structure
 
 - **portal.html**: The main HTML file for user interaction. It includes the chat interface layout, a message input area, an image upload and export button for history, voice chat functionality, a model selector, and it links to the `script.js` file.
