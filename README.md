@@ -50,7 +50,7 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 
 ### Feature Demo
 
-![Updated Portal View](showcase.mp4)
+![Feature Demo]([showcase.mp4](https://youtu.be/5Ge21SPhu4E))
 
 [**Video Showcase**](https://youtu.be/v3GVu0ZuXk4) - *Instructions*
 
