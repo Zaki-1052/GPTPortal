@@ -50,7 +50,7 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 
 ### Feature Demo
 
-![Feature Demo](https://youtu.be/5Ge21SPhu4E)) - *YouTube Link*
+[**Feature Demo**](https://youtu.be/5Ge21SPhu4E)) - *YouTube Link*
 
 
 https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-960a4b11770e
