@@ -18,6 +18,7 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - [Research Papers](#research-papers)
 - [FAQ](#faq)
 - [Updates](#updates)
+- [Tokens](#token-costs-explained)
 - [Contributions](#contributions)
 - [License](#license)
 
@@ -32,13 +33,15 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - Simple and intuitive **UI** with *copy-to-clipboard* feature for chat messages.
 - **Export** as *HTML* **button** for *conversation history*.
 - Integrated **shutdown** *functionality* at "**Bye!**"
+- **Image Generation** with *DALL·E 3*.
 - **Model Selector** of various *OpenAI APIs*. Includes:
-  - GPT-4: Default – Snapshot of the Most Intelligent Version
-  - GPT-4-Vision: Able to View & Analyze Images
-  - GPT-4-32k: Longer Context Window – More Expensive
-  - GPT-4-Turbo: Currently used in ChatGPT Plus
-    - Cheaper and Longer Context, but Less Intelligent
-  - GPT-3.5-Turbo: Cheapest Model
+  - GPT-4: Default – Snapshot of the *Most Intelligent* Version
+  - GPT-4-Vision: Able to View & Analyze *Images*
+  - GPT-4-32k: Longer Context Window – More *Expensive*
+    - Must be hosted on Microsoft Azure for access
+  - GPT-4-Turbo: Currently used in *ChatGPT Plus*
+    - *Cheaper* and Longer Context, but *Less Intelligent*
+  - GPT-3.5-Turbo: *Cheapest* Model
 
 ## Example
 
@@ -143,6 +146,12 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
     - It will be an *HTML* document formatted in *Markdown*.
 - Type: "**Bye!**" in the text input box in order to *end the conversation* and *kill the server*.
   - This will also *Export* the *Conversation History*.
+- **Image Generation**: *IMPORTANT*
+  - Specific *Syntax* is needed to activate *DALL·E 3*:
+    - Type: "**Generate:**" followed by your prompt.
+      - The API will *produce the image* in the chat window, subsequently *download* it, and *end* the chat.
+        - Only *one image* can be generated per server *session*.
+        - **Cost**: *$0.080 / image*
 
 ## Author Notes
 
@@ -205,45 +214,47 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 #### 3. **Cloning the Repository**
 
 - **Clone via Git**:
-- On a Mac, open '*Terminal*'; on *Windows*, open '*Command Prompt*'. These programs allow you to interact with your computer using text commands.
-- Type `git clone https://github.com/Zaki-1052/GPTPortal.git` and press Enter. This command copies the ChatBot Portal code from GitHub to your computer.
+  - On a Mac, open '*Terminal*'; on *Windows*, open '*Command Prompt*'. These programs allow you to interact with your computer using text commands.
+  - Type `git clone https://github.com/Zaki-1052/GPTPortal.git` and press Enter. This command copies the ChatBot Portal code from GitHub to your computer.
 - **Navigate to the Directory**:
-- In the same window, type `cd GPTPortal` and press Enter. This moves you into the folder where the ChatBot Portal code is stored.
-  - Be aware that in order to run the server for this repo, you will need to be in the root directory in your terminal. This means that if you rename and place it elsewhere (your Desktop, for example), you will need to `cd ~/Desktop/GPTPortal`, and use its new name before running.
+  - In the same window, type `cd GPTPortal` and press Enter. This moves you into the folder where the ChatBot Portal code is stored.
+    - Be aware that in order to run the server for this repo, you will need to be in the root directory in your terminal. This means that if you rename and place it elsewhere (your Desktop, for example), you will need to `cd ~/Desktop/GPTPortal`, and use its new name before running.
 
 #### 4. **Setting Up the ChatBot Portal**
 
 - **Install Dependencies**:
-- Still in Terminal or Command Prompt, ensure you're in the `GPTPortal` directory. Now, type `npm install` and press Enter. This installs additional code packages that the ChatBot Portal needs to function.
+  - Still in Terminal or Command Prompt, ensure you're in the `GPTPortal` directory. Now, type `npm install` and press Enter. This installs additional code packages that the ChatBot Portal needs to function.
 - **Configuration**:
-- Find the `.env.example` file in the `GPTPortal` folder. Rename it to `.env`. This is where you'll put sensitive settings, like your OpenAI key.
-- Open this `.env` file in a text editor and follow the format shown in the file to fill in your **OpenAI API Key** and **Login Credentials** (*Username and Password*).
+  - Find the `.env.example` file in the `GPTPortal` folder. Rename it to `.env`. This is where you'll put sensitive settings, like your OpenAI key.
+  - Open this `.env` file in a text editor and follow the format shown in the file to fill in your **OpenAI API Key** and **Login Credentials** (*Username and Password*).
   - Be sure to fill out the **HTTP Authentication** shown in the environment example as well, where you can simply make up your credentials for signing into the port. This information cannot be accessed over the internet and runs locally on your machine.
 
 #### 5. **Obtaining an OpenAI API Key**
 
 - **Sign Up for OpenAI**:
-- Visit [OpenAI's Website](https://openai.com/) and create an account.
+  - Visit [OpenAI's Website](https://openai.com/) and create an account.
 - **API Key Generation**:
-- Once you're logged in, find the API section (linked below in *Relevant Links*) and generate a new API key. This key is like a password that lets your ChatBot Portal access OpenAI's features.
+  - Once you're logged in, find the API section (linked below in *Relevant Links*) and generate a new API key. This key is like a password that lets your ChatBot Portal access OpenAI's features.
+  - You will need to *Buy Credits* from your [**Billing**](https://platform.openai.com/account/billing/overview) page.
+  - Create a new *secret key* from [*here*](https://platform.openai.com/api-keys).
 - **Insert API Key**:
-- Copy the generated API key and paste it into your `.env` file in the place of `your_api_key_here`.
-  - Never share your key with anyone. This is what is used to pay for the API. Their billing system is explained in the Relevant Links, but basically, you pay out of your API Credit Balance for what you actually use, and it carries over from month to month. Refer to your personal usage page for more information. Your API is private and cannot be accessed by anyone online unless you post it.
+  - Copy the generated API key and paste it into your `.env` file in the place of `your_api_key_here`.
+    - Never share your key with anyone. This is what is used to pay for the API. Their billing system is explained in the Relevant Links, but basically, you pay out of your API Credit Balance for what you actually use, and it carries over from month to month. Refer to your personal usage page for more information. Your API is private and cannot be accessed by anyone online unless you post it.
 
 #### 6. **Running the ChatBot Portal**
 
 - **Start the Application**:
   - Go back to *Terminal* or *Command Prompt*. Make sure you're in the `GPTPortal` directory and type `node server.js`, then press Enter. This starts the ChatBot Portal on your computer.
 - **Accessing the Portal**:
-- Open a web browser and type `http://localhost:3000/portal` in the address bar. Press Enter to access the ChatBot Portal.
-  - You will need to sign in with the "**Username**" and "**Password**" that you chose. If you simply copied or renamed the example template, the default settings are eponymously named.
+  - Open a web browser and type `http://localhost:3000/portal` in the address bar. Press Enter to access the ChatBot Portal.
+    - You will need to sign in with the "**Username**" and "**Password**" that you chose. If you simply copied or renamed the example template, the default settings are eponymously named.
 
 #### 7. **Basic Troubleshooting**
 
 - **Common Issues**:
-- If the ChatBot doesn't start, check if you missed any steps like installing Node.js, running `npm install`, or correctly entering your API key in the `.env` file.
+  - If the ChatBot doesn't start, check if you missed any steps like installing Node.js, running `npm install`, or correctly entering your API key in the `.env` file.
 - **Consult README**:
-- The README file in the `GPTPortal` directory has more detailed instructions and troubleshooting tips. Refer to it if you encounter issues or need more information.
+  - The README file in the `GPTPortal` directory has more detailed instructions and troubleshooting tips. Refer to it if you encounter issues or need more information.
 
 ## Relevant [Links](https://arc.net/folder/B777A318-2A95-4C36-86AA-156166895CC2)
 
@@ -331,6 +342,10 @@ The costs depend on your usage of the OpenAI API. OpenAI charges based on the nu
 
 Data security is a priority. However, as with any web application, ensure that you follow best practices such as using secure connections and not sharing sensitive information through the chatbot. The `.env` file ensures your API key and other sensitive data are stored securely.
 
+#### I don't see the `.env` file in my finder. Where do I add my key?
+
+If you're using the OS to edit the file and add your credentials, you'll see the hidden files on a Mac with `CMD+Shift+.`. Windows should display the file regardless of its status. You can then use a simple text editor (no need for an IDE!) in order to add the necessary information.
+
 ### Where can I find more resources to learn about GPT-4 and API integrations?
 
 For more in-depth knowledge about GPT-4 and API integrations, visit [OpenAI's Documentation](https://platform.openai.com) and explore the various guides and tutorials available there. Additionally, the links provided in the 'Relevant Links' section of this README offer valuable resources. Please fully read the entire page before raising an issue. Thank you!
@@ -343,12 +358,15 @@ This **Updates** Section will showcase any further features added to the reposit
 
 - **IMPORTANT UPDATE**: A *Model Selector* has now been added.
   - This means that you will no longer need to adjust this parameter in `server.js`.
+- **UPDATE #2**: Image Generation via the *DALL·E 3* API is now supported.
+  - Simply type "**Generate:**" and give your prompt to the model, which will automatically supply and download the image.
+    - Both the "*Bye!*" and "*Generate:*" commands are case sensitive.
 
-#### Token Costs Explained
+#### **Token Costs Explained**
 
 In terms of API calls, they can certainly add up if you're running heavy sessions with GPT-4: the most intelligent (and expensive!) model. For now, this section will serve as a placeholder until I add full support for tracking your token and billing credit usage; I'll also explain mathematically how you can best budget your use of these models in order to get the best possible experience!
 
-##### Understanding the Costs and Usage Pattern
+##### **Understanding the Costs and Usage Pattern**
 
 1. **Base Cost**: Each API call has a base cost of 3 cents for the system prompt (at default).
 2. **Token Costs**:
@@ -359,9 +377,9 @@ In terms of API calls, they can certainly add up if you're running heavy session
 4. **Spending**:
    - Imagine a Monthly Budget: $10.
 
-##### Session Cost Breakdown
+##### **Session Cost Breakdown**
 
-###### Cost Components
+###### **Cost Components**
 
 1. **Base Cost**: 3 cents for the system prompt (fixed 1k tokens).
 2. **Input Cost**: 3 cents per 1000 tokens.
@@ -369,7 +387,7 @@ In terms of API calls, they can certainly add up if you're running heavy session
 
    **Total for Initial Request**: 3 (base) + 3 (input) + 6 (output) = 12 cents.
 
-###### Second Request
+###### **Second Request**
 
 Now, let's say for the second request, you include the initial request and response as part of the input, which cumulatively increases the token count.
 
@@ -379,14 +397,14 @@ Now, let's say for the second request, you include the initial request and respo
 4. **Output Tokens #2**: Let's assume another 1000 tokens (6 cents).
    **Total for Second Request**: 12 (input) + 6 (output) = 18 cents.
 
-###### Cumulative Session Cost
+###### **Cumulative Session Cost**
 
 - **First Request**: 12 cents.
 - **Second Request**: 18 cents.
 
    **Total Session Cost**: 12 + 18 = 30 cents.
 
-##### Key Considerations
+##### **Key Considerations**
 
 - **Cumulative Input**: Each subsequent request will have a larger input size due to the inclusion of previous inputs and outputs.
 - **Managing Token Count**: Being strategic about the number of tokens used in each request and response can help manage costs. This includes frontloading requests with tokens or limiting the scope of each request to manage the token count.
@@ -394,7 +412,7 @@ Now, let's say for the second request, you include the initial request and respo
   - These can be managed in the "*parameters*" section on `server.js` (read the comments)
 - **Final Thoughts**: By understanding how the costs accumulate and the impact of including previous inputs and outputs in new requests, you can more accurately predict and manage your session costs. This step-by-step breakdown should help in visualizing how each component contributes to the total cost.
 
-##### Monthly Budget Analysis
+##### **Monthly Budget Analysis**
 
 1. **Total Monthly Budget**: $10 (1000 cents).
 2. **Daily Session Cost**: 30 cents.
@@ -404,7 +422,7 @@ Now, let's say for the second request, you include the initial request and respo
      - If token use is restrained, you could have a budget of $5 per month.
      - This means that you could only use two (longer) messages in a session by alternating days.
 
-##### Further Token Use
+##### **Further Token Use**
 
 - If a heavier final output is needed (2000 tokens), you will reach the "*Max Tokens"* set in the parameters. While the context length of the model is 8000 tokens, 6000 is set manually here for safety.
   - This will mean an additional cost of 6 cents for 36 cents, and still need "chunking" of messages.
@@ -422,6 +440,7 @@ Now, let's say for the second request, you include the initial request and respo
 - [x] Make Updated Video Showcase
 - [x] Added Export Functionality
 - [x] Fixed Image Inputs
+- [x] Added Image Generation
 
 ## Contributions
 
