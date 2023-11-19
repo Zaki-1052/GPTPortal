@@ -362,6 +362,14 @@ This **Updates** Section will showcase any further features added to the reposit
   - Simply type "**Generate:**" and give your prompt to the model, which will automatically supply and download the image.
     - Both the "*Bye!*" and "*Generate:*" commands are case sensitive.
 
+#### *Showcase* of **DALL·E 3**
+
+
+
+https://github.com/Zaki-1052/GPTPortal/assets/134018102/289a8af8-cf9a-4199-8d4f-50ebde8efbbd
+
+
+
 #### **Token Costs Explained**
 
 In terms of API calls, they can certainly add up if you're running heavy sessions with GPT-4: the most intelligent (and expensive!) model. For now, this section will serve as a placeholder until I add full support for tracking your token and billing credit usage; I'll also explain mathematically how you can best budget your use of these models in order to get the best possible experience!
