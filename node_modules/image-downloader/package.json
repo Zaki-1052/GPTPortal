@@ -1,0 +1,41 @@
+{
+  "name": "image-downloader",
+  "version": "4.3.0",
+  "description": "A Nodejs module for downloading image to disk from a given URL",
+  "main": "index.js",
+  "engines": {
+    "node": ">=6.10.1"
+  },
+  "scripts": {
+    "test": "jest --coverage",
+    "lint": "eslint index.js index.d.ts test",
+    "lint:fix": "eslint --fix index.js index.d.ts test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/demsking/image-downloader.git"
+  },
+  "keywords": [
+    "image",
+    "download",
+    "downloader",
+    "images"
+  ],
+  "author": "Sébastien Demanou",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://gitlab.com/demsking/image-downloader/issues"
+  },
+  "homepage": "https://gitlab.com/demsking/image-downloader",
+  "dependencies": {
+    "follow-redirects": "^1.15.0"
+  },
+  "devDependencies": {
+    "@types/follow-redirects": "^1.14.1",
+    "@typescript-eslint/eslint-plugin": "^5.18.0",
+    "@typescript-eslint/parser": "^5.18.0",
+    "eslint": "^8.13.0",
+    "jest": "^28.0.3",
+    "nock": "^13.0.5"
+  }
+}

@@ -10,7 +10,7 @@ const { marked } = require('marked');
 const app = express();
 app.use(express.json()); // for parsing application/json
 app.use(express.static('public')); // Serves your static files from 'public' directory
-
+const download = require('image-downloader');
 const cors = require('cors');
 app.use(cors());
 
@@ -121,6 +121,55 @@ app.post('/tts', async (req, res) => {
 // END
 
 
+// image generation 
+
+// Endpoint for handling image generation requests
+app.post('/generate-image', async (req, res) => {
+  const prompt = req.body.prompt;
+  
+  try {
+    // Call to DALL·E API with the prompt
+    const dalResponse = await axios.post('https://api.openai.com/v1/images/generations', {
+      prompt: prompt,
+      model: "dall-e-3",
+      n: 1,
+      quality: 'hd',
+      response_format: 'url',
+      size: '1024x1024'
+    }, {
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+      }
+    });
+
+    // Extract the image URL from the response
+    const imageUrl = dalResponse.data.data[0].url;
+
+    // Define a path to save the image
+    const uploadsDir = path.join(__dirname, 'public/uploads');
+    const imagePath = path.join(uploadsDir, `generated-${Date.now()}.jpg`);
+
+    // Ensure uploads directory exists
+    if (!fs.existsSync(uploadsDir)){
+        fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    // Download and save the image
+    try {
+        await download.image({ url: imageUrl, dest: imagePath });
+        res.json({ imageUrl: imageUrl });
+    } catch (error) {
+        console.error('Error saving image:', error);
+        res.status(500).json({ error: "Error saving image", details: error.message });
+    }
+
+  } catch (error) {
+    console.error('Error calling DALL·E API:', error.message);
+    res.status(500).json({ error: "Error calling DALL·E API", details: error.message });
+  }
+});
+
+
 // custom instructions read
 
 let conversationHistory = [];
@@ -162,7 +211,8 @@ initializeConversationHistory();
         .system { background-color: #f0f0f0; }
         .user { background-color: #d1e8ff; }
         .assistant { background-color: #c8e6c9; }
-        /* Add more styles as needed */
+        .generated-image { max-width: 100%; height: auto; }
+        /* Add more styles as needed for Markdown elements like headers, lists, etc. */
       </style>
     </head>
     <body>
@@ -170,20 +220,19 @@ initializeConversationHistory();
 
   conversationHistory.forEach(entry => {
     let formattedContent = '';
+
     if (Array.isArray(entry.content)) {
       entry.content.forEach(item => {
-        if (typeof item === 'string') {
-          // Convert text to HTML
-          formattedContent += marked(item);
-        } else if (item.type === 'image_url' && item.image_url && item.image_url.url) {
-          // Handle image content
-          formattedContent += `<img src="${item.image_url.url}" alt="User Uploaded Image"/>`;
+        if (item.type === 'text' && typeof item.text === 'string') {
+          formattedContent += marked(item.text); // Convert Markdown to HTML
+        } else if (item.type === 'image_url') {
+          formattedContent += `<img src="${item.image_url.url}" alt="User Uploaded Image" class="generated-image"/>`;
         }
-        // Add more conditions as needed for different types of content
       });
+    } else if (typeof entry.content === 'string') {
+      formattedContent = marked(entry.content); // Directly convert string content
     } else {
-      // If the content is a string, convert it directly
-      formattedContent = marked(entry.content);
+      console.error('Unexpected content type in conversationHistory:', entry.content);
     }
 
     htmlContent += `<div class="message ${entry.role}"><strong>${entry.role.toUpperCase()}:</strong> ${formattedContent}</div>`;
@@ -192,6 +241,8 @@ initializeConversationHistory();
   htmlContent += '</body></html>';
   return htmlContent;
 }
+
+
 
 // Handle POST request to '/message'
 app.post('/message', async (req, res) => {
@@ -238,24 +289,23 @@ if (user_message === "Bye!") {
 
 
    // Retrieve model from the request
-  let user_input;
 
-  // Include the user's input in the conversation history if it's not "Bye!"
-  if (user_image) {
-    user_input = {
-      role: "user",
-      content: [
-        { type: "text", text: user_message },
-        { type: "image_url", image_url: { url: `${user_image}` } }
-      ]
-    };
-  } else {
-    user_input = {
-      role: "user",
-      content: user_message
-    };
-  }
-  conversationHistory.push(user_input);
+  let user_input = {
+    role: "user",
+    content: []
+};
+
+// Add text content if present
+if (user_message) {
+    user_input.content.push({ type: "text", text: user_message });
+}
+
+// Add image content if present
+if (user_image) {
+    user_input.content.push({ type: "image_url", image_url: { url: user_image } });
+}
+
+conversationHistory.push(user_input);
 
 
 
@@ -400,6 +450,7 @@ app.get('/export-chat-html', (req, res) => {
         .system { background-color: #f0f0f0; }
         .user { background-color: #d1e8ff; }
         .assistant { background-color: #c8e6c9; }
+        .generated-image { max-width: 100%; height: auto; }
         /* Add more styles as needed for Markdown elements like headers, lists, etc. */
       </style>
     </head>
@@ -407,7 +458,21 @@ app.get('/export-chat-html', (req, res) => {
   `;
 
   conversationHistory.forEach(entry => {
-    let formattedContent = marked(entry.content); // Use marked to convert Markdown to HTML
+    let formattedContent = '';
+
+    if (Array.isArray(entry.content)) {
+      entry.content.forEach(item => {
+        if (item.type === 'text' && typeof item.text === 'string') {
+          formattedContent += marked(item.text); // Convert Markdown to HTML
+        } else if (item.type === 'image_url') {
+          formattedContent += `<img src="${item.image_url.url}" alt="User Uploaded Image" class="generated-image"/>`;
+        }
+      });
+    } else if (typeof entry.content === 'string') {
+      formattedContent = marked(entry.content); // Directly convert string content
+    } else {
+      console.error('Unexpected content type in conversationHistory:', entry.content);
+    }
 
     htmlContent += `<div class="message ${entry.role}"><strong>${entry.role.toUpperCase()}:</strong> ${formattedContent}</div>`;
   });

@@ -45,8 +45,8 @@ let currentModelID = 'gpt-4'; // Global declaration
 // Global variable to store the current model ID
 
 // Function to update the current model ID
-function updateCurrentModelID(modelId) {
-  currentModelId = modelId;
+function updateCurrentModelID(modelID) {
+  currentModelID = modelID;
 }
 
 // Modify your selectModel function
@@ -64,8 +64,86 @@ function selectModel(modelID) {
   toggleDropdown(); // Close the dropdown
 }
 
+// image generation
 
+function isImageGenerationRequest(message) {
+  return message.startsWith("Generate:"); // Simple check to see if the message is an image generation request
+}
 
+async function handleImageGenerationRequest(message) {
+  const prompt = message.substring("Generate:".length).trim();
+
+  try {
+      const response = await fetch('http://localhost:3000/generate-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: prompt })
+      });
+
+      if (!response.ok) {
+          throw new Error('Failed to generate image');
+      }
+
+      const result = await response.json();
+      if (result.imageUrl) {
+          displayGeneratedImage(result.imageUrl);
+          sendMessageToServer("Generated image", result.imageUrl);
+      } else {
+          displayMessage('Image generation failed, please try again.', 'error');
+      }
+  } catch (error) {
+      console.error('Error in image generation:', error);
+      displayMessage('Error in image generation, please try again.', 'error');
+  }
+}
+
+function displayGeneratedImage(imageUrl) {
+  const imageElement = document.createElement('img');
+  imageElement.src = imageUrl;
+  imageElement.alt = "Generated Image";
+  imageElement.classList.add('generated-image'); // Add a class for styling
+
+  // Trigger image download
+  const downloadLink = document.createElement('a');
+  downloadLink.href = imageUrl;
+  downloadLink.download = 'generated-image.jpg'; // or use a dynamic name
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+
+  const chatBox = document.getElementById('chat-box');
+  chatBox.appendChild(imageElement);
+  chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest image
+
+  // Set a timer to send "Bye!" message to the server
+  setTimeout(() => {
+    sendShutdownMessage();
+}, 5000); // Adjust the delay time as needed
+}
+
+function sendShutdownMessage() {
+// Modify the payload to send "Bye!" as the user message
+const payload = { message: "Bye!" };
+
+fetch('http://localhost:3000/message', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message: "Bye!" })
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'chat_history.html';
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+        })
+.catch(err => console.error('Error during shutdown:', err));
+}
 
 const selectedModelDisplayName = document.getElementById('selected-model').textContent.trim();
 
@@ -181,35 +259,40 @@ document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) =
     
       
       // Result of Send Button
-    
-      sendButton.addEventListener('click', async () => {
-        const message = messageInput.value.trim();
-        const user_image = document.getElementById('file-input').files[0];
-        messageInput.value = '';
-        selectedImage = null;
-      
-        // Get the selected model's display name and convert it to the actual model ID
-        setDefaultModel(); // Update default model if needed
-      
-        if (message || user_image) {
-          displayMessage(message, 'user');
+sendButton.addEventListener('click', async () => {
+  const message = messageInput.value.trim();
+  const user_image = document.getElementById('file-input').files[0];
+  messageInput.value = '';
+  selectedImage = null;
+
+  // Get the selected model's display name and convert it to the actual model ID
+  setDefaultModel(); // Update default model if needed
+
+  if (message || user_image) {
+      displayMessage(message, 'user');
+      // Check if it's an image generation request
+      if (isImageGenerationRequest(message)) {
+          await handleImageGenerationRequest(message);
+      } else {
+          // Existing code to handle regular messages
           try {
-            await sendMessageToServer(message, user_image); // Pass the message, image file, and model to the server
-            if (voiceMode) {
-              // Call to TTS API to read the response
-              // This will be implemented in the displayMessage function
-            }
-            if (message === "Bye!") {
-              exportChatOnShutdown();
-            }
+              await sendMessageToServer(message, user_image); // Pass the message, image file, and model to the server
+              if (voiceMode) {
+                  // Call to TTS API to read the response
+                  // This will be implemented in the displayMessage function
+              }
+              if (message === "Bye!") {
+                  exportChatOnShutdown();
+              }
           } catch (error) {
-            // Handle error
-            console.error('Error sending message:', error);
-            displayMessage('Error sending message. Please try again.', 'error');
+              // Handle error
+              console.error('Error sending message:', error);
+              displayMessage('Error sending message. Please try again.', 'error');
           }
-        }
-      });
-      
+      }
+  }
+});
+
       
 
       // export chat history function
@@ -495,26 +578,38 @@ document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) =
       // code for showing the message and speaking it
     
     // Display the message in the chat box
-    function displayMessage(message, type) {
-      const messageElement = document.createElement('div');
-      const messageText = document.createElement('span'); // Create a span for the text
-      const copyButton = document.createElement('button'); // Create a copy button
-    
+function displayMessage(message, type) {
+  const messageElement = document.createElement('div');
+  messageElement.classList.add('message', type);
+
+  if (type === 'image') {
+      const imageElement = document.createElement('img');
+      imageElement.src = message;
+      imageElement.alt = "Generated Image";
+      imageElement.classList.add('generated-image'); // A class for styling images
+
+      messageElement.appendChild(imageElement);
+  } else {
+      const messageText = document.createElement('span');
       messageText.textContent = message;
+
+      const copyButton = document.createElement('button');
       copyButton.textContent = 'Copy';
-      copyButton.onclick = function() { copyToClipboard(messageText); }; // Set the click handler
-    
-      messageElement.classList.add('message', type);
+      copyButton.onclick = function() { copyToClipboard(messageText); };
+
       messageElement.appendChild(messageText);
-      messageElement.appendChild(copyButton); // Append the button to the message element
-    
-      chatBox.appendChild(messageElement);
-      chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest message
-      if (type === 'response' && isVoiceTranscription) {
-        callTTSAPI(message); // Read out the response message only if it should be read aloud
-      }
-    
-    }
+      messageElement.appendChild(copyButton);
+  }
+
+  const chatBox = document.getElementById('chat-box');
+  chatBox.appendChild(messageElement);
+  chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest message
+
+  if (type === 'response' && isVoiceTranscription) {
+      callTTSAPI(message); // Read out the response message only if it should be read aloud
+  }
+}
+
     
     
     // copy button feature
