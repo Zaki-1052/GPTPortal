@@ -246,15 +246,49 @@ document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) =
     document.addEventListener('DOMContentLoaded', () => {
       const sendButton = document.getElementById('send-button');
       const messageInput = document.getElementById('message-input');
+  
+      function autoExpand(field) {
+        // Reset field height
+        field.style.height = 'inherit';
+      
+        // Get the computed styles for the element
+        const computed = window.getComputedStyle(field);
+      
+        // Calculate the height
+  const borderTop = parseInt(computed.getPropertyValue('border-top-width'), 10);
+  const borderBottom = parseInt(computed.getPropertyValue('border-bottom-width'), 10);
+  const paddingTop = parseInt(computed.getPropertyValue('padding-top'), 10);
+  const paddingBottom = parseInt(computed.getPropertyValue('padding-bottom'), 10);
+
+  // Calculate the total height needed
+  const heightNeeded = field.scrollHeight + borderTop + borderBottom;
+
+  // Check if the content exceeds the current height
+  if (field.scrollHeight > field.clientHeight - paddingTop - paddingBottom - borderTop - borderBottom) {
+    field.style.height = `${heightNeeded}px`;
+  }
+}
+      
+
+  messageInput.addEventListener('input', function() {
+    autoExpand(this);
+  });
+
       const chatBox = document.getElementById('chat-box');
       const voiceButton = document.getElementById('voice-button');
       voiceButton.addEventListener('click', voice);
       document.getElementById('export-button').addEventListener('click', exportChatHistory);
+      
+      // Existing event listener for messageInput keypress
       messageInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault(); // Prevent the default action (new line) when Enter alone is pressed
           sendButton.click(); // Trigger the send button click on Enter key press
         }
       });
+
+
+      
 
     
       

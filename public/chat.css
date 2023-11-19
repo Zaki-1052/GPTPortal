@@ -28,15 +28,27 @@ body {
 }
 
 #message-input {
-  width: calc(100% - 100px);
-  padding: 10px 15px;
-  margin-right: 10px;
-  background-color: #303134; /* Input background */
-  border: 1px solid #5f6368; /* Border color */
+  width: calc(100% - 80px); /* Adjust the width calculation to leave space for the send button */
+  padding: 12px 5px 5px 15px; /* Adjust bottom padding if necessary */
+  line-height: normal; /* Adjust line height if necessary */  
+  margin: 0 10px 15px 0; /* Adjust margins to fit the send button */
+  background-color: #303134;
+  border: 1px solid #5f6368;
   border-radius: 20px;
   color: white;
-  margin-bottom: 15px; /* Add some space above the send button */
-  font-size: 14px;
+  font-size: 15px;
+  overflow: hidden;
+  resize: none;
+  height: 45px; /* Set to your preferred default height */
+  box-sizing: border-box;
+  position: relative; /* Ensure positioning is relative to the container */
+  margin-right: 18px;
+  font-family: 'Calibre', sans-serif;
+}
+
+#message-input::placeholder {
+  color: #888; /* Adjust the placeholder color if needed */
+  opacity: 1;
 }
 
 #send-button {
@@ -187,7 +199,8 @@ body {
   color: white;
   cursor: pointer;
   transition: background-color 0.2s; /* Transition for hover effect */
-  font-size: 16px; /* Text size */
+  font-size: 18px; /* Text size */
+  position: absolute;
 }
 
 #voice-button:hover {
@@ -199,7 +212,7 @@ body {
   padding: 10px;
   border-radius: 10px;
   text-align: center;
-  margin-top: 10px;
+  margin-bottom: 10px;
   background-color: #4caf50; /* Green background for visibility */
   color: white;
   transition: background-color 0.3s;
