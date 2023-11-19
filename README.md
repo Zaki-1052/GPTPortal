@@ -33,14 +33,14 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - Simple and intuitive **UI** with *copy-to-clipboard* feature for chat messages.
 - **Export** as *HTML* **button** for *conversation history*.
 - Integrated **shutdown** *functionality* at "**Bye!**"
-- **Image Generation** with *DALL·E 3*.
+- **Image Generation** with *DALL·E 3* at "**Generate:**".
 - **Model Selector** of various *OpenAI APIs*. Includes:
   - GPT-4: Default – Snapshot of the *Most Intelligent* Version
   - GPT-4-Vision: Able to View & Analyze *Images*
   - GPT-4-32k: Longer Context Window – More *Expensive*
-    - Must be hosted on Microsoft Azure for access
+    - Must be hosted on Microsoft Azure for access.
   - GPT-4-Turbo: Currently used in *ChatGPT Plus*
-    - *Cheaper* and Longer Context, but *Less Intelligent*
+    - *Cheaper* and Longer Context, but *Less Intelligent*.
   - GPT-3.5-Turbo: *Cheapest* Model
 
 ## Example
@@ -146,7 +146,7 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
     - It will be an *HTML* document formatted in *Markdown*.
 - Type: "**Bye!**" in the text input box in order to *end the conversation* and *kill the server*.
   - This will also *Export* the *Conversation History*.
-- **Image Generation**: *IMPORTANT*
+- **Image Generation**: *IMPORTANT!*
   - Specific *Syntax* is needed to activate *DALL·E 3*:
     - Type: "**Generate:**" followed by your prompt.
       - The API will *produce the image* in the chat window, subsequently *download* it, and *end* the chat.

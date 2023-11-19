@@ -115,10 +115,6 @@ function displayGeneratedImage(imageUrl) {
   chatBox.appendChild(imageElement);
   chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest image
 
-  // Set a timer to send "Bye!" message to the server
-  setTimeout(() => {
-    sendShutdownMessage();
-}, 5000); // Adjust the delay time as needed
 }
 
 function sendShutdownMessage() {
