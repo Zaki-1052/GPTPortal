@@ -226,6 +226,7 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
   - Still in Terminal or Command Prompt, ensure you're in the `GPTPortal` directory. Now, type `npm install` and press Enter. This installs additional code packages that the ChatBot Portal needs to function.
 - **Configuration**:
   - Find the `.env.example` file in the `GPTPortal` folder. Rename it to `.env`. This is where you'll put sensitive settings, like your OpenAI key.
+    - If you do not have a text editor like VSCode, use `CMD`+`SHIFT`+`.` to reveal the hidden files in `GPTPortal`, and select the file, renaming and editing it by double clicking and using the default installed *TextEdit*.
   - Open this `.env` file in a text editor and follow the format shown in the file to fill in your **OpenAI API Key** and **Login Credentials** (*Username and Password*).
   - Be sure to fill out the **HTTP Authentication** shown in the environment example as well, where you can simply make up your credentials for signing into the port. This information cannot be accessed over the internet and runs locally on your machine.
 
@@ -449,6 +450,7 @@ Now, let's say for the second request, you include the initial request and respo
 - [x] Added Export Functionality
 - [x] Fixed Image Inputs
 - [x] Added Image Generation
+- [ ] Increase Image Input Size
 
 ## Contributions
 
