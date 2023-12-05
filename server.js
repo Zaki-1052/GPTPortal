@@ -192,7 +192,7 @@ async function readInstructionsFile() {
 // giving the model a system prompt and adding tp 
 async function initializeConversationHistory() {
   const fileInstructions = await readInstructionsFile();
-  let systemMessage = `You are a helpful and intelligent assistant, knowledgeable about a wide range of topics.\n Specifically:\n ${fileInstructions}`;
+  let systemMessage = `You are a helpful and intelligent AI assistant, knowledgeable about a wide range of topics and highly capable of a great many tasks.\n Specifically:\n ${fileInstructions}`;
   conversationHistory.push({ role: "system", content: systemMessage });
 }
 
