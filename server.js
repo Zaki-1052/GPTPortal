@@ -348,7 +348,7 @@ conversationHistory.push(user_input);
       max_tokens: 4000, // The maximum number of tokens to **generate** shared between the prompt and completion. The exact limit varies by model. 
       // (One token is roughly 4 characters for standard English text)
       
-      temperature: 1.1, // Controls randomness: Lowering results in less random completions. 
+      temperature: 1, // Controls randomness: Lowering results in less random completions. 
       // As the temperature approaches zero, the model will become deterministic and repetitive.
       
       top_p: 1,  // Controls diversity via nucleus sampling: 0.5 means half of all likelihood-weighted options are considered.
