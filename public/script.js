@@ -146,10 +146,10 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
   document.addEventListener('DOMContentLoaded', () => {
     // Define model descriptions
     const modelDescriptions = {
-      "gpt-4": "GPT-4: Most Intelligent - Default",
+      "gpt-4": "GPT-4: Most Intelligent — Default",
       "gpt-4-vision-preview": "GPT-4-Vision: View & Analyze Images",
-      "gpt-4-32k": "GPT-4 32k: Longer Context Window - Higher Price",
-      "gpt-4-1106-preview": "GPT-4-Turbo: Current Plus Model in ChatGPT",
+      "gpt-4-32k": "GPT-4 32k: Longer Context Window — Higher Price",
+      "gpt-4-1106-preview": "GPT-4-Turbo: ChatGPT-Plus Model — 128k Tokens",
       "gpt-3.5-turbo-1106": "GPT-3.5-Turbo: Cheapest Option Available"
     };
     
