@@ -417,6 +417,8 @@ conversationHistory.push(user_input);
       
       presence_penalty: 0, // How much to penalize new tokens based on whether they appear in the text so far.
       // Increases the model's likelihood to talk about new topics.
+
+      stream: true, // streaming messages from server to api for better memory efficiency
       
        // Additional Parameters
   // Stop Sequences
@@ -461,37 +463,56 @@ conversationHistory.push(user_input);
     // Log the data payload just before sending it to the OpenAI API
   console.log("Sending to OpenAI API:", JSON.stringify(data, null, 2));
   
-    try {
-      // Make the POST request to the OpenAI API with the defined data and headers
-      const response = await axios.post('https://api.openai.com/v1/chat/completions', data, { headers });
-      
-      // Log the response data for debugging
-      console.log(JSON.stringify(response.data, null, 2));
+  try {
+    const response = await axios.post('https://api.openai.com/v1/chat/completions', data, { headers, responseType: 'stream' });
+    let buffer = '';
+  
+    response.data.on('data', (chunk) => {
+      buffer += chunk.toString(); // Accumulate the chunks in a buffer
+    });
+  
+    response.data.on('end', () => {
+      try {
+        const lines = buffer.split('\n');
+        let messageContent = '';
+  
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const jsonString = line.substring(6).trim();
+            if (jsonString !== '[DONE]') {
+              const parsedChunk = JSON.parse(jsonString);
+              messageContent += parsedChunk.choices.map(choice => choice.delta?.content).join('');
+            }
+          }
+        }
 
-      
-      // Send back the last message content from the response
-      // Extract the last message content from the response
-    // Extract the last message content from the response
-    const lastMessageContent = response.data.choices[0].message.content;
+        const lastMessageContent = messageContent;
 
-    if (lastMessageContent) {
-      // Add assistant's message to the conversation history
-      conversationHistory.push({ role: "assistant", content: lastMessageContent.trim() });
-
-      // Send this back to the client
-      res.json({ text: lastMessageContent.trim() });
-    } else {
-      // Handle no content scenario
-      res.status(500).json({ error: "No text was returned from the API" });
-    }
+  
+        if (lastMessageContent) {
+          // Add assistant's message to the conversation history
+          conversationHistory.push({ role: "assistant", content: lastMessageContent.trim() });
+    
+          // Send this back to the client
+          res.json({ text: lastMessageContent.trim() });
+        } else {
+          // Handle no content scenario
+          res.status(500).json({ error: "No text was returned from the API" });
+        }
+      } catch (parseError) {
+        console.error('Error parsing complete response:', parseError.message);
+        res.status(500).json({ error: "Error parsing the response from OpenAI API" });
+      }
+    });
+  
   } catch (error) {
-    // Handle request error
     console.error('Error calling OpenAI API:', error.message);
     if (error.response) {
       console.error(error.response.data);
     }
     res.status(500).json({ error: "An error occurred when communicating with the OpenAI API.", details: error.message });
   }
+  
 });
 
 

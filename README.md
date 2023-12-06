@@ -451,6 +451,7 @@ Now, let's say for the second request, you include the initial request and respo
 - [x] Fixed Image Inputs
 - [x] Added Image Generation
 - [x] Increase Image Input Size
+- [x] Stream Messages from Server to API
 
 ## Contributions
 
