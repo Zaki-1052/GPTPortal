@@ -223,29 +223,38 @@ body {
   color: white;
 }
 
+.copy-btn {
+  font-size: 15px;
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
+
+.message {
+  background-color: #1a73e8; /* Using the button color to differentiate */
+  color: white;
+  padding: 10px 15px;
+  margin: 5px 0 10px auto; /* Adjusted margin */
+  border-radius: 10px;
+  max-width: 70%;
+  word-wrap: break-word;
+  text-align: left;
+}
+
 .message.response {
   background-color: #303134; /* Matching input field background */
   color: white;
   padding: 10px 15px;
-  margin: 5px 0;
+  margin: 5px auto 10px 0; /* Adjusted margin to align left */
   border-radius: 10px;
   max-width: 75%;
   word-wrap: break-word;
-  margin-bottom: 10px; /* Add space below each message */
+  text-align: left;
 }
+
 
 .message span {
   display: block; /* Make the span a block element to allow for margins */
   margin-bottom: 5px; /* Add space below the message text */
-}
-
-.copy-btn {
-  font-size: 15px;
-}
-
-.message {
-  margin-left: auto; /* Align responses to the right */
-  background-color: #1a73e8; /* Using the button color to differentiate */
 }
 
 .message.error {
