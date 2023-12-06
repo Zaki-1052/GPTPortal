@@ -223,7 +223,7 @@ body {
   color: white;
 }
 
-.message {
+.message.response {
   background-color: #303134; /* Matching input field background */
   color: white;
   padding: 10px 15px;
@@ -243,11 +243,39 @@ body {
   font-size: 15px;
 }
 
-.message.response {
+.message {
   margin-left: auto; /* Align responses to the right */
   background-color: #1a73e8; /* Using the button color to differentiate */
 }
 
 .message.error {
   color: #e66767; /* Error color */
+}
+
+.message p {
+  margin: 0.5em 0; /* Adjust paragraph margins within messages */
+}
+
+.message ul, .message ol {
+  padding-left: 20px; /* Indentation for lists */
+  margin: 0.5em 0; /* Margin around lists */
+}
+
+.message li {
+  margin: 0.25em 0; /* Margin for list items */
+}
+
+.message h1, .message h2, .message h3 {
+  margin: 0.75em 0; /* Margin for headers */
+  font-weight: bold;
+}
+
+.message strong {
+  font-weight: bold;
+}
+
+/* Ensure new lines (<br>) don't add excessive space */
+.message br {
+  margin: 0;
+  line-height: normal;
 }

@@ -452,6 +452,7 @@ Now, let's say for the second request, you include the initial request and respo
 - [x] Added Image Generation
 - [x] Increase Image Input Size
 - [x] Stream Messages from Server to API
+- [x] Render Markdown on Portal
 
 ## Contributions
 
