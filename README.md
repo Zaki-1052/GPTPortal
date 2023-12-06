@@ -450,7 +450,7 @@ Now, let's say for the second request, you include the initial request and respo
 - [x] Added Export Functionality
 - [x] Fixed Image Inputs
 - [x] Added Image Generation
-- [ ] Increase Image Input Size
+- [x] Increase Image Input Size
 
 ## Contributions
 

@@ -39,7 +39,7 @@
 
 let currentModelID = 'gpt-4'; // Global declaration
 
-
+let selectedImage = null;
     
     // Function to select a model and update the displayed text
 // Global variable to store the current model ID
@@ -293,7 +293,6 @@ sendButton.addEventListener('click', async () => {
   const message = messageInput.value.trim();
   const user_image = document.getElementById('file-input').files[0];
   messageInput.value = '';
-  selectedImage = null;
 
   // Get the selected model's display name and convert it to the actual model ID
   setDefaultModel(); // Update default model if needed
@@ -503,21 +502,14 @@ sendButton.addEventListener('click', async () => {
     
       function handleFileSelect(event) {
         const file = event.target.files[0];
-        const reader = new FileReader();
-        
-        reader.onload = function (fileLoadEvent) {
-          // Include the MIME type in the base64 string
-          const base64Image = 'data:' + file.type + ';base64,' + btoa(fileLoadEvent.target.result);
-          selectedImage = base64Image;
-        };
-      
-        reader.readAsBinaryString(file); // Read the file as a binary string
+        selectedImage = file;
       }
     
       // Defining the messages sent
           
     // converting image to base64
-
+// deprecated function, now on backend
+/*
     async function convertImageToBase64(imageFile) {
       return new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -526,55 +518,71 @@ sendButton.addEventListener('click', async () => {
           reader.readAsDataURL(imageFile);
       });
   }
+  */
+
+  // Function to upload the image and return its URL
+async function uploadImageAndGetUrl(imageFile) {
+  const formData = new FormData();
+  formData.append('image', imageFile);
+
+  try {
+    const response = await fetch('http://localhost:3000/upload-image', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await response.json();
+    return data.imageUrl; // Assuming the server returns the URL in this format
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    // Handle error
+  }
+}
   
       // Send the message to the server and handle the response
 
-      async function sendMessageToServer(message, imageFile = null) {
-      const instructions = await fetchInstructions();
-      
-      // Prepare the payload with the current model ID
-  let payload = {
-    message: message,
-    modelID: currentModelID, // Include the current model ID in the payload
-    instructions: instructions
-  };
-      
-      if (imageFile) {
-          try {
-              const base64Image = await convertImageToBase64(imageFile);
-              payload.image = base64Image; // Add the base64 image to the payload
-          } catch (error) {
-              console.error("Error converting image to base64:", error);
-          }
-      }
-      console.log("Sending payload: ", payload); // Debugging
-    
-      // Uses localhost server to send
-    
-      try {
-        const response = await fetch('http://localhost:3000/message', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            // Add other headers as needed
-          },
-          body: JSON.stringify(payload) // Use the updated payload
-        });
-    
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+      async function sendMessageToServer(message) {
+
+        let imageUrl = null;
+        if (selectedImage) {
+          imageUrl = await uploadImageAndGetUrl(selectedImage);
         }
-    
-        const data = await response.json();
-        // Use the response from the server
-        displayMessage(data.text, 'response', isVoiceTranscription); // Display the response in the chat box
-        isVoiceTranscription = false; // Reset the flag for the next message
-      } catch (error) {
-        console.error('Error sending message to server:', error);
-        // Handle any errors that occurred during the send
-        displayMessage('Error sending message. Please try again.', 'error');
+
+        const instructions = await fetchInstructions();
+        
+        // Prepare the payload with the current model ID
+        let payload = {
+            message: message,
+            modelID: currentModelID,
+            instructions: instructions,
+            image: imageUrl // Add the image URL to the payload
+        };
+        
+        try {
+          const response = await fetch('http://localhost:3000/message', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              // Add other headers as needed
+            },
+            body: JSON.stringify(payload) // Use the updated payload
+          });
+      
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+      
+          const data = await response.json();
+          // Use the response from the server
+          displayMessage(data.text, 'response', isVoiceTranscription); // Display the response in the chat box
+          isVoiceTranscription = false; // Reset the flag for the next message
+        } catch (error) {
+          console.error('Error sending message to server:', error);
+          // Handle any errors that occurred during the send
+          displayMessage('Error sending message. Please try again.', 'error');
+        }
       }
-    }
+      
+    
     
     
     // function to get custom instructions
@@ -590,18 +598,6 @@ sendButton.addEventListener('click', async () => {
       console.error('Error fetching instructions:', error);
       return ''; // Return empty string in case of an error
     }
-    }
-    
-    // reading the image
-    
-    let selectedImage = null;
-    
-    function handleFileSelect(event) {
-    const reader = new FileReader();
-    reader.onload = function (fileLoadEvent) {
-      selectedImage = fileLoadEvent.target.result; // Store the base64Image
-    };
-    reader.readAsDataURL(event.target.files[0]); // Read the image file as a data URL.
     }
     
     

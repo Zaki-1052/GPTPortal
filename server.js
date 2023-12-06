@@ -45,10 +45,22 @@ app.get('/uploads/:filename', (req, res) => {
   res.sendFile(filename, { root: 'public/uploads' });
 });
 
+app.use('/uploads', express.static('public/uploads'));
+
 
 
 const multer = require('multer');
-const upload = multer({ storage: multer.memoryStorage() });
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'public/uploads');
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname)); // Retain original file extension
+  }
+});
+
+const upload = multer({ storage: storage });
+
 
 const FormData = require('form-data');
 const path = require('path');
@@ -243,14 +255,49 @@ initializeConversationHistory();
 }
 
 
+// Function to convert an image URL to base64
+async function imageURLToBase64(url) {
+  try {
+    const response = await axios.get(url, {
+      responseType: 'arraybuffer' // Ensure the image data is received in the correct format
+    });
+    return `data:image/jpeg;base64,${Buffer.from(response.data).toString('base64')}`;
+  } catch (error) {
+    console.error('Error fetching image:', error);
+    return null; // Return null if there is an error
+  }
+}
+
+// Endpoint to handle image upload
+app.post('/upload-image', upload.single('image'), async (req, res) => {
+  console.log("File received in /upload-image:", req.file);
+  if (!req.file) {
+    return res.status(400).send({ error: 'No image file provided.' });
+  }
+
+  // Generate URL for the uploaded image
+  const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+
+  // Send the image URL back to the client
+  res.send({ imageUrl: imageUrl });
+});
+
+
+// Function to convert an image file to base64
+function imageToBase64(filePath) {
+  const image = fs.readFileSync(filePath);
+  return `data:image/jpeg;base64,${image.toString('base64')}`;
+}
 
 // Handle POST request to '/message'
+// Handle POST request to '/message' with file upload
+
 app.post('/message', async (req, res) => {
-  
+  console.log("req.file:", req.file); // Check if the file is received
   console.log("Received model ID:", req.body.modelID); // Add this line
   const user_message = req.body.message;
   const modelID = req.body.modelID || 'gpt-4'; // Extracting model ID from the request
-  const user_image = req.body.image; // Accepting an image in the request
+  const image = req.body.image; // This will now be an URL
   console.log("Received request with size: ", JSON.stringify(req.body).length);
 
  // Check for shutdown command
@@ -300,10 +347,22 @@ if (user_message) {
     user_input.content.push({ type: "text", text: user_message });
 }
 
-// Add image content if present
-if (user_image) {
-    user_input.content.push({ type: "image_url", image_url: { url: user_image } });
+// Check for image in the payload
+// Check for image in the payload
+if (req.body.image) {
+  let base64Image;
+  // If req.file is defined, it means the image is uploaded as a file
+  if (req.file) {
+    base64Image = imageToBase64(req.file.path);
+  } else {
+    // If req.file is not present, fetch the image from the URL
+    base64Image = await imageURLToBase64(req.body.image);
+  }
+  if (base64Image) {
+    user_input.content.push({ type: "image_url", image_url: { url: base64Image } });
+  }
 }
+
 
 conversationHistory.push(user_input);
 
