@@ -30,7 +30,8 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - Server-side integration with *OpenAI* **GPT-4 API**.
 - **Basic authentication** for *secure access*.
 - Customizable *System-Defined Instructions* and *Model Parameters*.
-- Simple and intuitive **UI** with *copy-to-clipboard* feature for chat messages.
+- Simple and intuitive **UI** with *copy-to-clipboard* feature.
+- **Markdown** *rendering* for chat messages in *Marked* styles.
 - **Export** as *HTML* **button** for *conversation history*.
 - Integrated **shutdown** *functionality* at "**Bye!**"
 - **Image Generation** with *DALL·E 3* at "**Generate:**".
@@ -40,7 +41,8 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
   - GPT-4-32k: Longer Context Window – More *Expensive*
     - Must be hosted on Microsoft Azure for access.
   - GPT-4-Turbo: Currently used in *ChatGPT Plus*
-    - *Cheaper* and Longer Context, but *Less Intelligent*.
+    - *Cheaper* and Longest Context, but *Less Intelligent*.
+      - Maximum Token Window: 128,000!
   - GPT-3.5-Turbo: *Cheapest* Model
 
 ## Example
@@ -64,7 +66,7 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 ## Structure
 
 - **portal.html**: The main HTML file for user interaction. It includes the chat interface layout, a message input area, an image upload and export button for history, voice chat functionality, a model selector, and it links to the `script.js` file.
-- **script.js**: Contains client-side logic for handling user inputs, sending messages and images to the server, and displaying responses in the chat interface. It also includes file selection for image uploads and a copy-to-clipboard function with support for exorting your current conversation history and changing models.
+- **script.js**: Contains client-side logic for handling user inputs, sending messages and images to the server, and displaying marked responses in the chat interface. It also includes file selection for image uploads and a copy-to-clipboard function with support for exorting your current conversation history and changing models.
 - **server.js**: The server-side Node.js file using Express.js. It processes POST requests to `/message`, interacts with the OpenAI GPT-4-Vision API, along with Whisper and TTS, and manages CORS, authentication, and static file serving.
 - **instructions.md**: The model's System Instructions, customized for optimal responses and contextual prompt enhancement.
 - **.env**: The *Environment Variable* file for your *sensitive passwords*. Must be modeled after the `.env.example` template.
