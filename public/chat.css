@@ -1,4 +1,5 @@
 /* chat.css */
+
 body {
   font-family: 'Calibre', sans-serif;
   background-color: #121212; /* Dark background */
@@ -52,7 +53,7 @@ body {
 }
 
 #send-button {
-  width: 80px;
+  width: 90px;
   padding: 10px 15px;
   background-color: #1a73e8; /* Google blue for the button */
   border: none;
@@ -60,7 +61,8 @@ body {
   color: white;
   cursor: pointer;
   transition: background-color 0.2s; /* Transition for hover effect */
-  font-size: 14px;
+  font-size: 15px;
+  margin-left: auto;
 }
 
 #send-button:hover {
@@ -287,4 +289,11 @@ body {
 .message br {
   margin: 0;
   line-height: normal;
+}
+
+#upload-status {
+  color: green; /* Green color for successful upload indication */
+  font-size: 14.5px; /* Slightly smaller font size */
+  text-align: center; /* Center align the message */
+  margin-bottom: 5px;
 }

@@ -357,8 +357,6 @@ For more in-depth knowledge about GPT-4 and API integrations, visit [OpenAI's Do
 
 ### Updates
 
-![Updated Portal View](showcase.png)
-
 This **Updates** Section will showcase any further features added to the repository.
 
 - **IMPORTANT UPDATE**: A *Model Selector* has now been added.

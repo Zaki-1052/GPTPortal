@@ -660,3 +660,21 @@ function displayMessage(message, type) {
       
     });
     
+
+// Function to update upload status message
+function updateUploadStatus(message) {
+  const statusElement = document.getElementById('upload-status');
+  if (statusElement) {
+    statusElement.textContent = message;
+  }
+}
+
+// Modifying handleFileSelect function to include upload status update
+document.getElementById('file-input').addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (file && file.type.startsWith('image/')) {
+    updateUploadStatus('Image Uploaded: ' + file.name);
+  } else {
+    updateUploadStatus('No image selected');
+  }
+});
