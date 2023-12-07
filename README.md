@@ -445,15 +445,14 @@ Now, let's say for the second request, you include the initial request and respo
 
 #### TODOs
 
-- [x] Add Token Cost Explanation and Tracking
-- [x] Update API Call for Vision to Default Model
+- [x] Add Token Cost Explanation
 - [x] Add Model Selector
 - [x] Make Updated Video Showcase
 - [x] Added Export Functionality
 - [x] Fixed Image Inputs
 - [x] Added Image Generation
 - [x] Increase Image Input Size
-- [x] Stream Messages from Server to API
+- [x] Stream Server Messages to API
 - [x] Render Markdown on Portal
 
 ## Contributions

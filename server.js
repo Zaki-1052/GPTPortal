@@ -69,13 +69,12 @@ const path = require('path');
 
 app.post('/transcribe', upload.single('audio'), async (req, res) => {
   try {
-    // Write the buffer to a temporary file
-    const tempFilePath = path.join(__dirname, 'tempAudioFile.mpeg');
-    fs.writeFileSync(tempFilePath, req.file.buffer);
+    // Use the direct path of the uploaded file
+    const uploadedFilePath = req.file.path;
 
-    // Create FormData and append the temporary file
+    // Create FormData and append the uploaded file
     const formData = new FormData();
-    formData.append('file', fs.createReadStream(tempFilePath), 'tempAudioFile.mpeg');
+    formData.append('file', fs.createReadStream(uploadedFilePath), req.file.filename);
     formData.append('model', 'whisper-1');
 
     // API request
@@ -91,7 +90,7 @@ app.post('/transcribe', upload.single('audio'), async (req, res) => {
     );
 
     // Cleanup: delete the temporary file
-    fs.unlinkSync(tempFilePath);
+    fs.unlinkSync(uploadedFilePath);
 
     // Prepend "Voice Transcription: " to the transcription
     const transcription = "Voice Transcription: " + transcriptionResponse.data.text;
@@ -369,7 +368,6 @@ conversationHistory.push(user_input);
 
 
 
-
 // Model Parameters Below!
 
 
@@ -563,7 +561,6 @@ app.get('/export-chat-html', (req, res) => {
   res.set('Content-Disposition', 'attachment; filename="chat_history.html"');
   res.send(htmlContent);
 });
-
 
 
 app.get('/portal', (req, res) => {
