@@ -65,6 +65,10 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 
 [*Image Upload*](https://youtu.be/yO0II0KSJeg) - Showcase of the GPT-4V model receiving a 3.2 MB screenshot and describing it.
 
+### Interface
+
+![Base Interface](interface.jpeg)
+
 ## Structure
 
 - **portal.html**: The main HTML file for user interaction. It includes the chat interface layout, a message input area, an image upload and export button for history, voice chat functionality, a model selector, and it links to the `script.js` file.
