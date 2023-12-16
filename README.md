@@ -458,6 +458,15 @@ Now, let's say for the second request, you include the initial request and respo
 - [x] Increase Image Input Size
 - [x] Stream Server Messages to API
 - [x] Render Markdown on Portal
+- [x] Set up Gemini API
+- [x] New Gemini branch
+- [ ] Add handling for Gemini
+  - [x] Markdown
+  - [ ] Exports
+  - [ ] Images
+  - [ ] Audio
+  - [ ] Model Switching
+
 
 ## Contributions
 

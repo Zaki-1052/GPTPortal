@@ -12,16 +12,22 @@
     "GPT-4-Vision": "gpt-4-vision-preview",
     "GPT-4-32k": "gpt-4-32k",
     "GPT-4-Turbo": "gpt-4-1106-preview",
-    "GPT-3.5-Turbo": "gpt-3.5-turbo-1106"
+    "GPT-3.5-Turbo": "gpt-3.5-turbo-1106",
+    "Gemini-Pro": "gemini-pro",
+    "Gemini-Pro-Vision": "gemini-pro-vision"
   };
+
   
   const customModelNames = {
     "gpt-4": "GPT-4",
     "gpt-4-vision-preview": "GPT-4-Vision",
     "gpt-4-32k": "GPT-4-32k",
     "gpt-4-1106-preview": "GPT-4-Turbo",
-    "gpt-3.5-turbo-1106": "GPT-3.5-Turbo"
+    "gpt-3.5-turbo-1106": "GPT-3.5-Turbo",
+    "gemini-pro": "Gemini-Pro",
+    "gemini-pro-vision": "Gemini-Pro-Vision"
   };
+
   
 
 
@@ -154,7 +160,9 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       "gpt-4-vision-preview": "GPT-4-Vision: View & Analyze Images",
       "gpt-4-32k": "GPT-4-32k: Longer Context Window — Higher Price",
       "gpt-4-1106-preview": "GPT-4-Turbo: ChatGPT-Plus Model — 128k Tokens",
-      "gpt-3.5-turbo-1106": "GPT-3.5-Turbo: Cheapest Option Available"
+      "gpt-3.5-turbo-1106": "GPT-3.5-Turbo: Cheapest Option Available",
+      "gemini-pro": "Gemini-Pro: Google Bard Model — 3.5 Equivalent",
+      "gemini-pro-vision": "Gemini-Vision: View Images — One-Time Use"
     };
     
   
@@ -197,7 +205,14 @@ document.querySelector('.custom-select').addEventListener('click', toggleDropdow
     
 
 
-
+    function determineEndpoint(modelID) {
+      if (modelID.startsWith('gemini')) {
+        return 'http://localhost:3000/gemini'; // URL for the Gemini endpoint
+      } else {
+        return 'http://localhost:3000/message'; // URL for the OpenAI endpoint
+      }
+    }
+    
 
 
 
@@ -221,6 +236,12 @@ document.getElementById('model-gpt-3.5').addEventListener('click', () => selectM
 
 document.getElementById('model-gpt-4-turbo').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-1106-preview"], event.currentTarget));
 document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-3.5-turbo-1106"], event.currentTarget));
+
+document.getElementById('model-gemini-pro').addEventListener('click', () => selectModel('gemini-pro'));
+document.getElementById('model-gemini-pro-vision').addEventListener('click', () => selectModel('gemini-pro-vision'));
+document.getElementById('model-gemini-pro').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-pro"], event.currentTarget));
+document.getElementById('model-gemini-pro-vision').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-pro-vision"], event.currentTarget));
+
 
 
   // Add mouseout event listener for all model buttons
@@ -554,21 +575,34 @@ async function uploadImageAndGetUrl(imageFile) {
         const instructions = await fetchInstructions();
         
         // Prepare the payload with the current model ID
-        let payload = {
+        let payload, endpoint;
+        if (currentModelID.startsWith('gemini')) {
+          // Prepare the payload for Google Gemini API
+          payload = {
+            prompt: message,
+            model: currentModelID,
+            imageParts: imageUrl ? [imageToGenerativePart(imageUrl, 'image/jpeg')] : [] // Handle image for Gemini
+          };
+          endpoint = 'http://localhost:3000/gemini'; // Gemini endpoint
+        } else {
+          // Prepare the payload for OpenAI API
+          payload = {
             message: message,
             modelID: currentModelID,
             instructions: instructions,
-            image: imageUrl // Add the image URL to the payload
-        };
-        
+            image: imageUrl // Existing image handling for OpenAI
+          };
+          endpoint = 'http://localhost:3000/message'; // OpenAI endpoint
+        }
+      
         try {
-          const response = await fetch('http://localhost:3000/message', {
+          const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               // Add other headers as needed
             },
-            body: JSON.stringify(payload) // Use the updated payload
+            body: JSON.stringify(payload)
           });
       
           if (!response.ok) {
@@ -576,12 +610,21 @@ async function uploadImageAndGetUrl(imageFile) {
           }
       
           const data = await response.json();
-          // Use the response from the server
-          displayMessage(data.text, 'response', isVoiceTranscription); // Display the response in the chat box
+
+          // Determine the source of the response and format the message accordingly
+          let messageContent;
+          if (endpoint.includes('gemini')) {
+            // Direct text response from Gemini API
+            messageContent = data.text || 'No response received.';
+          } else {
+            // Response from GPT API, expected to have a 'text' property
+            messageContent = data.text || 'No response received.';
+          }
+
+          displayMessage(messageContent, 'response', isVoiceTranscription); // Display the response in the chat box
           isVoiceTranscription = false; // Reset the flag for the next message
         } catch (error) {
           console.error('Error sending message to server:', error);
-          // Handle any errors that occurred during the send
           displayMessage('Error sending message. Please try again.', 'error');
         }
       }

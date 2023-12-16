@@ -13,7 +13,13 @@ app.use(express.static('public')); // Serves your static files from 'public' dir
 const download = require('image-downloader');
 const cors = require('cors');
 app.use(cors());
+const router = express.Router();
 
+// integrate google gemini
+
+
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 
 // Authenticates your login
 
@@ -287,6 +293,118 @@ function imageToBase64(filePath) {
   const image = fs.readFileSync(filePath);
   return `data:image/jpeg;base64,${image.toString('base64')}`;
 }
+
+
+// Google Gemini Endpoint
+
+// Converts local file information to a GoogleGenerativeAI.Part object.
+// Modified function to handle direct file paths
+// Converts local file information to a GoogleGenerativeAI.Part object with error handling.
+function fileToGenerativePart(path, mimeType) {
+  try {
+    // Validate input parameters
+    if (!path || !mimeType) {
+      throw new Error('Invalid arguments: path and mimeType are required');
+    }
+
+    // Read file and encode in base64
+    const fileData = fs.readFileSync(path);
+    const base64Data = fileData.toString('base64');
+
+    return {
+      inlineData: {
+        data: base64Data,
+        mimeType
+      },
+    };
+  } catch (error) {
+    console.error('Error in fileToGenerativePart:', error.message);
+    return null;
+  }
+}
+
+app.post('/gemini', async (req, res) => {
+  try {
+    const { model, prompt, imageParts, history } = req.body;
+
+    // Handle text-only input
+    if (!history && (!imageParts || imageParts.length === 0)) {
+      if (model !== 'gemini-pro') {
+        return res.status(400).json({ error: 'Invalid model for text-only input. Use gemini-pro.' });
+      }
+
+      // Initialize the Google model for text-only input
+      const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro' });
+
+      // Generate content based on the prompt
+      const result = await googleModel.generateContent(prompt);
+      const response = result.response;
+      const text = response.text();
+      console.log(text);
+
+      // Send the response
+      res.json({ success: true, text: text });
+    }
+    // Handle text-and-image input (multimodal)
+    else if (imageParts && imageParts.length > 0 && !history) {
+      if (model !== 'gemini-pro-vision') {
+        return res.status(400).json({ error: 'Invalid model for text-and-image input. Use gemini-pro-vision.' });
+      }
+
+      // Initialize the Google model for text-and-image input
+      const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro-vision' });
+
+      // Convert image parts to the required format
+      const convertedImageParts = imageParts.map(part => {
+        return {
+          inlineData: {
+            data: Buffer.from(part.data, 'base64').toString(),
+            mimeType: part.mimeType
+          }
+        };
+      });
+
+      // Generate content based on the prompt and images
+      const result = await googleModel.generateContent([prompt, ...convertedImageParts]);
+      const response = result.response;
+      const text = response.text();
+      console.log(text);
+
+      // Send the response
+      res.json({ success: true, text: text });
+    }
+    // Handle multi-turn chat functionality
+    else if (history && history.length > 0) {
+      if (model !== 'gemini-pro') {
+        return res.status(400).json({ error: 'Invalid model for chat. Use gemini-pro.' });
+      }
+
+      // Initialize the Google model for chat
+      const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro' });
+
+      // Start the chat with the provided history
+      const chat = googleModel.startChat({ history });
+      
+      // Send the user's message and get the response
+      const result = await chat.sendMessage({ role: "user", parts: prompt });
+      const response = result.response;
+      const text = response.text();
+      console.log(text);
+
+      // Send the response
+      res.json({ success: true, text: text });
+    }
+  } catch (error) {
+    console.error('Error with Gemini API:', error.message);
+    res.status(500).json({ error: "Error with Gemini API", details: error.message });
+  }
+});
+
+// Optional streaming implementation
+    // let text = '';
+    // for await (const chunk of response.stream) {
+    //   text += chunk.text();
+    // }
 
 // Handle POST request to '/message'
 // Handle POST request to '/message' with file upload
