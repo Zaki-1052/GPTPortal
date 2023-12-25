@@ -20,6 +20,9 @@ const router = express.Router();
 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+const googleGenerativeAI = require("@google/generative-ai");
+const HarmBlockThreshold = googleGenerativeAI.HarmBlockThreshold;
+const HarmCategory = googleGenerativeAI.HarmCategory;
 
 // Authenticates your login
 
@@ -322,7 +325,35 @@ function convertImageForGemini(filePath, mimeType) {
   }
 }
 
+const safetySettings = [
+  {
+    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+];
 
+
+// Define a default configuration for generation parameters
+const defaultConfig = {
+  candidate_count: 1,
+  // stop_sequences: ["\n"],
+  max_output_tokens: 2000,
+  // top_p: 0.9,
+  // top_k: 40,
+  temperature: 1
+};
 
 
 app.post('/gemini', async (req, res) => {
@@ -336,7 +367,7 @@ console.log(prompt)
       }
 
       // Initialize the Google model for text-only input
-      const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro' });
+      const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro', generationConfig: defaultConfig, safetySettings });
       console.log(googleModel);
       // Generate content based on the prompt
       const result = await googleModel.generateContent(prompt);
@@ -355,8 +386,8 @@ console.log(prompt)
       }
 
       // Initialize the Google model for text-and-image input
-      const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro-vision' });
-
+      const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro-vision', generationConfig: defaultConfig, safetySettings });
+console.log(googleModel);
       // Convert image parts to the required format using the new function
       // Construct file paths from received filenames and convert image parts
       const convertedImageParts = imageParts.map(part => {
@@ -381,7 +412,7 @@ console.log(prompt)
       }
 
       // Initialize the Google model for chat
-      const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro' });
+      const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro', generationConfig: defaultConfig, safetySettings });
 
       // Start the chat with the provided history
       const chat = googleModel.startChat({ history });
