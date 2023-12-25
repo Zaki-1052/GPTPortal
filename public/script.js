@@ -6,6 +6,8 @@
     return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   }
 
+  let isGemini = false;
+
 
   const modelID = {
     "GPT-4": "gpt-4",
@@ -57,6 +59,8 @@ marked.setOptions({ breaks: true }); // Enable new lines to be interpreted as <b
 // Function to update the current model ID
 function updateCurrentModelID(modelID) {
   currentModelID = modelID;
+  determineEndpoint(modelID);
+  console.log(isGemini);
 }
 
 // Modify your selectModel function
@@ -70,8 +74,24 @@ function selectModel(modelID) {
   // Update the current model ID
   currentModelID = modelID;
   console.log("Selected model ID:", modelID); // Add this line
-
+  determineEndpoint(modelID);
+  console.log(modelID);
+  console.log(isGemini);
   toggleDropdown(); // Close the dropdown
+}
+
+
+function determineEndpoint(modelID) {
+  if (modelID.startsWith('gemini')) {
+    isGemini = true;
+    return 'http://localhost:3000/gemini'; // URL for the Gemini endpoint
+    console.log(isGemini)
+  } else {
+    isGemini = false;
+    return 'http://localhost:3000/message'; // URL for the OpenAI endpoint
+    console.log(isGemini)
+  }
+  console.log(isGemini)
 }
 
 // image generation
@@ -128,28 +148,28 @@ function displayGeneratedImage(imageUrl) {
 }
 
 function sendShutdownMessage() {
-// Modify the payload to send "Bye!" as the user message
-const payload = { message: "Bye!" };
+  // Sending "Bye!" to both /message and Gemini endpoints
+  const messagePayload = JSON.stringify({ message: "Bye!" });
+  const messageRequest = fetch('http://localhost:3000/message', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: messagePayload
+  });
 
-fetch('http://localhost:3000/message', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ message: "Bye!" })
-        })
-        .then(response => response.blob())
-        .then(blob => {
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'chat_history.html';
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-        })
-.catch(err => console.error('Error during shutdown:', err));
+  const geminiRequest = fetch('http://localhost:3000/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: messagePayload
+  });
+
+  // Wait for both requests to complete
+  Promise.all([messageRequest, geminiRequest])
+    .then(() => {
+      exportChatOnShutdown(isGemini); // Export chat history based on the isGemini flag
+    })
+    .catch(err => console.error('Error during shutdown:', err));
 }
+
 
 const selectedModelDisplayName = document.getElementById('selected-model').textContent.trim();
 
@@ -207,8 +227,10 @@ document.querySelector('.custom-select').addEventListener('click', toggleDropdow
 
     function determineEndpoint(modelID) {
       if (modelID.startsWith('gemini')) {
+        isGemini = true;
         return 'http://localhost:3000/gemini'; // URL for the Gemini endpoint
       } else {
+        isGemini = false;
         return 'http://localhost:3000/message'; // URL for the OpenAI endpoint
       }
     }
@@ -351,15 +373,17 @@ sendButton.addEventListener('click', async () => {
 
       // export chat history function
 
-      function exportChatHistory() {
-        fetch('/export-chat-html')
+      // Function to export chat history based on the type (conversation or gemini)
+      function exportChatHistory(historyType = 'conversation') {
+        const exportUrl = '/export-chat-html?type=' + historyType;
+        fetch(exportUrl)
           .then(response => response.blob())
           .then(blob => {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
-            a.download = 'chat_history.html'; // or .json if you prefer
+            a.download = historyType + '_chat_history.html';
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
@@ -367,29 +391,11 @@ sendButton.addEventListener('click', async () => {
           .catch(err => console.error('Error exporting chat history:', err));
       }
       
-      // Function to handle chat export on shutdown
-      function exportChatOnShutdown() {
-        fetch('http://localhost:3000/message', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ message: "Bye!" })
-        })
-        .then(response => response.blob())
-        .then(blob => {
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'chat_history.html';
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-        })
-        .catch(err => console.error('Error exporting chat history on shutdown:', err));
-      }
-      
-      
+// Modify exportChatOnShutdown to use the isGemini flag
+function exportChatOnShutdown() {
+  const historyType = isGemini ? 'gemini' : 'conversation';
+  exportChatHistory(historyType);
+}
     
       // VOICE
     

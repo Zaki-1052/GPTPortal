@@ -219,6 +219,33 @@ async function initializeConversationHistory() {
 // Call this function when the server starts
 initializeConversationHistory();
 
+let geminiHistory = '';
+
+async function readGeminiFile() {
+  try {
+      // Adjust the path if your folder structure is different
+      const geminiFile = await fs.promises.readFile('./public/geminiMessage.txt', 'utf8');
+      return geminiFile;
+  } catch (error) {
+      console.error('Error reading instructions file:', error);
+      return ''; // Return empty string or handle error as needed
+  }
+}
+
+// Function to initialize the Gemini conversation history with system message
+async function initializeGeminiConversationHistory() {
+  try {
+      const geminiMessage = await readGeminiFile();
+      let systemMessage = 'System Prompt: ' + geminiMessage;
+      geminiHistory += systemMessage + '\n';
+  } catch (error) {
+      console.error('Error initializing Gemini conversation history:', error);
+  }
+}
+
+// Call this function when the server starts
+initializeGeminiConversationHistory();
+
  // Function to convert conversation history to HTML
  function exportChatToHTML() {
   let htmlContent = `
@@ -256,6 +283,41 @@ initializeConversationHistory();
     }
 
     htmlContent += `<div class="message ${entry.role}"><strong>${entry.role.toUpperCase()}:</strong> ${formattedContent}</div>`;
+  });
+
+  htmlContent += '</body></html>';
+  return htmlContent;
+}
+
+
+// Function to convert Gemini conversation history to HTML
+function exportGeminiChatToHTML() {
+  let htmlContent = `
+    <html>
+    <head>
+      <title>Gemini Chat History</title>
+      <style>
+        body { font-family: Arial, sans-serif; }
+        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .system { background-color: #f0f0f0; }
+        .user { background-color: #d1e8ff; }
+        .assistant { background-color: #c8e6c9; }
+        .generated-image { max-width: 100%; height: auto; }
+        /* Add more styles as needed for Markdown elements like headers, lists, etc. */
+      </style>
+    </head>
+    <body>
+  `;
+
+  // Split the Gemini history into lines and format each line as a message
+  geminiHistory.split('\\n').forEach(line => {
+      if (line.startsWith('System Prompt: ')) {
+          htmlContent += `<div class="message system"><strong>SYSTEM:</strong> ${line.substr(15)}</div>`;
+      } else if (line.startsWith('User Prompt: ')) {
+          htmlContent += `<div class="message user"><strong>USER:</strong> ${line.substr(13)}</div>`;
+      } else if (line.startsWith('Response: ')) {
+          htmlContent += `<div class="message assistant"><strong>ASSISTANT:</strong> ${line.substr(10)}</div>`;
+      }
   });
 
   htmlContent += '</body></html>';
@@ -359,23 +421,26 @@ const defaultConfig = {
 app.post('/gemini', async (req, res) => {
   try {
     const { model, prompt, imageParts, history } = req.body;
-console.log(prompt)
-    // Handle text-only input
-    if (!history && (!imageParts || imageParts.length === 0)) {
-      if (model !== 'gemini-pro') {
-        return res.status(400).json({ error: 'Invalid model for text-only input. Use gemini-pro.' });
-      }
+    console.log('Prompt: ', prompt)
+// Add user's prompt to conversation history with a label
+geminiHistory += 'User Prompt: ' + prompt + '\n';
 
-      // Initialize the Google model for text-only input
-      const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro', generationConfig: defaultConfig, safetySettings });
-      console.log(googleModel);
-      // Generate content based on the prompt
-      const result = await googleModel.generateContent(prompt);
-      console.log(result);
-      const response = result.response;
-      const text = response.text();
-      console.log(text);
+// Handle text-only input
+if (!history && (!imageParts || imageParts.length === 0)) {
+  if (model !== 'gemini-pro') {
+    return res.status(400).json({ error: 'Invalid model for text-only input. Use gemini-pro.' });
+  }
 
+  // Initialize the Google model for text-only input
+  const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro', generationConfig: defaultConfig, safetySettings });
+  // Generate content based on the geminiHistory
+  const result = await googleModel.generateContent(geminiHistory);
+
+  const text = result.response.text();
+  console.log('Response: ', text)
+  // Add assistant's response to conversation history
+  geminiHistory += 'Response: ' + text + '\n';
+  console.log('Gemini History: ', geminiHistory)
       // Send the response
       res.json({ success: true, text: text });
     }
@@ -416,12 +481,13 @@ console.log(googleModel);
 
       // Start the chat with the provided history
       const chat = googleModel.startChat({ history });
-      
+      console.log(chat);
+      console.log(history);
       // Send the user's message and get the response
       const result = await chat.sendMessage({ role: "user", parts: prompt });
       const response = result.response;
       const text = response.text();
-      console.log(text);
+      console.log("Chat", text);
 
       // Send the response
       res.json({ success: true, text: text });
@@ -668,49 +734,18 @@ conversationHistory.push(user_input);
 
 // export markdown to html
 
-
 app.get('/export-chat-html', (req, res) => {
-  let htmlContent = `
-    <html>
-    <head>
-      <title>Chat History</title>
-      <style>
-        body { font-family: Arial, sans-serif; }
-        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
-        .system { background-color: #f0f0f0; }
-        .user { background-color: #d1e8ff; }
-        .assistant { background-color: #c8e6c9; }
-        .generated-image { max-width: 100%; height: auto; }
-        /* Add more styles as needed for Markdown elements like headers, lists, etc. */
-      </style>
-    </head>
-    <body>
-  `;
-
-  conversationHistory.forEach(entry => {
-    let formattedContent = '';
-
-    if (Array.isArray(entry.content)) {
-      entry.content.forEach(item => {
-        if (item.type === 'text' && typeof item.text === 'string') {
-          formattedContent += marked(item.text); // Convert Markdown to HTML
-        } else if (item.type === 'image_url') {
-          formattedContent += `<img src="${item.image_url.url}" alt="User Uploaded Image" class="generated-image"/>`;
-        }
-      });
-    } else if (typeof entry.content === 'string') {
-      formattedContent = marked(entry.content); // Directly convert string content
-    } else {
-      console.error('Unexpected content type in conversationHistory:', entry.content);
-    }
-
-    htmlContent += `<div class="message ${entry.role}"><strong>${entry.role.toUpperCase()}:</strong> ${formattedContent}</div>`;
-  });
-
-  htmlContent += '</body></html>';
+  const type = req.query.type; // Expecting 'gemini' or 'conversation' as query parameter
+  
+  let htmlContent;
+  if (type === 'gemini') {
+    htmlContent = exportGeminiChatToHTML();
+  } else {
+    htmlContent = exportChatToHTML();
+  }
 
   res.set('Content-Type', 'text/html');
-  res.set('Content-Disposition', 'attachment; filename="chat_history.html"');
+  res.set('Content-Disposition', 'attachment; filename="' + (type === 'gemini' ? 'gemini_chat_history.html' : 'chat_history.html') + '"');
   res.send(htmlContent);
 });
 
