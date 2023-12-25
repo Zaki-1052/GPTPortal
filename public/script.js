@@ -568,8 +568,11 @@ async function uploadImageAndGetUrl(imageFile) {
       async function sendMessageToServer(message) {
 
         let imageUrl = null;
+        let imageFilename = null;
         if (selectedImage) {
           imageUrl = await uploadImageAndGetUrl(selectedImage);
+          // Extract filename from the imageUrl
+          imageFilename = imageUrl.split('/').pop();
         }
 
         const instructions = await fetchInstructions();
@@ -581,7 +584,7 @@ async function uploadImageAndGetUrl(imageFile) {
           payload = {
             prompt: message,
             model: currentModelID,
-            imageParts: imageUrl ? [imageToGenerativePart(imageUrl, 'image/jpeg')] : [] // Handle image for Gemini
+            imageParts: imageFilename ? [{ filename: imageFilename, mimeType: 'image/jpeg' }] : []
           };
           endpoint = 'http://localhost:3000/gemini'; // Gemini endpoint
         } else {

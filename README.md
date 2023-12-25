@@ -463,9 +463,9 @@ Now, let's say for the second request, you include the initial request and respo
 - [ ] Add handling for Gemini
   - [x] Markdown
   - [ ] Exports
-  - [ ] Images
-  - [ ] Audio
-  - [ ] Model Switching
+  - [x] Images
+  - [x] Audio
+  - [x] Model Switching
 
 
 ## Contributions

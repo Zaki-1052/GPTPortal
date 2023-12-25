@@ -297,18 +297,17 @@ function imageToBase64(filePath) {
 
 // Google Gemini Endpoint
 
-// Converts local file information to a GoogleGenerativeAI.Part object.
-// Modified function to handle direct file paths
-// Converts local file information to a GoogleGenerativeAI.Part object with error handling.
-function fileToGenerativePart(path, mimeType) {
+
+// Converts an image file directly to the format required by the Gemini model
+function convertImageForGemini(filePath, mimeType) {
   try {
     // Validate input parameters
-    if (!path || !mimeType) {
-      throw new Error('Invalid arguments: path and mimeType are required');
+    if (!filePath || !mimeType) {
+      throw new Error('Invalid arguments: filePath and mimeType are required');
     }
 
     // Read file and encode in base64
-    const fileData = fs.readFileSync(path);
+    const fileData = fs.readFileSync(filePath);
     const base64Data = fileData.toString('base64');
 
     return {
@@ -318,15 +317,18 @@ function fileToGenerativePart(path, mimeType) {
       },
     };
   } catch (error) {
-    console.error('Error in fileToGenerativePart:', error.message);
+    console.error('Error in convertImageForGemini:', error.message);
     return null;
   }
 }
 
+
+
+
 app.post('/gemini', async (req, res) => {
   try {
     const { model, prompt, imageParts, history } = req.body;
-
+console.log(prompt)
     // Handle text-only input
     if (!history && (!imageParts || imageParts.length === 0)) {
       if (model !== 'gemini-pro') {
@@ -335,9 +337,10 @@ app.post('/gemini', async (req, res) => {
 
       // Initialize the Google model for text-only input
       const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro' });
-
+      console.log(googleModel);
       // Generate content based on the prompt
       const result = await googleModel.generateContent(prompt);
+      console.log(result);
       const response = result.response;
       const text = response.text();
       console.log(text);
@@ -354,14 +357,12 @@ app.post('/gemini', async (req, res) => {
       // Initialize the Google model for text-and-image input
       const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro-vision' });
 
-      // Convert image parts to the required format
+      // Convert image parts to the required format using the new function
+      // Construct file paths from received filenames and convert image parts
       const convertedImageParts = imageParts.map(part => {
-        return {
-          inlineData: {
-            data: Buffer.from(part.data, 'base64').toString(),
-            mimeType: part.mimeType
-          }
-        };
+        // Construct the file path from the filename
+        const filePath = `public/uploads/${part.filename}`; // Update with the actual path to uploaded images
+        return convertImageForGemini(filePath, part.mimeType);
       });
 
       // Generate content based on the prompt and images
@@ -399,6 +400,8 @@ app.post('/gemini', async (req, res) => {
     res.status(500).json({ error: "Error with Gemini API", details: error.message });
   }
 });
+
+
 
 // Optional streaming implementation
     // let text = '';
