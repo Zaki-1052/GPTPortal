@@ -283,14 +283,14 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 
 ##### [**AI Studio Link**](https://makersuite.google.com/app/apikey)
 
-- Click on the link provided in the header to navigate to *Google Gemini AI* Studio's **API Key** generation page.
+- Click on the link provided above to navigate to *Google Gemini AI* Studio's **API Key** generation page.
 - Once again, the link to the API page is [**here**](https://makersuite.google.com/app/apikey).
 - Accept and "Continue" with the *Terms and Conditions*.
 - After accepting the terms, click on the button labeled **"Create API Key in New Project"**.
 - Once the API key is generated, it will be displayed on the screen.
 - Click the **copy** icon or manually select and copy the key to your clipboard.
 - Open the `.env` file and look for the line that reads `API_KEY=your_google_ai_key_here`.
-- Replace `your_google_ai_key_here` with the API key you copied from the Google Gemini AI Studio.
+- Replace `your_google_ai_key_here` with the API key you copied from Google AI Studio.
   - Ensure that the key is pasted correctly without any leading or trailing spaces.
 - Until **February 2024**, *Google Gemini-Pro* will be completely **free**!
 - This means that you do *not* need to set up any *billing* and can use this *Model API* immediately.
