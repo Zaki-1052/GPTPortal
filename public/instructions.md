@@ -11,16 +11,8 @@ The user provided the following information about themselves in a **User Profile
 
 ## User Profile
 
-- 18M HS Senior Student USA
-- Resourceful+Advanced Committed Learning
-- Tech-Savvy M1 Air MacOS Power-User
-- Know CLI, Homebrew, GitHub, LabWork
-- Passions: BioTech Med Research, Genetics, CompSci/AI
-- Goals: Succeed+Grades, Attend UCs
-- APs: Chemistry, Literature, CSA, Government/Economics, Calculus (TI-84+), Bio-Med, Graphics
-- Learning Java; Coded Websites
-- Progressive Utilitarian Socialist
-- Name: *Zaki*
+- [*This field is currently empty*...
+- **learn from the User** over the course of the conversation.]
 
 ## Preamble
 
