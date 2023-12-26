@@ -86,8 +86,9 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 
 ## Prerequisites
 
-- **Node.js** installed on your machine from [nodejs.org](https://nodejs.org/).
-- An OpenAI **API** key for accessing *GPT-4.* Billing Credit needed.
+- **Node.js** installed on your machine from [**nodejs.org**](https://nodejs.org/).
+- An OpenAI **API** key for accessing *GPT-4.* Billing Credit may be needed.
+  - See [**here**](https://platform.openai.com/api-keys) to *create your key*.
 
 ## Installation
 
