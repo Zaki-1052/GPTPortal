@@ -284,6 +284,7 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 ##### [**AI Studio Link**](https://makersuite.google.com/app/apikey)
 
 - Click on the link provided in the header to navigate to *Google Gemini AI* Studio's **API Key** generation page.
+- Once again, the link to the API page is [**here**](https://makersuite.google.com/app/apikey).
 - Accept and "Continue" with the *Terms and Conditions*.
 - After accepting the terms, click on the button labeled **"Create API Key in New Project"**.
 - Once the API key is generated, it will be displayed on the screen.
