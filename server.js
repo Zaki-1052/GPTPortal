@@ -77,6 +77,7 @@ const path = require('path');
 // transcribing audio with Whisper api
 
 app.post('/transcribe', upload.single('audio'), async (req, res) => {
+  let transcription = "";
   try {
     // Use the direct path of the uploaded file
     const uploadedFilePath = req.file.path;
@@ -102,10 +103,14 @@ app.post('/transcribe', upload.single('audio'), async (req, res) => {
     fs.unlinkSync(uploadedFilePath);
 
     // Prepend "Voice Transcription: " to the transcription
-    const transcription = "Voice Transcription: " + transcriptionResponse.data.text;
+    transcription = "Voice Transcription: " + transcriptionResponse.data.text;
 
     // Send the modified transcription back to the client
     res.json({ text: transcription });
+
+    // Reset the transcription variable for future use
+    transcription = ""; // Reset to empty string
+
   } catch (error) {
     console.error('Error transcribing audio:', error.message);
     res.status(500).json({ error: "Error transcribing audio", details: error.message });
