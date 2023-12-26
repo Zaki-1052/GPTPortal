@@ -410,7 +410,7 @@ This **Updates** Section will showcase any further features added to the reposit
   - Gemini-Pro via the API will be completely **free** until *February 2024*!
   - Follow instructions in the ReadMe to retrieve your Key from their *AI Studio*.
     - Link to Makersuite Key Generation Page is [**HERE**](https://makersuite.google.com/app/apikey).
-    - More detailed installation nstructions are [**HERE**](#8-optional-google-gemini-setup).
+    - More detailed installation instructions are [**HERE**](#8-optional-google-gemini-setup).
 
 #### *Showcase* of **DALL·E 3**
 
