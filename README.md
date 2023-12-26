@@ -13,12 +13,14 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - [Author Notes](#author-notes)
 - [Further Explanations](#further-explanations)
 - [Basic Guide](#guide-basic-setup--use)
+- [Google Gemini](#8-optional-google-gemini-setup)
 - [Relevant Links](#relevant-links)
 - [Author Links](#author-links--custom-gpts)
 - [Research Papers](#research-papers)
 - [FAQ](#faq)
 - [Updates](#updates)
 - [Tokens](#token-costs-explained)
+- [TODOs](#todos)
 - [Contributions](#contributions)
 - [License](#license)
 
@@ -35,15 +37,19 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - **Export** as *HTML* **button** for *conversation history*.
 - Integrated **shutdown** *functionality* at "**Bye!**"
 - **Image Generation** with *DALL·E 3* at "**Generate:**".
+- New **Google Gemini** Models...Ultra *Coming Soon*!
 - **Model Selector** of various *OpenAI APIs*. Includes:
-  - GPT-4: Default – Snapshot of the *Most Intelligent* Version
-  - GPT-4-Vision: Able to View & Analyze *Images*
-  - GPT-4-32k: Longer Context Window – More *Expensive*
+  - **GPT-4**: Default – Snapshot of the *Most Intelligent* Version
+  - **GPT-4-Vision**: Able to View & Analyze *Images*
+  - **GPT-4-32k**: Longer Context Window – More *Expensive*
     - Must be hosted on Microsoft Azure for access.
-  - GPT-4-Turbo: Currently used in *ChatGPT Plus*
+  - **GPT-4-Turbo**: Currently used in *ChatGPT Plus*
     - *Cheaper* and Longest Context, but *Less Intelligent*.
       - Maximum Token Window: 128,000!
-  - GPT-3.5-Turbo: *Cheapest* Model
+  - **GPT-3.5-Turbo**: *Cheapest* Model
+  - **Gemini-Pro**: Latest Google Model – GPT-3.5 Equivalent
+    - **Free** Until February 2024!
+  - **Gemini-Vision**: Image Model – Only One Message Allowed
 
 ## Example
 
@@ -109,12 +115,15 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 4. **Set Up Environment Variables**:
    - Create a `.env` file in the root directory.
      - Format shown in `.env.example`
+     - `API_KEY` is for Google AI.
    - Add your OpenAI API key and basic authentication:
 
      ```env
       OPENAI_API_KEY=your_api_key_here
       USER_USERNAME=Username
       USER_PASSWORD=Password
+      API_KEY=your_google_ai_key_here
+      PORT=3000
      ```
 
 5. **Start the Server**:
@@ -141,8 +150,8 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
   - Click the 📸 button to open the *file selector*.
   - Choose an image file. It will be sent with your next message.
     - **Update (~~DEPRECATED~~)**: The Default model selector is now the more intelligent GPT-4 without vision.
-      - If you would like to utilize the *Vision-Preview* model, which uses GPT-4-Turbo, as in ChatGPT, please fully read this page and the documentation.
-      - **UPDATE**: You can now simply choose your *preferred model* through the *drop down menu* at the top of the interface.
+      - If you would like to utilize the *Vision-Preview* model, which uses GPT-4-Turbo, as in ChatGPT, *select* the model.
+      - **UPDATE**: You can now simply choose your *preferred model* through the *dropdown menu* at the top of the interface.
       - ~~Then, go to `server.js` in your preferred *Text Editor* and modify the "*model*" parameter to `gpt-4-vision-preview` as specified in the comments, which are there to guide you through the script and will be clearly marked.~~
 - **Model Selector**:
   - Click on the "*Select a Model*" button at the top.
@@ -182,6 +191,7 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 - **Custom Instructions**: Found in `instructions.md`. Modify user profile and instructions as needed. These are optimized for GPT-4 based on extensive research.
 - For *security reasons*, this *web portal* requires the user to do some work of their own: *installing* the necessary dependencies and packages, adding their own *environment variables* like *API Key* and *HTTP Auth Credentials* (you can simply make these up) in a `.env` file, and manually running the *server* in your terminal.
   - Be assured that this repo is incapable of grabbing any information from the User, including their Key, but they should still be careful when experimenting with *Pull Requests*, regardless of the `.gitignore` file in the root of this repository.
+- Instructions for setting up **Google Gemini** through *Vertex AI Studio* with your **API Key** is below.
 
 ### Further Explanations
 
@@ -242,10 +252,14 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 
 - **Sign Up for OpenAI**:
   - Visit [OpenAI's Website](https://openai.com/) and create an account.
+  - You may need to *Verify Your Phone Number* to create your **API Key**.
 - **API Key Generation**:
   - Once you're logged in, find the API section (linked below in *Relevant Links*) and generate a new API key. This key is like a password that lets your ChatBot Portal access OpenAI's features.
-  - You will need to *Buy Credits* from your [**Billing**](https://platform.openai.com/account/billing/overview) page.
-  - Create a new *secret key* from [*here*](https://platform.openai.com/api-keys).
+  - You may need to *Buy Credits* from your [**Billing**](https://platform.openai.com/account/billing/overview) page.
+  - Create a new *secret key* from [**here**](https://platform.openai.com/api-keys).
+    - If your account is new, you will receive **5 Dollars** in **free** *billing credit* to use towards the **API**.
+    - In this case, you can simply **verify** your account and **Generate** the key.
+    - *Any free credits granted may expire after some time.*
 - **Insert API Key**:
   - Copy the generated API key and paste it into your `.env` file in the place of `your_api_key_here`.
     - Never share your key with anyone. This is what is used to pay for the API. Their billing system is explained in the Relevant Links, but basically, you pay out of your API Credit Balance for what you actually use, and it carries over from month to month. Refer to your personal usage page for more information. Your API is private and cannot be accessed by anyone online unless you post it.
@@ -261,9 +275,25 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 #### 7. **Basic Troubleshooting**
 
 - **Common Issues**:
-  - If the ChatBot doesn't start, check if you missed any steps like installing Node.js, running `npm install`, or correctly entering your API key in the `.env` file.
+  - If the ChatBot doesn't start, check if you missed any steps like installing Node.js, running `npm install`, or correctly entering your API Key(s) or login credentials in the `.env` file.
 - **Consult README**:
   - The README file in the `GPTPortal` directory has more detailed instructions and troubleshooting tips. Refer to it if you encounter issues or need more information.
+
+#### 8. [*OPTIONAL*] **Google Gemini Setup**
+
+##### [**AI Studio Link**](https://makersuite.google.com/app/apikey)
+
+- Click on the link provided in the header to navigate to *Google Gemini AI* Studio's **API Key** generation page.
+- Accept and "Continue" with the *Terms and Conditions*.
+- After accepting the terms, click on the button labeled **"Create API Key in New Project"**.
+- Once the API key is generated, it will be displayed on the screen.
+- Click the **copy** icon or manually select and copy the key to your clipboard.
+- Open the `.env` file and look for the line that reads `API_KEY=your_google_ai_key_here`.
+- Replace `your_google_ai_key_here` with the API key you copied from the Google Gemini AI Studio.
+  - Ensure that the key is pasted correctly without any leading or trailing spaces.
+- Until **February 2024**, *Google Gemini-Pro* will be completely **free**!
+- This means that you do *not* need to set up any *billing* and can use this *Model API* immediately.
+- **Gemini-Ultra** will be added to this Portal when released, but will require payment to *Google*.
 
 ## Relevant [Links](https://arc.net/folder/B777A318-2A95-4C36-86AA-156166895CC2)
 
@@ -278,6 +308,7 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 - [Prompt Engineering](https://platform.openai.com/docs/guides/prompt-engineering) - A guide to effective prompt engineering with OpenAI models.
 - [OpenAI Tokenizer](https://platform.openai.com/tokenizer) - Visit the OpenAI Token Counter to determine message lengths.
 - [Vision Documentation](https://platform.openai.com/docs/guides/vision) - OpenAI insists that the Vision model called in this API Portal is no different from the regular GPT-4, but of course, if you'd like to be sure that you're using the old version that we all miss, please change the model name as specified.
+- [Google API Key](https://makersuite.google.com/app/apikey) - Gemini AI Studio; create your API Key and paste it in the `.env` file.
 
 ### Author Links & Custom GPTs
 
@@ -460,12 +491,13 @@ Now, let's say for the second request, you include the initial request and respo
 - [x] Render Markdown on Portal
 - [x] Set up Gemini API
 - [x] New Gemini branch
-- [ ] Add handling for Gemini
+- [x] Add handling for Gemini
   - [x] Markdown
   - [x] Exports
   - [x] Images
-  - [ ] Audio
+  - [x] Audio
   - [ ] Model Switching
+- [ ] Implement RAG
 
 ## Contributions
 
