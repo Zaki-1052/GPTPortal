@@ -135,6 +135,11 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 
 6. **Access the Chat Interface**:
    - Open a web browser and go to `http://localhost:3000/portal`.
+     - *Portal URL*:
+  
+     ```
+     http://localhost:3000/portal
+     ```
 
 ## Usage
 
