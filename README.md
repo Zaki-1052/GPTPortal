@@ -53,11 +53,11 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 
 ## Example
 
-![Example Portal View](example.png)
+![Example Portal View](public/uploads/example.png)
 
 ### Updated View
 
-![Updated Portal View](update.png)
+![Updated Portal View](public/uploads/update.png)
 
 ### Feature Demo
 
@@ -73,7 +73,7 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 
 ### Interface
 
-![Base Interface](interface.jpeg)
+![Base Interface](public/uploads/interface.jpeg)
 
 ## Structure
 
