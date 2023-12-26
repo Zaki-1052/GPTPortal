@@ -701,7 +701,6 @@ function displayMessage(message, type) {
 }
 
     
-    
     // copy button feature
     
     function copyToClipboard(messageText) {

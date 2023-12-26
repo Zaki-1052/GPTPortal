@@ -1,6 +1,6 @@
 # ChatBot Portal for Multi-Modal GPT-4 API
 
-Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision*, *Hearing*, and *Speaking* capabilities with superior *Model Performance*.
+Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision*, *Hearing*, and *Speaking* capabilities with superior *Model Performance*. Now includes the **Google Gemini** models via *free* API!
 
 ## Table of Contents
 
@@ -400,6 +400,11 @@ This **Updates** Section will showcase any further features added to the reposit
 - **UPDATE #2**: Image Generation via the *DALL·E 3* API is now supported.
   - Simply type "**Generate:**" and give your prompt to the model, which will automatically supply and download the image.
     - Both the "*Bye!*" and "*Generate:*" commands are case sensitive.
+- **Update #3**: Google's *Gemini* models have been added to the *model selector*.
+  - Gemini-Pro via the API will be completely **free** until *February 2024*!
+  - Follow instructions in the ReadMe to retrieve your Key from their *AI Studio*.
+    - Link to Makersuite Key Generation Page is [**HERE**](https://makersuite.google.com/app/apikey).
+    - More detailed installation nstructions are [**HERE**](#8-optional-google-gemini-setup).
 
 #### *Showcase* of **DALL·E 3**
 
@@ -491,14 +496,17 @@ Now, let's say for the second request, you include the initial request and respo
 - [x] Stream Server Messages to API
 - [x] Render Markdown on Portal
 - [x] Set up Gemini API
-- [x] New Gemini branch
-- [x] Add handling for Gemini
+- [x] New Gemini Chats
+- [x] Add Handling for Gemini
   - [x] Markdown
   - [x] Exports
   - [x] Images
   - [x] Audio
-  - [ ] Model Switching
+  - [x] Model Switching
 - [ ] Implement RAG
+  - [ ] Vectors
+  - [ ] Embeddings
+  - [ ] Function Calling
 
 ## Contributions
 
@@ -507,3 +515,7 @@ Contributions are welcome! Please fork the repository and submit a pull request 
 ## License
 
 This project is open source and available under the [MIT License](LICENSE.txt).
+
+---
+
+*Jump to [**Table of Contents**](#table-of-contents)*.
