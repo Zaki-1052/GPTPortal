@@ -84,11 +84,9 @@ function selectModel(modelID) {
 function determineEndpoint(modelID) {
   if (modelID.startsWith('gemini')) {
     isGemini = true;
-    return 'http://localhost:3000/gemini'; // URL for the Gemini endpoint
     console.log(isGemini)
   } else {
     isGemini = false;
-    return 'http://localhost:3000/message'; // URL for the OpenAI endpoint
     console.log(isGemini)
   }
   console.log(isGemini)
@@ -374,7 +372,9 @@ sendButton.addEventListener('click', async () => {
       // export chat history function
 
       // Function to export chat history based on the type (conversation or gemini)
-      function exportChatHistory(historyType = 'conversation') {
+      function exportChatHistory() {
+        const historyType = isGemini ? 'gemini' : 'conversation';
+        console.log("Exporting chat history for:", historyType);
         const exportUrl = '/export-chat-html?type=' + historyType;
         fetch(exportUrl)
           .then(response => response.blob())
@@ -396,6 +396,7 @@ function exportChatOnShutdown() {
   const historyType = isGemini ? 'gemini' : 'conversation';
   exportChatHistory(historyType);
 }
+
     
       // VOICE
     

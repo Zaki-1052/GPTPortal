@@ -462,11 +462,10 @@ Now, let's say for the second request, you include the initial request and respo
 - [x] New Gemini branch
 - [ ] Add handling for Gemini
   - [x] Markdown
-  - [ ] Exports
+  - [x] Exports
   - [x] Images
-  - [x] Audio
-  - [x] Model Switching
-
+  - [ ] Audio
+  - [ ] Model Switching
 
 ## Contributions
 

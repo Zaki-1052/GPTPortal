@@ -303,26 +303,41 @@ function exportGeminiChatToHTML() {
         .user { background-color: #d1e8ff; }
         .assistant { background-color: #c8e6c9; }
         .generated-image { max-width: 100%; height: auto; }
-        /* Add more styles as needed for Markdown elements like headers, lists, etc. */
+        /* Additional styles */
       </style>
     </head>
     <body>
   `;
 
-  // Split the Gemini history into lines and format each line as a message
-  geminiHistory.split('\\n').forEach(line => {
-      if (line.startsWith('System Prompt: ')) {
-          htmlContent += `<div class="message system"><strong>SYSTEM:</strong> ${line.substr(15)}</div>`;
-      } else if (line.startsWith('User Prompt: ')) {
-          htmlContent += `<div class="message user"><strong>USER:</strong> ${line.substr(13)}</div>`;
-      } else if (line.startsWith('Response: ')) {
-          htmlContent += `<div class="message assistant"><strong>ASSISTANT:</strong> ${line.substr(10)}</div>`;
-      }
-  });
+  // Convert newlines in each part of the chat history to <br> for HTML display
+  const convertNewlinesToHtml = text => text.replace(/\n/g, '<br>');
+
+  // Use a regular expression to match the prompts and responses in the history
+  const messageRegex = /(System Prompt: |User Prompt: |Response: )/g;
+  // Split the history by the regex, but keep the delimiters
+  const messages = geminiHistory.split(messageRegex).slice(1); // slice to remove the first empty string if any
+
+  // Process the messages in pairs (label + content)
+  for (let i = 0; i < messages.length; i += 2) {
+    const label = messages[i];
+    const content = messages[i + 1];
+    let roleClass = '';
+
+    if (label === 'System Prompt: ') {
+      roleClass = 'system';
+    } else if (label === 'User Prompt: ') {
+      roleClass = 'user';
+    } else if (label === 'Response: ') {
+      roleClass = 'assistant';
+    }
+
+    htmlContent += `<div class="message ${roleClass}"><strong>${label.trim()}</strong> ${convertNewlinesToHtml(content.trim())}</div>`;
+  }
 
   htmlContent += '</body></html>';
   return htmlContent;
 }
+
 
 
 // Function to convert an image URL to base64
@@ -422,6 +437,41 @@ app.post('/gemini', async (req, res) => {
   try {
     const { model, prompt, imageParts, history } = req.body;
     console.log('Prompt: ', prompt)
+
+// Check for shutdown command
+if (prompt === "Bye!") {
+  console.log("Shutdown message received. Exporting chat and closing server...");
+
+  // Export chat history to HTML
+  const htmlContent = exportGeminiChatToHTML();
+
+  // Set headers for file download
+  res.set('Content-Type', 'text/html');
+  res.set('Content-Disposition', 'attachment; filename="chat_history.html"');
+
+  // Send the HTML content
+  res.send(htmlContent);
+
+  // Wait for the response to be fully sent before shutting down
+  res.end(() => {
+    console.log("Chat history sent to client, initiating shutdown...");
+
+    if (isShuttingDown) {
+      return res.status(503).send('Server is shutting down');
+  }
+    isShuttingDown = true; // Set the shutdown flag
+
+    // Delay before shutting down the server to allow file download
+    setTimeout(() => {
+      server.close(() => {
+        console.log("Server successfully shut down.");
+      });
+    }, 1000); // 10 seconds delay
+  });
+
+  return; // End the execution of the function here
+}
+
 // Add user's prompt to conversation history with a label
 geminiHistory += 'User Prompt: ' + prompt + '\n';
 
@@ -430,6 +480,7 @@ if (!history && (!imageParts || imageParts.length === 0)) {
   if (model !== 'gemini-pro') {
     return res.status(400).json({ error: 'Invalid model for text-only input. Use gemini-pro.' });
   }
+
 
   // Initialize the Google model for text-only input
   const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro', generationConfig: defaultConfig, safetySettings });
@@ -545,7 +596,7 @@ if (user_message === "Bye!") {
       server.close(() => {
         console.log("Server successfully shut down.");
       });
-    }, 10000); // 10 seconds delay
+    }, 1000); // 1 seconds delay
   });
 
   return; // End the execution of the function here
@@ -735,8 +786,9 @@ conversationHistory.push(user_input);
 // export markdown to html
 
 app.get('/export-chat-html', (req, res) => {
+  console.log("Export request received for type:", req.query.type);
   const type = req.query.type; // Expecting 'gemini' or 'conversation' as query parameter
-  
+  console.log("Export request received for type:", type);
   let htmlContent;
   if (type === 'gemini') {
     htmlContent = exportGeminiChatToHTML();
