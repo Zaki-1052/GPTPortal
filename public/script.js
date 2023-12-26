@@ -482,10 +482,13 @@ function exportChatOnShutdown() {
     
     // Sending the audio to the backend
     function sendAudioToServer() {
-      const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg' }); // Set MIME type to 'audio/mpeg'
+      const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg' });
       const formData = new FormData();
-      formData.append('audio', audioBlob, 'recording.mp3'); // The file extension can remain .mp3
-    
+      formData.append('audio', audioBlob, 'recording.mp3');
+
+      // Clear the audioChunks array to prepare for the next recording
+      audioChunks = []; // Reset audioChunks array
+
       // Introduce a delay before making the fetch call
       setTimeout(() => {
         fetch('/transcribe', {
@@ -499,9 +502,9 @@ function exportChatOnShutdown() {
           voiceMode = false; // Turn off voice mode
         })
         .catch(console.error);
-      }, 500); // 500ms delay
+      }, 100); // 500ms delay
     }
-    
+
     
       
       
