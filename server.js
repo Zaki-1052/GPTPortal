@@ -56,7 +56,7 @@ app.get('/uploads/:filename', (req, res) => {
 
 app.use('/uploads', express.static('public/uploads'));
 
-
+// image uploads
 
 const multer = require('multer');
 const storage = multer.diskStorage({
@@ -407,6 +407,9 @@ function convertImageForGemini(filePath, mimeType) {
   }
 }
 
+// Gemini Safety settings reduced to none for each required category.
+// Feel free to adjust, but be aware that the RLHP severely neuters the model.
+
 const safetySettings = [
   {
     category: HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -428,14 +431,20 @@ const safetySettings = [
 
 
 // Define a default configuration for generation parameters
+// These are the settings for Gemini
 const defaultConfig = {
-  candidate_count: 1,
-  // stop_sequences: ["\n"],
-  max_output_tokens: 2000,
+  candidate_count: 1, // How many responses the model gives
+  // stop_sequences: ["\n"], // Model stops generating at these
+  max_output_tokens: 2000, // Completion lengths
   // top_p: 0.9,
+  // nucleus sampling, temperature alternative
   // top_k: 40,
-  temperature: 1
+  // random sampling
+  temperature: 1 // random sampling
 };
+
+// see my comments on the GPT API parameters for more explanations
+// Docs: https://ai.google.dev/docs/concepts#model_parameters
 
 
 app.post('/gemini', async (req, res) => {
@@ -561,6 +570,13 @@ console.log(googleModel);
     // for await (const chunk of response.stream) {
     //   text += chunk.text();
     // }
+
+
+// Streaming can only be properly implemented via 
+// certain APIs that would defeat the whole purpose.
+
+// See closed issue on this repo for more details.
+
 
 // Handle POST request to '/message'
 // Handle POST request to '/message' with file upload

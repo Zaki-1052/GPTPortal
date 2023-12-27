@@ -87,6 +87,7 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 ## Prerequisites
 
 - **Node.js** installed on your machine from [**nodejs.org**](https://nodejs.org/).
+  - Specifically, the download link for various devices can be seen [**here**](https://nodejs.org/en/download).
 - An OpenAI **API** key for accessing *GPT-4.* Billing Credit may be needed.
   - See [**here**](https://platform.openai.com/api-keys) to *create your key*.
 
@@ -138,7 +139,7 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
    - Open a web browser and go to `http://localhost:3000/portal`.
      - *Portal URL*:
   
-     ```
+     ```sh
      http://localhost:3000/portal
      ```
 
@@ -315,7 +316,9 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 - [Prompt Engineering](https://platform.openai.com/docs/guides/prompt-engineering) - A guide to effective prompt engineering with OpenAI models.
 - [OpenAI Tokenizer](https://platform.openai.com/tokenizer) - Visit the OpenAI Token Counter to determine message lengths.
 - [Vision Documentation](https://platform.openai.com/docs/guides/vision) - OpenAI insists that the Vision model called in this API Portal is no different from the regular GPT-4, but of course, if you'd like to be sure that you're using the old version that we all miss, please change the model name as specified.
+- [Chat Completions](https://platform.openai.com/docs/api-reference/chat/create) - Documentation reference guide for GPT models on parameters and completion objects.
 - [Google API Key](https://makersuite.google.com/app/apikey) - Gemini AI Studio; create your API Key and paste it in the `.env` file.
+- [Model Parameters](https://ai.google.dev/docs/concepts#model_parameters) - Google's documentation on their Gemini model parameters.
 
 ### Author Links & Custom GPTs
 
@@ -363,15 +366,15 @@ Using **Chain and Tree of Thought Prompting**:
 
 #### How do I obtain an OpenAI API key to use this portal?
 
-To use the ChatBot Portal, you need an OpenAI API key. Register or log in to your account on [OpenAI's Website](https://openai.com/). Navigate to the API section and generate a new key. Remember to keep this key confidential, as it is used for billing purposes.
+To use the ChatBot Portal, you need an OpenAI API key. Register or log in to your account on [OpenAI's Website](https://platform.openai.com/docs/overview). Navigate to the [API](https://platform.openai.com/api-keys) section and generate a new key. Remember to keep this key confidential, as it is used for billing purposes. You can view your usage [here](https://platform.openai.com/usage); if your free credit expires, you can buy more [here](https://platform.openai.com/account/billing/overview) and see your rate limits [here](https://platform.openai.com/account/limits).
 
 #### What are the system requirements for running this portal?
 
-The ChatBot Portal requires Node.js, which is cross-platform and should run on most modern operating systems. Ensure your browser is up to date for the best experience. Refer to Node.js's official site for specific version requirements.
+The ChatBot Portal requires Node.js, which is cross-platform and should run on most modern operating systems. Ensure your browser is up to date for the best experience. Refer to Node.js's official site for specific version requirements. Specifically, the download link can be found [**here**](https://nodejs.org/en/download) for various devices. You can either install the LTS (preferred) or build it manually from the binary if you're on a restricted device.
 
 #### Can I customize the chatbot’s responses?
 
-Yes, you can customize the chatbot's responses by adjusting the model parameters and system-defined instructions in the `server.js` and `instructions.md` files. These include settings for response length, style, and context sensitivity.
+Yes, you can customize the chatbot's responses by adjusting the model parameters and system-defined instructions in the `server.js` and `instructions.md` / `geminiMessage.txt` files. These include settings for response length, style, and context sensitivity. Links to guides on prompting, research papers, and documentation from Google and OpenAI can be found above [**here**](#relevant-links). Feel free to add details about yourself to the files for each respective model; I've left placeholders in each Custom Instructions bloc where you can edit them or play around with Prompt Engineering. The nice thing about repos like these are that they're all stored locally, so there's no need to worry about anyone accessing your info!
 
 #### Is it possible to integrate this chatbot into my existing website?
 
@@ -379,23 +382,23 @@ Integrating this chatbot into your existing website requires some web developmen
 
 #### How do I troubleshoot common issues during installation or operation?
 
-For installation issues, ensure that all prerequisites are met and that you've followed the installation steps correctly. Common operational issues can often be resolved by checking your OpenAI API key and internet connection. For more specific problems, refer to the troubleshooting section in this README.
+For installation issues, ensure that all prerequisites are met and that you've followed the installation steps correctly. Common operational issues can often be resolved by checking your OpenAI API key and internet connection. For more specific problems, refer to the troubleshooting section in this README. Specifically, I've attached a more thorough guide of detailed steps for setup [**here**](#guide-basic-setup--use). The most common mistake people make is not renaming/creating the `.env` to the specified format, either by leaving it as `.env.example`, or not copying the variables correctly. Be sure that your file is properly titled `.env` and matches the given example. If you've forgotten or done it incorrectly, you'll see an error message similar to this user [**here**](https://github.com/Zaki-1052/GPTPortal/issues/2), to which the solution is elucidated and shown in a YouTube clip [**here**](https://github.com/Zaki-1052/GPTPortal/issues/2#issuecomment-1817986058) and [**here**](https://youtube.com/clip/UgkxQl6762PzwyHpZ4ial0lrzLRjZecMxR5-?si=KwcMlk8Jb8Vzu2U5).
 
 #### What are the costs associated with using this portal?
 
-The costs depend on your usage of the OpenAI API. OpenAI charges based on the number of tokens processed. Monitor your usage on your OpenAI dashboard, and consider setting limits to control expenses. The API key section in this README has links to OpenAI's pricing details.
+The costs depend on your usage of the OpenAI API. OpenAI charges based on the number of tokens processed. Monitor your usage on your OpenAI dashboard, and consider setting limits to control expenses. The API key section in this README has links to OpenAI's pricing details. Specifically, I explain token costs in great detail [**here**](#token-costs-explained).
 
 #### Is my data secure when using this chatbot portal?
 
-Data security is a priority. However, as with any web application, ensure that you follow best practices such as using secure connections and not sharing sensitive information through the chatbot. The `.env` file ensures your API key and other sensitive data are stored securely.
+Yes. Once you clone this repository locally, the information is sent only through the APIs to the respective AI companies (OpenAI and Google), both of whom at least claim to respect data privacy via API (in contrast to publicly available frontends like ChatGPT and Bard). The `.env` file ensures your API key and other sensitive data are stored securely, as they are ignored via the `.gitignore` file, so even if you accidentally submit a Pull Request, nobody will see your key.
 
 #### I don't see the `.env` file in my finder. Where do I add my key?
 
-If you're using the OS to edit the file and add your credentials, you'll see the hidden files on a Mac with `CMD+Shift+.`. Windows should display the file regardless of its status. You can then use a simple text editor (no need for an IDE!) in order to add the necessary information.
+If you're using the OS to edit the file and add your credentials, you'll see the hidden files on a Mac with `CMD+Shift+.`. Windows should display the file regardless of its status. You can then use a simple text editor (no need for an IDE!) in order to add the necessary information. This can be done by right-clicking the file and using "Open In" to select the default "TextEdit", and pasting the required info. Remember to either make a new file to this effect or rename the `.env.example` file to `.env` so that the server knows to look for it!
 
 ### Where can I find more resources to learn about GPT-4 and API integrations?
 
-For more in-depth knowledge about GPT-4 and API integrations, visit [OpenAI's Documentation](https://platform.openai.com) and explore the various guides and tutorials available there. Additionally, the links provided in the 'Relevant Links' section of this README offer valuable resources. Please fully read the entire page before raising an issue. Thank you!
+For more in-depth knowledge about GPT-4 and API integrations, visit [OpenAI's Documentation](https://platform.openai.com) and explore the various guides and tutorials available there. Additionally, the links provided in the 'Relevant Links' section of this README offer valuable resources. The respective sections can be found [here](#relevant-links), [here](#author-links--custom-gpts), and [here](#research-papers). Please fully read the entire page before raising an issue. Thank you!
 
 ### Updates
 
@@ -484,7 +487,7 @@ Now, let's say for the second request, you include the initial request and respo
 
 - If a heavier final output is needed (2000 tokens), you will reach the "*Max Tokens"* set in the parameters. While the context length of the model is 8000 tokens, 6000 is set manually here for safety.
   - This will mean an additional cost of 6 cents for 36 cents, and still need "chunking" of messages.
-  - Please read OpenAI's linked *Prompt Engineering* Documentation if you expect to modify this.
+  - Please read OpenAI's linked *Prompt Engineering* [Documentation](https://platform.openai.com/docs/guides/prompt-engineering) if you expect to modify this.
 - If you do expect to modify the *parameters* to use more tokens, expect that your API credit use will increase exponentially.
       - Example: A third request will mean an additional **15 cents** of input, and an output of up to an additional **20 cents** depending on the size of the response.
        - This would then total up to **70 cents** per session if audio or images are included.
