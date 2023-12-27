@@ -1,6 +1,6 @@
 # ChatBot Portal for Multi-Modal GPT-4 API
 
-Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision*, *Hearing*, and *Speaking* capabilities with superior *Model Performance*. Now includes the **Google Gemini** models via *free* API!
+Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision*, *Hearing*, and *Speaking* capabilities with *image-generation* and superior *Model Performance*. Now includes the **Google Gemini** models via *free* API!
 
 ## Table of Contents
 
