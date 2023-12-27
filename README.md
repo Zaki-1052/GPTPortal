@@ -22,6 +22,7 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - [Updates](#updates)
 - [Tokens](#token-costs-explained)
 - [TODOs](#todos)
+- [Quick-Start](#quick-start-guide)
 - [Contributions](#contributions)
 - [License](#license)
 
@@ -592,6 +593,78 @@ Now, let's say for the second request, you include the initial request and respo
   - [ ] Embeddings
   - [ ] Function Calling
 - [x] Update ReadMe for Release
+
+### Quick-Start Guide
+
+Welcome to the ChatBot Portal Quickstart Guide! This guide is designed to help you get started with the ChatBot Portal, a Node.js-based web application integrated with OpenAI's GPT-4 API and Google Gemini models. Follow these steps to set up and start using the portal quickly.
+
+- Ensure you have Node.js installed on your machine. Download it from [nodejs.org](https://nodejs.org/en/download).
+- Obtain an OpenAI API key by registering at [OpenAI](https://platform.openai.com/api-keys). Keep this key confidential.
+
+#### Step 2: Clone the Repository
+
+- Open Terminal (Mac) or Command Prompt (Windows).
+- Run the command:
+
+  ```bash
+  git clone https://github.com/Zaki-1052/GPTPortal.git
+  ```
+
+- Navigate to the project directory:
+
+  ```bash
+  cd GPTPortal
+  ```
+
+#### Step 3: Install Dependencies
+
+- In the project directory, run:
+
+  ```bash
+  npm install
+  ```
+
+#### Step 4: Set Up Environment Variables
+
+- Create a `.env` file in the project root.
+- Use the `.env.example` as a template.
+- Fill in your OpenAI API key and basic authentication credentials (username and password).
+- If using Google Gemini, add the Google AI Key here too.
+
+#### Step 5: Start the Server
+
+- Run the server with:
+
+  ```bash
+  node server.js
+  ```
+
+#### Step 6: Access the Chat Interface
+
+- Open a web browser and go to `http://localhost:3000/portal`.
+- Log in with the username and password you set in the `.env` file.
+
+#### Step 7: Using the Portal
+
+- Type or speak your query in the chat interface.
+- Select the AI model using the model selector if needed.
+- For voice conversations, click the microphone icon.
+- To upload an image, click the camera icon.
+- Use the export button to save your conversation history.
+- Type “Bye!” to end the session and shut down the server.
+
+#### Troubleshooting Tips
+
+- If the portal doesn't start, check your Node.js installation and `.env` file setup.
+- For browser compatibility issues, try using Chrome or Firefox.
+
+#### Quick Tips
+
+- Keep an eye on your token usage to manage costs effectively.
+- Customize the chatbot’s responses by adjusting model parameters in `server.js` and `instructions.md`.
+- Explore the `README.md` file for detailed information and additional features.
+
+This quickstart guide provides the essentials to get you up and running with the ChatBot Portal. For more detailed information, refer to the full README in the project repository. Enjoy your journey with this advanced AI-integrated chat interface!
 
 ## Contributions
 
