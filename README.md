@@ -421,7 +421,8 @@ For more in-depth knowledge about GPT-4 and API integrations, visit [OpenAI's Do
 
 #### What browsers and devices are compatible with the ChatBot Portal?
 
-This ChatBot Portal is designed to be widely compatible with modern web browsers. It functions optimally on browsers like Chrome, Firefox, Edge, Arc, Brave, Opera, Vivaldi, Beam, Thorium, DDG, LibreWolf, Sigma, Min, Mull, and any other Chromium fork, though the voice functionality feature may have limited support on Safari and Orion due due to WebKit's codec restrictions. For the best experience, I'd recommend using the latest version of these browsers. 
+This ChatBot Portal is designed to be widely compatible with modern web browsers. It functions optimally on browsers like Chrome, Firefox, Edge, Arc, Brave, Opera, Vivaldi, Beam, Thorium, DDG, LibreWolf, Sigma, Min, Mull, and any other Chromium fork, though the voice functionality feature may have limited support on Safari and Orion due to WebKit's codec restrictions. For the best experience, I'd recommend using the latest version of these browsers. 
+
 In terms of devices, the portal is responsive and should work seamlessly on desktops, laptops, and tablets. However, while the portal is accessible on smartphones, the user experience might be more constrained due to the smaller screen size. Also, you really shouldn't be wasting API credits on your phone, so just use it on Desktop; you wouldn't want to accidentally waste messages to GPT-4. If you are using a separate device, be sure that you're on the same network as your computer.
 
 #### How can users update their ChatBot Portal to the latest version?
