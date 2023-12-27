@@ -5,7 +5,7 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 ## Table of Contents
 
 - [Features](#features)
-- [Example](#examples)
+- [Examples](#examples)
 - [Structure](#structure)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
