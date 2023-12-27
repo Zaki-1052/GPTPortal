@@ -92,8 +92,12 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 
 - **Node.js** installed on your machine from [**nodejs.org**](https://nodejs.org/).
   - Specifically, the download link for various devices can be seen [**here**](https://nodejs.org/en/download).
-- An OpenAI **API** key for accessing *GPT-4.* Billing Credit may be needed.
+- [*Optional*] **Git** or **GitHub Desktop** to clone the repository.
+  - You can also simply download the repo as a `.zip` file and place it elsewhere.
+- An OpenAI **API** key for accessing *GPT-4*. Billing Credit may be needed.
   - See [**here**](https://platform.openai.com/api-keys) to *create your key*.
+- [*Optional*] Google AI Key for accessing *Gemini*. **Free** temporarily.
+  - See [**here**](https://makersuite.google.com/app/apikey) to *create your key*.
 
 ## Installation
 
