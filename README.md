@@ -59,6 +59,8 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
 
 Fully showcases all installation, features, and model utilization.
 
+Once again, the full demonstration and tutorial video can be found [**HERE**](https://youtu.be/MvuxNr60u0M).
+
 Now released; see the release tag for v1 of GPTPortal for more details.
 
 ### Example
@@ -607,6 +609,7 @@ Now, let's say for the second request, you include the initial request and respo
   - [ ] Embeddings
   - [ ] Function Calling
 - [x] Update ReadMe for Release
+  - [x] Add Demo Video
 
 ### Quick-Start Guide
 
