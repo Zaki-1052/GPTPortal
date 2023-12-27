@@ -84,7 +84,7 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 - **portal.html**: The main HTML file for user interaction. It includes the chat interface layout, a message input area, an image upload and export button for history, voice chat functionality, a model selector, and it links to the `script.js` file.
 - **script.js**: Contains client-side logic for handling user inputs, sending messages and images to the server, and displaying marked responses in the chat interface. It also includes file selection for image uploads and a copy-to-clipboard function with support for exporting your current conversation history and changing models. Lastly, it handles voice conversations and text box formatting.
 - **server.js**: The server-side Node.js file using Express.js. It processes POST requests to `/message` and `/gemini`, interacts with the OpenAI GPT-4-Vision and Gemini APIs, along with Whisper and TTS, and manages CORS, Multer, basic authentication, and static file serving. Lastly, it handles conversation history and image generation, while hosting custom instructions.
-- **instructions.md** & **geminiMessage.txt**: The model's System and Custom Instructions, customized for optimal responses & contextual prompt enhancement. These can be modified by the individual user to include background profiles.
+- **instructions.md** & **geminiMessage.txt**: The model's System and Custom Instructions, customized for optimal responses & contextual prompt enhancement. These can be modified by the user to include background profiles.
 - **.env**: The *Environment Variable* file for your *sensitive passwords*. Must be modeled after the `.env.example` template.
 - **chat.css**: The *stylesheet* for the portal's *look* and *formatting*.
 
