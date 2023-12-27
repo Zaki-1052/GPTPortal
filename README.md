@@ -55,6 +55,11 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
 
 ## Examples
 
+### Latest [**Demo**](https://youtu.be/MvuxNr60u0M) Video
+
+Fully showcases all installation, features, and model utilization.
+Now released; see the release tag for v1 of GPTPortal for more details.
+
 ### Example
 
 ![Example Portal View](public/uploads/example.png)
