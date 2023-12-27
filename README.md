@@ -5,7 +5,7 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 ## Table of Contents
 
 - [Features](#features)
-- [Example](#example)
+- [Example](#examples)
 - [Structure](#structure)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
@@ -52,7 +52,9 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
     - **Free** Until February 2024!
   - **Gemini-Vision**: Multi-Modal Model – One-Time Use
 
-## Example
+## Examples
+
+### Example
 
 ![Example Portal View](public/uploads/example.png)
 
