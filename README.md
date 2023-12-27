@@ -18,6 +18,7 @@ Welcome to the **Chat-Bot Portal**, a *Node.js*-based web application that allow
 - [Author Links](#author-links--custom-gpts)
 - [Research Papers](#research-papers)
 - [FAQ](#faq)
+- [Glossary](#glossary)
 - [Updates](#updates)
 - [Tokens](#token-costs-explained)
 - [TODOs](#todos)
@@ -396,9 +397,81 @@ Yes. Once you clone this repository locally, the information is sent only throug
 
 If you're using the OS to edit the file and add your credentials, you'll see the hidden files on a Mac with `CMD+Shift+.`. Windows should display the file regardless of its status. You can then use a simple text editor (no need for an IDE!) in order to add the necessary information. This can be done by right-clicking the file and using "Open In" to select the default "TextEdit", and pasting the required info. Remember to either make a new file to this effect or rename the `.env.example` file to `.env` so that the server knows to look for it!
 
-### Where can I find more resources to learn about GPT-4 and API integrations?
+#### Where can I find more resources to learn about GPT-4 and API integrations?
 
-For more in-depth knowledge about GPT-4 and API integrations, visit [OpenAI's Documentation](https://platform.openai.com) and explore the various guides and tutorials available there. Additionally, the links provided in the 'Relevant Links' section of this README offer valuable resources. The respective sections can be found [here](#relevant-links), [here](#author-links--custom-gpts), and [here](#research-papers). Please fully read the entire page before raising an issue. Thank you!
+For more in-depth knowledge about GPT-4 and API integrations, visit [OpenAI's Documentation](https://platform.openai.com) and explore the various guides and tutorials available there. Additionally, the links provided in the 'Relevant Links' section of this README offer valuable resources. The respective sections can be found [here](#relevant-links), [here](#author-links--custom-gpts), and [here](#research-papers).
+
+#### What browsers and devices are compatible with the ChatBot Portal?
+
+This ChatBot Portal is designed to be widely compatible with modern web browsers. It functions optimally on browsers like Chrome, Firefox, Edge, Arc, Brave, Opera, Vivaldi, Beam, Thorium, DDG, LibreWolf, Sigma, Min, Mull, and any other Chromium fork, though the voice functionality feature may have limited support on Safari and Orion due due to WebKit's codec restrictions. For the best experience, I'd recommend using the latest version of these browsers. In terms of devices, the portal is responsive and should work seamlessly on desktops, laptops, and tablets. However, while the portal is accessible on smartphones, the user experience might be more constrained due to the smaller screen size. Also, you really shouldn't be wasting API credits on your phone, so just use it on Desktop; you wouldn't want to accidentally waste messages to GPT-4. If you are using a separate device, be sure that you're on the same network as your computer.
+
+#### How can users update their ChatBot Portal to the latest version?
+
+To update your ChatBot Portal to the latest version, follow these steps:
+
+1. **Check for Updates**: Visit the GitHub repository for the ChatBot Portal to check if a new version is available. This will be clearly marked by a release tag.
+2. **Download the Latest Release**: If an update is available, download the latest release from the repository.
+3. **Backup Your Data**: Before updating, it's a good practice to backup your current portal configuration, including your `.env` file and any custom scripts or settings.
+4. **Replace Files**: Replace the existing files in your ChatBot Portal directory with the new ones from the downloaded update. Be cautious not to overwrite your `.env` file or other customized configurations.
+5. **Reinstall Dependencies**: If the update includes changes to dependencies, run `npm install` in your project directory to ensure all necessary packages are up to date.
+6. **Restart the Server**: After updating the files and dependencies, restart the server to apply the updates.
+
+Always refer to the release notes for specific updating instructions, as some updates may require additional steps.
+
+#### I have a suggestion or issue with the ChatBot Portal. How can I raise it?
+
+I'm open to all community feedback and suggestions. If you have any ideas for improvements or encounter any issues, please follow these steps to raise them:
+
+1. **GitHub Issues**: For technical issues or bugs, please open an issue in the GitHub repository. Provide a detailed description of the problem, including steps to reproduce the issue, and any error messages or screenshots.
+2. **GitHub Discussions**: For feature suggestions, discussions, or general feedback, use the GitHub Discussions section of the repository. This is a great place to share your ideas and connect with other users.
+3. **Stay Updated**: After submitting an issue or suggestion, keep an eye on your GitHub notifications for any responses or queries from the development team or community members.
+4. **Contribute**: If you're able to contribute a fix or improvement directly, consider forking the repository and submitting a pull request. Your contributions can help enhance the ChatBot Portal for everyone.
+
+By participating in the community and sharing your feedback, you help improve the ChatBot Portal and ensure it continues to meet user needs and expectations.
+
+Please fully review this entire ReadMe page before raising an issue. Thank you!
+
+### Glossary
+
+1. **API (Application Programming Interface)**: A set of protocols and tools for building software and applications. In the context of this project, it refers to OpenAI's and Google Gemini's interfaces that allow the ChatBot Portal to access their functionalities.
+
+2. **Node.js**: An open-source, cross-platform JavaScript runtime environment that executes JavaScript code outside a web browser. This portal uses Node.js for its server-side operations.
+
+3. **Git**: A version control system used for tracking changes in source code during software development. It's used to clone the repository of the ChatBot Portal.
+
+4. **Repository (Repo)**: A digital directory or storage space where the project's files and each file's revision history are stored.
+
+5. **.env File**: A configuration file used to store environment-specific variables, such as API keys and login credentials, in a secure and modular way.
+
+6. **Model Selector**: A feature in the portal that allows users to choose from different AI models (like GPT-4, GPT-4-Vision, Gemini-Pro, etc.) for varied functionalities.
+
+7. **Markdown**: A lightweight markup language with plain-text formatting syntax that's often used for writing messages in the chat interface of the portal.
+
+8. **HTTP (Hypertext Transfer Protocol)**: The foundation of data communication for the World Wide Web. This portal uses HTTP requests to interact with APIs.
+
+9. **Token**: In the context of APIs, a token is a part of the text that the model processes. API usage is often calculated based on the number of tokens.
+
+10. **OpenAI GPT-4**: The latest version of the Generative Pre-trained Transformer (GPT) models by OpenAI, known for its advanced natural language processing capabilities.
+
+11. **Google Gemini**: A set of AI models provided by Google, offering functionalities similar to OpenAI's GPT models.
+
+12. **Whisper API**: An API for voice recognition and transcription, used in the ChatBot Portal for voice conversation features.
+
+13. **TTS (Text-to-Speech)**: Technology that converts text into spoken voice output. Used in the ChatBot Portal to read responses aloud.
+
+14. **CORS (Cross-Origin Resource Sharing)**: A security feature that allows or restricts requests for resources from other domains outside the domain from which the first resource was served.
+
+15. **Multer**: A Node.js middleware used for handling multipart/form-data, primarily used for uploading files.
+
+16. **DALL·E 3**: An AI model by OpenAI known for generating images from textual descriptions, integrated into your portal for image generation features.
+
+17. **Frontend and Backend**: Referring to the client-side (frontend) and server-side (backend) parts of web applications. The frontend is what users interact with directly, while the backend is the server-side that processes requests and manages data.
+
+18. **Prompt Engineering**: The art of crafting prompts to effectively communicate with AI models to elicit the desired response.
+
+19. **Rate Limiting**: A feature that limits the number of API requests a user can make within a given time frame, used to control access and ensure fair usage.
+
+20. **Session**: A period of interaction with the ChatBot, beginning when the user starts the conversation and ending when they terminate it or after a period of inactivity. Sessions begin when you run `node server.js` in your terminal and end either when writing, "*Bye!*" in the text box or manually ending the server with `Control`+`C`.
 
 ### Updates
 
@@ -516,10 +589,11 @@ Now, let's say for the second request, you include the initial request and respo
   - [ ] Vectors
   - [ ] Embeddings
   - [ ] Function Calling
+- [x] Update ReadMe for Release
 
 ## Contributions
 
-Contributions are welcome! Please fork the repository and submit a pull request with your updates.
+Contributions are welcome! Please fork the repository and submit a pull request with your updates. Alternatively, if you encounter any errors, feel free to raise an issue through GitHub, and I'll get back to you shortly!
 
 ## License
 
