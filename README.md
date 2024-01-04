@@ -2,6 +2,15 @@
 
 Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision*, *Hearing*, and *Speaking* capabilities with *image-generation* and superior *Model Performance*. Now includes the **Google Gemini** models via *free* API!
 
+## IMPORTANT
+
+- This **Branch** is *stale* and solely functions for **Voice Conversations**.
+- It will call to *Google Gemini* by Default and has streamlined controls.
+- Your speech will continue to be transcribed, but will directly be sent to the AI, and read aloud in the same manner as it currently functions.
+- The **Export** button now **also** *ends the session* and *shuts down the server*.
+- **Custom Instructions** have also been severely modified for adaptability with *voice conversations*, but users are still encouraged to modify their *user profile* to make the AI interaction more **personable**.
+- Full removals will be detailed in the [updates](#updates) section, but the main ones are Dall·E Image Generations and Inputs to make room for the *streamlined UI*.
+
 ## Table of Contents
 
 - [Features](#features)
@@ -507,14 +516,31 @@ This **Updates** Section will showcase any further features added to the reposit
   - Follow instructions in the ReadMe to retrieve your Key from their *AI Studio*.
     - Link to Makersuite Key Generation Page is [**HERE**](https://makersuite.google.com/app/apikey).
     - More detailed installation instructions are [**HERE**](#8-optional-google-gemini-setup).
+- **IMPORTANT UPDATE**: As [**detailed**](#important), this is a stale branch functioning solely for voice conversations.
 
-#### *Showcase* of **DALL·E 3**
+![Voice Interface](public/uploads/voice.jpeg)
 
+- Users should be aware that according to the OpenAI [Pricing](https://openai.com/pricing) Page, under [Audio](https://arc.net/l/quote/muihgoqm) Models:
 
+| Audio Models | |
+| --- | --- |
+| Model | Usage |
+| Whisper | $0.006 / minute (rounded to the nearest second) |
+| | [Whisper](https://platform.openai.com/docs/guides/speech-to-text) can transcribe speech into text and translate many languages into English. |
+| TTS | $0.015 / 1K characters |
+| | [Text-to-speech (TTS)](https://platform.openai.com/docs/guides/text-to-speech) can convert text into spoken audio. |
+| TTS HD | $0.030 / 1K characters |
+| | Please note that our [Usage Policies](https://openai.com/policies/usage-policies) require you to provide a clear disclosure to end users that the TTS voice they are hearing is AI-generated and not a human voice. |
 
-https://github.com/Zaki-1052/GPTPortal/assets/134018102/289a8af8-cf9a-4199-8d4f-50ebde8efbbd
-
-
+- So, you will be spending OpenAI credits regardless of if you are solely calling the free Gemini model or not.
+- Also, the [Custom Instructions](public/instructions.md) for GPT are vastly superior to those of [Gemini](public/geminiMessage.txt), though they both cater to the correct functionality.
+- For a *streamlined* **UI experience**, there is no longer *image uploading*, as the lag between calling APIs is too great and is otherwise **unnecessary** if the user is simply speaking to the AI anyways.
+- Obviously, both the *Shutdown* and *Image-Gen* **commands** can no longer be functional, so the latter has been **removed** in this branch, and now, *exporting* the *conversation* also **shuts it down** rather than needing to say goodbye to the model verbally.
+  - The server will thus automatically end in this instance.
+- The general AI functionality, including the model selector and TTS, is maintained.
+- Lastly, this branch will remain stale unless I someday return to update; otherwise, feel free to install and use.
+  - It has been extensively tested, but I didn't find the functionality useful enough for a separate repo, so here it goes – to a dead branch.
+- Feel free to reach out for any applicable issues or requests!
 
 #### **Token Costs Explained**
 

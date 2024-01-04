@@ -10,7 +10,6 @@ const { marked } = require('marked');
 const app = express();
 app.use(express.json()); // for parsing application/json
 app.use(express.static('public')); // Serves your static files from 'public' directory
-const download = require('image-downloader');
 const cors = require('cors');
 app.use(cors());
 const router = express.Router();
@@ -103,7 +102,7 @@ app.post('/transcribe', upload.single('audio'), async (req, res) => {
     fs.unlinkSync(uploadedFilePath);
 
     // Prepend "Voice Transcription: " to the transcription
-    transcription = "Voice Transcription: " + transcriptionResponse.data.text;
+    transcription = transcriptionResponse.data.text;
 
     // Send the modified transcription back to the client
     res.json({ text: transcription });
@@ -144,55 +143,6 @@ app.post('/tts', async (req, res) => {
 
 
 // END
-
-
-// image generation 
-
-// Endpoint for handling image generation requests
-app.post('/generate-image', async (req, res) => {
-  const prompt = req.body.prompt;
-  
-  try {
-    // Call to DALL·E API with the prompt
-    const dalResponse = await axios.post('https://api.openai.com/v1/images/generations', {
-      prompt: prompt,
-      model: "dall-e-3",
-      n: 1,
-      quality: 'hd',
-      response_format: 'url',
-      size: '1024x1024'
-    }, {
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-      }
-    });
-
-    // Extract the image URL from the response
-    const imageUrl = dalResponse.data.data[0].url;
-
-    // Define a path to save the image
-    const uploadsDir = path.join(__dirname, 'public/uploads');
-    const imagePath = path.join(uploadsDir, `generated-${Date.now()}.jpg`);
-
-    // Ensure uploads directory exists
-    if (!fs.existsSync(uploadsDir)){
-        fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-
-    // Download and save the image
-    try {
-        await download.image({ url: imageUrl, dest: imagePath });
-        res.json({ imageUrl: imageUrl });
-    } catch (error) {
-        console.error('Error saving image:', error);
-        res.status(500).json({ error: "Error saving image", details: error.message });
-    }
-
-  } catch (error) {
-    console.error('Error calling DALL·E API:', error.message);
-    res.status(500).json({ error: "Error calling DALL·E API", details: error.message });
-  }
-});
 
 
 // custom instructions read
@@ -343,70 +293,6 @@ function exportGeminiChatToHTML() {
   return htmlContent;
 }
 
-
-
-// Function to convert an image URL to base64
-async function imageURLToBase64(url) {
-  try {
-    const response = await axios.get(url, {
-      responseType: 'arraybuffer' // Ensure the image data is received in the correct format
-    });
-    return `data:image/jpeg;base64,${Buffer.from(response.data).toString('base64')}`;
-  } catch (error) {
-    console.error('Error fetching image:', error);
-    return null; // Return null if there is an error
-  }
-}
-
-// Endpoint to handle image upload
-app.post('/upload-image', upload.single('image'), async (req, res) => {
-  console.log("File received in /upload-image:", req.file);
-  if (!req.file) {
-    return res.status(400).send({ error: 'No image file provided.' });
-  }
-
-  // Generate URL for the uploaded image
-  const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-
-  // Send the image URL back to the client
-  res.send({ imageUrl: imageUrl });
-});
-
-
-// Function to convert an image file to base64
-function imageToBase64(filePath) {
-  const image = fs.readFileSync(filePath);
-  return `data:image/jpeg;base64,${image.toString('base64')}`;
-}
-
-
-// Google Gemini Endpoint
-
-
-// Converts an image file directly to the format required by the Gemini model
-function convertImageForGemini(filePath, mimeType) {
-  try {
-    // Validate input parameters
-    if (!filePath || !mimeType) {
-      throw new Error('Invalid arguments: filePath and mimeType are required');
-    }
-
-    // Read file and encode in base64
-    const fileData = fs.readFileSync(filePath);
-    const base64Data = fileData.toString('base64');
-
-    return {
-      inlineData: {
-        data: base64Data,
-        mimeType
-      },
-    };
-  } catch (error) {
-    console.error('Error in convertImageForGemini:', error.message);
-    return null;
-  }
-}
-
 // Gemini Safety settings reduced to none for each required category.
 // Feel free to adjust, but be aware that the RLHP severely neuters the model.
 
@@ -449,51 +335,11 @@ const defaultConfig = {
 
 app.post('/gemini', async (req, res) => {
   try {
-    const { model, prompt, imageParts, history } = req.body;
+    const { model, prompt, history } = req.body;
     console.log('Prompt: ', prompt)
-
-// Check for shutdown command
-if (prompt === "Bye!") {
-  console.log("Shutdown message received. Exporting chat and closing server...");
-
-  // Export chat history to HTML
-  const htmlContent = exportGeminiChatToHTML();
-
-  // Set headers for file download
-  res.set('Content-Type', 'text/html');
-  res.set('Content-Disposition', 'attachment; filename="chat_history.html"');
-
-  // Send the HTML content
-  res.send(htmlContent);
-
-  // Wait for the response to be fully sent before shutting down
-  res.end(() => {
-    console.log("Chat history sent to client, initiating shutdown...");
-
-    if (isShuttingDown) {
-      return res.status(503).send('Server is shutting down');
-  }
-    isShuttingDown = true; // Set the shutdown flag
-
-    // Delay before shutting down the server to allow file download
-    setTimeout(() => {
-      server.close(() => {
-        console.log("Server successfully shut down.");
-      });
-    }, 1000); // 10 seconds delay
-  });
-
-  return; // End the execution of the function here
-}
 
 // Add user's prompt to conversation history with a label
 geminiHistory += 'User Prompt: ' + prompt + '\n';
-
-// Handle text-only input
-if (!history && (!imageParts || imageParts.length === 0)) {
-  if (model !== 'gemini-pro') {
-    return res.status(400).json({ error: 'Invalid model for text-only input. Use gemini-pro.' });
-  }
 
 
   // Initialize the Google model for text-only input
@@ -508,55 +354,6 @@ if (!history && (!imageParts || imageParts.length === 0)) {
   console.log('Gemini History: ', geminiHistory)
       // Send the response
       res.json({ success: true, text: text });
-    }
-    // Handle text-and-image input (multimodal)
-    else if (imageParts && imageParts.length > 0 && !history) {
-      if (model !== 'gemini-pro-vision') {
-        return res.status(400).json({ error: 'Invalid model for text-and-image input. Use gemini-pro-vision.' });
-      }
-
-      // Initialize the Google model for text-and-image input
-      const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro-vision', generationConfig: defaultConfig, safetySettings });
-console.log(googleModel);
-      // Convert image parts to the required format using the new function
-      // Construct file paths from received filenames and convert image parts
-      const convertedImageParts = imageParts.map(part => {
-        // Construct the file path from the filename
-        const filePath = `public/uploads/${part.filename}`; // Update with the actual path to uploaded images
-        return convertImageForGemini(filePath, part.mimeType);
-      });
-
-      // Generate content based on the prompt and images
-      const result = await googleModel.generateContent([prompt, ...convertedImageParts]);
-      const response = result.response;
-      const text = response.text();
-      console.log(text);
-
-      // Send the response
-      res.json({ success: true, text: text });
-    }
-    // Handle multi-turn chat functionality
-    else if (history && history.length > 0) {
-      if (model !== 'gemini-pro') {
-        return res.status(400).json({ error: 'Invalid model for chat. Use gemini-pro.' });
-      }
-
-      // Initialize the Google model for chat
-      const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro', generationConfig: defaultConfig, safetySettings });
-
-      // Start the chat with the provided history
-      const chat = googleModel.startChat({ history });
-      console.log(chat);
-      console.log(history);
-      // Send the user's message and get the response
-      const result = await chat.sendMessage({ role: "user", parts: prompt });
-      const response = result.response;
-      const text = response.text();
-      console.log("Chat", text);
-
-      // Send the response
-      res.json({ success: true, text: text });
-    }
   } catch (error) {
     console.error('Error with Gemini API:', error.message);
     res.status(500).json({ error: "Error with Gemini API", details: error.message });
@@ -586,43 +383,7 @@ app.post('/message', async (req, res) => {
   console.log("Received model ID:", req.body.modelID); // Add this line
   const user_message = req.body.message;
   const modelID = req.body.modelID || 'gpt-4'; // Extracting model ID from the request
-  const image = req.body.image; // This will now be an URL
   console.log("Received request with size: ", JSON.stringify(req.body).length);
-
- // Check for shutdown command
-if (user_message === "Bye!") {
-  console.log("Shutdown message received. Exporting chat and closing server...");
-
-  // Export chat history to HTML
-  const htmlContent = exportChatToHTML();
-
-  // Set headers for file download
-  res.set('Content-Type', 'text/html');
-  res.set('Content-Disposition', 'attachment; filename="chat_history.html"');
-
-  // Send the HTML content
-  res.send(htmlContent);
-
-  // Wait for the response to be fully sent before shutting down
-  res.end(() => {
-    console.log("Chat history sent to client, initiating shutdown...");
-
-    if (isShuttingDown) {
-      return res.status(503).send('Server is shutting down');
-  }
-    isShuttingDown = true; // Set the shutdown flag
-
-    // Delay before shutting down the server to allow file download
-    setTimeout(() => {
-      server.close(() => {
-        console.log("Server successfully shut down.");
-      });
-    }, 1000); // 1 seconds delay
-  });
-
-  return; // End the execution of the function here
-}
-
 
    // Retrieve model from the request
 
@@ -634,22 +395,6 @@ if (user_message === "Bye!") {
 // Add text content if present
 if (user_message) {
     user_input.content.push({ type: "text", text: user_message });
-}
-
-// Check for image in the payload
-// Check for image in the payload
-if (req.body.image) {
-  let base64Image;
-  // If req.file is defined, it means the image is uploaded as a file
-  if (req.file) {
-    base64Image = imageToBase64(req.file.path);
-  } else {
-    // If req.file is not present, fetch the image from the URL
-    base64Image = await imageURLToBase64(req.body.image);
-  }
-  if (base64Image) {
-    user_input.content.push({ type: "image_url", image_url: { url: base64Image } });
-  }
 }
 
 
@@ -820,6 +565,26 @@ app.get('/export-chat-html', (req, res) => {
   res.set('Content-Type', 'text/html');
   res.set('Content-Disposition', 'attachment; filename="' + (type === 'gemini' ? 'gemini_chat_history.html' : 'chat_history.html') + '"');
   res.send(htmlContent);
+
+  // Wait for the response to be fully sent before shutting down
+  res.end(() => {
+    console.log("Chat history sent to client, initiating shutdown...");
+    
+    if (isShuttingDown) {
+      return res.status(503).send('Server is shutting down');
+  }
+    
+  isShuttingDown = true; // Set the shutdown flag
+    // Delay before shutting down the server to allow file download
+    setTimeout(() => {
+      server.close(() => {
+        console.log("Server successfully shut down.");
+      });
+    }, 1000); // 1 seconds delay
+  });
+
+  return; // End the execution of the function here
+
 });
 
 

@@ -11,11 +11,16 @@ body {
 
 #chat-container {
   max-width: 1100px;
-  margin: 50px auto;
+  margin: 30px auto;
   padding: 20px;
+  padding-bottom: 70px; /* Adjust the value based on the desired space */
   border-radius: 10px;
   background-color: #202124; /* Slightly lighter dark shade for the container */
   box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Subtle shadow */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* This will push the main content and buttons apart */
+  position: relative;
 }
 
 #chat-box {
@@ -27,73 +32,13 @@ body {
   padding: 15px;
   margin-bottom: 20px;
   font-size: 17px;
-}
-
-#message-input {
-  width: calc(100% - 80px); /* Adjust the width calculation to leave space for the send button */
-  padding: 12px 5px 5px 15px; /* Adjust bottom padding if necessary */
-  line-height: normal; /* Adjust line height if necessary */  
-  margin: 0 10px 15px 0; /* Adjust margins to fit the send button */
-  background-color: #303134;
-  border: 1px solid #5f6368;
-  border-radius: 20px;
-  color: white;
-  font-size: 15px;
-  overflow: hidden;
-  resize: none;
-  height: 45px; /* Set to your preferred default height */
-  box-sizing: border-box;
-  position: relative; /* Ensure positioning is relative to the container */
-  margin-right: 18px;
-  font-family: 'Calibre', sans-serif;
-}
-
-#message-input::placeholder {
-  color: #888; /* Adjust the placeholder color if needed */
-  opacity: 1;
-}
-
-#send-button {
-  width: 90px;
-  padding: 10px 15px;
-  background-color: #1a73e8; /* Google blue for the button */
-  border: none;
-  border-radius: 20px;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.2s; /* Transition for hover effect */
-  font-size: 15px;
-  margin-left: auto;
-}
-
-#send-button:hover {
-  background-color: #1669c2; /* Darker shade on hover */
-}
-
-#clipboard-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  /* Add your desired styling for the button */
-  padding: 5px; /* Increase padding */
-  font-size: 22px; /* Increase font size */
-  background-color: #cacdd5;
-  width: 50px;
-  height: 50px;
-}
-
-#clipboard-button:hover {
-  background-color: #1669c2; /* Darker shade on hover */
-}
-
-#file-input {
-  display: none;
+  flex-grow: 1; /* This will allow the chat box to fill the available space */
 }
 
 #export-button {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  bottom: 10px;
+  right: 10px;
   padding: 5px; /* Increase padding */
   font-size: 22px; /* Increase font size */
   background-color: #acafb5;
@@ -203,7 +148,6 @@ body {
   cursor: pointer;
   transition: background-color 0.2s; /* Transition for hover effect */
   font-size: 18px; /* Text size */
-  position: absolute;
 }
 
 #voice-button:hover {
@@ -211,14 +155,21 @@ body {
 }
 
 #voice-indicator {
-  display: none; /* Hidden by default */
   padding: 10px;
   border-radius: 10px;
   text-align: center;
-  margin-bottom: 10px;
   background-color: #4caf50; /* Green background for visibility */
   color: white;
   transition: background-color 0.3s;
+  visibility: hidden; /* Start with the indicator hidden */
+  /* Position it absolutely within the action-buttons-container */
+  position: absolute;
+  /* Place it in the center between the action buttons */
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  width: fit-content; /* Let the size fit the content */
 }
 
 .voice-active {
@@ -292,9 +243,22 @@ body {
   line-height: normal;
 }
 
-#upload-status {
-  color: green; /* Green color for successful upload indication */
-  font-size: 14.5px; /* Slightly smaller font size */
-  text-align: center; /* Center align the message */
-  margin-bottom: 5px;
+#action-buttons-container {
+  display: flex;
+  justify-content: space-between; /* This will space the children evenly */
+  align-items: center; /* This will align the children vertically */
+  position: absolute; /* Position the container absolutely */
+  bottom: 10px; /* Position from the bottom of the chat-container */
+  left: 20px; /* Keep consistent with the leftmost button */
+  right: 20px; /* Keep consistent with the rightmost button */
+  padding: 10px 0; /* Provide some padding at the top and bottom */
+}
+
+
+#export-button, #voice-button {
+  padding: 10px 20px; /* Increase padding for larger buttons */
+  font-size: 24px; /* Adjust font size if necessary */
+  width: auto; /* Adjust width if needed */
+  height: auto; /* Adjust height if needed */
+  margin: 0; /* Remove margin if set */
 }

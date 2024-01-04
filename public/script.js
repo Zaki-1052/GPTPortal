@@ -6,7 +6,7 @@
     return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   }
 
-  let isGemini = false;
+  let isGemini = true;
 
 
   const modelID = {
@@ -36,7 +36,7 @@
 // Default model functionality
   function setDefaultModel() {
   let selectedModelDiv = document.getElementById("selected-model");
-  let defaultModel = "gpt-4";
+  let defaultModel = "gemini-pro";
 
   // Check if a model has been selected, if not, set to default model ID and update display
   if (selectedModelDiv.textContent.trim() === "Select a Model") {
@@ -45,9 +45,11 @@
   }
 }
 
-let currentModelID = 'gpt-4'; // Global declaration
+let currentModelID = 'gemini-pro'; // Global declaration
 
-let selectedImage = null;
+
+let transcriptionResult = '';
+
 
 // Convert markdown to HTML using marked.js and sanitize it with DOMPurify
 marked.setOptions({ breaks: true }); // Enable new lines to be interpreted as <br>
@@ -92,81 +94,6 @@ function determineEndpoint(modelID) {
   console.log(isGemini)
 }
 
-// image generation
-
-function isImageGenerationRequest(message) {
-  return message.startsWith("Generate:"); // Simple check to see if the message is an image generation request
-}
-
-async function handleImageGenerationRequest(message) {
-  const prompt = message.substring("Generate:".length).trim();
-
-  try {
-      const response = await fetch('http://localhost:3000/generate-image', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: prompt })
-      });
-
-      if (!response.ok) {
-          throw new Error('Failed to generate image');
-      }
-
-      const result = await response.json();
-      if (result.imageUrl) {
-          displayGeneratedImage(result.imageUrl);
-          sendMessageToServer("Generated image", result.imageUrl);
-      } else {
-          displayMessage('Image generation failed, please try again.', 'error');
-      }
-  } catch (error) {
-      console.error('Error in image generation:', error);
-      displayMessage('Error in image generation, please try again.', 'error');
-  }
-}
-
-function displayGeneratedImage(imageUrl) {
-  const imageElement = document.createElement('img');
-  imageElement.src = imageUrl;
-  imageElement.alt = "Generated Image";
-  imageElement.classList.add('generated-image'); // Add a class for styling
-
-  // Trigger image download
-  const downloadLink = document.createElement('a');
-  downloadLink.href = imageUrl;
-  downloadLink.download = 'generated-image.jpg'; // or use a dynamic name
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-  document.body.removeChild(downloadLink);
-
-  const chatBox = document.getElementById('chat-box');
-  chatBox.appendChild(imageElement);
-  chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest image
-
-}
-
-function sendShutdownMessage() {
-  // Sending "Bye!" to both /message and Gemini endpoints
-  const messagePayload = JSON.stringify({ message: "Bye!" });
-  const messageRequest = fetch('http://localhost:3000/message', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: messagePayload
-  });
-
-  const geminiRequest = fetch('http://localhost:3000/gemini', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: messagePayload
-  });
-
-  // Wait for both requests to complete
-  Promise.all([messageRequest, geminiRequest])
-    .then(() => {
-      exportChatOnShutdown(isGemini); // Export chat history based on the isGemini flag
-    })
-    .catch(err => console.error('Error during shutdown:', err));
-}
 
 
 const selectedModelDisplayName = document.getElementById('selected-model').textContent.trim();
@@ -285,89 +212,49 @@ document.getElementById('model-gemini-pro-vision').addEventListener('mouseover',
     // Event Listener for buttons
   
     document.addEventListener('DOMContentLoaded', () => {
-      const sendButton = document.getElementById('send-button');
-      const messageInput = document.getElementById('message-input');
   
-      function autoExpand(field) {
-        // Reset field height
-        field.style.height = 'inherit';
+        const voiceButton = document.getElementById('voice-button');
+        voiceButton.addEventListener('click', function() {
+          voice();
+          // Immediately blur (remove focus) from the button after click
+          this.blur();
+        });
       
-        // Get the computed styles for the element
-        const computed = window.getComputedStyle(field);
-      
-        // Calculate the height
-  const borderTop = parseInt(computed.getPropertyValue('border-top-width'), 10);
-  const borderBottom = parseInt(computed.getPropertyValue('border-bottom-width'), 10);
-  const paddingTop = parseInt(computed.getPropertyValue('padding-top'), 10);
-  const paddingBottom = parseInt(computed.getPropertyValue('padding-bottom'), 10);
-
-  // Calculate the total height needed
-  const heightNeeded = field.scrollHeight + borderTop + borderBottom;
-
-  // Check if the content exceeds the current height
-  if (field.scrollHeight > field.clientHeight - paddingTop - paddingBottom - borderTop - borderBottom) {
-    field.style.height = `${heightNeeded}px`;
-  }
-}
-      
-
-  messageInput.addEventListener('input', function() {
-    autoExpand(this);
-  });
-
-      const chatBox = document.getElementById('chat-box');
-      const voiceButton = document.getElementById('voice-button');
-      voiceButton.addEventListener('click', voice);
-      document.getElementById('export-button').addEventListener('click', exportChatHistory);
-      
-      // Existing event listener for messageInput keypress
-      messageInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault(); // Prevent the default action (new line) when Enter alone is pressed
-          sendButton.click(); // Trigger the send button click on Enter key press
-        }
-      });
-
-
-      
-
-    
-      
-      // Result of Send Button
-sendButton.addEventListener('click', async () => {
-  const message = messageInput.value.trim();
-  const user_image = document.getElementById('file-input').files[0];
-  messageInput.value = '';
-
-  // Get the selected model's display name and convert it to the actual model ID
-  setDefaultModel(); // Update default model if needed
-
-  if (message || user_image) {
-      displayMessage(message, 'user');
-      // Check if it's an image generation request
-      if (isImageGenerationRequest(message)) {
-          await handleImageGenerationRequest(message);
-      } else {
-          // Existing code to handle regular messages
-          try {
-              await sendMessageToServer(message, user_image); // Pass the message, image file, and model to the server
-              if (voiceMode) {
-                  // Call to TTS API to read the response
-                  // This will be implemented in the displayMessage function
-              }
-              if (message === "Bye!") {
-                  exportChatOnShutdown();
-              }
-          } catch (error) {
-              // Handle error
-              console.error('Error sending message:', error);
-              displayMessage('Error sending message. Please try again.', 'error');
+        // Add an event listener for 'keydown' instead of 'keypress'
+        document.addEventListener('keydown', function(e) {
+          // Check if Enter is pressed and focus is not on the voice button
+          if (e.key === 'Enter' && document.activeElement !== voiceButton) {
+            e.preventDefault(); // Prevent the default Enter key behavior
+            voice();
           }
-      }
-  }
-});
-
+        });
       
+        document.getElementById('export-button').addEventListener('click', exportChatHistory);
+        
+      });
+      
+
+async function processAndSendMessage() {
+    const message = transcriptionResult.trim();
+    setDefaultModel(); // Update default model if needed
+    transcriptionResult = '';
+    if (message) {
+        displayMessage(message, 'user');
+        try {
+            await sendMessageToServer(message); // Pass the message to the server
+            if (voiceMode) {
+                // Call to TTS API to read the response
+                // This will be implemented in the displayMessage function
+            }
+            if (message === "Bye!") {
+                exportChatOnShutdown();
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+            displayMessage('Error sending message. Please try again.', 'error');
+        }
+    }
+}
 
       // export chat history function
 
@@ -399,9 +286,7 @@ function exportChatOnShutdown() {
 
     
       // VOICE
-    
-      let isVoiceTranscription = false;
-    
+        
     
       let voiceMode = false;
       let mediaRecorder;
@@ -470,9 +355,9 @@ function exportChatOnShutdown() {
         const voiceIndicator = document.getElementById('voice-indicator');
         if (voiceMode) {
           voiceIndicator.textContent = 'Voice Mode ON';
-          voiceIndicator.style.display = 'block';
+          voiceIndicator.style.visibility = 'visible'; // Change display to visibility
         } else {
-          voiceIndicator.style.display = 'none';
+            voiceIndicator.style.visibility = 'hidden'; // Change display to visibility
         }
       }
     
@@ -497,12 +382,13 @@ function exportChatOnShutdown() {
         })
         .then(response => response.json())
         .then(data => {
-          messageInput.value = data.text;
-          isVoiceTranscription = data.text.startsWith("Voice Transcription: ");
-          voiceMode = false; // Turn off voice mode
+            transcriptionResult = data.text; // Store the transcription result
+            processAndSendMessage(transcriptionResult); // Process and send the transcribed message
+            isVoiceTranscription = true;
+            voiceMode = false; // Turn off voice mode
         })
         .catch(console.error);
-      }, 100); // 500ms delay
+      }, 10); // 500ms delay
     }
 
     
@@ -527,63 +413,11 @@ function exportChatOnShutdown() {
     
     // END
       
-    // Functions for handling image input files
     
-      // Placeholder function for clipboard button (to be implemented)
-      document.getElementById('clipboard-button').addEventListener('click', () => {
-        document.getElementById('file-input').click(); // Trigger file input
-      });
-      document.getElementById('file-input').addEventListener('change', handleFileSelect, false);
-    
-      function handleFileSelect(event) {
-        const file = event.target.files[0];
-        selectedImage = file;
-      }
-    
-      // Defining the messages sent
-          
-    // converting image to base64
-// deprecated function, now on backend
-/*
-    async function convertImageToBase64(imageFile) {
-      return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = error => reject(error);
-          reader.readAsDataURL(imageFile);
-      });
-  }
-  */
-
-  // Function to upload the image and return its URL
-async function uploadImageAndGetUrl(imageFile) {
-  const formData = new FormData();
-  formData.append('image', imageFile);
-
-  try {
-    const response = await fetch('http://localhost:3000/upload-image', {
-      method: 'POST',
-      body: formData
-    });
-    const data = await response.json();
-    return data.imageUrl; // Assuming the server returns the URL in this format
-  } catch (error) {
-    console.error('Error uploading image:', error);
-    // Handle error
-  }
-}
   
       // Send the message to the server and handle the response
 
       async function sendMessageToServer(message) {
-
-        let imageUrl = null;
-        let imageFilename = null;
-        if (selectedImage) {
-          imageUrl = await uploadImageAndGetUrl(selectedImage);
-          // Extract filename from the imageUrl
-          imageFilename = imageUrl.split('/').pop();
-        }
 
         const instructions = await fetchInstructions();
         
@@ -594,7 +428,6 @@ async function uploadImageAndGetUrl(imageFile) {
           payload = {
             prompt: message,
             model: currentModelID,
-            imageParts: imageFilename ? [{ filename: imageFilename, mimeType: 'image/jpeg' }] : []
           };
           endpoint = 'http://localhost:3000/gemini'; // Gemini endpoint
         } else {
@@ -603,7 +436,6 @@ async function uploadImageAndGetUrl(imageFile) {
             message: message,
             modelID: currentModelID,
             instructions: instructions,
-            image: imageUrl // Existing image handling for OpenAI
           };
           endpoint = 'http://localhost:3000/message'; // OpenAI endpoint
         }
@@ -667,15 +499,6 @@ async function uploadImageAndGetUrl(imageFile) {
 function displayMessage(message, type) {
   const messageElement = document.createElement('div');
   messageElement.classList.add('message', type);
-
-  if (type === 'image') {
-      const imageElement = document.createElement('img');
-      imageElement.src = message;
-      imageElement.alt = "Generated Image";
-      imageElement.classList.add('generated-image'); // A class for styling images
-
-      messageElement.appendChild(imageElement);
-  } else {
       const messageText = document.createElement('span');
 
       // Convert markdown to HTML using marked.js and sanitize it with DOMPurify
@@ -689,15 +512,13 @@ function displayMessage(message, type) {
 
       messageElement.appendChild(messageText);
       messageElement.appendChild(copyButton);
-  }
 
   const chatBox = document.getElementById('chat-box');
   chatBox.appendChild(messageElement);
   chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest message
-
-  if (type === 'response' && isVoiceTranscription) {
-      callTTSAPI(message); // Read out the response message only if it should be read aloud
-  }
+  if (type === 'response') {
+    callTTSAPI(message); // Read out the response message only if it should be read aloud
+}
 }
 
     
@@ -712,24 +533,3 @@ function displayMessage(message, type) {
     });
     }
     
-      
-    });
-    
-
-// Function to update upload status message
-function updateUploadStatus(message) {
-  const statusElement = document.getElementById('upload-status');
-  if (statusElement) {
-    statusElement.textContent = message;
-  }
-}
-
-// Modifying handleFileSelect function to include upload status update
-document.getElementById('file-input').addEventListener('change', function(event) {
-  const file = event.target.files[0];
-  if (file && file.type.startsWith('image/')) {
-    updateUploadStatus('Image Uploaded: ' + file.name);
-  } else {
-    updateUploadStatus('No image selected');
-  }
-});
