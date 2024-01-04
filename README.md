@@ -540,6 +540,8 @@ This **Updates** Section will showcase any further features added to the reposit
 - The general AI functionality, including the model selector and TTS, is maintained.
 - Lastly, this branch will remain stale unless I someday return to update; otherwise, feel free to install and use.
   - It has been extensively tested, but I didn't find the functionality useful enough for a separate repo, so here it goes – to a dead branch.
+- I have a local copy I'll be using, but the branch for new features will stem from `main`, and `voice` will eventually be left behind.
+- **Reminder**: This branch will **NOT** be actively maintained and is **only** intended to be a *speech-feature snapshot* for voice conversations and the Whisper/TTS APIs.
 - Feel free to reach out for any applicable issues or requests!
 
 #### **Token Costs Explained**
