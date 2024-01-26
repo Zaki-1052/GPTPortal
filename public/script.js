@@ -13,8 +13,8 @@
     "GPT-4": "gpt-4",
     "GPT-4-Vision": "gpt-4-vision-preview",
     "GPT-4-32k": "gpt-4-32k",
-    "GPT-4-Turbo": "gpt-4-1106-preview",
-    "GPT-3.5-Turbo": "gpt-3.5-turbo-1106",
+    "GPT-4-Turbo": "gpt-4-turbo-preview",
+    "GPT-3.5-Turbo": "gpt-3.5-turbo",
     "Gemini-Pro": "gemini-pro",
     "Gemini-Pro-Vision": "gemini-pro-vision"
   };
@@ -24,8 +24,8 @@
     "gpt-4": "GPT-4",
     "gpt-4-vision-preview": "GPT-4-Vision",
     "gpt-4-32k": "GPT-4-32k",
-    "gpt-4-1106-preview": "GPT-4-Turbo",
-    "gpt-3.5-turbo-1106": "GPT-3.5-Turbo",
+    "gpt-4-turbo-preview": "GPT-4-Turbo",
+    "gpt-3.5-turbo": "GPT-3.5-Turbo",
     "gemini-pro": "Gemini-Pro",
     "gemini-pro-vision": "Gemini-Pro-Vision"
   };
@@ -177,8 +177,8 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       "gpt-4": "GPT-4: Most Intelligent — Default",
       "gpt-4-vision-preview": "GPT-4-Vision: View & Analyze Images",
       "gpt-4-32k": "GPT-4-32k: Longer Context Window — Higher Price",
-      "gpt-4-1106-preview": "GPT-4-Turbo: ChatGPT-Plus Model — 128k Tokens",
-      "gpt-3.5-turbo-1106": "GPT-3.5-Turbo: Cheapest Option Available",
+      "gpt-4-turbo-preview": "GPT-4-Turbo: ChatGPT-Plus Model — 128k Tokens",
+      "gpt-3.5-turbo": "GPT-3.5-Turbo: Cheapest Option Available",
       "gemini-pro": "Gemini-Pro: Google Bard Model — 3.5 Equivalent",
       "gemini-pro-vision": "Gemini-Vision: View Images — One-Time Use"
     };
@@ -251,11 +251,11 @@ document.getElementById('model-gpt-4-32k').addEventListener('click', () => selec
     document.getElementById('model-gpt-4-vision').addEventListener('click', () => selectModel('gpt-4-vision-preview'));
     document.getElementById('model-gpt-4-32k').addEventListener('click', () => selectModel('gpt-4-32k'));
 
-    document.getElementById('model-gpt-4-turbo').addEventListener('click', () => selectModel('gpt-4-1106-preview'));
-document.getElementById('model-gpt-3.5').addEventListener('click', () => selectModel('gpt-3.5-turbo-1106'));
+    document.getElementById('model-gpt-4-turbo').addEventListener('click', () => selectModel('gpt-4-turbo-preview'));
+document.getElementById('model-gpt-3.5').addEventListener('click', () => selectModel('gpt-3.5-turbo'));
 
-document.getElementById('model-gpt-4-turbo').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-1106-preview"], event.currentTarget));
-document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-3.5-turbo-1106"], event.currentTarget));
+document.getElementById('model-gpt-4-turbo').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-turbo-preview"], event.currentTarget));
+document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-3.5-turbo"], event.currentTarget));
 
 document.getElementById('model-gemini-pro').addEventListener('click', () => selectModel('gemini-pro'));
 document.getElementById('model-gemini-pro-vision').addEventListener('click', () => selectModel('gemini-pro-vision'));
