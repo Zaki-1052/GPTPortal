@@ -1,0 +1,11 @@
+
+services:
+  chagpt-ui:
+    image: ghcr.io/zaki-1052/gptportal:latest
+    volumes:
+      - ./.env:/app/.env #env variables for the app
+      # - ./instructions.md:/app/public/instructions.md # OPTIONAL customize openai prompt
+      # - ./geminiMessage.txt:/app/public/geminiMessage.txt # OPTIONAL customize gemini prompt
+
+    ports:
+      - 3000:3000
