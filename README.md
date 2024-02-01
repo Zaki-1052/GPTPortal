@@ -23,6 +23,7 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
 - [Tokens](#token-costs-explained)
 - [TODOs](#todos)
 - [Quick-Start](#quick-start-guide)
+- [Docker](#docker)
 - [Contributions](#contributions)
 - [License](#license)
 
@@ -390,7 +391,7 @@ The ChatBot Portal requires Node.js, which is cross-platform and should run on m
 
 #### Can I customize the chatbot’s responses?
 
-Yes, you can customize the chatbot's responses by adjusting the model parameters and system-defined instructions in the `server.js` and `instructions.md` / `geminiMessage.txt` files. These include settings for response length, style, and context sensitivity. Links to guides on prompting, research papers, and documentation from Google and OpenAI can be found above [**here**](#relevant-links). 
+Yes, you can customize the chatbot's responses by adjusting the model parameters and system-defined instructions in the `server.js` and `instructions.md` / `geminiMessage.txt` files. These include settings for response length, style, and context sensitivity. Links to guides on prompting, research papers, and documentation from Google and OpenAI can be found above [**here**](#relevant-links).
 Feel free to add details about yourself to the files for each respective model; I've left placeholders in each Custom Instructions bloc where you can edit them or play around with Prompt Engineering. The nice thing about repos like these are that they're all stored locally, so there's no need to worry about anyone accessing your info!
 
 #### Is it possible to integrate this chatbot into my existing website?
@@ -399,7 +400,7 @@ Integrating this chatbot into your existing website requires some web developmen
 
 #### How do I troubleshoot common issues during installation or operation?
 
-For installation issues, ensure that all prerequisites are met and that you've followed the installation steps correctly. Common operational issues can often be resolved by checking your OpenAI API key and internet connection. For more specific problems, refer to the troubleshooting section in this README. Specifically, I've attached a more thorough guide of detailed steps for setup [**here**](#guide-basic-setup--use). 
+For installation issues, ensure that all prerequisites are met and that you've followed the installation steps correctly. Common operational issues can often be resolved by checking your OpenAI API key and internet connection. For more specific problems, refer to the troubleshooting section in this README. Specifically, I've attached a more thorough guide of detailed steps for setup [**here**](#guide-basic-setup--use).
 
 The most common mistake people make is not renaming/creating the `.env` to the specified format, either by leaving it as `.env.example`, or not copying the variables correctly. Be sure that your file is properly titled `.env` and matches the given example. If you've forgotten or done it incorrectly, you'll see an error message similar to this user [**here**](https://github.com/Zaki-1052/GPTPortal/issues/2), to which the solution is elucidated and shown in a YouTube clip [**here**](https://github.com/Zaki-1052/GPTPortal/issues/2#issuecomment-1817986058) and [**here**](https://youtube.com/clip/UgkxQl6762PzwyHpZ4ial0lrzLRjZecMxR5-?si=KwcMlk8Jb8Vzu2U5).
 
@@ -421,7 +422,7 @@ For more in-depth knowledge about GPT-4 and API integrations, visit [OpenAI's Do
 
 #### What browsers and devices are compatible with the ChatBot Portal?
 
-This ChatBot Portal is designed to be widely compatible with modern web browsers. It functions optimally on browsers like Chrome, Firefox, Edge, Arc, Brave, Opera, Vivaldi, Beam, Thorium, DDG, LibreWolf, Sigma, Min, Mull, and any other Chromium fork, though the voice functionality feature may have limited support on Safari and Orion due to WebKit's codec restrictions. For the best experience, I'd recommend using the latest version of these browsers. 
+This ChatBot Portal is designed to be widely compatible with modern web browsers. It functions optimally on browsers like Chrome, Firefox, Edge, Arc, Brave, Opera, Vivaldi, Beam, Thorium, DDG, LibreWolf, Sigma, Min, Mull, and any other Chromium fork, though the voice functionality feature may have limited support on Safari and Orion due to WebKit's codec restrictions. For the best experience, I'd recommend using the latest version of these browsers.
 
 In terms of devices, the portal is responsive and should work seamlessly on desktops, laptops, and tablets. However, while the portal is accessible on smartphones, the user experience might be more constrained due to the smaller screen size. Also, you really shouldn't be wasting API credits on your phone, so just use it on Desktop; you wouldn't want to accidentally waste messages to GPT-4. If you are using a separate device, be sure that you're on the same network as your computer.
 
@@ -683,6 +684,82 @@ Welcome to the ChatBot Portal Quickstart Guide! This guide is designed to help y
 - Explore the `README.md` file for detailed information and additional features.
 
 This quickstart guide provides the essentials to get you up and running with the ChatBot Portal. For more detailed information, refer to the full README in the project repository. Enjoy your journey with this advanced AI-integrated chat interface!
+
+## Docker
+
+### Running the Application with Docker
+
+This application supports Docker, which simplifies the setup and deployment process across different environments. Below are the instructions to get the application running with Docker.
+
+#### Docker Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) must be installed on your system.
+- [Docker Compose](https://docs.docker.com/compose/install/) for orchestrating multi-container Docker applications.
+
+#### Using Docker Compose
+
+For users who want to quickly start the application without manual Docker commands, Docker Compose can be used. Follow these steps:
+
+1. **Clone the Repository** (if you haven't already):
+
+    ```sh
+    git clone https://github.com/Zaki-1052/GPTPortal.git
+    cd GPTPortal
+    ```
+
+2. **Environment Variables**:
+    - Create a `.env` file in the root directory of the project.
+    - Add the necessary environment variables as key-value pairs.
+    - These are described in the [Installation](#installation) section of this ReadMe.
+
+3. **Starting the Application**:
+    - Run the following command from the root directory of the project:
+
+        ```sh
+        docker-compose up
+        ```
+
+    - This will pull the necessary Docker image, set up the container, and start the application. The service defined in the `docker-compose.yml` file will be orchestrated accordingly.
+
+4. **Accessing the Application**:
+    - Once the container is up and running, the application should be accessible via `http://localhost:3000` on your browser.
+
+5. **Stopping the Application**:
+    - To stop the application, you can press `Ctrl+C` in the terminal where the Docker Compose is running.
+    - To remove the containers along with their volumes, you can run:
+
+        ```sh
+        docker-compose down
+        ```
+
+### Building and Running with Docker Manually
+
+If you prefer to build and run the Docker image manually, follow these steps:
+
+1. **Building the Docker Image**:
+    - Navigate to the root directory of the project where the `Dockerfile` is located.
+    - Execute the following command to build the Docker image:
+
+        ```sh
+        docker build -t gptportal .
+        ```
+
+2. **Running the Docker Container**:
+    - After the image has been successfully built, you can run the container using:
+
+        ```sh
+        docker run -p 3000:3000 --env-file ./.env --name gptportal-instance gptportal
+        ```
+
+    - This will start a Docker container named `gptportal-instance` which exposes port 3000 to your local machine.
+
+3. **Accessing the Application**:
+    - The application should now be running and accessible through `http://localhost:3000`.
+
+#### Additional Information
+
+- The Docker setup is configured to use port `3000`. If you need to use a different port, you can modify the `ports` section in the `docker-compose.yml` file or adjust the `-p` flag in the `docker run` command accordingly.
+- The Docker Compose setup assumes the presence of a `.env` file for environment variables. Ensure this file contains all the necessary configurations for the application to run properly.
 
 ## Contributions
 
