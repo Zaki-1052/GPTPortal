@@ -1,6 +1,6 @@
-# ChatBot Portal for Multi-Modal GPT-4 API
+# GPT-4 ChatBot Portal for Assistants API
 
-Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision*, *Hearing*, and *Speaking* capabilities with *image-generation* and superior *Model Performance*. Now includes the **Google Gemini** models via *free* API!
+Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 Assistants API**, including the latest *Python, *Hearing*, and *Speaking* capabilities with *image-generation* and superior *Model Performance*. Now includes a *native* **Code Environment** and *stateful* **Assistant Conversations**!
 
 ## Table of Contents
 
@@ -31,58 +31,26 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
 
 - Interactive **chat interface** with support for *text messages*.
 - **Voice Conversations** via *Whisper* transcriptions and *spoken responses*.
-- **Image upload** functionality for *visual context* in discussions.
-- Server-side integration with *OpenAI* **GPT-4 API**.
+- Server-side integration with *OpenAI* **Assistants API**.
+- **File-Upload** to *Custom Agents*.
 - **Basic authentication** for *secure access*.
-- Customizable *System-Defined Instructions* and *Model Parameters*.
+- Customizable *System-Defined Instructions* and *Assistants*.
 - Simple and intuitive **UI** with *copy-to-clipboard* feature.
 - **Markdown** *rendering* for chat messages in *Marked* styles.
 - **Export** as *HTML* **button** for *conversation history*.
-- Integrated **shutdown** *functionality* at "**Bye!**"
+- Integrated **Python** *environment* with "**Code Interpreter!**"
 - **Image Generation** with *DALL·E 3* at "**Generate:**".
-- New **Google Gemini** Models...Ultra *Coming Soon*!
 - **Model Selector** of various *OpenAI APIs*. Includes:
   - **GPT-4**: Default – Snapshot of the *Most Intelligent* Version
-  - **GPT-4-Vision**: Able to View & Analyze *Images*
-  - **GPT-4-32k**: Longer Context Window – More *Expensive*
-    - Must be hosted on Microsoft Azure for access.
   - **GPT-4-Turbo**: Currently used in *ChatGPT Plus*
-    - *Cheaper* and Longest Context, but *Less Intelligent*.
-      - Maximum Token Window: 128,000!
+    - *Maximum Token Window*: **128,000**!
   - **GPT-3.5-Turbo**: *Cheapest* Model
-  - **Gemini-Pro**: Latest Google Model – GPT-3.5 Equivalent
-    - **Free** Until February 2024!
-  - **Gemini-Vision**: Multi-Modal Model – One-Time Use
 
 ## Examples
 
-### Latest [**Demo**](https://youtu.be/MvuxNr60u0M) Video
+### Demo
 
-Fully showcases all installation, features, and model utilization.
-
-Once again, the full demonstration and tutorial video can be found [**HERE**](https://youtu.be/MvuxNr60u0M).
-
-Now released; see the release tag for v1 of GPTPortal for more details.
-
-### Example
-
-![Example Portal View](public/uploads/example.png)
-
-### Updated View
-
-![Updated Portal View](public/uploads/update.png)
-
-### Feature Demo
-
-[**Feature Demo**](https://youtu.be/5Ge21SPhu4E) - *YouTube Link*
-
-
-https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-960a4b11770e
-
-
-[**Video Showcase**](https://youtu.be/v3GVu0ZuXk4) - *Instructions*
-
-[*Image Upload*](https://youtu.be/yO0II0KSJeg) - Showcase of the GPT-4V model receiving a 3.2 MB screenshot and describing it.
+- **TODO**: Include Video Demo
 
 ### Interface
 
@@ -91,9 +59,9 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 ## Structure
 
 - **portal.html**: The main HTML file for user interaction. It includes the chat interface layout, a message input area, an image upload and export button for history, voice chat functionality, a model selector, and it links to the `script.js` file.
-- **script.js**: Contains client-side logic for handling user inputs, sending messages and images to the server, and displaying marked responses in the chat interface. It also includes file selection for image uploads and a copy-to-clipboard function with support for exporting your current conversation history and changing models. Lastly, it handles voice conversations & text box formatting.
-- **server.js**: The server-side Node.js file using Express.js. It processes POST requests to `/message` and `/gemini`, interacts with the OpenAI GPT-4-Vision and Gemini APIs, along with Whisper and TTS, and manages CORS, Multer, basic authentication, and static file serving. Lastly, it handles conversation history and image generation, while hosting custom instructions.
-- **instructions.md** & **geminiMessage.txt**: The model's System and Custom Instructions, customized for optimal responses & contextual prompt enhancement. These can be modified by the user to include background profiles.
+- **script.js**: Contains client-side logic for handling user inputs, sending messages and images to the server, and displaying marked responses in the chat interface. It also includes file selection for uploads and a copy-to-clipboard function with support for exporting your current conversation history and changing models. Lastly, it handles voice conversations & text box formatting.
+- **server.js**: The server-side Node.js file using Express.js. It processes POST requests to `/assistant` and interacts with the OpenAI Assistants API, along with Whisper and TTS, and manages CORS, Multer, basic authentication, and static file serving. Lastly, it handles Assistant and Thread management along with image generation, while hosting custom instructions.
+- **instructions.md**: The model's System and Custom Instructions, customized for optimal responses & contextual prompt enhancement. These can be modified by the user to include background profiles.
 - **.env**: The *Environment Variable* file for your *sensitive passwords*. Must be modeled after the `.env.example` template.
 - **chat.css**: The *stylesheet* for the portal's *look* and *formatting*.
 
@@ -105,8 +73,6 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
   - You can also simply download the repo as a `.zip` file and place it elsewhere.
 - An OpenAI **API** key for accessing *GPT-4*. Billing Credit may be needed.
   - See [**here**](https://platform.openai.com/api-keys) to *create your key*.
-- [*Optional*] Google AI Key for accessing *Gemini*. **Free** temporarily.
-  - See [**here**](https://makersuite.google.com/app/apikey) to *create your key*.
 
 ## Installation
 
@@ -134,15 +100,13 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 4. **Set Up Environment Variables**:
    - Create a `.env` file in the root directory.
      - Format shown in `.env.example`
-     - `API_KEY` is for Google AI.
+     - Can specify `ASSISTANT_ID` and `THREAD_ID`.
    - Add your OpenAI API key and basic authentication:
 
      ```env
       OPENAI_API_KEY=your_api_key_here
       USER_USERNAME=Username
-      USER_PASSWORD=Password
-      API_KEY=your_google_ai_key_here
-      PORT=3000
+      USER_PASSWORD=Password      
      ```
 
 5. **Start the Server**:
@@ -170,23 +134,18 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
   - Speak your query or message, and toggle the button to end recording.
   - It will be processed by the *Whisper API* and seen in the input box.
   - The model's response will be read back to you through a *text-to-speech API*.
-- **Uploading an Image**:
-  - Click the 📸 button to open the *file selector*.
-  - Choose an image file. It will be sent with your next message.
-    - **Update (~~DEPRECATED~~)**: The Default model selector is now the more intelligent GPT-4 without vision.
-      - If you would like to utilize the *Vision-Preview* model, which uses GPT-4-Turbo, as in ChatGPT, *select* the model.
-      - **UPDATE**: You can now simply choose your *preferred model* through the *dropdown menu* at the top of the interface.
-      - ~~Then, go to `server.js` in your preferred *Text Editor* and modify the "*model*" parameter to `gpt-4-vision-preview` as specified in the comments, which are there to guide you through the script and will be clearly marked.~~
+- **Uploading a File**:
+  - Click the 📤 button to open the *file selector*.
+  - Choose a file. It will be sent with your next message.
 - **Model Selector**:
   - Click on the "*Select a Model*" button at the top.
   - Hover your cursor over the options to view *descriptions*.
   - Choose your preference based on current use-case.
-    - If no Model is chosen, the Portal will *Default* to the *GPT-4* snapshot.
+    - If no Model is chosen, the Portal will *Default* to *GPT-4-Turbo*.
 - **Exporting Conversation**
   - Click the 📤 to export the *Conversation History*.
     - It will be an *HTML* document formatted in *Markdown*.
-- Type: "**Bye!**" in the text input box in order to *end the conversation* and *kill the server*.
-  - This will also *Export* the *Conversation History*.
+- This will *end the conversation* and *kill the server*.
 - **Image Generation**: *IMPORTANT!*
   - Specific *Syntax* is needed to activate *DALL·E 3*:
     - Type: "**Generate:**" followed by your prompt.
@@ -196,9 +155,7 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 
 ## Author Notes
 
->**IMPORTANT**: *These warnings no longer apply as of commits made 11/15.*
-
-[**~~Deprecated~~**]
+>**TODO**: *Explain Assistants API!*
 
 - **Smartest Snapshot of ChatGPT**: This application uses the latest GPT-4 model with vision capabilities. However, users can and perhaps should switch to the standard `gpt-4` model and adjust token limits (default is 4000) for different use cases.
   - The Model Parameters, including the model itself, can be found on/around Line 200 in `server.js`, and has multiple comments to guide you if you're just getting started with customizing the API Responses.
@@ -303,23 +260,6 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 - **Consult README**:
   - The README file in the `GPTPortal` directory has more detailed instructions and troubleshooting tips. Refer to it if you encounter issues or need more information.
 
-#### 8. [*OPTIONAL*] **Google Gemini Setup**
-
-##### [**AI Studio Link**](https://makersuite.google.com/app/apikey)
-
-- Click on the link provided above to navigate to *Google Gemini AI* Studio's **API Key** generation page.
-- Once again, the link to the API page is [**here**](https://makersuite.google.com/app/apikey).
-- Accept and "Continue" with the *Terms and Conditions*.
-- After accepting the terms, click on the button labeled **"Create API Key in New Project"**.
-- Once the API key is generated, it will be displayed on the screen.
-- Click the **copy** icon or manually select and copy the key to your clipboard.
-- Open the `.env` file and look for the line that reads `API_KEY=your_google_ai_key_here`.
-- Replace `your_google_ai_key_here` with the API key you copied from Google AI Studio.
-  - Ensure that the key is pasted correctly without any leading or trailing spaces.
-- Until **February 2024**, *Google Gemini-Pro* will be completely **free**!
-- This means that you do *not* need to set up any *billing* and can use this *Model API* immediately.
-- **Gemini-Ultra** will be added to this Portal when released, but will require payment to *Google*.
-
 ## Relevant [Links](https://arc.net/folder/B777A318-2A95-4C36-86AA-156166895CC2)
 
 - [Pricing](https://openai.com/pricing) - OpenAI's pricing details for different API Models.
@@ -332,10 +272,7 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
   - [Usage Tiers](https://platform.openai.com/docs/guides/rate-limits/usage-tiers) - Details on different usage tiers and their limits.
 - [Prompt Engineering](https://platform.openai.com/docs/guides/prompt-engineering) - A guide to effective prompt engineering with OpenAI models.
 - [OpenAI Tokenizer](https://platform.openai.com/tokenizer) - Visit the OpenAI Token Counter to determine message lengths.
-- [Vision Documentation](https://platform.openai.com/docs/guides/vision) - OpenAI insists that the Vision model called in this API Portal is no different from the regular GPT-4, but of course, if you'd like to be sure that you're using the old version that we all miss, please change the model name as specified.
-- [Chat Completions](https://platform.openai.com/docs/api-reference/chat/create) - Documentation reference guide for GPT models on parameters and completion objects.
-- [Google API Key](https://makersuite.google.com/app/apikey) - Gemini AI Studio; create your API Key and paste it in the `.env` file.
-- [Model Parameters](https://ai.google.dev/docs/concepts#model_parameters) - Google's documentation on their Gemini model parameters.
+- [Assistants Overview](https://platform.openai.com/docs/assistants/overview) - Documentation reference guide for GPT models on parameters and completion objects.
 
 ### Author Links & Custom GPTs
 

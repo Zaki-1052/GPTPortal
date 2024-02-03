@@ -328,6 +328,9 @@ app.post('/upload-file', upload.single('file'), async (req, res) => {
 
 // Assistant Handling
 
+// At the top of server.js, after reading environment variables
+const ASSISTANT_ID = process.env.ASSISTANT_ID || null;
+const THREAD_ID = process.env.THREAD_ID || null;
 
 let systemMessage = null;  // Global variable for systemMessage
 let assistant = null;
@@ -338,17 +341,38 @@ let messages;
 
 // Utility function to ensure Assistant and Thread initialization
 async function AssistantAndThread(modelID) {
-  if (!assistant || !thread) {
-    assistant = await openai.beta.assistants.create({
-      name: "Assistant",
-      instructions: systemMessage,
-      tools: [{ type: "code_interpreter" }],
-      model: modelID
-    });
+  // Conditional logic to either use provided IDs or create new instances
+  if (!assistant && ASSISTANT_ID) {
+    // Set the assistant using the ID from the environment
+    assistant = await openai.beta.assistants.retrieve(
+      ASSISTANT_ID
+    );
+    console.log("Using existing Assistant ID", assistant)
+  }
+  
+  if (!thread && THREAD_ID) {
+    // Directly use the provided Thread ID without creating a new thread
+    thread = await openai.beta.threads.retrieve(
+      THREAD_ID
+    );
+    console.log("Using existing Thread ID from .env", thread);
+  } else if (!thread) {
+    // Only create a new thread if it's not provided and an assistant exists
+    // This could mean creating a new assistant if one wasn't provided
+    if (!assistant) {
+      assistant = await openai.beta.assistants.create({
+        name: "Assistant",
+        instructions: systemMessage,
+        tools: [{ type: "code_interpreter" }],
+        model: modelID
+      });
+      console.log("Creating new Assistant:", assistant)
+    }
     thread = await openai.beta.threads.create();
-    console.log("Assistant and Thread ensured:", assistant, thread);
+    console.log("New Thread ensured:", thread);
   }
 }
+
 
 
 // Function to handle message sending and responses
@@ -505,7 +529,7 @@ app.get('/portal', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 // Listen only on the loopback interface (localhost)
-const HOST = 'localhost';
+const HOST = process.env.HOST || 'localhost';
 
 const server = app.listen(PORT, HOST, () => {
   console.log(`Server running at http://${HOST}:${PORT}`);
