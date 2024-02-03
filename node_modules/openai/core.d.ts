@@ -1,6 +1,6 @@
                               
                               
-                              
+import { Stream } from "./streaming.js";
 import { APIError } from "./error.js";
 import { type Readable, type Agent, type RequestInfo, type RequestInit, type Response, type HeadersInit } from "./_shims/index.js";
 export { type Response };
@@ -89,19 +89,24 @@ export declare abstract class APIClient {
      */
     protected validateHeaders(headers: Headers, customHeaders: Headers): void;
     protected defaultIdempotencyKey(): string;
-    get<Req extends {}, Rsp>(path: string, opts?: PromiseOrValue<RequestOptions<Req>>): APIPromise<Rsp>;
-    post<Req extends {}, Rsp>(path: string, opts?: PromiseOrValue<RequestOptions<Req>>): APIPromise<Rsp>;
-    patch<Req extends {}, Rsp>(path: string, opts?: PromiseOrValue<RequestOptions<Req>>): APIPromise<Rsp>;
-    put<Req extends {}, Rsp>(path: string, opts?: PromiseOrValue<RequestOptions<Req>>): APIPromise<Rsp>;
-    delete<Req extends {}, Rsp>(path: string, opts?: PromiseOrValue<RequestOptions<Req>>): APIPromise<Rsp>;
+    get<Req, Rsp>(path: string, opts?: PromiseOrValue<RequestOptions<Req>>): APIPromise<Rsp>;
+    post<Req, Rsp>(path: string, opts?: PromiseOrValue<RequestOptions<Req>>): APIPromise<Rsp>;
+    patch<Req, Rsp>(path: string, opts?: PromiseOrValue<RequestOptions<Req>>): APIPromise<Rsp>;
+    put<Req, Rsp>(path: string, opts?: PromiseOrValue<RequestOptions<Req>>): APIPromise<Rsp>;
+    delete<Req, Rsp>(path: string, opts?: PromiseOrValue<RequestOptions<Req>>): APIPromise<Rsp>;
     private methodRequest;
     getAPIList<Item, PageClass extends AbstractPage<Item> = AbstractPage<Item>>(path: string, Page: new (...args: any[]) => PageClass, opts?: RequestOptions<any>): PagePromise<PageClass, Item>;
     private calculateContentLength;
-    buildRequest<Req extends {}>(options: FinalRequestOptions<Req>): {
+    buildRequest<Req>(options: FinalRequestOptions<Req>): {
         req: RequestInit;
         url: string;
         timeout: number;
     };
+    private buildHeaders;
+    /**
+     * Used as a callback for mutating the given `FinalRequestOptions` object.
+     */
+    protected prepareOptions(options: FinalRequestOptions): Promise<void>;
     /**
      * Used as a callback for mutating the given `RequestInit` object.
      *
@@ -114,10 +119,10 @@ export declare abstract class APIClient {
     }): Promise<void>;
     protected parseHeaders(headers: HeadersInit | null | undefined): Record<string, string>;
     protected makeStatusError(status: number | undefined, error: Object | undefined, message: string | undefined, headers: Headers | undefined): APIError;
-    request<Req extends {}, Rsp>(options: PromiseOrValue<FinalRequestOptions<Req>>, remainingRetries?: number | null): APIPromise<Rsp>;
+    request<Req, Rsp>(options: PromiseOrValue<FinalRequestOptions<Req>>, remainingRetries?: number | null): APIPromise<Rsp>;
     private makeRequest;
     requestAPIList<Item = unknown, PageClass extends AbstractPage<Item> = AbstractPage<Item>>(Page: new (...args: ConstructorParameters<typeof AbstractPage>) => PageClass, options: FinalRequestOptions): PagePromise<PageClass, Item>;
-    buildURL<Req extends Record<string, unknown>>(path: string, query: Req | null | undefined): string;
+    buildURL<Req>(path: string, query: Req | null | undefined): string;
     protected stringifyQuery(query: Record<string, unknown>): string;
     fetchWithTimeout(url: RequestInfo, init: RequestInit | undefined, ms: number, controller: AbortController): Promise<Response>;
     protected getRequestClient(): RequestClient;
@@ -125,16 +130,6 @@ export declare abstract class APIClient {
     private retryRequest;
     private calculateDefaultRetryTimeoutMillis;
     private getUserAgent;
-}
-export declare class APIResource {
-    protected client: APIClient;
-    constructor(client: APIClient);
-    protected get: APIClient['get'];
-    protected post: APIClient['post'];
-    protected patch: APIClient['patch'];
-    protected put: APIClient['put'];
-    protected delete: APIClient['delete'];
-    protected getAPIList: APIClient['getAPIList'];
 }
 export type PageInfo = {
     url: URL;
@@ -188,11 +183,11 @@ export type DefaultQuery = Record<string, string | undefined>;
 export type KeysEnum<T> = {
     [P in keyof Required<T>]: true;
 };
-export type RequestOptions<Req extends {} = Record<string, unknown> | Readable> = {
+export type RequestOptions<Req = unknown | Record<string, unknown> | Readable> = {
     method?: HTTPMethod;
     path?: string;
     query?: Req | undefined;
-    body?: Req | undefined;
+    body?: Req | null | undefined;
     headers?: Headers | undefined;
     maxRetries?: number;
     stream?: boolean | undefined;
@@ -201,9 +196,10 @@ export type RequestOptions<Req extends {} = Record<string, unknown> | Readable> 
     signal?: AbortSignal | undefined | null;
     idempotencyKey?: string;
     __binaryResponse?: boolean | undefined;
+    __streamClass?: typeof Stream;
 };
-export declare const isRequestOptions: (obj: unknown) => obj is RequestOptions<Readable | Record<string, unknown>>;
-export type FinalRequestOptions<Req extends {} = Record<string, unknown> | Readable> = RequestOptions<Req> & {
+export declare const isRequestOptions: (obj: unknown) => obj is RequestOptions<unknown>;
+export type FinalRequestOptions<Req = unknown | Record<string, unknown> | Readable> = RequestOptions<Req> & {
     method: HTTPMethod;
     path: string;
 };
@@ -213,6 +209,8 @@ export declare const castToError: (err: any) => Error;
 export declare const ensurePresent: <T>(value: T | null | undefined) => T;
 /**
  * Read an environment variable.
+ *
+ * Trims beginning and trailing whitespace.
  *
  * Will return undefined if the environment variable doesn't exist or cannot be accessed.
  */
@@ -237,4 +235,5 @@ export declare const getRequiredHeader: (headers: HeadersLike, header: string) =
  * Encodes a string to Base64 format.
  */
 export declare const toBase64: (str: string | null | undefined) => string;
+export declare function isObj(obj: unknown): obj is Record<string, unknown>;
 //# sourceMappingURL=core.d.ts.map

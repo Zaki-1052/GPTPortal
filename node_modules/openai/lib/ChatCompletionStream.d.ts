@@ -48,6 +48,13 @@ export interface ChatCompletionSnapshot {
      * The model to generate the completion.
      */
     model: string;
+    /**
+     * This fingerprint represents the backend configuration that the model runs with.
+     *
+     * Can be used in conjunction with the `seed` request parameter to understand when
+     * backend changes have been made that might impact determinism.
+     */
+    system_fingerprint?: string;
 }
 export declare namespace ChatCompletionSnapshot {
     interface Choice {
@@ -63,6 +70,10 @@ export declare namespace ChatCompletionSnapshot {
          * if the model called a function.
          */
         finish_reason: ChatCompletion.Choice['finish_reason'] | null;
+        /**
+         * Log probability information for the choice.
+         */
+        logprobs: ChatCompletion.Choice.Logprobs | null;
         /**
          * The index of the choice in the list of choices.
          */

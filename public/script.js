@@ -11,23 +11,15 @@
 
   const modelID = {
     "GPT-4": "gpt-4",
-    "GPT-4-Vision": "gpt-4-vision-preview",
-    "GPT-4-32k": "gpt-4-32k",
     "GPT-4-Turbo": "gpt-4-turbo-preview",
     "GPT-3.5-Turbo": "gpt-3.5-turbo",
-    "Gemini-Pro": "gemini-pro",
-    "Gemini-Pro-Vision": "gemini-pro-vision"
   };
 
   
   const customModelNames = {
     "gpt-4": "GPT-4",
-    "gpt-4-vision-preview": "GPT-4-Vision",
-    "gpt-4-32k": "GPT-4-32k",
     "gpt-4-turbo-preview": "GPT-4-Turbo",
     "gpt-3.5-turbo": "GPT-3.5-Turbo",
-    "gemini-pro": "Gemini-Pro",
-    "gemini-pro-vision": "Gemini-Pro-Vision"
   };
 
   
@@ -36,7 +28,7 @@
 // Default model functionality
   function setDefaultModel() {
   let selectedModelDiv = document.getElementById("selected-model");
-  let defaultModel = "gpt-4";
+  let defaultModel = "gpt-4-turbo-preview";
 
   // Check if a model has been selected, if not, set to default model ID and update display
   if (selectedModelDiv.textContent.trim() === "Select a Model") {
@@ -45,7 +37,7 @@
   }
 }
 
-let currentModelID = 'gpt-4'; // Global declaration
+let currentModelID = 'gpt-4-turbo-preview'; // Global declaration
 
 let selectedImage = null;
 
@@ -59,8 +51,6 @@ marked.setOptions({ breaks: true }); // Enable new lines to be interpreted as <b
 // Function to update the current model ID
 function updateCurrentModelID(modelID) {
   currentModelID = modelID;
-  determineEndpoint(modelID);
-  console.log(isGemini);
 }
 
 // Modify your selectModel function
@@ -73,23 +63,7 @@ function selectModel(modelID) {
 
   // Update the current model ID
   currentModelID = modelID;
-  console.log("Selected model ID:", modelID); // Add this line
-  determineEndpoint(modelID);
-  console.log(modelID);
-  console.log(isGemini);
   toggleDropdown(); // Close the dropdown
-}
-
-
-function determineEndpoint(modelID) {
-  if (modelID.startsWith('gemini')) {
-    isGemini = true;
-    console.log(isGemini)
-  } else {
-    isGemini = false;
-    console.log(isGemini)
-  }
-  console.log(isGemini)
 }
 
 // image generation
@@ -145,29 +119,6 @@ function displayGeneratedImage(imageUrl) {
 
 }
 
-function sendShutdownMessage() {
-  // Sending "Bye!" to both /message and Gemini endpoints
-  const messagePayload = JSON.stringify({ message: "Bye!" });
-  const messageRequest = fetch('http://localhost:3000/message', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: messagePayload
-  });
-
-  const geminiRequest = fetch('http://localhost:3000/gemini', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: messagePayload
-  });
-
-  // Wait for both requests to complete
-  Promise.all([messageRequest, geminiRequest])
-    .then(() => {
-      exportChatOnShutdown(isGemini); // Export chat history based on the isGemini flag
-    })
-    .catch(err => console.error('Error during shutdown:', err));
-}
-
 
 const selectedModelDisplayName = document.getElementById('selected-model').textContent.trim();
 
@@ -175,12 +126,8 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
     // Define model descriptions
     const modelDescriptions = {
       "gpt-4": "GPT-4: Most Intelligent — Default",
-      "gpt-4-vision-preview": "GPT-4-Vision: View & Analyze Images",
-      "gpt-4-32k": "GPT-4-32k: Longer Context Window — Higher Price",
       "gpt-4-turbo-preview": "GPT-4-Turbo: ChatGPT-Plus Model — 128k Tokens",
       "gpt-3.5-turbo": "GPT-3.5-Turbo: Cheapest Option Available",
-      "gemini-pro": "Gemini-Pro: Google Bard Model — 3.5 Equivalent",
-      "gemini-pro-vision": "Gemini-Vision: View Images — One-Time Use"
     };
     
   
@@ -223,44 +170,17 @@ document.querySelector('.custom-select').addEventListener('click', toggleDropdow
     
 
 
-    function determineEndpoint(modelID) {
-      if (modelID.startsWith('gemini')) {
-        isGemini = true;
-        return 'http://localhost:3000/gemini'; // URL for the Gemini endpoint
-      } else {
-        isGemini = false;
-        return 'http://localhost:3000/message'; // URL for the OpenAI endpoint
-      }
-    }
-    
-
-
 
 // Add event listeners for selecting a model
 document.getElementById('model-gpt-4').addEventListener('click', () => selectModel('gpt-4'));
-document.getElementById('model-gpt-4-vision').addEventListener('click', () => selectModel('gpt-4-vision-preview'));
-document.getElementById('model-gpt-4-32k').addEventListener('click', () => selectModel('gpt-4-32k'));
-  
     // Add event listeners for model buttons
     document.getElementById('model-gpt-4').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4"], event.currentTarget));
-    document.getElementById('model-gpt-4-vision').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-vision-preview"], event.currentTarget));
-    document.getElementById('model-gpt-4-32k').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-32k"], event.currentTarget)); 
-  
-    // Add click event listeners for selecting a model
-    document.getElementById('model-gpt-4').addEventListener('click', () => selectModel('gpt-4'));
-    document.getElementById('model-gpt-4-vision').addEventListener('click', () => selectModel('gpt-4-vision-preview'));
-    document.getElementById('model-gpt-4-32k').addEventListener('click', () => selectModel('gpt-4-32k'));
 
     document.getElementById('model-gpt-4-turbo').addEventListener('click', () => selectModel('gpt-4-turbo-preview'));
 document.getElementById('model-gpt-3.5').addEventListener('click', () => selectModel('gpt-3.5-turbo'));
 
 document.getElementById('model-gpt-4-turbo').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-turbo-preview"], event.currentTarget));
 document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-3.5-turbo"], event.currentTarget));
-
-document.getElementById('model-gemini-pro').addEventListener('click', () => selectModel('gemini-pro'));
-document.getElementById('model-gemini-pro-vision').addEventListener('click', () => selectModel('gemini-pro-vision'));
-document.getElementById('model-gemini-pro').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-pro"], event.currentTarget));
-document.getElementById('model-gemini-pro-vision').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-pro-vision"], event.currentTarget));
 
 
 
@@ -336,13 +256,12 @@ document.getElementById('model-gemini-pro-vision').addEventListener('mouseover',
       // Result of Send Button
 sendButton.addEventListener('click', async () => {
   const message = messageInput.value.trim();
-  const user_image = document.getElementById('file-input').files[0];
   messageInput.value = '';
 
   // Get the selected model's display name and convert it to the actual model ID
   setDefaultModel(); // Update default model if needed
 
-  if (message || user_image) {
+  if (message) {
       displayMessage(message, 'user');
       // Check if it's an image generation request
       if (isImageGenerationRequest(message)) {
@@ -350,13 +269,10 @@ sendButton.addEventListener('click', async () => {
       } else {
           // Existing code to handle regular messages
           try {
-              await sendMessageToServer(message, user_image); // Pass the message, image file, and model to the server
+              await sendMessageToServer(message); // Pass the message, image file, and model to the server
               if (voiceMode) {
                   // Call to TTS API to read the response
                   // This will be implemented in the displayMessage function
-              }
-              if (message === "Bye!") {
-                  exportChatOnShutdown();
               }
           } catch (error) {
               // Handle error
@@ -373,8 +289,7 @@ sendButton.addEventListener('click', async () => {
 
       // Function to export chat history based on the type (conversation or gemini)
       function exportChatHistory() {
-        const historyType = isGemini ? 'gemini' : 'conversation';
-        console.log("Exporting chat history for:", historyType);
+        const historyType = 'conversation';
         const exportUrl = '/export-chat-html?type=' + historyType;
         fetch(exportUrl)
           .then(response => response.blob())
@@ -391,11 +306,6 @@ sendButton.addEventListener('click', async () => {
           .catch(err => console.error('Error exporting chat history:', err));
       }
       
-// Modify exportChatOnShutdown to use the isGemini flag
-function exportChatOnShutdown() {
-  const historyType = isGemini ? 'gemini' : 'conversation';
-  exportChatHistory(historyType);
-}
 
     
       // VOICE
@@ -527,89 +437,75 @@ function exportChatOnShutdown() {
     
     // END
       
-    // Functions for handling image input files
+    // Functions for handling  input files
     
-      // Placeholder function for clipboard button (to be implemented)
+      // function for clipboard button
       document.getElementById('clipboard-button').addEventListener('click', () => {
         document.getElementById('file-input').click(); // Trigger file input
       });
       document.getElementById('file-input').addEventListener('change', handleFileSelect, false);
     
       function handleFileSelect(event) {
-        const file = event.target.files[0];
-        selectedImage = file;
+        const user_file = event.target.files[0];
       }
-    
-      // Defining the messages sent
-          
-    // converting image to base64
-// deprecated function, now on backend
-/*
-    async function convertImageToBase64(imageFile) {
-      return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = error => reject(error);
-          reader.readAsDataURL(imageFile);
+
+      let messageCounter = 0;
+      let file;
+      let fileUrl = null;
+      let filename = null;
+
+      document.getElementById('file-input').addEventListener('change', async (event) => {
+        const user_file = event.target.files[0];
+        if (user_file) {
+          fileUrl = await uploadFile(user_file); // Update this to handle the file upload and receive the file URL or ID
+          // Proceed with any additional logic needed after file upload, e.g., preparing messages
+        }
       });
-  }
-  */
+      
+      async function uploadFile(user_file) {
+        const formData = new FormData();
+        formData.append('file', user_file); // Fix: Use the parameter `user_file` instead of `File`
+      
+        try {
+          const response = await fetch('http://localhost:3000/upload-file', {
+            method: 'POST',
+            body: formData,
+          });
+          const data = await response.json();
+          return data.fileId; // Update according to the actual response structure
+        } catch (error) {
+          console.error('Error uploading file:', error);
+          // Handle error appropriately
+        }
+      }
 
-  // Function to upload the image and return its URL
-async function uploadImageAndGetUrl(imageFile) {
-  const formData = new FormData();
-  formData.append('image', imageFile);
-
-  try {
-    const response = await fetch('http://localhost:3000/upload-image', {
-      method: 'POST',
-      body: formData
-    });
-    const data = await response.json();
-    return data.imageUrl; // Assuming the server returns the URL in this format
-  } catch (error) {
-    console.error('Error uploading image:', error);
-    // Handle error
-  }
-}
-  
       // Send the message to the server and handle the response
 
-      async function sendMessageToServer(message) {
+      let initialize = false;
 
-        let imageUrl = null;
-        let imageFilename = null;
-        if (selectedImage) {
-          imageUrl = await uploadImageAndGetUrl(selectedImage);
-          // Extract filename from the imageUrl
-          imageFilename = imageUrl.split('/').pop();
+      async function sendMessageToServer(message) {
+      
+        
+        if (messageCounter === 0) {
+          isFirstMessage = true
+          messageCounter +=1
+        } else {
+          isFirstMessage = false;
         }
 
         const instructions = await fetchInstructions();
-        
         // Prepare the payload with the current model ID
-        let payload, endpoint;
-        if (currentModelID.startsWith('gemini')) {
-          // Prepare the payload for Google Gemini API
-          payload = {
-            prompt: message,
-            model: currentModelID,
-            imageParts: imageFilename ? [{ filename: imageFilename, mimeType: 'image/jpeg' }] : []
-          };
-          endpoint = 'http://localhost:3000/gemini'; // Gemini endpoint
-        } else {
-          // Prepare the payload for OpenAI API
-          payload = {
+        let payload = {
             message: message,
             modelID: currentModelID,
             instructions: instructions,
-            image: imageUrl // Existing image handling for OpenAI
+            file: fileUrl, // Existing image handling for OpenAI
+            initialize: isFirstMessage
           };
-          endpoint = 'http://localhost:3000/message'; // OpenAI endpoint
-        }
+          let endpoint = 'http://localhost:3000/assistant'; // OpenAI endpoint
       
         try {
-          const response = await fetch(endpoint, {
+          let response = await fetch(endpoint, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -621,18 +517,14 @@ async function uploadImageAndGetUrl(imageFile) {
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-      
-          const data = await response.json();
 
+          console.log("Client Response:", response);
+          const data = await response.json();
+          console.log("Data:", data);
+          console.log("Data:", data.text);
           // Determine the source of the response and format the message accordingly
-          let messageContent;
-          if (endpoint.includes('gemini')) {
-            // Direct text response from Gemini API
-            messageContent = data.text || 'No response received.';
-          } else {
-            // Response from GPT API, expected to have a 'text' property
-            messageContent = data.text || 'No response received.';
-          }
+          let messageContent = data.text.text || 'No response received.';
+          console.log("Message Content:", messageContent);
 
           displayMessage(messageContent, 'response', isVoiceTranscription); // Display the response in the chat box
           isVoiceTranscription = false; // Reset the flag for the next message
@@ -727,9 +619,9 @@ function updateUploadStatus(message) {
 // Modifying handleFileSelect function to include upload status update
 document.getElementById('file-input').addEventListener('change', function(event) {
   const file = event.target.files[0];
-  if (file && file.type.startsWith('image/')) {
-    updateUploadStatus('Image Uploaded: ' + file.name);
+  if (file) { // Removed the type check for demonstration purposes
+    updateUploadStatus('File Uploaded: ' + file.name);
   } else {
-    updateUploadStatus('No image selected');
+    updateUploadStatus('No file selected or unsupported file type');
   }
 });

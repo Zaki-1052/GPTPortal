@@ -11,6 +11,7 @@ export type ChatCompletionToolRunnerParams<FunctionsArgs extends BaseFunctionsAr
     tools: RunnableTools<FunctionsArgs>;
 };
 export declare class ChatCompletionRunner extends AbstractChatCompletionRunner<ChatCompletionRunnerEvents> {
+    /** @deprecated - please use `runTools` instead. */
     static runFunctions(completions: Completions, params: ChatCompletionFunctionRunnerParams<any[]>, options?: RunnerOptions): ChatCompletionRunner;
     static runTools(completions: Completions, params: ChatCompletionToolRunnerParams<any[]>, options?: RunnerOptions): ChatCompletionRunner;
     _addMessage(message: ChatCompletionMessageParam): void;

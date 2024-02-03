@@ -92,7 +92,7 @@ export declare abstract class AbstractChatCompletionRunner<Events extends Custom
 type CustomEvents<Event extends string> = {
     [k in Event]: k extends keyof AbstractChatCompletionRunnerEvents ? AbstractChatCompletionRunnerEvents[k] : (...args: any[]) => void;
 };
-type ListenerForEvent<Events extends CustomEvents<any>, Event extends keyof Events> = Event extends keyof AbstractChatCompletionRunnerEvents ? AbstractChatCompletionRunnerEvents[Event] : Events[Event];
+type ListenerForEvent<Events extends CustomEvents<any>, Event extends keyof Events> = Event extends (keyof AbstractChatCompletionRunnerEvents) ? AbstractChatCompletionRunnerEvents[Event] : Events[Event];
 type EventParameters<Events extends CustomEvents<any>, Event extends keyof Events> = Parameters<ListenerForEvent<Events, Event>>;
 export interface AbstractChatCompletionRunnerEvents {
     connect: () => void;

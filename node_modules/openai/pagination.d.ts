@@ -1,14 +1,14 @@
 import { AbstractPage, Response, APIClient, FinalRequestOptions, PageInfo } from "./core.js";
 export interface PageResponse<Item> {
     data: Array<Item>;
-    object: 'list';
+    object: string;
 }
 /**
  * Note: no pagination actually occurs yet, this is for forwards-compatibility.
  */
 export declare class Page<Item> extends AbstractPage<Item> implements PageResponse<Item> {
     data: Array<Item>;
-    object: 'list';
+    object: string;
     constructor(client: APIClient, response: Response, body: PageResponse<Item>, options: FinalRequestOptions);
     getPaginatedItems(): Item[];
     /**
@@ -22,13 +22,7 @@ export interface CursorPageResponse<Item> {
     data: Array<Item>;
 }
 export interface CursorPageParams {
-    /**
-     * Identifier for the last job from the previous pagination request.
-     */
     after?: string;
-    /**
-     * Number of fine-tuning jobs to retrieve.
-     */
     limit?: number;
 }
 export declare class CursorPage<Item extends {

@@ -15,14 +15,13 @@ const cors = require('cors');
 app.use(cors());
 const router = express.Router();
 
-// integrate google gemini
 
+const OpenAI = require('openai').default;
 
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const genAI = new GoogleGenerativeAI(process.env.API_KEY);
-const googleGenerativeAI = require("@google/generative-ai");
-const HarmBlockThreshold = googleGenerativeAI.HarmBlockThreshold;
-const HarmCategory = googleGenerativeAI.HarmCategory;
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY // This is also the default, can be omitted
+});
+
 
 // Authenticates your login
 
@@ -197,8 +196,6 @@ app.post('/generate-image', async (req, res) => {
 
 // custom instructions read
 
-let conversationHistory = [];
-
 // Function to read instructions from the file using fs promises
 async function readInstructionsFile() {
   try {
@@ -211,83 +208,64 @@ async function readInstructionsFile() {
   }
 }
 
-
-
 // Function to initialize the conversation history with instructions
 // giving the model a system prompt and adding tp 
 async function initializeConversationHistory() {
   const fileInstructions = await readInstructionsFile();
-  let systemMessage = `You are a helpful and intelligent AI assistant, knowledgeable about a wide range of topics and highly capable of a great many tasks.\n Specifically:\n ${fileInstructions}`;
-  conversationHistory.push({ role: "system", content: systemMessage });
+  systemMessage = `You are a helpful and intelligent AI assistant, knowledgeable about a wide range of topics and highly capable of a great many tasks.\n Specifically:\n ${fileInstructions}`;
 }
 
 // Call this function when the server starts
 initializeConversationHistory();
 
-let geminiHistory = '';
 
-async function readGeminiFile() {
-  try {
-      // Adjust the path if your folder structure is different
-      const geminiFile = await fs.promises.readFile('./public/geminiMessage.txt', 'utf8');
-      return geminiFile;
-  } catch (error) {
-      console.error('Error reading instructions file:', error);
-      return ''; // Return empty string or handle error as needed
-  }
-}
+ // Helper function to convert markdown to HTML
+const convertMarkdownToHtml = markdown => marked(markdown);
 
-// Function to initialize the Gemini conversation history with system message
-async function initializeGeminiConversationHistory() {
-  try {
-      const geminiMessage = await readGeminiFile();
-      let systemMessage = 'System Prompt: ' + geminiMessage;
-      geminiHistory += systemMessage + '\n';
-  } catch (error) {
-      console.error('Error initializing Gemini conversation history:', error);
-  }
-}
+// Function to export conversation history to HTML, including systemMessage and ensuring correct order
+async function exportChatToHTML() {
+  let messages = await fetchMessages(); // Fetch messages using the new function
+  
+  // Assuming messages are in reverse chronological order; sort them to chronological order
+  messages.sort((a, b) => a.created_at - b.created_at);
 
-// Call this function when the server starts
-initializeGeminiConversationHistory();
+  console.log("Messages Response:", JSON.stringify(messages, null, 2)); // Enhanced debugging: Log the messages response with formatting
 
- // Function to convert conversation history to HTML
- function exportChatToHTML() {
+  // Convert systemMessage from markdown to HTML and ensure it's only added if defined
+  const systemMessageHtml = systemMessage ? convertMarkdownToHtml(systemMessage) : '';
+
   let htmlContent = `
-    <html>
-    <head>
+  <html>
+  <head>
       <title>Chat History</title>
       <style>
-        body { font-family: Arial, sans-serif; }
-        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
-        .system { background-color: #f0f0f0; }
-        .user { background-color: #d1e8ff; }
-        .assistant { background-color: #c8e6c9; }
-        .generated-image { max-width: 100%; height: auto; }
-        /* Add more styles as needed for Markdown elements like headers, lists, etc. */
+          body { font-family: Arial, sans-serif; }
+          .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
+          .system-message { background-color: #ffffcc; } /* Styling for system message */
+          .system { background-color: #f0f0f0; }
+          .user { background-color: #d1e8ff; }
+          .assistant { background-color: #c8e6c9; }
+          .generated-image { max-width: 100%; height: auto; }
       </style>
-    </head>
-    <body>
-  `;
+  </head>
+  <body>
+  ${systemMessageHtml ? `<div class="message system-message"><strong>SYSTEM:</strong> ${systemMessageHtml}</div>` : ''}
+  `; // Conditionally prepend the systemMessage in HTML format to the chat history
 
-  conversationHistory.forEach(entry => {
-    let formattedContent = '';
+  messages.forEach(message => {
+      const roleClass = message.role;
+      let formattedContent = message.content.map(contentItem => {
+          if (contentItem.type === 'text') {
+              // Handle nested text object structure
+              const textContent = typeof contentItem.text === 'object' ? (contentItem.text.value || "") : contentItem.text;
+              return convertMarkdownToHtml(textContent);
+          } else if (contentItem.type === 'image') {
+              // Handle image content
+              return `<img src="${contentItem.image_url}" alt="Generated Image" class="generated-image"/>`;
+          }
+      }).filter(Boolean).join(''); // Filter out undefined or null values and join
 
-    if (Array.isArray(entry.content)) {
-      entry.content.forEach(item => {
-        if (item.type === 'text' && typeof item.text === 'string') {
-          formattedContent += marked(item.text); // Convert Markdown to HTML
-        } else if (item.type === 'image_url') {
-          formattedContent += `<img src="${item.image_url.url}" alt="User Uploaded Image" class="generated-image"/>`;
-        }
-      });
-    } else if (typeof entry.content === 'string') {
-      formattedContent = marked(entry.content); // Directly convert string content
-    } else {
-      console.error('Unexpected content type in conversationHistory:', entry.content);
-    }
-
-    htmlContent += `<div class="message ${entry.role}"><strong>${entry.role.toUpperCase()}:</strong> ${formattedContent}</div>`;
+      htmlContent += `<div class="message ${roleClass}"><strong>${roleClass.toUpperCase()}:</strong> ${formattedContent}</div>`;
   });
 
   htmlContent += '</body></html>';
@@ -295,531 +273,225 @@ initializeGeminiConversationHistory();
 }
 
 
-// Function to convert Gemini conversation history to HTML
-function exportGeminiChatToHTML() {
-  let htmlContent = `
-    <html>
-    <head>
-      <title>Gemini Chat History</title>
-      <style>
-        body { font-family: Arial, sans-serif; }
-        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
-        .system { background-color: #f0f0f0; }
-        .user { background-color: #d1e8ff; }
-        .assistant { background-color: #c8e6c9; }
-        .generated-image { max-width: 100%; height: auto; }
-        /* Additional styles */
-      </style>
-    </head>
-    <body>
-  `;
 
-  // Convert newlines in each part of the chat history to <br> for HTML display
-  const convertNewlinesToHtml = text => text.replace(/\n/g, '<br>');
-
-  // Use a regular expression to match the prompts and responses in the history
-  const messageRegex = /(System Prompt: |User Prompt: |Response: )/g;
-  // Split the history by the regex, but keep the delimiters
-  const messages = geminiHistory.split(messageRegex).slice(1); // slice to remove the first empty string if any
-
-  // Process the messages in pairs (label + content)
-  for (let i = 0; i < messages.length; i += 2) {
-    const label = messages[i];
-    const content = messages[i + 1];
-    let roleClass = '';
-
-    if (label === 'System Prompt: ') {
-      roleClass = 'system';
-    } else if (label === 'User Prompt: ') {
-      roleClass = 'user';
-    } else if (label === 'Response: ') {
-      roleClass = 'assistant';
-    }
-
-    htmlContent += `<div class="message ${roleClass}"><strong>${label.trim()}</strong> ${convertNewlinesToHtml(content.trim())}</div>`;
-  }
-
-  htmlContent += '</body></html>';
-  return htmlContent;
-}
-
-
-
-// Function to convert an image URL to base64
-async function imageURLToBase64(url) {
-  try {
-    const response = await axios.get(url, {
-      responseType: 'arraybuffer' // Ensure the image data is received in the correct format
-    });
-    return `data:image/jpeg;base64,${Buffer.from(response.data).toString('base64')}`;
-  } catch (error) {
-    console.error('Error fetching image:', error);
-    return null; // Return null if there is an error
-  }
-}
+let file_id;
 
 // Endpoint to handle image upload
-app.post('/upload-image', upload.single('image'), async (req, res) => {
-  console.log("File received in /upload-image:", req.file);
+app.post('/upload-file', upload.single('file'), async (req, res) => {
+  console.log("File received in /upload-file:", req.file);
   if (!req.file) {
     return res.status(400).send({ error: 'No image file provided.' });
   }
-
-  // Generate URL for the uploaded image
-  const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-
-  // Send the image URL back to the client
-  res.send({ imageUrl: imageUrl });
-});
-
-
-// Function to convert an image file to base64
-function imageToBase64(filePath) {
-  const image = fs.readFileSync(filePath);
-  return `data:image/jpeg;base64,${image.toString('base64')}`;
-}
-
-
-// Google Gemini Endpoint
-
-
-// Converts an image file directly to the format required by the Gemini model
-function convertImageForGemini(filePath, mimeType) {
-  try {
-    // Validate input parameters
-    if (!filePath || !mimeType) {
-      throw new Error('Invalid arguments: filePath and mimeType are required');
-    }
-
-    // Read file and encode in base64
-    const fileData = fs.readFileSync(filePath);
-    const base64Data = fileData.toString('base64');
-
-    return {
-      inlineData: {
-        data: base64Data,
-        mimeType
-      },
-    };
-  } catch (error) {
-    console.error('Error in convertImageForGemini:', error.message);
-    return null;
-  }
-}
-
-// Gemini Safety settings reduced to none for each required category.
-// Feel free to adjust, but be aware that the RLHP severely neuters the model.
-
-const safetySettings = [
-  {
-    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-    threshold: HarmBlockThreshold.BLOCK_NONE,
-  },
-  {
-    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-    threshold: HarmBlockThreshold.BLOCK_NONE,
-  },
-  {
-    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-    threshold: HarmBlockThreshold.BLOCK_NONE,
-  },
-  {
-    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-    threshold: HarmBlockThreshold.BLOCK_NONE,
-  },
-];
-
-
-// Define a default configuration for generation parameters
-// These are the settings for Gemini
-const defaultConfig = {
-  candidate_count: 1, // How many responses the model gives
-  // stop_sequences: ["\n"], // Model stops generating at these
-  max_output_tokens: 2000, // Completion lengths
-  // top_p: 0.9,
-  // nucleus sampling, temperature alternative
-  // top_k: 40,
-  // random sampling
-  temperature: 1 // random sampling
-};
-
-// see my comments on the GPT API parameters for more explanations
-// Docs: https://ai.google.dev/docs/concepts#model_parameters
-
-
-app.post('/gemini', async (req, res) => {
-  try {
-    const { model, prompt, imageParts, history } = req.body;
-    console.log('Prompt: ', prompt)
-
-// Check for shutdown command
-if (prompt === "Bye!") {
-  console.log("Shutdown message received. Exporting chat and closing server...");
-
-  // Export chat history to HTML
-  const htmlContent = exportGeminiChatToHTML();
-
-  // Set headers for file download
-  res.set('Content-Type', 'text/html');
-  res.set('Content-Disposition', 'attachment; filename="chat_history.html"');
-
-  // Send the HTML content
-  res.send(htmlContent);
-
-  // Wait for the response to be fully sent before shutting down
-  res.end(() => {
-    console.log("Chat history sent to client, initiating shutdown...");
-
-    if (isShuttingDown) {
-      return res.status(503).send('Server is shutting down');
-  }
-    isShuttingDown = true; // Set the shutdown flag
-
-    // Delay before shutting down the server to allow file download
-    setTimeout(() => {
-      server.close(() => {
-        console.log("Server successfully shut down.");
-      });
-    }, 1000); // 10 seconds delay
-  });
-
-  return; // End the execution of the function here
-}
-
-// Add user's prompt to conversation history with a label
-geminiHistory += 'User Prompt: ' + prompt + '\n';
-
-// Handle text-only input
-if (!history && (!imageParts || imageParts.length === 0)) {
-  if (model !== 'gemini-pro') {
-    return res.status(400).json({ error: 'Invalid model for text-only input. Use gemini-pro.' });
-  }
-
-
-  // Initialize the Google model for text-only input
-  const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro', generationConfig: defaultConfig, safetySettings });
-  // Generate content based on the geminiHistory
-  const result = await googleModel.generateContent(geminiHistory);
-
-  const text = result.response.text();
-  console.log('Response: ', text)
-  // Add assistant's response to conversation history
-  geminiHistory += 'Response: ' + text + '\n';
-  console.log('Gemini History: ', geminiHistory)
-      // Send the response
-      res.json({ success: true, text: text });
-    }
-    // Handle text-and-image input (multimodal)
-    else if (imageParts && imageParts.length > 0 && !history) {
-      if (model !== 'gemini-pro-vision') {
-        return res.status(400).json({ error: 'Invalid model for text-and-image input. Use gemini-pro-vision.' });
-      }
-
-      // Initialize the Google model for text-and-image input
-      const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro-vision', generationConfig: defaultConfig, safetySettings });
-console.log(googleModel);
-      // Convert image parts to the required format using the new function
-      // Construct file paths from received filenames and convert image parts
-      const convertedImageParts = imageParts.map(part => {
-        // Construct the file path from the filename
-        const filePath = `public/uploads/${part.filename}`; // Update with the actual path to uploaded images
-        return convertImageForGemini(filePath, part.mimeType);
-      });
-
-      // Generate content based on the prompt and images
-      const result = await googleModel.generateContent([prompt, ...convertedImageParts]);
-      const response = result.response;
-      const text = response.text();
-      console.log(text);
-
-      // Send the response
-      res.json({ success: true, text: text });
-    }
-    // Handle multi-turn chat functionality
-    else if (history && history.length > 0) {
-      if (model !== 'gemini-pro') {
-        return res.status(400).json({ error: 'Invalid model for chat. Use gemini-pro.' });
-      }
-
-      // Initialize the Google model for chat
-      const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro', generationConfig: defaultConfig, safetySettings });
-
-      // Start the chat with the provided history
-      const chat = googleModel.startChat({ history });
-      console.log(chat);
-      console.log(history);
-      // Send the user's message and get the response
-      const result = await chat.sendMessage({ role: "user", parts: prompt });
-      const response = result.response;
-      const text = response.text();
-      console.log("Chat", text);
-
-      // Send the response
-      res.json({ success: true, text: text });
-    }
-  } catch (error) {
-    console.error('Error with Gemini API:', error.message);
-    res.status(500).json({ error: "Error with Gemini API", details: error.message });
-  }
-});
-
-
-
-// Optional streaming implementation
-    // let text = '';
-    // for await (const chunk of response.stream) {
-    //   text += chunk.text();
-    // }
-
-
-// Streaming can only be properly implemented via 
-// certain APIs that would defeat the whole purpose.
-
-// See closed issue on this repo for more details.
-
-
-// Handle POST request to '/message'
-// Handle POST request to '/message' with file upload
-
-app.post('/message', async (req, res) => {
-  console.log("req.file:", req.file); // Check if the file is received
-  console.log("Received model ID:", req.body.modelID); // Add this line
-  const user_message = req.body.message;
-  const modelID = req.body.modelID || 'gpt-4'; // Extracting model ID from the request
-  const image = req.body.image; // This will now be an URL
-  console.log("Received request with size: ", JSON.stringify(req.body).length);
-
- // Check for shutdown command
-if (user_message === "Bye!") {
-  console.log("Shutdown message received. Exporting chat and closing server...");
-
-  // Export chat history to HTML
-  const htmlContent = exportChatToHTML();
-
-  // Set headers for file download
-  res.set('Content-Type', 'text/html');
-  res.set('Content-Disposition', 'attachment; filename="chat_history.html"');
-
-  // Send the HTML content
-  res.send(htmlContent);
-
-  // Wait for the response to be fully sent before shutting down
-  res.end(() => {
-    console.log("Chat history sent to client, initiating shutdown...");
-
-    if (isShuttingDown) {
-      return res.status(503).send('Server is shutting down');
-  }
-    isShuttingDown = true; // Set the shutdown flag
-
-    // Delay before shutting down the server to allow file download
-    setTimeout(() => {
-      server.close(() => {
-        console.log("Server successfully shut down.");
-      });
-    }, 1000); // 1 seconds delay
-  });
-
-  return; // End the execution of the function here
-}
-
-
-   // Retrieve model from the request
-
-  let user_input = {
-    role: "user",
-    content: []
-};
-
-// Add text content if present
-if (user_message) {
-    user_input.content.push({ type: "text", text: user_message });
-}
-
-// Check for image in the payload
-// Check for image in the payload
-if (req.body.image) {
-  let base64Image;
-  // If req.file is defined, it means the image is uploaded as a file
-  if (req.file) {
-    base64Image = imageToBase64(req.file.path);
-  } else {
-    // If req.file is not present, fetch the image from the URL
-    base64Image = await imageURLToBase64(req.body.image);
-  }
-  if (base64Image) {
-    user_input.content.push({ type: "image_url", image_url: { url: base64Image } });
-  }
-}
-
-
-conversationHistory.push(user_input);
-
-
-
-
-// Model Parameters Below!
-
-
-
-    // Define the data payload with system message and additional parameters
-    const data = {
-
-      // model: "gpt-4-vision-preview", // Use "gpt-4" for non-vision capabilities.
-      // Model is specified here as the vision-capable GPT-4. 
-      // If users are using this portal solely for its intelligence, and do not care about "vision", then they should change the model name.
-      // The Model Name can be changed to: 
-      // model: "gpt-4",
-      // So Delete the "// " before "model" labelling GPT-4 and add/put them before "model: "gpt-4-vision-preview", if you'd like to switch.
-      // This is called "commenting out", and is good practice for code maintainability, like:
-      
-      // model: "gpt-4-vision-preview", 
-
-      // model: "gpt-4",
-
-      // there's also the higher 32k context model
-
-      // model: "gpt-4-32k",
-      
-      // use this longer context model **only** if you've considered the expenses properly
-
-      // The Default Model is now Default GPT-4, pointing to the snapshot released on August 13th. 
-      // If users would like to use Vision capabilities, please comment out the above model and comment in the "vision-preview" at the top.
-
-// UPDATE: Model Selector added for variability
-
-      model: modelID, // Use the model specified by the client
-
-      messages: conversationHistory, // Includes the System Prompt, previous queries and responses, and your most recently sent message.
-      
-      max_tokens: 4000, // The maximum number of tokens to **generate** shared between the prompt and completion. The exact limit varies by model. 
-      // (One token is roughly 4 characters for standard English text)
-      
-      temperature: 1, // Controls randomness: Lowering results in less random completions. 
-      // As the temperature approaches zero, the model will become deterministic and repetitive.
-      
-      top_p: 1,  // Controls diversity via nucleus sampling: 0.5 means half of all likelihood-weighted options are considered.
-      
-      frequency_penalty: 0, // How much to penalize new tokens based on their existing frequency in the text so far. 
-      // Decreases the model's likelihood to repeat the same line verbatim.
-      
-      presence_penalty: 0, // How much to penalize new tokens based on whether they appear in the text so far.
-      // Increases the model's likelihood to talk about new topics.
-
-      stream: true, // streaming messages from server to api for better memory efficiency
-      
-       // Additional Parameters
-  // Stop Sequences
-    // stop: ["<YOUR_STOP_SEQUENCE_HERE>", "<ANOTHER_STOP_SEQUENCE>"],
-      // Up to four sequences where the API will stop generating further tokens. 
-      // The returned text will not contain the stop sequence.
-
-  // Best Of - returns the best one out of multiple generations
-    // best_of: 3,
-      // Uncomment this line for better responses; Warning: This is expensive.
-      // This parameter allows you to generate multiple completions in the backend and return the best one.
-
-  // Logprobs - number of log probabilities to return
-    // logprobs: 10,
-      // This parameter specifies the number of log probabilities to return. 
-      // For example, setting logprobs: 10 will return the top 10 log probabilities for each token generated.
-
-  // N - number of completions to generate
-    // n: 2,
-      // This parameter determines how many completions to generate for each prompt.
-      // If set to a number greater than 1, the model will return multiple responses, 
-      // Useful if you want options.
-
-  // Logit Bias - adjusts likelihood of certain tokens
-  // logit_bias: {"<TOKEN_ID>": <BIAS_VALUE>, "<ANOTHER_TOKEN_ID>": <BIAS_VALUE>},
-      // This allows you to increase or decrease the likelihood of certain tokens appearing in the output.
-      // It can be used to guide the model towards or away from specific themes or topics.
-
-  // Add more parameters here as needed
-
-    };
-
-    // END
   
-    // Define the headers with the Authorization and, if needed, Organization
-    const headers = {
-      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-      // If you're using an organization ID, uncomment the following line
-      // 'OpenAI-Organization': 'process.env.ORGANIZATION'
-    }; // And add it to the `.env` file. This is inapplicable to most users.
+  if (!assistant) {
+    await AssistantAndThread(modelID);
+  }
 
-    // Log the data payload just before sending it to the OpenAI API
-  console.log("Sending to OpenAI API:", JSON.stringify(data, null, 2));
-  
+  const tempFilePath = req.file.path;
+
   try {
-    const response = await axios.post('https://api.openai.com/v1/chat/completions', data, { headers, responseType: 'stream' });
-    let buffer = '';
-  
-    response.data.on('data', (chunk) => {
-      buffer += chunk.toString(); // Accumulate the chunks in a buffer
+    if (!assistant || !assistant.id) {
+      throw new Error("Assistant is not initialized.");
+    }
+    // Create a file for the assistants
+    const file = await openai.files.create({
+      file: fs.createReadStream(tempFilePath),
+      purpose: 'assistants'
     });
-  
-    response.data.on('end', () => {
-      try {
-        const lines = buffer.split('\n');
-        let messageContent = '';
-  
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const jsonString = line.substring(6).trim();
-            if (jsonString !== '[DONE]') {
-              const parsedChunk = JSON.parse(jsonString);
-              messageContent += parsedChunk.choices.map(choice => choice.delta?.content).join('');
-            }
-          }
-        }
 
-        const lastMessageContent = messageContent;
+    const assistantFile = await openai.beta.assistants.files.create(
+      assistant.id,
+      {
+        file_id: file.id
+      }
+    );
 
-  
-        if (lastMessageContent) {
-          // Add assistant's message to the conversation history
-          conversationHistory.push({ role: "assistant", content: lastMessageContent.trim() });
+    console.log("File attached to assistant:", assistantFile);
+
+    file_id = file.id;
+    console.log("File ID:", file_id)
+
+    // Optional: Clean up the uploaded file after sending to OpenAI
+    fs.unlink(tempFilePath, (err) => {
+      if (err) console.error("Error deleting temp file:", err);
+      console.log("Temp file deleted");
+    });
+
+    initialize = false;
+    console.log("Initialize:", initialize)
+
+    res.json({ success: true, fileId: file_id, initialize });
+  } catch (error) {
+    console.error('Failed to upload file to OpenAI:', error);
+  }
+});
+
+// Assistant Handling
+
+
+let systemMessage = null;  // Global variable for systemMessage
+let assistant = null;
+let thread = null;
+let response = '';
+let initialize = true;
+let messages;
+
+// Utility function to ensure Assistant and Thread initialization
+async function AssistantAndThread(modelID) {
+  if (!assistant || !thread) {
+    assistant = await openai.beta.assistants.create({
+      name: "Assistant",
+      instructions: "systemMessage",
+      tools: [{ type: "code_interpreter" }],
+      model: modelID
+    });
+    thread = await openai.beta.threads.create();
+    console.log("Assistant and Thread ensured:", assistant, thread);
+  }
+}
+
+
+// Function to handle message sending and responses
+async function handleMessage(thread, assistant, userMessage) {
+  try {
     
-          // Send this back to the client
-          res.json({ text: lastMessageContent.trim() });
-        } else {
-          // Handle no content scenario
-          res.status(500).json({ error: "No text was returned from the API" });
-        }
-      } catch (parseError) {
-        console.error('Error parsing complete response:', parseError.message);
-        res.status(500).json({ error: "Error parsing the response from OpenAI API" });
-      }
+    let message = await openai.beta.threads.messages.create(thread.id, {
+      role: "user",
+      content: userMessage,
     });
-  
+    
+    let run = await openai.beta.threads.runs.create(thread.id, {
+      assistant_id: assistant.id,
+    });
+
+    run = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+    
+      // Initialize runStatus variable
+      let runStatus;
+    
+      // Poll for run completion
+      do {
+        runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+        console.log("Run Status:", runStatus.status); // Debugging: Log the current run status
+
+        if(runStatus.status !== 'completed') {
+          // If the run is not completed, wait for a bit before checking the status again
+          await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+        }
+      } while(runStatus.status !== 'completed');
+
+      // Once the run is completed, fetch the messages
+      messages = await openai.beta.threads.messages.list(thread.id);
+      
+      // Sort messages by 'created_at' in descending order and then filter for the assistant's messages
+        const sortedAndFilteredMessages = messages.body.data
+        .sort((a, b) => b.created_at - a.created_at)
+        .filter(msg => msg.role === 'assistant');
+
+        if (sortedAndFilteredMessages.length > 0) {
+        // The first message in the array is now the latest one from the assistant
+        const latestAssistantMessage = sortedAndFilteredMessages[0];
+        const formattedResponse = latestAssistantMessage.content.map(content => {
+          // Assuming 'content.text' is the correct path to the message text.
+          // Adjust according to the actual structure of the 'content' array items
+          return typeof content.text === 'object' ? content.text.value : content.text;
+        }).join('\n');
+        let response = formattedResponse;
+        console.log("Response:", response);
+        return { text: response };
+      } else {
+        throw new Error('No assistant messages found in the thread.');
+      }
   } catch (error) {
-    console.error('Error calling OpenAI API:', error.message);
-    if (error.response) {
-      console.error(error.response.data);
-    }
-    res.status(500).json({ error: "An error occurred when communicating with the OpenAI API.", details: error.message });
+    console.error("Error sending messages:", error);
+    throw error; // Rethrow the error for upstream handling
   }
-  
+}
+
+let modelID = 'gpt-4-turbo-preview';
+
+app.post('/assistant', async (req, res) => {
+  let userMessage = req.body.message;
+  modelID = req.body.modelID;
+  initialize = req.body.initialize;
+
+  try {
+    // Check if assistant and thread need to be initialized
+    if (initialize = true) {
+      console.log("Initialize:", initialize)
+      await AssistantAndThread(modelID);
+
+      response = await handleMessage(thread, assistant, userMessage);
+      console.log("Try Response:", response)
+      res.json({ text: response });
+
+    } else if (initialize === false) {
+      console.log("Initialize:", initialize)
+
+      console.log("Assistant and Thread already exist");
+      response = await handleMessage(thread, assistant, userMessage);
+      console.log("Try Response:", response)
+      res.json({ text: response });
+    }
+  } catch (error) {
+    console.error('Error in /assistant endpoint:', error.message);
+    res.status(500).json({ error: "An error occurred in the server.", details: error.message });
+  }
 });
+
+
+// END 
+
+// Assumes `thread` is available within this scope
+async function fetchMessages() {
+
+  try {
+      const messagesResponse = await openai.beta.threads.messages.list(thread.id);
+      if (messagesResponse && messagesResponse.body && messagesResponse.body.data) {
+          return messagesResponse.body.data;
+      } else {
+          console.error("Failed to fetch messages or no messages available.");
+          return [];
+      }
+  } catch (error) {
+      console.error("Error fetching messages:", error);
+      return [];
+  }
+}
+
 
 
 // export markdown to html
 
-app.get('/export-chat-html', (req, res) => {
-  console.log("Export request received for type:", req.query.type);
-  const type = req.query.type; // Expecting 'gemini' or 'conversation' as query parameter
-  console.log("Export request received for type:", type);
-  let htmlContent;
-  if (type === 'gemini') {
-    htmlContent = exportGeminiChatToHTML();
-  } else {
-    htmlContent = exportChatToHTML();
-  }
+// Export markdown to html
+app.get('/export-chat-html', async (req, res) => {
+  try {
+    const htmlContent = await exportChatToHTML(); // Make sure to await the async function
 
-  res.set('Content-Type', 'text/html');
-  res.set('Content-Disposition', 'attachment; filename="' + (type === 'gemini' ? 'gemini_chat_history.html' : 'chat_history.html') + '"');
-  res.send(htmlContent);
+    res.set('Content-Type', 'text/html');
+    res.set('Content-Disposition', 'attachment; filename=chat_history.html');
+    res.send(htmlContent);
+
+    // No need to call res.end() after res.send(), as send() ends the response.
+    console.log("Chat history sent to client, initiating shutdown...");
+    
+    // This part might need to be moved or adjusted depending on your shutdown logic
+    if (isShuttingDown) {
+      return res.status(503).send('Server is shutting down');
+    }
+    
+    isShuttingDown = true; // Set the shutdown flag
+    // Delay before shutting down the server to allow file download
+    setTimeout(() => {
+      server.close(() => {
+        console.log("Server successfully shut down.");
+      });
+    }, 100); // 1-second delay
+
+  } catch (error) {
+    console.error('Failed to export chat to HTML:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 
@@ -829,7 +501,12 @@ app.get('/portal', (req, res) => {
   
 
 // Start the server
+// Assuming `app` is an instance of your server (like an Express app)
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+
+// Listen only on the loopback interface (localhost)
+const HOST = 'localhost';
+
+const server = app.listen(PORT, HOST, () => {
+  console.log(`Server running at http://${HOST}:${PORT}`);
 });

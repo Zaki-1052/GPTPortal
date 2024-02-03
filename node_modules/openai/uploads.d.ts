@@ -69,7 +69,7 @@ export declare const isMultipartBody: (body: any) => body is MultipartBody;
  * Returns a multipart/form-data request if any part of the given request body contains a File / Blob value.
  * Otherwise returns the request as is.
  */
-export declare const maybeMultipartFormRequestOptions: <T extends {} = Record<string, unknown>>(opts: RequestOptions<T>) => Promise<RequestOptions<MultipartBody | T>>;
-export declare const multipartFormRequestOptions: <T extends {} = Record<string, unknown>>(opts: RequestOptions<T>) => Promise<RequestOptions<MultipartBody | T>>;
+export declare const maybeMultipartFormRequestOptions: <T = Record<string, unknown>>(opts: RequestOptions<T>) => Promise<RequestOptions<MultipartBody | T>>;
+export declare const multipartFormRequestOptions: <T = Record<string, unknown>>(opts: RequestOptions<T>) => Promise<RequestOptions<MultipartBody | T>>;
 export declare const createForm: <T = Record<string, unknown>>(body: T | undefined) => Promise<FormData>;
 //# sourceMappingURL=uploads.d.ts.map
