@@ -341,7 +341,7 @@ async function AssistantAndThread(modelID) {
   if (!assistant || !thread) {
     assistant = await openai.beta.assistants.create({
       name: "Assistant",
-      instructions: "systemMessage",
+      instructions: systemMessage,
       tools: [{ type: "code_interpreter" }],
       model: modelID
     });
