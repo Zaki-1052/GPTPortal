@@ -56,7 +56,7 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
   - **Mistral**: *Tiny-Medium*
     - Three *New* **Mistral AI** Models
       - *Intelligence* **Varies** by *Size*
-      - A Description can be found under 
+      - A Description can be found under [**Mistral AI Setup**](#9-optional-mistral-ai-setup).
 
 ## Examples
 
@@ -346,6 +346,8 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 - The [Mistral **Documentation**](https://docs.mistral.ai/redocusaurus/plugin-redoc-0.yaml) for **Chat Completions** is linked [**here**](https://docs.mistral.ai/api/#operation/createChatCompletion) as well.
 - Please follow the same steps for inserting your **API Key** into the `.env` file.
 - See the above instructions, applied to "`your_mistral_ai_key_here`".
+  - *Create a New Key*, and insert it into the correct **`MISTRAL_KEY`**.
+  - The largest *Mistral Model* is said to **beat** *Gemini Pro* at *most tasks*!
 
 ## Relevant [Links](https://arc.net/folder/B777A318-2A95-4C36-86AA-156166895CC2)
 
@@ -363,6 +365,8 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 - [Chat Completions](https://platform.openai.com/docs/api-reference/chat/create) - Documentation reference guide for GPT models on parameters and completion objects.
 - [Google API Key](https://makersuite.google.com/app/apikey) - Gemini AI Studio; create your API Key and paste it in the `.env` file.
 - [Model Parameters](https://ai.google.dev/docs/concepts#model_parameters) - Google's documentation on their Gemini model parameters.
+- [Mistral API Key](https://console.mistral.ai/user/api-keys/) - Create your Mistral API Key here.
+- [Mistral Documentation](https://docs.mistral.ai/) - Their Docs can be found here.
 
 ### Author Links & Custom GPTs
 
