@@ -138,15 +138,14 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 4. **Set Up Environment Variables**:
    - Create a `.env` file in the root directory.
      - Format shown in `.env.example`
-     - `API_KEY` is for Google AI.
    - Add your OpenAI API key and basic authentication:
 
      ```env
       OPENAI_API_KEY=your_api_key_here
       USER_USERNAME=Username
       USER_PASSWORD=Password
-      API_KEY=your_google_ai_key_here
-      PORT=3000
+      GOOGLE_API_KEY=your_google_ai_key_here
+      MISTRAL_KEY=your_mistral_ai_key_here
      ```
 
 5. **Start the Server**:
@@ -317,7 +316,7 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 - After accepting the terms, click on the button labeled **"Create API Key in New Project"**.
 - Once the API key is generated, it will be displayed on the screen.
 - Click the **copy** icon or manually select and copy the key to your clipboard.
-- Open the `.env` file and look for the line that reads `API_KEY=your_google_ai_key_here`.
+- Open the `.env` file and look for the line that reads `GOOGLE_API_KEY=your_google_ai_key_here`.
 - Replace `your_google_ai_key_here` with the API key you copied from Google AI Studio.
   - Ensure that the key is pasted correctly without any leading or trailing spaces.
 - Until **February 2024**, *Google Gemini-Pro* will be completely **free**!
