@@ -14,6 +14,7 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
 - [Further Explanations](#further-explanations)
 - [Basic Guide](#guide-basic-setup--use)
 - [Google Gemini](#8-optional-google-gemini-setup)
+- [Mistral AI](#9-optional-mistral-ai-setup)
 - [Relevant Links](#relevant-links)
 - [Author Links](#author-links--custom-gpts)
 - [Research Papers](#research-papers)
@@ -336,7 +337,7 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 
 ###### Mistral Pricing Table
 
-| MODEL         | PRICE FOR INPUT         | PRICE FOR OUTPUT        |
+| MODEL         | INPUT         | OUTPUT        |
 |---------------|-------------------------|-------------------------|
 | Mistral-Tiny  | ¢0.02 / 1K tokens       | ¢0.05 / 1K tokens       |
 | Mistral-Small | ¢0.06 / 1K tokens       | ¢0.19 / 1K tokens       |
