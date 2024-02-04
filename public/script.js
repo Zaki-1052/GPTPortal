@@ -16,7 +16,10 @@
     "GPT-4-Turbo": "gpt-4-turbo-preview",
     "GPT-3.5-Turbo": "gpt-3.5-turbo",
     "Gemini-Pro": "gemini-pro",
-    "Gemini-Pro-Vision": "gemini-pro-vision"
+    "Gemini-Pro-Vision": "gemini-pro-vision",
+    "Mistral-Tiny": "mistral-tiny",
+    "Mistral-Small": "mistral-small",
+    "Mistral-Medium": "mistral-medium"
   };
 
   
@@ -27,7 +30,10 @@
     "gpt-4-turbo-preview": "GPT-4-Turbo",
     "gpt-3.5-turbo": "GPT-3.5-Turbo",
     "gemini-pro": "Gemini-Pro",
-    "gemini-pro-vision": "Gemini-Pro-Vision"
+    "gemini-pro-vision": "Gemini-Pro-Vision",
+    "mistral-tiny": "Mistral-Tiny",
+    "mistral-small": "Mistral-Small",
+    "mistral-medium": "Mistral-Medium"
   };
 
   
@@ -180,7 +186,10 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       "gpt-4-turbo-preview": "GPT-4-Turbo: ChatGPT-Plus Model — 128k Tokens",
       "gpt-3.5-turbo": "GPT-3.5-Turbo: Cheapest Option Available",
       "gemini-pro": "Gemini-Pro: Google Bard Model — 3.5 Equivalent",
-      "gemini-pro-vision": "Gemini-Vision: View Images — One-Time Use"
+      "gemini-pro-vision": "Gemini-Vision: View Images — One-Time Use",
+      "mistral-tiny": "Mistral-Tiny: Cheapest Model — English Proficient",
+      "mistral-small": "Mistral-Small: Smarter and More Costly",
+      "mistral-medium": "Mistral-Medium: Most Expensive — Beats Gemini"
     };
     
   
@@ -236,33 +245,37 @@ document.querySelector('.custom-select').addEventListener('click', toggleDropdow
 
 
 
-// Add event listeners for selecting a model
+// Event listeners for selecting GPT models
 document.getElementById('model-gpt-4').addEventListener('click', () => selectModel('gpt-4'));
 document.getElementById('model-gpt-4-vision').addEventListener('click', () => selectModel('gpt-4-vision-preview'));
 document.getElementById('model-gpt-4-32k').addEventListener('click', () => selectModel('gpt-4-32k'));
-  
-    // Add event listeners for model buttons
-    document.getElementById('model-gpt-4').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4"], event.currentTarget));
-    document.getElementById('model-gpt-4-vision').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-vision-preview"], event.currentTarget));
-    document.getElementById('model-gpt-4-32k').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-32k"], event.currentTarget)); 
-  
-    // Add click event listeners for selecting a model
-    document.getElementById('model-gpt-4').addEventListener('click', () => selectModel('gpt-4'));
-    document.getElementById('model-gpt-4-vision').addEventListener('click', () => selectModel('gpt-4-vision-preview'));
-    document.getElementById('model-gpt-4-32k').addEventListener('click', () => selectModel('gpt-4-32k'));
-
-    document.getElementById('model-gpt-4-turbo').addEventListener('click', () => selectModel('gpt-4-turbo-preview'));
+document.getElementById('model-gpt-4-turbo').addEventListener('click', () => selectModel('gpt-4-turbo-preview'));
 document.getElementById('model-gpt-3.5').addEventListener('click', () => selectModel('gpt-3.5-turbo'));
 
+// Event listeners for showing GPT model descriptions on hover
+document.getElementById('model-gpt-4').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4"], event.currentTarget));
+document.getElementById('model-gpt-4-vision').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-vision-preview"], event.currentTarget));
+document.getElementById('model-gpt-4-32k').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-32k"], event.currentTarget));
 document.getElementById('model-gpt-4-turbo').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-turbo-preview"], event.currentTarget));
 document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-3.5-turbo"], event.currentTarget));
 
+// Event listeners for selecting Gemini models
 document.getElementById('model-gemini-pro').addEventListener('click', () => selectModel('gemini-pro'));
 document.getElementById('model-gemini-pro-vision').addEventListener('click', () => selectModel('gemini-pro-vision'));
+
+// Event listeners for showing Gemini model descriptions on hover
 document.getElementById('model-gemini-pro').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-pro"], event.currentTarget));
 document.getElementById('model-gemini-pro-vision').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-pro-vision"], event.currentTarget));
 
+// Event listeners for selecting Mistral models
+document.getElementById('model-mistral-tiny').addEventListener('click', () => selectModel('mistral-tiny'));
+document.getElementById('model-mistral-small').addEventListener('click', () => selectModel('mistral-small'));
+document.getElementById('model-mistral-medium').addEventListener('click', () => selectModel('mistral-medium'));
 
+// Event listeners for showing Mistral model descriptions on hover
+document.getElementById('model-mistral-tiny').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-tiny"], event.currentTarget));
+document.getElementById('model-mistral-small').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-small"], event.currentTarget));
+document.getElementById('model-mistral-medium').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-medium"], event.currentTarget));
 
   // Add mouseout event listener for all model buttons
   document.querySelectorAll('.select-options button').forEach(button => {

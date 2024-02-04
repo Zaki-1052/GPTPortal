@@ -15,6 +15,7 @@ export type ChatCompletionStreamingToolRunnerParams<FunctionsArgs extends BaseFu
 };
 export declare class ChatCompletionStreamingRunner extends ChatCompletionStream implements AsyncIterable<ChatCompletionChunk> {
     static fromReadableStream(stream: ReadableStream): ChatCompletionStreamingRunner;
+    /** @deprecated - please use `runTools` instead. */
     static runFunctions<T extends (string | object)[]>(completions: Completions, params: ChatCompletionStreamingFunctionRunnerParams<T>, options?: RunnerOptions): ChatCompletionStreamingRunner;
     static runTools<T extends (string | object)[]>(completions: Completions, params: ChatCompletionStreamingToolRunnerParams<T>, options?: RunnerOptions): ChatCompletionStreamingRunner;
 }

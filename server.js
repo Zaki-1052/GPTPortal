@@ -19,7 +19,7 @@ const router = express.Router();
 
 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 const googleGenerativeAI = require("@google/generative-ai");
 const HarmBlockThreshold = googleGenerativeAI.HarmBlockThreshold;
 const HarmCategory = googleGenerativeAI.HarmCategory;
@@ -579,7 +579,9 @@ console.log(googleModel);
 
 
 // Handle POST request to '/message'
-// Handle POST request to '/message' with file upload
+
+let headers;
+let apiUrl = '';
 
 app.post('/message', async (req, res) => {
   console.log("req.file:", req.file); // Check if the file is received
@@ -742,17 +744,30 @@ conversationHistory.push(user_input);
     // END
   
     // Define the headers with the Authorization and, if needed, Organization
-    const headers = {
-      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-      // If you're using an organization ID, uncomment the following line
-      // 'OpenAI-Organization': 'process.env.ORGANIZATION'
-    }; // And add it to the `.env` file. This is inapplicable to most users.
+    // Determine the API to use based on modelID prefix
+    if (modelID.startsWith('gpt')) {
+      headers = {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        // 'OpenAI-Organization': 'process.env.ORGANIZATION' // Uncomment if using an organization ID
+      };
+      apiUrl = 'https://api.openai.com/v1/chat/completions';
+    } else if (modelID.startsWith('mistral')) {
+      headers = {
+        'Authorization': `Bearer ${process.env.MISTRAL_KEY}`,
+        // Add any Mistral-specific headers here if necessary
+      };
+      apiUrl = 'https://api.mistral.ai/v1/chat/completions';
+    }
 
-    // Log the data payload just before sending it to the OpenAI API
-  console.log("Sending to OpenAI API:", JSON.stringify(data, null, 2));
-  
-  try {
-    const response = await axios.post('https://api.openai.com/v1/chat/completions', data, { headers, responseType: 'stream' });
+    // Log the data payload just before sending it to the chosen API
+    console.log("API URL", apiUrl);
+    console.log("Headers", headers);
+    console.log(`Sending to ${modelID.startsWith('gpt') ? 'OpenAI' : 'Mistral'} API:`, JSON.stringify(data, null, 2));
+
+    try {
+      const response = await axios.post(apiUrl, data, { headers, responseType: 'stream' });
+      // Process the response as needed
+        
     let buffer = '';
   
     response.data.on('data', (chunk) => {
@@ -829,7 +844,12 @@ app.get('/portal', (req, res) => {
   
 
 // Start the server
+// Assuming `app` is an instance of your server (like an Express app)
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+
+// Listen only on the loopback interface (localhost)
+const HOST = process.env.HOST || 'localhost';
+
+const server = app.listen(PORT, HOST, () => {
+  console.log(`Server running at http://${HOST}:${PORT}`);
 });
