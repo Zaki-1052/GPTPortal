@@ -394,26 +394,9 @@ app.post('/message', async (req, res) => {
     content: '' // Initialize content as an empty string
 };
 
-// Add text content if present
 if (user_message) {
-    user_input.content.push({ type: "text", text: user_message });
-}
-
-
-// Check for image in the payload
-// Check for image in the payload
-if (req.body.image) {
-  let base64Image;
-  // If req.file is defined, it means the image is uploaded as a file
-  if (req.file) {
-    base64Image = imageToBase64(req.file.path);
-  } else {
-    // If req.file is not present, fetch the image from the URL
-    base64Image = await imageURLToBase64(req.body.image);
-  }
-  if (base64Image) {
-    user_input.content.push({ type: "image_url", image_url: { url: base64Image } });
-  }
+  // Directly assign user_message to content
+  user_input.content = user_message; // Assuming user_message is a string
 }
 
 
