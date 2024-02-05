@@ -1,31 +1,76 @@
 # GPT-4 ChatBot Portal for Assistants API
 
-Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 Assistants API**, including the latest *Python, *Hearing*, and *Speaking* capabilities with *image-generation* and superior *Model Performance*. Now includes a *native* **Code Environment** and *stateful* **Assistant Conversations**!
+Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 Assistants API**, including the latest *Python*, *Hearing*, and *Speaking* capabilities with *image-generation* and superior *Model Performance*. Now includes a *native* **Code Environment** and *stateful* **Assistant Conversations**!
 
 ## Table of Contents
 
-- [Features](#features)
-- [Examples](#examples)
-- [Structure](#structure)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Author Notes](#author-notes)
-- [Further Explanations](#further-explanations)
-- [Basic Guide](#guide-basic-setup--use)
-- [Google Gemini](#8-optional-google-gemini-setup)
-- [Relevant Links](#relevant-links)
-- [Author Links](#author-links--custom-gpts)
-- [Research Papers](#research-papers)
-- [FAQ](#faq)
-- [Glossary](#glossary)
-- [Updates](#updates)
-- [Tokens](#token-costs-explained)
-- [TODOs](#todos)
-- [Quick-Start](#quick-start-guide)
-- [Docker](#docker)
-- [Contributions](#contributions)
-- [License](#license)
+- [GPT-4 ChatBot Portal for Assistants API](#gpt-4-chatbot-portal-for-assistants-api)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Examples](#examples)
+    - [Demo](#demo)
+    - [Interface](#interface)
+  - [Structure](#structure)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [Advanced Use](#advanced-use)
+  - [Author Notes](#author-notes)
+    - [Further Explanations](#further-explanations)
+    - [Guide: Basic Setup \& Use](#guide-basic-setup--use)
+      - [1. **Understanding the Basics**](#1-understanding-the-basics)
+      - [2. **Setting Up the Environment**](#2-setting-up-the-environment)
+      - [3. **Cloning the Repository**](#3-cloning-the-repository)
+      - [4. **Setting Up the ChatBot Portal**](#4-setting-up-the-chatbot-portal)
+      - [5. **Obtaining an OpenAI API Key**](#5-obtaining-an-openai-api-key)
+      - [6. **Running the ChatBot Portal**](#6-running-the-chatbot-portal)
+      - [7. **Basic Troubleshooting**](#7-basic-troubleshooting)
+  - [Relevant Links](#relevant-links)
+    - [Author Links \& Custom GPTs](#author-links--custom-gpts)
+    - [Research Papers](#research-papers)
+    - [FAQ](#faq)
+      - [How do I obtain an OpenAI API key to use this portal?](#how-do-i-obtain-an-openai-api-key-to-use-this-portal)
+      - [What are the system requirements for running this portal?](#what-are-the-system-requirements-for-running-this-portal)
+      - [Can I customize the chatbot’s responses?](#can-i-customize-the-chatbots-responses)
+      - [Is it possible to integrate this chatbot into my existing website?](#is-it-possible-to-integrate-this-chatbot-into-my-existing-website)
+      - [How do I troubleshoot common issues during installation or operation?](#how-do-i-troubleshoot-common-issues-during-installation-or-operation)
+      - [What are the costs associated with using this portal?](#what-are-the-costs-associated-with-using-this-portal)
+      - [Is my data secure when using this chatbot portal?](#is-my-data-secure-when-using-this-chatbot-portal)
+      - [I don't see the `.env` file in my finder. Where do I add my key?](#i-dont-see-the-env-file-in-my-finder-where-do-i-add-my-key)
+      - [Where can I find more resources to learn about GPT-4 and API integrations?](#where-can-i-find-more-resources-to-learn-about-gpt-4-and-api-integrations)
+      - [What browsers and devices are compatible with the ChatBot Portal?](#what-browsers-and-devices-are-compatible-with-the-chatbot-portal)
+      - [How can users update their ChatBot Portal to the latest version?](#how-can-users-update-their-chatbot-portal-to-the-latest-version)
+      - [I have a suggestion or issue with the ChatBot Portal. How can I raise it?](#i-have-a-suggestion-or-issue-with-the-chatbot-portal-how-can-i-raise-it)
+    - [Glossary](#glossary)
+    - [Updates](#updates)
+      - [*Showcase* of **DALL·E 3**](#showcase-of-dalle-3)
+      - [**Token Costs Explained**](#token-costs-explained)
+        - [**Understanding the Costs and Usage Pattern**](#understanding-the-costs-and-usage-pattern)
+        - [**Session Cost Breakdown**](#session-cost-breakdown)
+          - [**Cost Components**](#cost-components)
+          - [**Second Request**](#second-request)
+          - [**Cumulative Session Cost**](#cumulative-session-cost)
+        - [**Key Considerations**](#key-considerations)
+        - [**Monthly Budget Analysis**](#monthly-budget-analysis)
+        - [**Further Token Use**](#further-token-use)
+      - [TODOs](#todos)
+    - [Quick-Start Guide](#quick-start-guide)
+      - [Step 2: Clone the Repository](#step-2-clone-the-repository)
+      - [Step 3: Install Dependencies](#step-3-install-dependencies)
+      - [Step 4: Set Up Environment Variables](#step-4-set-up-environment-variables)
+      - [Step 5: Start the Server](#step-5-start-the-server)
+      - [Step 6: Access the Chat Interface](#step-6-access-the-chat-interface)
+      - [Step 7: Using the Portal](#step-7-using-the-portal)
+      - [Troubleshooting Tips](#troubleshooting-tips)
+      - [Quick Tips](#quick-tips)
+  - [Docker](#docker)
+    - [Running the Application with Docker](#running-the-application-with-docker)
+      - [Docker Prerequisites](#docker-prerequisites)
+      - [Using Docker Compose](#using-docker-compose)
+    - [Building and Running with Docker Manually](#building-and-running-with-docker-manually)
+      - [Additional Information](#additional-information)
+  - [Contributions](#contributions)
+  - [License](#license)
 
 ## Features
 
@@ -80,7 +125,7 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
    - Use *Git* to clone the repository to your local machine:
 
      ```sh
-     git clone https://github.com/Zaki-1052/GPTPortal.git
+     git clone -b assistants https://github.com/Zaki-1052/GPTPortal.git
      ```
 
 2. **Navigate to the Project Directory**:
@@ -153,37 +198,69 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
         - Only *one image* can be generated per server *session*.
         - **Cost**: *$0.080 / image*
 
+### Advanced Use
+
+- **Specify Assistants**:
+  - Go to the [*OpenAI Assistants Dashboard*](https://platform.openai.com/assistants).
+  - Create or choose an existing Assistant.
+  - Copy the ID into the `.env` file.
+  - Example:
+
+```env
+ASSISTANT_ID=asst_D3yVjKPahWhzCdZIy525nh8D
+```
+
+- **Specify Threads**:
+  - After using an Assistant through the portal, find the [Conversation Thread ID](https://platform.openai.com/threads).
+  - Select the Thread ID you'd like to continue, and copy into your `.env` file.
+  - Example:
+
+```env
+THREAD_ID=thread_0LhmZXMUOljwx8jojB2dcMyU
+```
+
+- **Base Functionality**
+  - Without any specification, your first message will create a **Custom Assistant** and start a **Conversation Thread**.
+    - These will both be stored on OpenAI's servers.
+  - You can continue the conversation with this assistant throughout the server instance, and **export** your *conversation* to end it.
+  - You may pick up where you left off by specifying their IDs in the `.env` file.
+  - Otherwise, your **Assistant** will take the qualities of the *System Prompt*, uploaded *files*, and run *Code Interpreter* natively.
+  - Ask the AI to use its Python, ADA, or Code Interpreter tools to write and execute code, read your files, and more!
+  - The **Assistants API** uses the same backend as *ChatGPT-Plus*, but you only pay for what you actually use.
+
 ## Author Notes
 
 >**TODO**: *Explain Assistants API!*
 
-- **Smartest Snapshot of ChatGPT**: This application uses the latest GPT-4 model with vision capabilities. However, users can and perhaps should switch to the standard `gpt-4` model and adjust token limits (default is 4000) for different use cases.
-  - The Model Parameters, including the model itself, can be found on/around Line 200 in `server.js`, and has multiple comments to guide you if you're just getting started with customizing the API Responses.
-  - Be aware that although the API returns will be objectively better than what you receive on ChatGPT, usage adds up, and you may soon run out of credits.
+- **Smartest Snapshot of ChatGPT**: This application uses the GPT-4-Turbo model, previewed in ChatGPT-Plus.
+  - This model was released on *January 25, 2024* via **API** in order to address the **laziness** *problem*.
   - Always keep track of your token usage (relevant link found below), and adjust instructions and/or parameters when needed.
 - **Voice Chat**: Calls to OpenAI's proprietary *multi-modal APIs* via your key; be sure to keep an eye on your *expenses*.
 - **Billing for API Use**: A $5 deposit is required to access the *paid tier* of the OpenAI API. See OpenAI *Documentation* for billing setup.
-- **Understanding GPT Parameters**: The *Basics*
-  - **Temperature**: Controls randomness. Lower values make responses more predictable.
-  - **Max Tokens**: Determines the length of each completion.
-  - **Other Parameters**: Explore prompt engineering and comments for custom behaviors.
-- **API Chat Completions**: Tailor chat completions to your specific use case.
-- **Session Management**: Each page reload starts a new session. Session history isn't preserved.
-- **Custom Instructions**: Found in `instructions.md`. Modify user profile and instructions as needed. These are optimized for GPT-4 based on extensive research.
+- **System Prompt**: Found in `instructions.md`. Modify user profile and instructions as needed. 
+  - You can completely rewrite them for your desired 
 - For *security reasons*, this *web portal* requires the user to do some work of their own: *installing* the necessary dependencies and packages, adding their own *environment variables* like *API Key* and *HTTP Auth Credentials* (you can simply make these up) in a `.env` file, and manually running the *server* in your terminal.
   - Be assured that this repo is incapable of grabbing any information from the User, including their Key, but they should still be careful when experimenting with *Pull Requests*, regardless of the `.gitignore` file in the root of this repository.
-- Instructions for setting up **Google Gemini** through *Vertex AI Studio* with your **API Key** is below.
+  - Unlike the **Chat Completions API** on *Main*, *OpenAI* stores a copy of your *conversations* with **Assistants** on their servers.
+  - This *functionality* is currently in **Beta**.
 
 ### Further Explanations
 
-The OpenAI **API**, or *Application Programming Interface*, directly sends **HTTP** requests to the unsanitized and original *GPT-4 model*, and lets you customize certain weights of the model’s responses, like randomness or "temperature", and length or "tokens". You'll need to monitor your usage of the more expensive but intelligent **GPT-4** model, which will cost just over *10-20 Cents* per session, and needs you to add *Five Dollars* in credit to be able to use your **API Key**.
+The *OpenAI* **Assistants API**, or *Application Programming Interface*, utilizes a proprietary backend to accomplish the following:
 
-Be aware that at base usage of this web application, you send roughly 1000 tokens for one message to GPT-4, or three cents, and another six cents will be used when it responds with over 1000 words. This is due to the information *concatenated* to the **System Prompt** in the *Custom Instructions*. This file will be sent in the **Conversation History** with each request.
+1. **Initializes** a new **Assistant** upon the first message received or the **upload** of a *new file*.
+2. *Receives* the **Model ID**, the **System Message**, and starts a **Python environment** in a *Jupyter Notebook*.
+3. It then either *finds* or *creates* a *new* **conversation thread**, and *starts* a new "**run**".
+4. **Appends** a new **message** to the *thread* and waits to **retrieve** a *run response*.
+5. **Displays** the *response* from the *Assistant* and *queues* a **new run**.
+6. **Lists** the **message history** in the *thread* for the *assistant* to *reply to*.
 
-Model behavior will be primarily influenced by whatever *context* is first provided to the API; it lacks a severe filter compared to ChatGPT with increased **steerability**, but is more *expensive* than the regular Chat Interface and will *restrict* you from sending messages once you are **rate-limited**.
+You'll need to monitor your usage of the more expensive but intelligent **GPT-4** model, which will cost just over *10-20 Cents* per session, and needs you to add *Five Dollars* in credit to be able to use your **API Key**. Be aware that at *base usage* of this web application, you will likely spend about 3-5 cents per short conversation, depending on which model you use.
+
+Model behavior will be primarily influenced by whatever *context* is first provided to the *API* in its **instructions**; it lacks a severe filter compared to ChatGPT with increased **steerability**, but is more *expensive* than the regular Chat Interface and will *restrict* you from sending messages once you are **rate-limited**.
 
 - Consult the provided links and **documentation** for more guidance on *Setup* and *Prompting*.
-- Users are encouraged to modify the **User Profile** in `instructions.md`, which can be found in the `public` directory, as well as the model name via `server.js`, found in the root of **GPTPortal**.
+- Users are encouraged to modify the **System Prompt** in `instructions.md`, which can be found in the `public` directory.
 - More information will be added about *Model Behavior* and *API Usage* to the **ReadMe** in the future.
 
 **IMPORTANT Note** : For the **Voice Functionality** *Feature*, due to *WebKit's*'s lack of codec support and firewalling, *Whisper* and *TTS* will **NOT** work on the **Safari** *Browser*; you will need to switch to Chrome (or any other Chromium fork, including Edge, Opera, Brave, etc.) or Firefox if you want to use the *Voice Chat*.
@@ -192,8 +269,6 @@ If you'd like to add Apple-Support to *MediaRecording* via *JavaScript* feel fre
 
 - If you know of a better way, feel free to submit a **Pull Request**!
 - The Relevant *Stack Overflow* Links are in this [*Arc Folder*](https://arc.net/space/04350A44-1A64-49DD-8196-FEA54DF31BDF).
-
-Lastly, if you have uploaded an image and are working with the Vision model, you may no longer switch models mid-conversation, as it will be unable to parse the content of the image in the conversation history. It is best to export the conversation and continue it separately.
 
 ### Guide: Basic Setup & Use
 
@@ -214,7 +289,7 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 
 - **Clone via Git**:
   - On a Mac, open '*Terminal*'; on *Windows*, open '*Command Prompt*'. These programs allow you to interact with your computer using text commands.
-  - Type `git clone https://github.com/Zaki-1052/GPTPortal.git` and press Enter. This command copies the ChatBot Portal code from GitHub to your computer.
+  - Type `git clone -b assistants https://github.com/Zaki-1052/GPTPortal.git` and press Enter. This command copies this branch of the ChatBot Portal code from GitHub to your computer.
 - **Navigate to the Directory**:
   - In the same window, type `cd GPTPortal` and press Enter. This moves you into the folder where the ChatBot Portal code is stored.
     - Be aware that in order to run the server for this repo, you will need to be in the root directory in your terminal. This means that if you rename and place it elsewhere (your Desktop, for example), you will need to `cd ~/Desktop/GPTPortal`, and use its new name before running.
@@ -549,6 +624,7 @@ Now, let's say for the second request, you include the initial request and respo
   - [ ] Function Calling
 - [x] Update ReadMe for Release
   - [x] Add Demo Video
+- [x] Make Assistants Branch
 
 ### Quick-Start Guide
 
@@ -563,7 +639,7 @@ Welcome to the ChatBot Portal Quickstart Guide! This guide is designed to help y
 - Run the command:
 
   ```bash
-  git clone https://github.com/Zaki-1052/GPTPortal.git
+  git clone -b assistants https://github.com/Zaki-1052/GPTPortal.git
   ```
 
 - Navigate to the project directory:

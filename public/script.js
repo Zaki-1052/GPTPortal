@@ -12,14 +12,14 @@
   const modelID = {
     "GPT-4": "gpt-4",
     "GPT-4-Turbo": "gpt-4-turbo-preview",
-    "GPT-3.5-Turbo": "gpt-3.5-turbo",
+    "GPT-3.5-Turbo": "gpt-3.5-turbo-0125",
   };
 
   
   const customModelNames = {
     "gpt-4": "GPT-4",
     "gpt-4-turbo-preview": "GPT-4-Turbo",
-    "gpt-3.5-turbo": "GPT-3.5-Turbo",
+    "gpt-3.5-turbo-0125": "GPT-3.5-Turbo",
   };
 
   
@@ -127,7 +127,7 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
     const modelDescriptions = {
       "gpt-4": "GPT-4: Most Intelligent — Default",
       "gpt-4-turbo-preview": "GPT-4-Turbo: ChatGPT-Plus Model — 128k Tokens",
-      "gpt-3.5-turbo": "GPT-3.5-Turbo: Cheapest Option Available",
+      "gpt-3.5-turbo-0125": "GPT-3.5-Turbo: Cheapest Option Available",
     };
     
   
@@ -177,10 +177,10 @@ document.getElementById('model-gpt-4').addEventListener('click', () => selectMod
     document.getElementById('model-gpt-4').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4"], event.currentTarget));
 
     document.getElementById('model-gpt-4-turbo').addEventListener('click', () => selectModel('gpt-4-turbo-preview'));
-document.getElementById('model-gpt-3.5').addEventListener('click', () => selectModel('gpt-3.5-turbo'));
+document.getElementById('model-gpt-3.5').addEventListener('click', () => selectModel('gpt-3.5-turbo-0125'));
 
 document.getElementById('model-gpt-4-turbo').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-turbo-preview"], event.currentTarget));
-document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-3.5-turbo"], event.currentTarget));
+document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-3.5-turbo-0125"], event.currentTarget));
 
 
 
