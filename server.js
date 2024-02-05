@@ -865,10 +865,10 @@ app.get('/portal', (req, res) => {
 
 // Start the server
 // Assuming `app` is an instance of your server (like an Express app)
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 
 // Listen only on the loopback interface (localhost)
-const HOST = process.env.HOST || 'localhost';
+const HOST = process.env.HOST;
 
 const server = app.listen(PORT, HOST, () => {
   console.log(`Server running at http://${HOST}:${PORT}`);
