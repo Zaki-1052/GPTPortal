@@ -753,7 +753,7 @@ conversationHistory.push(user_input);
       apiUrl = 'https://api.openai.com/v1/chat/completions';
     } else if (modelID.startsWith('mistral')) {
       headers = {
-        'Authorization': `Bearer ${process.env.MISTRAL_KEY}`,
+        'Authorization': `Bearer ${process.env.MISTRAL_API_KEY}`,
         // Add any Mistral-specific headers here if necessary
       };
       apiUrl = 'https://api.mistral.ai/v1/chat/completions';
@@ -761,7 +761,6 @@ conversationHistory.push(user_input);
 
     // Log the data payload just before sending it to the chosen API
     console.log("API URL", apiUrl);
-    console.log("Headers", headers);
     console.log(`Sending to ${modelID.startsWith('gpt') ? 'OpenAI' : 'Mistral'} API:`, JSON.stringify(data, null, 2));
 
     try {

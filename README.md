@@ -146,7 +146,7 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
       USER_USERNAME=Username
       USER_PASSWORD=Password
       GOOGLE_API_KEY=your_google_ai_key_here
-      MISTRAL_KEY=your_mistral_ai_key_here
+      MISTRAL_API_KEY=your_mistral_ai_key_here
      ```
 
 5. **Start the Server**:
@@ -346,7 +346,7 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 - The [Mistral **Documentation**](https://docs.mistral.ai/redocusaurus/plugin-redoc-0.yaml) for **Chat Completions** is linked [**here**](https://docs.mistral.ai/api/#operation/createChatCompletion) as well.
 - Please follow the same steps for inserting your **API Key** into the `.env` file.
 - See the above instructions, applied to "`your_mistral_ai_key_here`".
-  - *Create a New Key*, and insert it into the correct **`MISTRAL_KEY`**.
+  - *Create a New Key*, and insert it into the correct **`MISTRAL_API_KEY`**.
   - The largest *Mistral Model* is said to **beat** *Gemini Pro* at *most tasks*!
 
 ## Relevant [Links](https://arc.net/folder/B777A318-2A95-4C36-86AA-156166895CC2)
