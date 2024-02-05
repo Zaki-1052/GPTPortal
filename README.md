@@ -302,7 +302,8 @@ If you'd like to add Apple-Support to *MediaRecording* via *JavaScript* feel fre
   - [Usage Tiers](https://platform.openai.com/docs/guides/rate-limits/usage-tiers) - Details on different usage tiers and their limits.
 - [Prompt Engineering](https://platform.openai.com/docs/guides/prompt-engineering) - A guide to effective prompt engineering with OpenAI models.
 - [OpenAI Tokenizer](https://platform.openai.com/tokenizer) - Visit the OpenAI Token Counter to determine message lengths.
-- [Assistants Overview](https://platform.openai.com/docs/assistants/overview) - Documentation reference guide for GPT models on parameters and completion objects.
+- [Assistants Overview](https://platform.openai.com/docs/assistants/overview) - Documentation for GPT models on Assistants.
+- [Assistants Reference](https://platform.openai.com/docs/api-reference/assistants) - Reference guide for Assistants API.
 
 ### Author Links & Custom GPTs
 
