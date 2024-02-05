@@ -628,15 +628,17 @@ if (user_message === "Bye!") {
 
    // Retrieve model from the request
 
-  let user_input = {
+   let user_input = {
     role: "user",
-    content: []
+    content: '' // Initialize content as an empty string
 };
 
 // Add text content if present
 if (user_message) {
-    user_input.content.push({ type: "text", text: user_message });
+    // Directly assign user_message to content
+    user_input.content = user_message; // Assuming user_message is a string
 }
+
 
 // Check for image in the payload
 // Check for image in the payload
@@ -693,19 +695,21 @@ conversationHistory.push(user_input);
       model: modelID, // Use the model specified by the client
 
       messages: conversationHistory, // Includes the System Prompt, previous queries and responses, and your most recently sent message.
-      
-      max_tokens: 4000, // The maximum number of tokens to **generate** shared between the prompt and completion. The exact limit varies by model. 
-      // (One token is roughly 4 characters for standard English text)
-      
+
       temperature: 1, // Controls randomness: Lowering results in less random completions. 
       // As the temperature approaches zero, the model will become deterministic and repetitive.
       
       top_p: 1,  // Controls diversity via nucleus sampling: 0.5 means half of all likelihood-weighted options are considered.
+
+      max_tokens: 4000, // The maximum number of tokens to **generate** shared between the prompt and completion. The exact limit varies by model. 
+      // (One token is roughly 4 characters for standard English text)
       
-      frequency_penalty: 0, // How much to penalize new tokens based on their existing frequency in the text so far. 
+      // frequency_penalty: 0, 
+      // How much to penalize new tokens based on their existing frequency in the text so far. 
       // Decreases the model's likelihood to repeat the same line verbatim.
       
-      presence_penalty: 0, // How much to penalize new tokens based on whether they appear in the text so far.
+      // presence_penalty: 0, 
+      // How much to penalize new tokens based on whether they appear in the text so far.
       // Increases the model's likelihood to talk about new topics.
 
       stream: true, // streaming messages from server to api for better memory efficiency
@@ -834,6 +838,23 @@ app.get('/export-chat-html', (req, res) => {
   res.set('Content-Type', 'text/html');
   res.set('Content-Disposition', 'attachment; filename="' + (type === 'gemini' ? 'gemini_chat_history.html' : 'chat_history.html') + '"');
   res.send(htmlContent);
+
+  // No need to call res.end() after res.send(), as send() ends the response.
+  console.log("Chat history sent to client, initiating shutdown...");
+    
+  // This part might need to be moved or adjusted depending on your shutdown logic
+  if (isShuttingDown) {
+    return res.status(503).send('Server is shutting down');
+  }
+  
+  isShuttingDown = true; // Set the shutdown flag
+  // Delay before shutting down the server to allow file download
+  setTimeout(() => {
+    server.close(() => {
+      console.log("Server successfully shut down.");
+    });
+  }, 100); // 1-second delay
+  
 });
 
 
