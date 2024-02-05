@@ -18,7 +18,7 @@ const router = express.Router();
 
 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 const googleGenerativeAI = require("@google/generative-ai");
 const HarmBlockThreshold = googleGenerativeAI.HarmBlockThreshold;
 const HarmCategory = googleGenerativeAI.HarmCategory;
@@ -376,7 +376,9 @@ geminiHistory += 'User Prompt: ' + prompt + '\n';
 
 
 // Handle POST request to '/message'
-// Handle POST request to '/message' with file upload
+
+let headers;
+let apiUrl = '';
 
 app.post('/message', async (req, res) => {
   console.log("req.file:", req.file); // Check if the file is received
@@ -387,14 +389,31 @@ app.post('/message', async (req, res) => {
 
    // Retrieve model from the request
 
-  let user_input = {
+   let user_input = {
     role: "user",
-    content: []
+    content: '' // Initialize content as an empty string
 };
 
 // Add text content if present
 if (user_message) {
     user_input.content.push({ type: "text", text: user_message });
+}
+
+
+// Check for image in the payload
+// Check for image in the payload
+if (req.body.image) {
+  let base64Image;
+  // If req.file is defined, it means the image is uploaded as a file
+  if (req.file) {
+    base64Image = imageToBase64(req.file.path);
+  } else {
+    // If req.file is not present, fetch the image from the URL
+    base64Image = await imageURLToBase64(req.body.image);
+  }
+  if (base64Image) {
+    user_input.content.push({ type: "image_url", image_url: { url: base64Image } });
+  }
 }
 
 
@@ -436,19 +455,21 @@ conversationHistory.push(user_input);
       model: modelID, // Use the model specified by the client
 
       messages: conversationHistory, // Includes the System Prompt, previous queries and responses, and your most recently sent message.
-      
-      max_tokens: 4000, // The maximum number of tokens to **generate** shared between the prompt and completion. The exact limit varies by model. 
-      // (One token is roughly 4 characters for standard English text)
-      
+
       temperature: 1, // Controls randomness: Lowering results in less random completions. 
       // As the temperature approaches zero, the model will become deterministic and repetitive.
       
       top_p: 1,  // Controls diversity via nucleus sampling: 0.5 means half of all likelihood-weighted options are considered.
+
+      max_tokens: 4000, // The maximum number of tokens to **generate** shared between the prompt and completion. The exact limit varies by model. 
+      // (One token is roughly 4 characters for standard English text)
       
-      frequency_penalty: 0, // How much to penalize new tokens based on their existing frequency in the text so far. 
+      // frequency_penalty: 0, 
+      // How much to penalize new tokens based on their existing frequency in the text so far. 
       // Decreases the model's likelihood to repeat the same line verbatim.
       
-      presence_penalty: 0, // How much to penalize new tokens based on whether they appear in the text so far.
+      // presence_penalty: 0, 
+      // How much to penalize new tokens based on whether they appear in the text so far.
       // Increases the model's likelihood to talk about new topics.
 
       stream: true, // streaming messages from server to api for better memory efficiency
@@ -487,17 +508,29 @@ conversationHistory.push(user_input);
     // END
   
     // Define the headers with the Authorization and, if needed, Organization
-    const headers = {
-      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-      // If you're using an organization ID, uncomment the following line
-      // 'OpenAI-Organization': 'process.env.ORGANIZATION'
-    }; // And add it to the `.env` file. This is inapplicable to most users.
+    // Determine the API to use based on modelID prefix
+    if (modelID.startsWith('gpt')) {
+      headers = {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        // 'OpenAI-Organization': 'process.env.ORGANIZATION' // Uncomment if using an organization ID
+      };
+      apiUrl = 'https://api.openai.com/v1/chat/completions';
+    } else if (modelID.startsWith('mistral')) {
+      headers = {
+        'Authorization': `Bearer ${process.env.MISTRAL_API_KEY}`,
+        // Add any Mistral-specific headers here if necessary
+      };
+      apiUrl = 'https://api.mistral.ai/v1/chat/completions';
+    }
 
-    // Log the data payload just before sending it to the OpenAI API
-  console.log("Sending to OpenAI API:", JSON.stringify(data, null, 2));
-  
-  try {
-    const response = await axios.post('https://api.openai.com/v1/chat/completions', data, { headers, responseType: 'stream' });
+    // Log the data payload just before sending it to the chosen API
+    console.log("API URL", apiUrl);
+    console.log(`Sending to ${modelID.startsWith('gpt') ? 'OpenAI' : 'Mistral'} API:`, JSON.stringify(data, null, 2));
+
+    try {
+      const response = await axios.post(apiUrl, data, { headers, responseType: 'stream' });
+      // Process the response as needed
+        
     let buffer = '';
   
     response.data.on('data', (chunk) => {
@@ -566,25 +599,22 @@ app.get('/export-chat-html', (req, res) => {
   res.set('Content-Disposition', 'attachment; filename="' + (type === 'gemini' ? 'gemini_chat_history.html' : 'chat_history.html') + '"');
   res.send(htmlContent);
 
-  // Wait for the response to be fully sent before shutting down
-  res.end(() => {
-    console.log("Chat history sent to client, initiating shutdown...");
+  // No need to call res.end() after res.send(), as send() ends the response.
+  console.log("Chat history sent to client, initiating shutdown...");
     
-    if (isShuttingDown) {
-      return res.status(503).send('Server is shutting down');
+  // This part might need to be moved or adjusted depending on your shutdown logic
+  if (isShuttingDown) {
+    return res.status(503).send('Server is shutting down');
   }
-    
+  
   isShuttingDown = true; // Set the shutdown flag
-    // Delay before shutting down the server to allow file download
-    setTimeout(() => {
-      server.close(() => {
-        console.log("Server successfully shut down.");
-      });
-    }, 1000); // 1 seconds delay
-  });
-
-  return; // End the execution of the function here
-
+  // Delay before shutting down the server to allow file download
+  setTimeout(() => {
+    server.close(() => {
+      console.log("Server successfully shut down.");
+    });
+  }, 100); // 1-second delay
+  
 });
 
 
@@ -594,7 +624,12 @@ app.get('/portal', (req, res) => {
   
 
 // Start the server
+// Assuming `app` is an instance of your server (like an Express app)
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+
+// Listen only on the loopback interface (localhost)
+const HOST = process.env.HOST || 'localhost';
+
+const server = app.listen(PORT, HOST, () => {
+  console.log(`Server running at http://${HOST}:${PORT}`);
 });

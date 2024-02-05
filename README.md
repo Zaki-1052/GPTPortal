@@ -1,6 +1,6 @@
 # ChatBot Portal for Multi-Modal GPT-4 API
 
-Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision*, *Hearing*, and *Speaking* capabilities with *image-generation* and superior *Model Performance*. Now includes the **Google Gemini** models via *free* API!
+Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision*, *Hearing*, and *Speaking* capabilities with *image-generation* and superior *Model Performance*. Now includes the **Google Gemini** models via *free* API along with **Mistral AI**!
 
 ## IMPORTANT
 
@@ -23,6 +23,7 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
 - [Further Explanations](#further-explanations)
 - [Basic Guide](#guide-basic-setup--use)
 - [Google Gemini](#8-optional-google-gemini-setup)
+- [Mistral AI](#9-optional-mistral-ai-setup)
 - [Relevant Links](#relevant-links)
 - [Author Links](#author-links--custom-gpts)
 - [Research Papers](#research-papers)
@@ -62,6 +63,10 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
   - **Gemini-Pro**: Latest Google Model – GPT-3.5 Equivalent
     - **Free** Until February 2024!
   - **Gemini-Vision**: Multi-Modal Model – One-Time Use
+  - **Mistral**: *Tiny-Medium*
+    - Three *New* **Mistral AI** Models
+      - *Intelligence* **Varies** by *Size*
+      - A Description can be found under [**Mistral AI Setup**](#9-optional-mistral-ai-setup).
 
 ## Examples
 
@@ -143,15 +148,14 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 4. **Set Up Environment Variables**:
    - Create a `.env` file in the root directory.
      - Format shown in `.env.example`
-     - `API_KEY` is for Google AI.
    - Add your OpenAI API key and basic authentication:
 
      ```env
       OPENAI_API_KEY=your_api_key_here
       USER_USERNAME=Username
       USER_PASSWORD=Password
-      API_KEY=your_google_ai_key_here
-      PORT=3000
+      GOOGLE_API_KEY=your_google_ai_key_here
+      MISTRAL_API_KEY=your_mistral_ai_key_here
      ```
 
 5. **Start the Server**:
@@ -322,12 +326,37 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 - After accepting the terms, click on the button labeled **"Create API Key in New Project"**.
 - Once the API key is generated, it will be displayed on the screen.
 - Click the **copy** icon or manually select and copy the key to your clipboard.
-- Open the `.env` file and look for the line that reads `API_KEY=your_google_ai_key_here`.
+- Open the `.env` file and look for the line that reads `GOOGLE_API_KEY=your_google_ai_key_here`.
 - Replace `your_google_ai_key_here` with the API key you copied from Google AI Studio.
   - Ensure that the key is pasted correctly without any leading or trailing spaces.
 - Until **February 2024**, *Google Gemini-Pro* will be completely **free**!
 - This means that you do *not* need to set up any *billing* and can use this *Model API* immediately.
 - **Gemini-Ultra** will be added to this Portal when released, but will require payment to *Google*.
+
+#### 9. [*OPTIONAL*] **Mistral AI Setup**
+
+##### [**API Creation Link**](https://console.mistral.ai/user/api-keys/)
+
+##### [**Subscription Dashboard**](https://console.mistral.ai/billing/subscribe/)
+
+- Click on the links provided above to navigate to the *Mistral AI* **API Key** *generation* and *subscription* pages.
+- Once again, the link to the API page is [**here**](https://makersuite.google.com/app/apikey).
+- And you can subscribe for mandatory *payment* [**here**](https://console.mistral.ai/billing/subscribe/)
+  - The APIs are *paid*; pricing can be found [**here**](https://docs.mistral.ai/platform/pricing/).
+
+###### Mistral Pricing Table
+
+| MODEL         | INPUT         | OUTPUT        |
+|---------------|-------------------------|-------------------------|
+| Mistral-Tiny  | ¢0.02 / 1K tokens       | ¢0.05 / 1K tokens       |
+| Mistral-Small | ¢0.06 / 1K tokens       | ¢0.19 / 1K tokens       |
+| Mistral-Medium| ¢0.27 / 1K tokens       | ¢0.81 / 1K tokens       |
+
+- The [Mistral **Documentation**](https://docs.mistral.ai/redocusaurus/plugin-redoc-0.yaml) for **Chat Completions** is linked [**here**](https://docs.mistral.ai/api/#operation/createChatCompletion) as well.
+- Please follow the same steps for inserting your **API Key** into the `.env` file.
+- See the above instructions, applied to "`your_mistral_ai_key_here`".
+  - *Create a New Key*, and insert it into the correct **`MISTRAL_API_KEY`**.
+  - The largest *Mistral Model* is said to **beat** *Gemini Pro* at *most tasks*!
 
 ## Relevant [Links](https://arc.net/folder/B777A318-2A95-4C36-86AA-156166895CC2)
 
@@ -345,6 +374,8 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 - [Chat Completions](https://platform.openai.com/docs/api-reference/chat/create) - Documentation reference guide for GPT models on parameters and completion objects.
 - [Google API Key](https://makersuite.google.com/app/apikey) - Gemini AI Studio; create your API Key and paste it in the `.env` file.
 - [Model Parameters](https://ai.google.dev/docs/concepts#model_parameters) - Google's documentation on their Gemini model parameters.
+- [Mistral API Key](https://console.mistral.ai/user/api-keys/) - Create your Mistral API Key here.
+- [Mistral Documentation](https://docs.mistral.ai/) - Their Docs can be found here.
 
 ### Author Links & Custom GPTs
 
@@ -517,7 +548,9 @@ This **Updates** Section will showcase any further features added to the reposit
   - Follow instructions in the ReadMe to retrieve your Key from their *AI Studio*.
     - Link to Makersuite Key Generation Page is [**HERE**](https://makersuite.google.com/app/apikey).
     - More detailed installation instructions are [**HERE**](#8-optional-google-gemini-setup).
-- **IMPORTANT UPDATE**: As [**detailed**](#important), this is a stale branch functioning solely for voice conversations.
+- **Update #4**: The **Mistral AI** models have been added to the *model selector*.
+  - Similarly to *Google Gemini*, you will need to follow the instructions to setup your **API Key** and **billing**.
+    - **Installation** *Instructions* and *Further* **Information** can be found [**HERE**](#9-optional-mistral-ai-setup).
 
 ![Voice Interface](public/uploads/voice.jpeg)
 
@@ -640,6 +673,7 @@ Now, let's say for the second request, you include the initial request and respo
   - [ ] Function Calling
 - [x] Update ReadMe for Release
   - [x] Add Demo Video
+  - [x] Added Mistral APIs
 
 ### Quick-Start Guide
 
