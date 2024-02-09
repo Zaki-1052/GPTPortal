@@ -689,8 +689,40 @@ function displayMessage(message, type) {
 
       messageElement.appendChild(imageElement);
   } else {
+    // Check if message contains a code block
+  if (message.includes('```')) {
+    // Improved regex pattern to correctly identify and split code blocks
+    const parts = message.split(/(```[\s\S]+?```)/);
+    parts.forEach(part => {
+      if (part.startsWith('```') && part.endsWith('```')) {
+        // Handle code blocks
+        const codeContent = part.substring(3, part.length - 3);
+        const pre = document.createElement('pre');
+        const codeElement = document.createElement('code');
+        codeElement.innerText = codeContent; // Use innerText to display raw code content
+        pre.appendChild(codeElement);
+        messageElement.appendChild(pre);
+        // Add a "Copy Code" button for this code block
+        const copyCodeButton = document.createElement('button');
+        copyCodeButton.textContent = 'Copy Code';
+        copyCodeButton.onclick = function() { copyToClipboard(codeContent); };
+        pre.appendChild(copyCodeButton);
+        } else {
+          // This is regular text, render as markdown
+          const textSpan = document.createElement('span');
+          const rawHtml = marked.parse(part);
+          const safeHtml = DOMPurify.sanitize(rawHtml);
+          textSpan.innerHTML = safeHtml;
+          messageElement.appendChild(textSpan);
+          
+        }
+      });
+      const copyButton = document.createElement('button');
+      copyButton.textContent = 'Copy';
+      copyButton.onclick = function() { copyToClipboard(messageElement.innerText); };
+      messageElement.appendChild(copyButton);
+    } else {
       const messageText = document.createElement('span');
-
       // Convert markdown to HTML using marked.js and sanitize it with DOMPurify
       const rawHtml = marked.parse(message);
       const safeHtml = DOMPurify.sanitize(rawHtml);
@@ -698,10 +730,11 @@ function displayMessage(message, type) {
 
       const copyButton = document.createElement('button');
       copyButton.textContent = 'Copy';
-      copyButton.onclick = function() { copyToClipboard(messageText); };
+      copyButton.onclick = function() { copyToClipboard(messageText.textContent); };
 
       messageElement.appendChild(messageText);
       messageElement.appendChild(copyButton);
+    }
   }
 
   const chatBox = document.getElementById('chat-box');

@@ -630,31 +630,46 @@ if (user_message === "Bye!") {
 
    let user_input = {
     role: "user",
-    content: '' // Initialize content as an empty string
-};
+    content: [] // Default initialization
+  };
 
-// Add text content if present
-if (user_message) {
+   // Assuming modelID is declared globally and available here
+// Determine the structure of user_input.content based on modelID
+if (modelID.startsWith('gpt')) {
+
+  // Add text content if present
+  if (user_message) {
+      user_input.content.push({ type: "text", text: user_message });
+  }
+
+  // Check for image in the payload
+  if (req.body.image) {
+    let base64Image;
+    // If req.file is defined, it means the image is uploaded as a file
+    if (req.file) {
+      base64Image = imageToBase64(req.file.path);
+    } else {
+      // If req.file is not present, fetch the image from the URL
+      base64Image = await imageURLToBase64(req.body.image);
+    }
+    if (base64Image) {
+      user_input.content.push({ type: "image_url", image_url: { url: base64Image } });
+    }
+  }
+} else if (modelID.startsWith('mistral')) {
+  // For Mistral models, user_input.content is a string and set to user_message
+  user_input = {
+    role: "user",
+    content: ''
+  };
+  
+  if (user_message) {
     // Directly assign user_message to content
     user_input.content = user_message; // Assuming user_message is a string
+  }
+
 }
 
-
-// Check for image in the payload
-// Check for image in the payload
-if (req.body.image) {
-  let base64Image;
-  // If req.file is defined, it means the image is uploaded as a file
-  if (req.file) {
-    base64Image = imageToBase64(req.file.path);
-  } else {
-    // If req.file is not present, fetch the image from the URL
-    base64Image = await imageURLToBase64(req.body.image);
-  }
-  if (base64Image) {
-    user_input.content.push({ type: "image_url", image_url: { url: base64Image } });
-  }
-}
 
 
 conversationHistory.push(user_input);
