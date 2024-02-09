@@ -1,5 +1,25 @@
 // script.js
 
+// configures host and port 
+
+// Initialize a variable to hold the base URL
+let baseURL = 'http://localhost:3000'; // default value
+
+// Function to fetch configuration from the server
+async function fetchConfig() {
+  try {
+    const response = await fetch('/config');
+    const config = await response.json();
+    baseURL = `http://${config.host}:${config.port}`;
+    console.log(`Base URL set to: ${baseURL}`);
+  } catch (error) {
+    console.error("Error fetching configuration:", error);
+  }
+}
+
+fetchConfig();
+
+
   // detects safari browser
 
   function isSafariBrowser() {
@@ -56,7 +76,16 @@ let currentModelID = 'gpt-4'; // Global declaration
 let selectedImage = null;
 
 // Convert markdown to HTML using marked.js and sanitize it with DOMPurify
-marked.setOptions({ breaks: true }); // Enable new lines to be interpreted as <br>  
+marked.setOptions({
+  // Enable new lines to be interpreted as <br>
+  breaks: true,
+
+  // Syntax highlighting for code blocks
+  highlight: function(code, lang) {
+    const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+    return hljs.highlight(code, { language }).value;
+  }
+});    
 
 
 // Function to select a model and update the displayed text
@@ -108,7 +137,7 @@ async function handleImageGenerationRequest(message) {
   const prompt = message.substring("Generate:".length).trim();
 
   try {
-      const response = await fetch('http://localhost:3000/generate-image', {
+      const response = await fetch(`${baseURL}/generate-image`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt: prompt })
@@ -154,13 +183,13 @@ function displayGeneratedImage(imageUrl) {
 function sendShutdownMessage() {
   // Sending "Bye!" to both /message and Gemini endpoints
   const messagePayload = JSON.stringify({ message: "Bye!" });
-  const messageRequest = fetch('http://localhost:3000/message', {
+  const messageRequest = fetch(`${baseURL}/message`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: messagePayload
   });
 
-  const geminiRequest = fetch('http://localhost:3000/gemini', {
+  const geminiRequest = fetch(`${baseURL}/gemini`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: messagePayload
@@ -178,6 +207,7 @@ function sendShutdownMessage() {
 const selectedModelDisplayName = document.getElementById('selected-model').textContent.trim();
 
   document.addEventListener('DOMContentLoaded', () => {
+
     // Define model descriptions
     const modelDescriptions = {
       "gpt-4": "GPT-4: Most Intelligent — Default",
@@ -235,10 +265,10 @@ document.querySelector('.custom-select').addEventListener('click', toggleDropdow
     function determineEndpoint(modelID) {
       if (modelID.startsWith('gemini')) {
         isGemini = true;
-        return 'http://localhost:3000/gemini'; // URL for the Gemini endpoint
+        return `${baseURL}/gemini`; // URL for the Gemini endpoint
       } else {
         isGemini = false;
-        return 'http://localhost:3000/message'; // URL for the OpenAI endpoint
+        return `${baseURL}/message`; // URL for the OpenAI endpoint
       }
     }
     
@@ -574,7 +604,7 @@ async function uploadImageAndGetUrl(imageFile) {
   formData.append('image', imageFile);
 
   try {
-    const response = await fetch('http://localhost:3000/upload-image', {
+    const response = await fetch(`${baseURL}/upload-image`, {
       method: 'POST',
       body: formData
     });
@@ -609,7 +639,7 @@ async function uploadImageAndGetUrl(imageFile) {
             model: currentModelID,
             imageParts: imageFilename ? [{ filename: imageFilename, mimeType: 'image/jpeg' }] : []
           };
-          endpoint = 'http://localhost:3000/gemini'; // Gemini endpoint
+          endpoint = `${baseURL}/gemini`; // Gemini endpoint
         } else {
           // Prepare the payload for OpenAI API
           payload = {
@@ -618,7 +648,7 @@ async function uploadImageAndGetUrl(imageFile) {
             instructions: instructions,
             image: imageUrl // Existing image handling for OpenAI
           };
-          endpoint = 'http://localhost:3000/message'; // OpenAI endpoint
+          endpoint = `${baseURL}/message`; // OpenAI endpoint
         }
       
         try {

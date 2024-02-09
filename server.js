@@ -671,7 +671,6 @@ if (modelID.startsWith('gpt')) {
 }
 
 
-
 conversationHistory.push(user_input);
 
 
@@ -876,14 +875,23 @@ app.get('/export-chat-html', (req, res) => {
 app.get('/portal', (req, res) => {
     res.sendFile('portal.html', { root: 'public' });
   });
+
+  // Expose a configuration endpoint
+  app.get('/config', (req, res) => {
+    res.json({
+      host: process.env.HOST,
+      port: process.env.PORT
+    });
+  });
+
   
 
 // Start the server
-// Assuming `app` is an instance of your server (like an Express app)
-const PORT = process.env.PORT;
+// Ensure that the server can be accessed via any host
+app.set('trust proxy', true);
 
-// Listen only on the loopback interface (localhost)
-const HOST = process.env.HOST;
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
 
 const server = app.listen(PORT, HOST, () => {
   console.log(`Server running at http://${HOST}:${PORT}`);
