@@ -879,8 +879,8 @@ app.get('/portal', (req, res) => {
   // Expose a configuration endpoint
   app.get('/config', (req, res) => {
     res.json({
-      host: process.env.HOST,
-      port: process.env.PORT
+      host: HOST,
+      port: PORT
     });
   });
 
@@ -891,7 +891,7 @@ app.get('/portal', (req, res) => {
 app.set('trust proxy', true);
 
 const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || '0.0.0.0';
+const HOST = process.env.HOST || 'localhost';
 
 const server = app.listen(PORT, HOST, () => {
   console.log(`Server running at http://${HOST}:${PORT}`);
