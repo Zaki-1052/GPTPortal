@@ -56,10 +56,10 @@ let currentModelID = 'gpt-4'; // Global declaration
 let selectedImage = null;
 
 // Convert markdown to HTML using marked.js and sanitize it with DOMPurify
-marked.setOptions({ breaks: true }); // Enable new lines to be interpreted as <br>
+marked.setOptions({ breaks: true }); // Enable new lines to be interpreted as <br>  
 
-    
-    // Function to select a model and update the displayed text
+
+// Function to select a model and update the displayed text
 // Global variable to store the current model ID
 
 // Function to update the current model ID
@@ -749,14 +749,14 @@ function displayMessage(message, type) {
     
     // copy button feature
     
-    function copyToClipboard(messageText) {
-    navigator.clipboard.writeText(messageText.textContent).then(() => {
-      // Confirmation
-      console.log('Response copied to clipboard!');
-    }).catch(err => {
-      console.error('Error copying text: ', err);
-    });
-    }
+    // Updated copyToClipboard function to handle text parameter
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    console.log('Text copied to clipboard!');
+  }).catch(err => {
+    console.error('Error copying text: ', err);
+  });
+}
     
       
     });
