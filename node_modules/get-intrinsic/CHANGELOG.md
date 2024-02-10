@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.2.4](https://github.com/ljharb/get-intrinsic/compare/v1.2.3...v1.2.4) - 2024-02-05
+
+### Commits
+
+- [Refactor] use all 7 &lt;+ ES6 Errors from `es-errors` [`bcac811`](https://github.com/ljharb/get-intrinsic/commit/bcac811abdc1c982e12abf848a410d6aae148d14)
+
 ## [v1.2.3](https://github.com/ljharb/get-intrinsic/compare/v1.2.2...v1.2.3) - 2024-02-03
 
 ### Commits

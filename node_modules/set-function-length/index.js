@@ -5,7 +5,7 @@ var define = require('define-data-property');
 var hasDescriptors = require('has-property-descriptors')();
 var gOPD = require('gopd');
 
-var $TypeError = GetIntrinsic('%TypeError%');
+var $TypeError = require('es-errors/type');
 var $floor = GetIntrinsic('%Math.floor%');
 
 /** @typedef {(...args: unknown[]) => unknown} Func */

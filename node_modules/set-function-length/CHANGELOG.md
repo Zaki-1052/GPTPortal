@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.2.1](https://github.com/ljharb/set-function-length/compare/v1.2.0...v1.2.1) - 2024-02-06
+
+### Commits
+
+- [Dev Deps] update `call-bind`, `tape`, `typescript` [`d9a4601`](https://github.com/ljharb/set-function-length/commit/d9a460199c4c1fa37da9ebe055e2c884128f0738)
+- [Deps] update `define-data-property`, `get-intrinsic` [`38d39ae`](https://github.com/ljharb/set-function-length/commit/38d39aed13a757ed36211d5b0437b88485090c6b)
+- [Refactor] use `es-errors`, so things that only need those do not need `get-intrinsic` [`b4bfe5a`](https://github.com/ljharb/set-function-length/commit/b4bfe5ae0953b906d55b85f867eca5e7f673ebf4)
+
 ## [v1.2.0](https://github.com/ljharb/set-function-length/compare/v1.1.1...v1.2.0) - 2024-01-14
 
 ### Commits
