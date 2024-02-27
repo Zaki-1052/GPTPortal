@@ -35,7 +35,7 @@ fetchConfig();
     "GPT-4-32k": "gpt-4-32k",
     "GPT-4-Turbo": "gpt-4-turbo-preview",
     "GPT-3.5-Turbo": "gpt-3.5-turbo-0125",
-    "Gemini-Pro": "gemini-1.0-pro",
+    "Gemini-Pro": "gemini-pro",
     "Gemini-Pro-Vision": "gemini-pro-vision",
     "Gemini-1.5-Pro": "gemini-1.5-pro",
     "Gemini-Ultra": "gemini-1.0-ultra",
@@ -53,7 +53,7 @@ fetchConfig();
     "gpt-4-32k": "GPT-4-32k",
     "gpt-4-turbo-preview": "GPT-4-Turbo",
     "gpt-3.5-turbo-0125": "GPT-3.5-Turbo",
-    "gemini-1.0-pro": "Gemini-Pro",
+    "gemini-pro": "Gemini-Pro",
     "gemini-pro-vision": "Gemini-Pro-Vision",
     "gemini-1.5-pro": "Gemini-1.5-Pro",
     "gemini-1.0-ultra": "Gemini-Ultra",
@@ -223,7 +223,7 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       "gpt-4-32k": "GPT-4-32k: Longer Context Window — Higher Price",
       "gpt-4-turbo-preview": "GPT-4-Turbo: ChatGPT-Plus Model — 128k Tokens",
       "gpt-3.5-turbo-0125": "GPT-3.5-Turbo: Cheapest Option Available",
-      "gemini-1.0-pro": "Gemini-Pro: Google Bard Model — 3.5 Equivalent",
+      "gemini-pro": "Gemini-Pro: Google Bard Model — 3.5 Equivalent",
       "gemini-pro-vision": "Gemini-Vision: View Images — One-Time Use",
       "gemini-1.5-pro": "Gemini-Pro-1.5: Early Access — 1 Million Tokens",
       "gemini-1.0-ultra": "Gemini-Ultra: Largest Google Model — Unreleased",
@@ -302,13 +302,13 @@ document.getElementById('model-gpt-4-turbo').addEventListener('mouseover', (even
 document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-3.5-turbo-0125"], event.currentTarget));
 
 // Event listeners for selecting Gemini models
-document.getElementById('model-gemini-pro').addEventListener('click', () => selectModel('gemini-1.0-pro'));
+document.getElementById('model-gemini-pro').addEventListener('click', () => selectModel('gemini-pro'));
 document.getElementById('model-gemini-pro-vision').addEventListener('click', () => selectModel('gemini-pro-vision'));
 document.getElementById('model-gemini-1.5-pro').addEventListener('click', () => selectModel('gemini-1.5-pro'));
 document.getElementById('model-gemini-ultra').addEventListener('click', () => selectModel('gemini-1.0-ultra'));
 
 // Event listeners for showing Gemini model descriptions on hover
-document.getElementById('model-gemini-pro').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-1.0-pro"], event.currentTarget));
+document.getElementById('model-gemini-pro').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-pro"], event.currentTarget));
 document.getElementById('model-gemini-pro-vision').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-pro-vision"], event.currentTarget));
 document.getElementById('model-gemini-1.5-pro').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-1.5-pro"], event.currentTarget));
 document.getElementById('model-gemini-ultra').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-1.0-ultra"], event.currentTarget));
