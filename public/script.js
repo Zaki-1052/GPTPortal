@@ -35,11 +35,15 @@ fetchConfig();
     "GPT-4-32k": "gpt-4-32k",
     "GPT-4-Turbo": "gpt-4-turbo-preview",
     "GPT-3.5-Turbo": "gpt-3.5-turbo-0125",
-    "Gemini-Pro": "gemini-pro",
+    "Gemini-Pro": "gemini-1.0-pro",
     "Gemini-Pro-Vision": "gemini-pro-vision",
-    "Mistral-Tiny": "mistral-tiny",
-    "Mistral-Small": "mistral-small",
-    "Mistral-Medium": "mistral-medium"
+    "Gemini-1.5-Pro": "gemini-1.5-pro",
+    "Gemini-Ultra": "gemini-1.0-ultra",
+    "Mistral-Tiny": "mistral-tiny-2312",
+    "Mistral-8x7b": "mistral-small-2312",
+    "Mistral-Small": "mistral-small-latest",
+    "Mistral-Medium": "mistral-medium-latest",
+    "Mistral-Large": "mistral-large-latest"
   };
 
   
@@ -49,11 +53,15 @@ fetchConfig();
     "gpt-4-32k": "GPT-4-32k",
     "gpt-4-turbo-preview": "GPT-4-Turbo",
     "gpt-3.5-turbo-0125": "GPT-3.5-Turbo",
-    "gemini-pro": "Gemini-Pro",
+    "gemini-1.0-pro": "Gemini-Pro",
     "gemini-pro-vision": "Gemini-Pro-Vision",
-    "mistral-tiny": "Mistral-Tiny",
-    "mistral-small": "Mistral-Small",
-    "mistral-medium": "Mistral-Medium"
+    "gemini-1.5-pro": "Gemini-1.5-Pro",
+    "gemini-1.0-ultra": "Gemini-Ultra",
+    "mistral-tiny-2312": "Mistral-Tiny",
+    "mistral-small-2312": "Mistral-8x7b",
+    "mistral-small-latest": "Mistral-Small",
+    "mistral-medium-latest": "Mistral-Medium",
+    "mistral-large-latest": "Mistral-Large"
   };
 
   
@@ -215,11 +223,15 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       "gpt-4-32k": "GPT-4-32k: Longer Context Window — Higher Price",
       "gpt-4-turbo-preview": "GPT-4-Turbo: ChatGPT-Plus Model — 128k Tokens",
       "gpt-3.5-turbo-0125": "GPT-3.5-Turbo: Cheapest Option Available",
-      "gemini-pro": "Gemini-Pro: Google Bard Model — 3.5 Equivalent",
+      "gemini-1.0-pro": "Gemini-Pro: Google Bard Model — 3.5 Equivalent",
       "gemini-pro-vision": "Gemini-Vision: View Images — One-Time Use",
-      "mistral-tiny": "Mistral-Tiny: Cheapest Model — English Proficient",
-      "mistral-small": "Mistral-Small: Smarter and More Costly",
-      "mistral-medium": "Mistral-Medium: Most Expensive — Beats Gemini"
+      "gemini-1.5-pro": "Gemini-Pro-1.5: Early Access — 1 Million Tokens",
+      "gemini-1.0-ultra": "Gemini-Ultra: Largest Google Model — Unreleased",
+      "mistral-tiny-2312": "Mistral-Tiny: Cheapest — Open Source 7B",
+      "mistral-small-2312": "Mixtral 7xB: Mixture of Experts (MoE) Model",
+      "mistral-small-latest": "Mistral-Small: Smarter — More Costly",
+      "mistral-medium-latest": "Mistral-Medium: Intelligent — Beats Gemini-Pro",
+      "mistral-large-latest": "Mistral-Large: Most Expensive and Intelligent"
     };
     
   
@@ -290,22 +302,30 @@ document.getElementById('model-gpt-4-turbo').addEventListener('mouseover', (even
 document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-3.5-turbo-0125"], event.currentTarget));
 
 // Event listeners for selecting Gemini models
-document.getElementById('model-gemini-pro').addEventListener('click', () => selectModel('gemini-pro'));
+document.getElementById('model-gemini-pro').addEventListener('click', () => selectModel('gemini-1.0-pro'));
 document.getElementById('model-gemini-pro-vision').addEventListener('click', () => selectModel('gemini-pro-vision'));
+document.getElementById('model-gemini-1.5-pro').addEventListener('click', () => selectModel('gemini-1.5-pro'));
+document.getElementById('model-gemini-ultra').addEventListener('click', () => selectModel('gemini-1.0-ultra'));
 
 // Event listeners for showing Gemini model descriptions on hover
-document.getElementById('model-gemini-pro').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-pro"], event.currentTarget));
+document.getElementById('model-gemini-pro').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-1.0-pro"], event.currentTarget));
 document.getElementById('model-gemini-pro-vision').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-pro-vision"], event.currentTarget));
+document.getElementById('model-gemini-1.5-pro').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-1.5-pro"], event.currentTarget));
+document.getElementById('model-gemini-ultra').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-1.0-ultra"], event.currentTarget));
 
 // Event listeners for selecting Mistral models
-document.getElementById('model-mistral-tiny').addEventListener('click', () => selectModel('mistral-tiny'));
-document.getElementById('model-mistral-small').addEventListener('click', () => selectModel('mistral-small'));
-document.getElementById('model-mistral-medium').addEventListener('click', () => selectModel('mistral-medium'));
+document.getElementById('model-mistral-tiny').addEventListener('click', () => selectModel('mistral-tiny-2312'));
+document.getElementById('model-mistral-8x7b').addEventListener('click', () => selectModel('mistral-small-2312'));
+document.getElementById('model-mistral-small').addEventListener('click', () => selectModel('mistral-small-latest'));
+document.getElementById('model-mistral-medium').addEventListener('click', () => selectModel('mistral-medium-latest'));
+document.getElementById('model-mistral-large').addEventListener('click', () => selectModel('mistral-large-latest'));
 
 // Event listeners for showing Mistral model descriptions on hover
-document.getElementById('model-mistral-tiny').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-tiny"], event.currentTarget));
-document.getElementById('model-mistral-small').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-small"], event.currentTarget));
-document.getElementById('model-mistral-medium').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-medium"], event.currentTarget));
+document.getElementById('model-mistral-tiny').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-tiny-2312"], event.currentTarget));
+document.getElementById('model-mistral-8x7b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-small-2312"], event.currentTarget));
+document.getElementById('model-mistral-small').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-small-latest"], event.currentTarget));
+document.getElementById('model-mistral-medium').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-medium-latest"], event.currentTarget));
+document.getElementById('model-mistral-large').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-medium-latest"], event.currentTarget));
 
   // Add mouseout event listener for all model buttons
   document.querySelectorAll('.select-options button').forEach(button => {

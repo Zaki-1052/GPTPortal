@@ -49,13 +49,15 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
     - Must be hosted on Microsoft Azure for access.
   - **GPT-4-Turbo**: Currently used in *ChatGPT Plus*
     - *Cheaper* and Longest Context, but *Less Intelligent*.
-      - Maximum Token Window: 128,000!
+      - Maximum Token Window: 128,000
   - **GPT-3.5-Turbo**: *Cheapest* Model
   - **Gemini-Pro**: Latest Google Model – GPT-3.5 Equivalent
     - **Free** Until February 2024!
   - **Gemini-Vision**: Multi-Modal Model – One-Time Use
+  - **Gemini-1.5-Pro**: Early Access Model – *1 Million Tokens*!
+  - **Gemini-Ultra**: Currently *Unreleased* – Largest Model
   - **Mistral**: *Tiny-Medium*
-    - Three *New* **Mistral AI** Models
+    - **Five** *New* **Mistral AI** Models
       - *Intelligence* **Varies** by *Size*
       - A Description can be found under [**Mistral AI Setup**](#9-optional-mistral-ai-setup).
 
@@ -320,7 +322,7 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 - Open the `.env` file and look for the line that reads `GOOGLE_API_KEY=your_google_ai_key_here`.
 - Replace `your_google_ai_key_here` with the API key you copied from Google AI Studio.
   - Ensure that the key is pasted correctly without any leading or trailing spaces.
-- Until **February 2024**, *Google Gemini-Pro* will be completely **free**!
+- Until **March 2024**, *Google Gemini-Pro* will be completely **free**!
 - This means that you do *not* need to set up any *billing* and can use this *Model API* immediately.
 - **Gemini-Ultra** will be added to this Portal when released, but will require payment to *Google*.
 
@@ -334,20 +336,29 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 - Once again, the link to the API page is [**here**](https://makersuite.google.com/app/apikey).
 - And you can subscribe for mandatory *payment* [**here**](https://console.mistral.ai/billing/subscribe/)
   - The APIs are *paid*; pricing can be found [**here**](https://docs.mistral.ai/platform/pricing/).
+  - The *Model Selection* can be found [**here**](https://docs.mistral.ai/guides/model-selection/).
 
 ###### Mistral Pricing Table
 
-| MODEL         | INPUT         | OUTPUT        |
-|---------------|-------------------------|-------------------------|
-| Mistral-Tiny  | ¢0.02 / 1K tokens       | ¢0.05 / 1K tokens       |
-| Mistral-Small | ¢0.06 / 1K tokens       | ¢0.19 / 1K tokens       |
-| Mistral-Medium| ¢0.27 / 1K tokens       | ¢0.81 / 1K tokens       |
+| Model          | Endpoint                | Input (USD)      | Output (USD)     |
+|----------------|-------------------------|------------------|------------------|
+| Mistral 7B     | `open-mistral-7b`       | $0.25 / 1M tokens | $0.25 / 1M tokens |
+| Mixtral 8x7B   | `open-mixtral-8x7b`     | $0.75 / 1M tokens | $0.75 / 1M tokens |
+| Mistral Small  | `mistral-small-latest`  | $2 / 1M tokens    | $6 / 1M tokens    |
+| Mistral Medium | `mistral-medium-latest` | $2.75 / 1M tokens | $8.1 / 1M tokens  |
+| Mistral Large  | `mistral-large-latest`  | $8 / 1M tokens    | $24 / 1M tokens   |
 
 - The [Mistral **Documentation**](https://docs.mistral.ai/redocusaurus/plugin-redoc-0.yaml) for **Chat Completions** is linked [**here**](https://docs.mistral.ai/api/#operation/createChatCompletion) as well.
 - Please follow the same steps for inserting your **API Key** into the `.env` file.
 - See the above instructions, applied to "`your_mistral_ai_key_here`".
   - *Create a New Key*, and insert it into the correct **`MISTRAL_API_KEY`**.
   - The largest *Mistral Model* is said to **beat** *Gemini Pro* at *most tasks*!
+
+###### Mistral Model Descriptions
+
+- [Mistral Small](https://docs.mistral.ai/guides/model-selection/#mistral-small-simple-tasks-that-one-can-do-in-bulk): Simple tasks that one can do in bulk
+- [Mistral Medium](https://docs.mistral.ai/guides/model-selection/#mistral-medium-intermediate-tasks-that-require-language-transformation): Intermediate tasks that require language transformation
+- [Mistral Large](https://docs.mistral.ai/guides/model-selection/#mistral-large-complex-tasks-that-require-large-reasoning-capabilities-or-are-highly-specialized): Complex tasks that require large reasoning capabilities or are highly specialized
 
 ## Relevant [Links](https://arc.net/folder/B777A318-2A95-4C36-86AA-156166895CC2)
 
