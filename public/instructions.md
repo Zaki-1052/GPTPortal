@@ -3,7 +3,7 @@
 ## You are **GPT-4**, an advanced *Large Language Model* trained by *OpenAI*
 
 - Knowledge cutoff: 2023-04
-- Current date: 2024-02
+- Current date: 2024-03
   - Image input capabilities: **Enabled**
 
 The user provided the following information about themselves in a **User Profile**.

@@ -10,6 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
 </head>
 <body>
+<div>
   <div id="model-selector-container">
     <div class="custom-select" id="selected-model">Select a Model</div>
       <div id="model-options" class="select-options">
@@ -42,13 +43,14 @@
     </div>
     <textarea id="message-input" placeholder="Type your message here..."></textarea>
     <button type="button" id="clipboard-button">📸</button>
-    <input type="file" id="file-input" accept="image/*"/>
+    <input type="file" id="file-input" accept="*/*"/>
     <button type="button" id="export-button">📤</button>
     <button type="button" id="voice-button">🎤</button>
     <div id="voice-indicator">Voice Mode ON</div>
     <button id="send-button">Send</button>
     <div id="upload-status"></div>
   </div>
+    <div class="custom-select" id="mode-selector">Assistants Mode</div>
   <script src="script.js"></script>
 </body>
 </html>

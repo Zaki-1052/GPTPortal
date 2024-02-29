@@ -146,6 +146,21 @@ body {
   cursor: pointer;
 }
 
+#mode-selector {
+  text-align: center; /* Center align the container */
+  padding: 6px; /* Add some padding */
+  margin-bottom: 70px; /* Space before the chat container */
+  padding: 10px; /* Padding inside the selector */
+  border-radius: 5px; /* Rounded corners */
+  border: 1px solid #5f6368; /* Border color */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Shadow effect */
+  align-content: center; /* Center align the container */
+  display: block; /* Ensure it's a block-level element */
+  width: 10%; /* Or any specific width */
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .select-options {
   display: none;
   position: absolute;

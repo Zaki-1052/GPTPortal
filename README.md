@@ -652,12 +652,17 @@ Now, let's say for the second request, you include the initial request and respo
   - [x] Audio
   - [x] Model Switching
 - [ ] Implement RAG
+  - [x] Flask
   - [ ] Vectors
   - [ ] Embeddings
   - [ ] Function Calling
 - [x] Update ReadMe for Release
   - [x] Add Demo Video
   - [x] Added Mistral APIs
+- [x] File Uploads
+- [x] Integrate Assistants
+- [x] Refactor
+- [ ] Write Docs
 
 ### Quick-Start Guide
 

@@ -27,6 +27,8 @@ fetchConfig();
   }
 
   let isGemini = false;
+  let assistantsMode = false;
+  let isAssistants = false;
 
 
   const modelID = {
@@ -271,15 +273,38 @@ document.querySelector('.custom-select').addEventListener('click', toggleDropdow
       }
     }
     
-    
+    // Toggle Assistants Mode on clicking the custom-select div
+  document.getElementById('mode-selector').addEventListener('click', () => {
+    // Toggle assistantsMode
+    assistantsMode = !assistantsMode;
+
+    // Update the visual indicator for Assistants Mode
+    const modeSelectorDiv = document.getElementById('mode-selector');
+    if (assistantsMode) {
+      modeSelectorDiv.style.backgroundColor = '#4CAF50'; // Example: change background to green
+      modeSelectorDiv.textContent = 'Assistants Mode ON'; // Update text to indicate mode is on
+      isAssistants = true;
+      currentModelID = 'gpt-4-turbo-preview';
+    } else {
+      modeSelectorDiv.style.backgroundColor = ''; // Reset background
+      modeSelectorDiv.textContent = 'Assistants Mode'; // Reset text
+      isAssistants = false;
+    }
+
+    console.log("Assistants Mode:", assistantsMode); // For debugging
+  });
 
 
     function determineEndpoint(modelID) {
       if (modelID.startsWith('gemini')) {
         isGemini = true;
         return `${baseURL}/gemini`; // URL for the Gemini endpoint
+      } if (assistantsMode = true) {
+        isAssistants = true;
+        return `${baseURL}/assistant`;
       } else {
         isGemini = false;
+        isAssistants = false;
         return `${baseURL}/message`; // URL for the OpenAI endpoint
       }
     }
@@ -399,13 +424,12 @@ document.getElementById('model-mistral-large').addEventListener('mouseover', (ev
       // Result of Send Button
 sendButton.addEventListener('click', async () => {
   const message = messageInput.value.trim();
-  const user_image = document.getElementById('file-input').files[0];
   messageInput.value = '';
 
   // Get the selected model's display name and convert it to the actual model ID
   setDefaultModel(); // Update default model if needed
 
-  if (message || user_image) {
+  if (message) {
       displayMessage(message, 'user');
       // Check if it's an image generation request
       if (isImageGenerationRequest(message)) {
@@ -413,7 +437,7 @@ sendButton.addEventListener('click', async () => {
       } else {
           // Existing code to handle regular messages
           try {
-              await sendMessageToServer(message, user_image); // Pass the message, image file, and model to the server
+              await sendMessageToServer(message); // Pass the message, image file, and model to the server
               if (voiceMode) {
                   // Call to TTS API to read the response
                   // This will be implemented in the displayMessage function
@@ -436,7 +460,16 @@ sendButton.addEventListener('click', async () => {
 
       // Function to export chat history based on the type (conversation or gemini)
       function exportChatHistory() {
-        const historyType = isGemini ? 'gemini' : 'conversation';
+        // Determine the history type based on isGemini and isAssistants flags
+        let historyType;
+        if (isGemini) {
+          historyType = 'gemini';
+        } else if (isAssistants) {
+          historyType = 'assistants';
+        } else {
+          historyType = 'conversation';
+        }
+        
         console.log("Exporting chat history for:", historyType);
         const exportUrl = '/export-chat-html?type=' + historyType;
         fetch(exportUrl)
@@ -456,7 +489,14 @@ sendButton.addEventListener('click', async () => {
       
 // Modify exportChatOnShutdown to use the isGemini flag
 function exportChatOnShutdown() {
-  const historyType = isGemini ? 'gemini' : 'conversation';
+  let historyType;
+  if (isGemini) {
+    historyType = 'gemini';
+  } else if (isAssistants) {
+    historyType = 'assistants';
+  } else {
+    historyType = 'conversation';
+  }
   exportChatHistory(historyType);
 }
 
@@ -591,17 +631,41 @@ function exportChatOnShutdown() {
     // END
       
     // Functions for handling image input files
-    
+      let fileId;
       // Placeholder function for clipboard button (to be implemented)
       document.getElementById('clipboard-button').addEventListener('click', () => {
         document.getElementById('file-input').click(); // Trigger file input
       });
-      document.getElementById('file-input').addEventListener('change', handleFileSelect, false);
     
-      function handleFileSelect(event) {
-        const file = event.target.files[0];
-        selectedImage = file;
+      document.getElementById('file-input').addEventListener('change', async (event) => {
+        let file = event.target.files[0];
+        // Check if the file is an image by looking at its MIME type
+        if (file && file.type.startsWith('image/')) {
+          selectedImage = file; // If it's an image, set it as the selectedImage
+          file = null;
+        } else if (file) {
+          fileUrl = await uploadFile(file);
+        }
+      });
+
+      async function uploadFile(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+      
+        try {
+          const response = await fetch(`${baseURL}/upload-file`, {
+            method: 'POST',
+            body: formData,
+          });
+          const data = await response.json();
+          return data.fileId; // Update according to the actual response structure
+        } catch (error) {
+          console.error('Error uploading file:', error);
+          // Handle error appropriately
+        }
       }
+
+      
     
       // Defining the messages sent
           
@@ -638,20 +702,45 @@ async function uploadImageAndGetUrl(imageFile) {
   
       // Send the message to the server and handle the response
 
-      async function sendMessageToServer(message) {
+      let initialize = false;
+      let messageCounter = 0;
+      let file;
+      let fileUrl;
 
+      async function sendMessageToServer(message) {    
         let imageUrl = null;
         let imageFilename = null;
         if (selectedImage) {
           imageUrl = await uploadImageAndGetUrl(selectedImage);
           // Extract filename from the imageUrl
           imageFilename = imageUrl.split('/').pop();
+        }    
+        if (file) {
+          // If it's not an image, treat it as a different type of file
+          fileUrl = await uploadFile(file); // Assume uploadFile is a function similar to uploadImageAndGetUrl for handling other files
+          // Extract filename from the fileUrl if necessary
+          const filename = fileUrl.split('/').pop();
+          // Proceed with any additional logic needed after the file upload
         }
-
-        const instructions = await fetchInstructions();
-        
         // Prepare the payload with the current model ID
         let payload, endpoint;
+        const instructions = await fetchInstructions();
+        if (isAssistants === true) {
+          if (messageCounter === 0) {
+            isFirstMessage = true
+            messageCounter +=1
+          } else {
+            isFirstMessage = false;
+          }
+          payload = {
+            message: message,
+            modelID: currentModelID,
+            instructions: instructions,
+            file: fileUrl, // Existing image handling for OpenAI
+            initialize: isFirstMessage
+          };
+          endpoint = 'http://localhost:3000/assistant'; // OpenAI endpoint
+        } else {
         if (currentModelID.startsWith('gemini')) {
           // Prepare the payload for Google Gemini API
           payload = {
@@ -666,11 +755,12 @@ async function uploadImageAndGetUrl(imageFile) {
             message: message,
             modelID: currentModelID,
             instructions: instructions,
-            image: imageUrl // Existing image handling for OpenAI
+            image: imageUrl, // Existing image handling for OpenAI
+            file: fileUrl
           };
           endpoint = `${baseURL}/message`; // OpenAI endpoint
         }
-      
+      }
         try {
           const response = await fetch(endpoint, {
             method: 'POST',
@@ -692,6 +782,8 @@ async function uploadImageAndGetUrl(imageFile) {
           if (endpoint.includes('gemini')) {
             // Direct text response from Gemini API
             messageContent = data.text || 'No response received.';
+          } else if (endpoint.includes('assistant')) {
+            messageContent = data.text.text || 'No response received.';
           } else {
             // Response from GPT API, expected to have a 'text' property
             messageContent = data.text || 'No response received.';
@@ -722,6 +814,7 @@ async function uploadImageAndGetUrl(imageFile) {
       return ''; // Return empty string in case of an error
     }
     }
+    
     
     
       // code for showing the message and speaking it
@@ -823,9 +916,9 @@ function updateUploadStatus(message) {
 // Modifying handleFileSelect function to include upload status update
 document.getElementById('file-input').addEventListener('change', function(event) {
   const file = event.target.files[0];
-  if (file && file.type.startsWith('image/')) {
-    updateUploadStatus('Image Uploaded: ' + file.name);
+  if (file) { // Removed the type check for demonstration purposes
+    updateUploadStatus('File Uploaded: ' + file.name);
   } else {
-    updateUploadStatus('No image selected');
+    updateUploadStatus('No file selected or unsupported file type');
   }
 });
