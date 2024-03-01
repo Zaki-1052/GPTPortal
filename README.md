@@ -263,6 +263,37 @@ THREAD_ID=thread_0LhmZXMUOljwx8jojB2dcMyU
   - **Temperature**: Controls randomness. Lower values make responses more predictable.
   - **Max Tokens**: Determines the length of each completion.
   - **Other Parameters**: Explore prompt engineering and comments for custom behaviors.
+  - *In order*:
+    - `model`: Uses the `modelID` specified by the client.
+    - `messages`: `conversationHistory` includes the System Prompt, previous queries and responses, and your most recently sent message.
+    - `temperature`: `1` by default...Controls randomness: Lowering results in less random completions.
+      - As the temperature approaches zero, the model will become deterministic and repetitive.
+    - `max_tokens`: `4000` by default due to *output* limits on the *turbo* model. 
+      - The maximum number of tokens to **generate** shared between the prompt and completion. Exact limits varies by model.
+      - (One token is roughly 4 characters for standard English text).
+      - `frequency_penalty`: `0` by default...
+        - How much to penalize new tokens based on their existing frequency in the text so far.
+        - Decreases the model's likelihood to repeat the same line verbatim.
+      - `presence_penalty`: `0` by default...
+        - How much to penalize new tokens based on whether they appear in the text so far.
+        - Increases the model's likelihood to talk about new topics.
+      - `stream`: `true`, streaming messages from server to api for better memory efficiency
+      - **Stop Sequences**: `stop: ["<YOUR_STOP_SEQUENCE_HERE>", "<ANOTHER_STOP_SEQUENCE>"],`
+        - Up to four sequences where the API will stop generating further tokens. 
+        - The returned text will not contain the stop sequence.
+      - **Best Of** - returns the best one out of multiple generations: `best_of: 3,`
+        - This parameter allows you to generate multiple completions in the backend and return the best one.
+      - **Logprobs** - number of log probabilities to return: `logprobs: 10,`
+        - This parameter specifies the number of log probabilities to return. 
+        - For example, setting logprobs: 10 will return the top 10 log probabilities for each token generated.
+      - **N** - number of completions to generate: `n: 2,`
+        - This parameter determines how many completions to generate for each prompt.
+        - If set to a number greater than 1, the model will return multiple responses,
+          - Useful if you want options.
+      - **Logit Bias** - adjusts likelihood of certain tokens:
+        - `logit_bias: {"<TOKEN_ID>": <BIAS_VALUE>, "<ANOTHER_TOKEN_ID>": <BIAS_VALUE>},`
+          - This allows you to increase or decrease the likelihood of certain tokens appearing in the output.
+          - It can be used to guide the model towards or away from specific themes or topics.
 - **API Chat Completions**: Tailor chat completions to your specific use case.
 - **Session Management**: Each page reload starts a new session. Session history isn't preserved.
 - **Custom Instructions**: Found in `instructions.md`. Modify user profile and instructions as needed. These are optimized for GPT-4 based on extensive research.
