@@ -602,6 +602,7 @@ function exportChatOnShutdown() {
         .then(data => {
           messageInput.value = data.text;
           isVoiceTranscription = data.text.startsWith("Voice Transcription: ");
+          copyToClipboard(data.text);
           voiceMode = false; // Turn off voice mode
         })
         .catch(console.error);

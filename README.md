@@ -1,6 +1,6 @@
 # ChatBot Portal for Multi-Modal GPT-4 API
 
-Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision*, *Hearing*, and *Speaking* capabilities with *image-generation* and superior *Model Performance*. Now includes the **Google Gemini** models via *free* API along with **Mistral AI**!
+Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision*, *Hearing*, and *Speaking* capabilities with *image-generation*, *file uploads*, and superior *Model Performance*. Now includes the **Google Gemini** models via *free* API along with **Mistral AI**, as well as a *native* **Code Environment** via **Assistants Mode** to reuse *files* and *instructions* from OpenAI's *Beta API*!
 
 ## Table of Contents
 
@@ -10,6 +10,7 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Assistants](#assistants-use)
 - [Author Notes](#author-notes)
 - [Further Explanations](#further-explanations)
 - [Basic Guide](#guide-basic-setup--use)
@@ -41,7 +42,11 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
 - **Export** as *HTML* **button** for *conversation history*.
 - Integrated **shutdown** *functionality* at "**Bye!**"
 - **Image Generation** with *DALL·E 3* at "**Generate:**".
-- New **Google Gemini** Models...Ultra *Coming Soon*!
+- **File Uploads** via manual *concatenation* for **large texts**.
+- **Assistants API Mode** for *reusable* files and *custom instructions*.
+  - Includes **Automatic Python Execution** in stateful *Jupyter Environment*.
+  - **Retrieval Augmented Generation** of *uploaded files*.
+- New **Google Gemini** & **Mistral** Models...Ultra *Coming Soon*!
 - **Model Selector** of various *OpenAI APIs*. Includes:
   - **GPT-4**: Default – Snapshot of the *Most Intelligent* Version
   - **GPT-4-Vision**: Able to View & Analyze *Images*
@@ -99,7 +104,7 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 
 - **portal.html**: The main HTML file for user interaction. It includes the chat interface layout, a message input area, an image upload and export button for history, voice chat functionality, a model selector, and it links to the `script.js` file.
 - **script.js**: Contains client-side logic for handling user inputs, sending messages and images to the server, and displaying marked responses in the chat interface. It also includes file selection for image uploads and a copy-to-clipboard function with support for exporting your current conversation history and changing models. Lastly, it handles voice conversations & text box formatting.
-- **server.js**: The server-side Node.js file using Express.js. It processes POST requests to `/message` and `/gemini`, interacts with the OpenAI GPT-4-Vision and Gemini APIs, along with Whisper and TTS, and manages CORS, Multer, basic authentication, and static file serving. Lastly, it handles conversation history and image generation, while hosting custom instructions.
+- **server.js**: The server-side Node.js file using Express.js. It processes POST requests to `/message`, `/gemini` and `/assistant`, interacts with the OpenAI GPT-4-Vision and Gemini/Mistral APIs, along with Whisper and TTS, and manages CORS, Multer, basic authentication, and static file serving. Lastly, it handles conversation history and image generation, while hosting custom instructions.
 - **instructions.md** & **geminiMessage.txt**: The model's System and Custom Instructions, customized for optimal responses & contextual prompt enhancement. These can be modified by the user to include background profiles.
 - **.env**: The *Environment Variable* file for your *sensitive passwords*. Must be modeled after the `.env.example` template.
 - **chat.css**: The *stylesheet* for the portal's *look* and *formatting*.
@@ -175,14 +180,26 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
   - Click the 🎤 microphone icon to activate *voice input*.
   - Speak your query or message, and toggle the button to end recording.
   - It will be processed by the *Whisper API* and seen in the input box.
+  - The result will also be automatically copied to your clipboard.
   - The model's response will be read back to you through a *text-to-speech API*.
 - **Uploading an Image**:
-  - Click the 📸 button to open the *file selector*.
+  - Click the 📋 button to open the *file selector*.
   - Choose an image file. It will be sent with your next message.
-    - **Update (~~DEPRECATED~~)**: The Default model selector is now the more intelligent GPT-4 without vision.
-      - If you would like to utilize the *Vision-Preview* model, which uses GPT-4-Turbo, as in ChatGPT, *select* the model.
-      - **UPDATE**: You can now simply choose your *preferred model* through the *dropdown menu* at the top of the interface.
-      - ~~Then, go to `server.js` in your preferred *Text Editor* and modify the "*model*" parameter to `gpt-4-vision-preview` as specified in the comments, which are there to guide you through the script and will be clearly marked.~~
+  - Use of the **GPT-4-Vision** Model is required to *analyze images*.
+    - If you would like to utilize the *Vision-Preview* model, which uses GPT-4-Turbo, as in ChatGPT, *select* the model.
+      - You can now simply choose your *preferred model* through the *dropdown menu* at the top of the interface.
+- **Upload a Text File**:
+  - Like the *image upload*, simply choose a compatible *text-file* and *send*.
+  - The *name* and *contents* will be *added* to your query.
+    - **All** *UTF-8* encoded *text-based* file-types are *fully supported*.
+- **Assistans API Mode**:
+  - Scroll under the main chat container to *toggle* **Assistants Mode**.
+    - An *indicator* will appear when it is *enabled*.
+  - Sending a new message and/or uploading a file will create a *new assistant* and *thread*.
+    - The former can be *reused* and the latter can be used to *continue the conversation* from where you left off.
+  - *GPT-4-Vision* is not currently supported by the *Assistants API*, but *retrieval* is enabled and can mimic it.
+  - Ask GPT to utilize *Python*, *Code Interpreter*, or *Advanced Data Analysis* in its response
+    - It will run the code in a native *Jupyter Notebook* and perform *file retrieval* operations under the hood.
 - **Model Selector**:
   - Click on the "*Select a Model*" button at the top.
   - Hover your cursor over the options to view *descriptions*.
@@ -200,13 +217,43 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
         - Only *one image* can be generated per server *session*.
         - **Cost**: *$0.080 / image*
 
+### Assistants Use
+
+- **Specify Assistants**:
+  - Go to the [*OpenAI Assistants Dashboard*](https://platform.openai.com/assistants).
+  - Create or choose an existing Assistant.
+  - Copy the ID into the `.env` file.
+  - Example:
+
+```env
+ASSISTANT_ID=asst_D3yVjKPahWhzCdZIy525nh8D
+```
+
+- **Specify Threads**:
+  - After using an Assistant through the portal, find the [Conversation Thread ID](https://platform.openai.com/threads).
+  - Select the Thread ID you'd like to continue, and copy into your `.env` file.
+  - Example:
+
+```env
+THREAD_ID=thread_0LhmZXMUOljwx8jojB2dcMyU
+```
+
+- **Base Functionality**
+  - Without any specification, your first message will create a **Custom Assistant** and start a **Conversation Thread**.
+    - These will both be stored on OpenAI's servers.
+  - You can continue the conversation with this assistant throughout the server instance, and **export** your *conversation* to end it.
+  - You may pick up where you left off by specifying their IDs in the `.env` file.
+  - Otherwise, your **Assistant** will take the qualities of the *System Prompt*, uploaded *files*, and run *Code Interpreter* natively.
+  - Ask the AI to use its Python, ADA, or Code Interpreter tools to write and execute code, read your files, and more!
+  - The **Assistants API** uses the same backend as *ChatGPT-Plus*, but you only pay for what you actually use.
+
 ## Author Notes
 
 >**IMPORTANT**: *These warnings no longer apply as of commits made 11/15.*
 
 [**~~Deprecated~~**]
 
-- **Smartest Snapshot of ChatGPT**: This application uses the latest GPT-4 model with vision capabilities. However, users can and perhaps should switch to the standard `gpt-4` model and adjust token limits (default is 4000) for different use cases.
+- **Smartest Snapshot of ChatGPT**: This application uses the `gpt-4` model without vision capabilities. However, users can switch to the standard `gpt-4-turbo-preview` model and adjust token limits (default is 4000) for different use cases.
   - The Model Parameters, including the model itself, can be found on/around Line 200 in `server.js`, and has multiple comments to guide you if you're just getting started with customizing the API Responses.
   - Be aware that although the API returns will be objectively better than what you receive on ChatGPT, usage adds up, and you may soon run out of credits.
   - Always keep track of your token usage (relevant link found below), and adjust instructions and/or parameters when needed.
@@ -662,7 +709,8 @@ Now, let's say for the second request, you include the initial request and respo
 - [x] File Uploads
 - [x] Integrate Assistants
 - [x] Refactor
-- [ ] Write Docs
+- [x] Start Documentation
+  - [ ] Finish docs
 
 ### Quick-Start Guide
 
