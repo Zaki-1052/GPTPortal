@@ -256,7 +256,7 @@ THREAD_ID=thread_0LhmZXMUOljwx8jojB2dcMyU
 - **Smartest Snapshot of ChatGPT**: This application uses the `gpt-4` model without vision capabilities. However, users can switch to the standard `gpt-4-turbo-preview` model and adjust token limits (default is 4000) for different use cases.
   - The Model Parameters, including the model itself, can be found on/around Line 200 in `server.js`, and has multiple comments to guide you if you're just getting started with customizing the API Responses.
   - Be aware that although the API returns will be objectively better than what you receive on ChatGPT, usage adds up, and you may soon run out of credits.
-  - Always keep track of your token usage (relevant link found below), and adjust instructions and/or parameters when needed.
+  - Always keep track of your token usage (relevant link found below); adjust instructions and/or parameters as needed.
 - **Voice Chat**: Calls to OpenAI's proprietary *multi-modal APIs* via your key; be sure to keep an eye on your *expenses*.
 - **Billing for API Use**: A $5 deposit is required to access the *paid tier* of the OpenAI API. See OpenAI *Documentation* for billing setup.
 - **Understanding GPT Parameters**: The *Basics*
@@ -279,12 +279,12 @@ THREAD_ID=thread_0LhmZXMUOljwx8jojB2dcMyU
         - Increases the model's likelihood to talk about new topics.
       - `stream`: `true`, streaming messages from server to api for better memory efficiency
       - **Stop Sequences**: `stop: ["<YOUR_STOP_SEQUENCE_HERE>", "<ANOTHER_STOP_SEQUENCE>"],`
-        - Up to four sequences where the API will stop generating further tokens. 
+        - Up to four sequences where the API will stop generating further tokens.
         - The returned text will not contain the stop sequence.
       - **Best Of** - returns the best one out of multiple generations: `best_of: 3,`
         - This parameter allows you to generate multiple completions in the backend and return the best one.
       - **Logprobs** - number of log probabilities to return: `logprobs: 10,`
-        - This parameter specifies the number of log probabilities to return. 
+        - This parameter specifies the number of log probabilities to return.
         - For example, setting logprobs: 10 will return the top 10 log probabilities for each token generated.
       - **N** - number of completions to generate: `n: 2,`
         - This parameter determines how many completions to generate for each prompt.
