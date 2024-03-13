@@ -57,7 +57,8 @@ export interface ImageCreateVariationParams {
     n?: number | null;
     /**
      * The format in which the generated images are returned. Must be one of `url` or
-     * `b64_json`.
+     * `b64_json`. URLs are only valid for 60 minutes after the image has been
+     * generated.
      */
     response_format?: 'url' | 'b64_json' | null;
     /**
@@ -100,7 +101,8 @@ export interface ImageEditParams {
     n?: number | null;
     /**
      * The format in which the generated images are returned. Must be one of `url` or
-     * `b64_json`.
+     * `b64_json`. URLs are only valid for 60 minutes after the image has been
+     * generated.
      */
     response_format?: 'url' | 'b64_json' | null;
     /**
@@ -138,7 +140,8 @@ export interface ImageGenerateParams {
     quality?: 'standard' | 'hd';
     /**
      * The format in which the generated images are returned. Must be one of `url` or
-     * `b64_json`.
+     * `b64_json`. URLs are only valid for 60 minutes after the image has been
+     * generated.
      */
     response_format?: 'url' | 'b64_json' | null;
     /**
