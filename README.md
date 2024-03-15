@@ -1,6 +1,6 @@
 # ChatBot Portal for Multi-Modal LLM APIs
 
-Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision*, *Hearing*, and *Speaking* capabilities with *image-generation*, *file uploads*, and superior *Model Performance*. Now includes the **Google Gemini** & **Anthropic Claude** models via *free* API along with **Mistral AI**, as well as a *native* **Code Environment** via **Assistants Mode** to reuse *files* and *instructions* from OpenAI's *Beta API*!
+Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision*, *Hearing*, and *Speaking* capabilities with *image-generation*, *file uploads*, and superior *Model Performance*. Now includes the **Google Gemini** & **Anthropic Claude** models via *free* API, plus **Mistral AI**, and a *native* **Code Environment** via **Assistants Mode** to reuse *files* and *instructions* from OpenAI's *Beta API*!
 
 ## Table of Contents
 
