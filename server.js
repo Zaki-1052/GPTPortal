@@ -274,6 +274,28 @@ initializeGeminiConversationHistory();
 
  // Function to convert conversation history to HTML
  function exportChatToHTML() {
+  // Log the current state of both conversation histories before deciding which one to use
+  console.log("Current GPT Conversation History: ", JSON.stringify(conversationHistory, null, 2));
+  console.log("Current Claude Conversation History: ", JSON.stringify(claudeHistory, null, 2));
+
+  let containsAssistantMessage = conversationHistory.some(entry => entry.role === 'assistant');
+
+  let chatHistory;
+  if (containsAssistantMessage) {
+      console.log("Using GPT conversation history because it's non-empty.");
+      chatHistory = conversationHistory;
+  } else {
+      console.log("Using Claude conversation history as GPT history is empty or undefined.");
+      chatHistory = [...claudeHistory];
+      chatHistory.unshift({
+        role: 'system',
+        content: systemMessage
+      });
+  }
+
+  // Log the determined chatHistory
+  console.log("Determined Chat History: ", JSON.stringify(chatHistory, null, 2));
+
   let htmlContent = `
     <html>
     <head>
@@ -291,7 +313,9 @@ initializeGeminiConversationHistory();
     <body>
   `;
 
-  conversationHistory.forEach(entry => {
+  console.log("Chat History: ", JSON.stringify(chatHistory, null, 2));
+
+  chatHistory.forEach(entry => {
     let formattedContent = '';
 
     if (Array.isArray(entry.content)) {
@@ -885,6 +909,8 @@ console.log(googleModel);
 
 let headers;
 let apiUrl = '';
+let data;
+let claudeHistory = [];
 
 app.post('/message', async (req, res) => {
   console.log("req.file:", req.file); // Check if the file is received
@@ -938,7 +964,7 @@ if (user_message === "Bye!") {
 
    // Assuming modelID is declared globally and available here
 // Determine the structure of user_input.content based on modelID
-if (modelID.startsWith('gpt')) {
+if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
 
   // Add text content if present
   if (user_message) {
@@ -972,7 +998,7 @@ if (modelID.startsWith('gpt')) {
     });
     }
   }
-} else if (modelID.startsWith('mistral')) {
+} else {
   // For Mistral models, user_input.content is a string and set to user_message
   user_input = {
     role: "user",
@@ -996,7 +1022,6 @@ if (modelID.startsWith('gpt')) {
 }
 
 
-conversationHistory.push(user_input);
 
 
 
@@ -1006,28 +1031,7 @@ conversationHistory.push(user_input);
 
 
     // Define the data payload with system message and additional parameters
-    const data = {
-
-      // model: "gpt-4-vision-preview", // Use "gpt-4" for non-vision capabilities.
-      // Model is specified here as the vision-capable GPT-4. 
-      // If users are using this portal solely for its intelligence, and do not care about "vision", then they should change the model name.
-      // The Model Name can be changed to: 
-      // model: "gpt-4",
-      // So Delete the "// " before "model" labelling GPT-4 and add/put them before "model: "gpt-4-vision-preview", if you'd like to switch.
-      // This is called "commenting out", and is good practice for code maintainability, like:
-      
-      // model: "gpt-4-vision-preview", 
-
-      // model: "gpt-4",
-
-      // there's also the higher 32k context model
-
-      // model: "gpt-4-32k",
-      
-      // use this longer context model **only** if you've considered the expenses properly
-
-      // The Default Model is now Default GPT-4, pointing to the snapshot released on August 13th. 
-      // If users would like to use Vision capabilities, please comment out the above model and comment in the "vision-preview" at the top.
+    data = {
 
 // UPDATE: Model Selector added for variability
 
@@ -1038,7 +1042,7 @@ conversationHistory.push(user_input);
       temperature: 1, // Controls randomness: Lowering results in less random completions. 
       // As the temperature approaches zero, the model will become deterministic and repetitive.
       
-      top_p: 1,  // Controls diversity via nucleus sampling: 0.5 means half of all likelihood-weighted options are considered.
+      // top_p: 1,  // Controls diversity via nucleus sampling: 0.5 means half of all likelihood-weighted options are considered.
 
       max_tokens: 4000, // The maximum number of tokens to **generate** shared between the prompt and completion. The exact limit varies by model. 
       // (One token is roughly 4 characters for standard English text)
@@ -1051,7 +1055,7 @@ conversationHistory.push(user_input);
       // How much to penalize new tokens based on whether they appear in the text so far.
       // Increases the model's likelihood to talk about new topics.
 
-      stream: true, // streaming messages from server to api for better memory efficiency
+      // stream: true, // streaming messages from server to api for better memory efficiency
       
        // Additional Parameters
   // Stop Sequences
@@ -1089,27 +1093,49 @@ conversationHistory.push(user_input);
     // Define the headers with the Authorization and, if needed, Organization
     // Determine the API to use based on modelID prefix
     if (modelID.startsWith('gpt')) {
+      conversationHistory.push(user_input);
       headers = {
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
         // 'OpenAI-Organization': 'process.env.ORGANIZATION' // Uncomment if using an organization ID
       };
       apiUrl = 'https://api.openai.com/v1/chat/completions';
     } else if (modelID.startsWith('mistral')) {
+      conversationHistory.push(user_input);
       headers = {
         'Authorization': `Bearer ${process.env.MISTRAL_API_KEY}`,
         // Add any Mistral-specific headers here if necessary
       };
       apiUrl = 'https://api.mistral.ai/v1/chat/completions';
+    } else if (modelID.startsWith('claude')) {
+      claudeHistory.push(user_input);
+      data = {
+        // New data structure for Claude model
+        model: modelID,
+        max_tokens: 4000,
+        temperature: 1,
+        system: systemMessage,
+        messages: claudeHistory,
+      };
+      headers = {
+        'x-api-key': `${process.env.CLAUDE_API_KEY}`,
+        'content-type': 'application/json',
+        'anthropic-version': '2023-06-01',
+        // Add any Mistral-specific headers here if necessary
+      };
+      apiUrl = 'https://api.anthropic.com/v1/messages';
     }
 
     // Log the data payload just before sending it to the chosen API
     console.log("API URL", apiUrl);
-    console.log(`Sending to ${modelID.startsWith('gpt') ? 'OpenAI' : 'Mistral'} API:`, JSON.stringify(data, null, 2));
+    console.log(`Sending to ${modelID.startsWith('gpt') ? 'OpenAI' : 'Mistral/Claude'} API:`, JSON.stringify(data, null, 2));
 
     try {
-      const response = await axios.post(apiUrl, data, { headers, responseType: 'stream' });
+      // const response = await axios.post(apiUrl, data, { headers, responseType: 'stream' });
+      const response = await axios.post(apiUrl, data, { headers });
       // Process the response as needed
-        
+        // optional streaming implentation (currently disabled)
+
+        /*
     let buffer = '';
   
     response.data.on('data', (chunk) => {
@@ -1130,26 +1156,46 @@ conversationHistory.push(user_input);
             }
           }
         }
+        */
+       let messageContent;
 
-        console.log(messageContent);
-        const lastMessageContent = messageContent;
+       if (modelID.startsWith('claude')) {
+        messageContent = response.data.content;
+      } else {
+        messageContent = response.data.choices[0].message.content;
+      }
+      const lastMessageContent = messageContent;
+        
   
         if (lastMessageContent) {
-          // Add assistant's message to the conversation history
-          conversationHistory.push({ role: "assistant", content: lastMessageContent.trim() });
-    
-          // Send this back to the client
-          res.json({ text: lastMessageContent.trim() });
+
+          console.log("Assistant Response: ", lastMessageContent)
+
+          if (modelID.startsWith('claude')) {
+            claudeHistory.push({ role: "assistant", content: lastMessageContent[0].text });
+            console.log("Claude History: ", claudeHistory);
+            res.json({ text: lastMessageContent[0].text });
+          } else {
+            // Add assistant's message to the conversation history
+            conversationHistory.push({ role: "assistant", content: lastMessageContent });
+            console.log("Conversation History: ", conversationHistory);
+            // Send this back to the client
+            res.json({ text: lastMessageContent });
+          }
+          
+          
+          
         } else {
           // Handle no content scenario
           res.status(500).json({ error: "No text was returned from the API" });
         }
+        /*
       } catch (parseError) {
         console.error('Error parsing complete response:', parseError.message);
         res.status(500).json({ error: "Error parsing the response from OpenAI API" });
       }
     });
-  
+  */
   } catch (error) {
     console.error('Error calling OpenAI API:', error.message);
     if (error.response) {

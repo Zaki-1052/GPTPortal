@@ -41,6 +41,12 @@ fetchConfig();
     "Gemini-Pro-Vision": "gemini-pro-vision",
     "Gemini-1.5-Pro": "gemini-1.5-pro",
     "Gemini-Ultra": "gemini-1.0-ultra",
+    "Claude-Opus": "claude-3-opus-20240229",
+    "Claude-Sonnet": "claude-3-sonnet-20240229",
+    "Claude-Haiku": "claude-3-haiku",
+    "Claude-2.1": "claude-2.1",
+    "Claude-2.0": "claude-2.0",
+    "Claude-1.2": "claude-instant-1.2",
     "Mistral-Tiny": "mistral-tiny-2312",
     "Mistral-8x7b": "mistral-small-2312",
     "Mistral-Small": "mistral-small-latest",
@@ -59,6 +65,12 @@ fetchConfig();
     "gemini-pro-vision": "Gemini-Pro-Vision",
     "gemini-1.5-pro": "Gemini-1.5-Pro",
     "gemini-1.0-ultra": "Gemini-Ultra",
+    "claude-3-opus-20240229": "Claude-Opus",
+    "claude-3-sonnet-20240229": "Claude-Sonnet",
+    "claude-3-haiku": "Claude-Haiku",
+    "claude-2.1": "Claude-2.1",
+    "claude-2.0": "Claude-2.0",
+    "claude-instant-1.2": "Claude-1.2",
     "mistral-tiny-2312": "Mistral-Tiny",
     "mistral-small-2312": "Mistral-8x7b",
     "mistral-small-latest": "Mistral-Small",
@@ -229,6 +241,12 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       "gemini-pro-vision": "Gemini-Vision: View Images — One-Time Use",
       "gemini-1.5-pro": "Gemini-Pro-1.5: Early Access — 1 Million Tokens",
       "gemini-1.0-ultra": "Gemini-Ultra: Largest Google Model — Unreleased",
+      "claude-3-opus-20240229": "Claude-Opus: Highest Performance — GPT-4 Level",
+      "claude-3-sonnet-20240229": "Claude-Sonnet: Cheaper Model — 3.5 Level",
+      "claude-3-haiku": "Claude-Haiku: Cheapest New Model — Unreleased",
+      "claude-2.1": "Claude-2.1: Best Instant Model",
+      "claude-2.0": "Claude-2.0: Average Cheap Model",
+      "claude-1.2": "Claude-1.2: Cheapest Instant Model",
       "mistral-tiny-2312": "Mistral-Tiny: Cheapest — Open Source 7B",
       "mistral-small-2312": "Mixtral 7xB: Mixture of Experts (MoE) Model",
       "mistral-small-latest": "Mistral-Small: Smarter — More Costly",
@@ -351,6 +369,23 @@ document.getElementById('model-mistral-8x7b').addEventListener('mouseover', (eve
 document.getElementById('model-mistral-small').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-small-latest"], event.currentTarget));
 document.getElementById('model-mistral-medium').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-medium-latest"], event.currentTarget));
 document.getElementById('model-mistral-large').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-medium-latest"], event.currentTarget));
+
+// Event listeners for selecting Claude models
+document.getElementById('model-claude-opus').addEventListener('click', () => selectModel('claude-3-opus-20240229'));
+document.getElementById('model-claude-sonnet').addEventListener('click', () => selectModel('claude-3-sonnet-20240229'));
+document.getElementById('model-claude-haiku').addEventListener('click', () => selectModel('claude-3-haiku'));
+document.getElementById('model-claude-2.1').addEventListener('click', () => selectModel('claude-2.1'));
+document.getElementById('model-claude-2.0').addEventListener('click', () => selectModel('claude-2.0'));
+document.getElementById('model-claude-1.2').addEventListener('click', () => selectModel('claude-instant-1.2'));
+
+// Event listeners for showing Claude model descriptions on hover
+document.getElementById('model-claude-opus').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-3-opus-20240229"], event.currentTarget));
+document.getElementById('model-claude-sonnet').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-3-sonnet-20240229"], event.currentTarget));
+document.getElementById('model-claude-haiku').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-3-haiku"], event.currentTarget));
+document.getElementById('model-claude-2.1').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-2.1"], event.currentTarget));
+document.getElementById('model-claude-2.0').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-2.0"], event.currentTarget));
+document.getElementById('model-claude-1.2').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-instant-1.2"], event.currentTarget));
+
 
   // Add mouseout event listener for all model buttons
   document.querySelectorAll('.select-options button').forEach(button => {
