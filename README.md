@@ -16,6 +16,7 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
 - [Basic Guide](#guide-basic-setup--use)
 - [Google Gemini](#8-optional-google-gemini-setup)
 - [Mistral AI](#9-optional-mistral-ai-setup)
+- [Anthropic Claude](#10-optional-anthropic-claude-setup)
 - [Relevant Links](#relevant-links)
 - [Author Links](#author-links--custom-gpts)
 - [Research Papers](#research-papers)
@@ -442,7 +443,12 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 
 ##### [**Anthropic Console**](https://console.anthropic.com/dashboard)
 
-- 
+##### [**API Creation Link**](https://console.anthropic.com/settings/keys)
+
+##### [**Billing Subscription**](https://console.anthropic.com/settings/plans)
+
+- Once again, navigate to the provided *API links* to create your key and manage your billing from **Anthropic**.
+- The pricing for various *Claude API* models can be found [**HERE**](https://www.anthropic.com/api).
 
 ## Relevant [Links](https://arc.net/folder/B777A318-2A95-4C36-86AA-156166895CC2)
 
