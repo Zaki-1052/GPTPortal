@@ -449,6 +449,24 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 
 - Once again, navigate to the provided *API links* to create your key and manage your billing from **Anthropic**.
 - The pricing for various *Claude API* models can be found [**HERE**](https://www.anthropic.com/api).
+- [**Anthropic Dashboard**](https://console.anthropic.com/dashboard) is here.
+- Create your **API Key** [*HERE*](https://console.anthropic.com/settings/keys).
+- Add your **Billing Details** [*HERE*](https://console.anthropic.com/settings/plans).
+
+###### Anthropic Pricing Table
+
+| Model         | Input Cost      | Output Cost     | Performance  |
+|---------------|-----------------|-----------------|--------------|
+| Opus          | $15 / MTok      | $75 / MTok      | Powerful     |
+| Sonnet        | $3 / MTok       | $15 / MTok      | Hard-working |
+| Haiku         | $0.25 / MTok    | $1.25 / MTok    | Light & Fast |
+| Claude 2.1    | $8 / MTok       | $24 / MTok      | 200k Context |
+| Claude 2.0    | $8 / MTok       | $24 / MTok      | 100k Context |
+| Claude Instant| $0.80 / MTok    | $2.40 / MTok    | 100k Context |
+
+- The [**Mistral Documentation**](https://docs.anthropic.com/claude/docs/intro-to-claude) is linked [*HERE*](https://docs.anthropic.com/claude/reference/messages_post) for **API Messages**.
+- Anthropic's [**Prompt Library**](https://docs.anthropic.com/claude/prompt-library) is also linked.
+- Anthropic claims that *Claude Opus* **beats** *GPT-4* in benchmarks!
 
 ## Relevant [Links](https://arc.net/folder/B777A318-2A95-4C36-86AA-156166895CC2)
 
