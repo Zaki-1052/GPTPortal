@@ -1,6 +1,6 @@
-# ChatBot Portal for Multi-Modal GPT-4 API
+# ChatBot Portal for Multi-Modal LLM APIs
 
-Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision*, *Hearing*, and *Speaking* capabilities with *image-generation*, *file uploads*, and superior *Model Performance*. Now includes the **Google Gemini** models via *free* API along with **Mistral AI**, as well as a *native* **Code Environment** via **Assistants Mode** to reuse *files* and *instructions* from OpenAI's *Beta API*!
+Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision*, *Hearing*, and *Speaking* capabilities with *image-generation*, *file uploads*, and superior *Model Performance*. Now includes the **Google Gemini** & **Anthropic Claude** models via *free* API along with **Mistral AI**, as well as a *native* **Code Environment** via **Assistants Mode** to reuse *files* and *instructions* from OpenAI's *Beta API*!
 
 ## Table of Contents
 
@@ -437,6 +437,12 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 - [Mistral Small](https://docs.mistral.ai/guides/model-selection/#mistral-small-simple-tasks-that-one-can-do-in-bulk): Simple tasks that one can do in bulk
 - [Mistral Medium](https://docs.mistral.ai/guides/model-selection/#mistral-medium-intermediate-tasks-that-require-language-transformation): Intermediate tasks that require language transformation
 - [Mistral Large](https://docs.mistral.ai/guides/model-selection/#mistral-large-complex-tasks-that-require-large-reasoning-capabilities-or-are-highly-specialized): Complex tasks that require large reasoning capabilities or are highly specialized
+
+#### 10. [*OPTIONAL*] **Anthropic Claude Setup**
+
+##### [**Anthropic Console**](https://console.anthropic.com/dashboard)
+
+- 
 
 ## Relevant [Links](https://arc.net/folder/B777A318-2A95-4C36-86AA-156166895CC2)
 
