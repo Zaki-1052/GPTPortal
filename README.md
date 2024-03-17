@@ -62,6 +62,8 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
   - **Gemini-Vision**: Multi-Modal Model – One-Time Use
   - **Gemini-1.5-Pro**: Early Access Model – *1 Million Tokens*!
   - **Gemini-Ultra**: Currently *Unreleased* – Largest Model
+  - **Claude Opus-Instant**: Six New *Anthropic* High *Performance* Models
+    - *Claude-Opus* is said to perform *better than GPT-4* at some tasks!
   - **Mistral**: *Tiny-Medium*
     - **Five** *New* **Mistral AI** Models
       - *Intelligence* **Varies** by *Size*
@@ -120,6 +122,10 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
   - See [**here**](https://platform.openai.com/api-keys) to *create your key*.
 - [*Optional*] Google AI Key for accessing *Gemini*. **Free** temporarily.
   - See [**here**](https://makersuite.google.com/app/apikey) to *create your key*.
+- [*Optional*] Anthropic API Key for accessing *Claude*. $5 in **free credit** granted.
+  - See [**here**](https://console.anthropic.com/settings/keys) to *create your key* and set up [**billing**](https://console.anthropic.com/settings/keys).
+- [*Optional*] Mistral AI Key for accessing *cheap* Mistral models.
+  - See [**here**](#9-optional-mistral-ai-setup) for further *setup*.
 
 ## Installation
 
@@ -661,6 +667,10 @@ This **Updates** Section will showcase any further features added to the reposit
 - **Update #4**: The **Mistral AI** models have been added to the *model selector*.
   - Similarly to *Google Gemini*, you will need to follow the instructions to setup your **API Key** and **billing**.
     - **Installation** *Instructions* and *Further* **Information** can be found [**HERE**](#9-optional-mistral-ai-setup).
+- **Update #5**: *Anthropic's* **Claude** models have been added to the *model selector*.
+  - Follow the instructions [**HERE**](#10-optional-anthropic-claude-setup) to set it up.
+- **Update #6**: An **Assistants Mode** for *OpenAI* has been added.
+  - Preliminary information on *usage* can be found [**HERE**](#assistants-use); more documentation will be added.
 
 #### *Showcase* of **DALL·E 3**
 
