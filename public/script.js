@@ -410,6 +410,58 @@ document.getElementById('model-claude-1.2').addEventListener('mouseover', (event
     document.addEventListener('DOMContentLoaded', () => {
       const sendButton = document.getElementById('send-button');
       const messageInput = document.getElementById('message-input');
+
+      document.addEventListener('keydown', (event) => {
+
+        // SHIFT+ESC for focusing the chat input
+        if (event.shiftKey && event.key === 'Escape') {
+          event.preventDefault();
+          messageInput.focus();
+        }
+    
+        // CMD+SHIFT+X for exporting chat history
+        if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'X') {
+          console.log("exporting");
+          event.preventDefault();
+          exportChatHistory();
+        }
+    
+        // CMD+SHIFT+R for toggling voice mode
+        if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'V') {
+          event.preventDefault();
+          voice();
+        }
+
+        // CMD+SHIFT+C for copying the latest chat message
+    if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'C') {
+      event.preventDefault();
+      const copyButtons = document.querySelectorAll('.message button'); // Get all buttons in messages
+      const latestCopyButton = Array.from(copyButtons).reverse().find(btn => btn.textContent.includes('Copy') && !btn.textContent.includes('Copy Code'));
+      if (latestCopyButton) {
+        latestCopyButton.click();
+      }
+    }
+
+    // CMD+SHIFT+; for copying the latest code block
+    if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === ';') {
+      event.preventDefault();
+      const copyCodeButtons = document.querySelectorAll('.message button'); // Get all buttons in messages
+      const latestCopyCodeButton = Array.from(copyCodeButtons).reverse().find(btn => btn.textContent.includes('Copy Code'));
+      if (latestCopyCodeButton) {
+        latestCopyCodeButton.click();
+      }
+    }
+
+    // CMD+SHIFT+F for focusing the file input
+    if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'F') {
+      event.preventDefault();
+      const fileInput = document.getElementById('file-input');
+      if (fileInput) {
+        fileInput.click(); // Trigger the file input dialog
+      }
+    }
+
+      });
   
       function autoExpand(field) {
         // Reset field height

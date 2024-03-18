@@ -48,6 +48,13 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
   - Includes **Automatic Python Execution** in stateful *Jupyter Environment*.
   - **Retrieval Augmented Generation** of *uploaded files*.
 - New **Google Gemini** & **Mistral** Models...Ultra *Coming Soon*!
+- **Keyboard Shortcuts**:
+  - `Shift + Esc`: Focuses the chat input box, allowing immediate typing.
+  - `Cmd/Ctrl + Shift + X`: Triggers the export chat history function.
+  - `Cmd/Ctrl + Shift + V`: Toggles the voice mode on and off.
+  - `Cmd/Ctrl + Shift + C`: Copies the text of the latest chat message to the clipboard.
+  - `Cmd/Ctrl + Shift + ;`: Copies the content of the latest code block to the clipboard.
+  - `Cmd/Ctrl + Shift + F`: Opens the file input dialog to allow file selection.
 - **Model Selector** of various *OpenAI APIs*. Includes:
   - **GPT-4**: Default – Snapshot of the *Most Intelligent* Version
   - **GPT-4-Vision**: Able to View & Analyze *Images*
