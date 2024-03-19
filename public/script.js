@@ -461,6 +461,12 @@ document.getElementById('model-claude-1.2').addEventListener('mouseover', (event
       }
     }
 
+    // CMD+SHIFT+A for toggling Assistant Mode
+    if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'A') {
+      event.preventDefault();
+      document.getElementById('mode-selector').click(); // Programmatically click the mode-selector
+  }
+
       });
   
       function autoExpand(field) {

@@ -55,6 +55,7 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
   - `Cmd/Ctrl + Shift + C`: Copies the text of the latest chat message to the clipboard.
   - `Cmd/Ctrl + Shift + ;`: Copies the content of the latest code block to the clipboard.
   - `Cmd/Ctrl + Shift + F`: Opens the file input dialog to allow file selection.
+  - `Cmd/Cntrl + Shift + A`: Toggles the Assistants Mode.
 - **Model Selector** of various *OpenAI APIs*. Includes:
   - **GPT-4**: Default – Snapshot of the *Most Intelligent* Version
   - **GPT-4-Vision**: Able to View & Analyze *Images*
@@ -224,6 +225,13 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
     - It will be an *HTML* document formatted in *Markdown*.
 - Type: "**Bye!**" in the text input box in order to *end the conversation* and *kill the server*.
   - This will also *Export* the *Conversation History*.
+- **Keyboard Shortcuts**:
+  - See the shortcuts listed above in *features*.
+  - They generally align with those of *ChatGPT*.
+    - Focus the text box with `Shift+Esc`.
+    - End & Export with `Control+Shift+X`.
+      - *Copying* is the same as CGPT (`C` & `;`).
+    - `Cmd+Shift` + `F` and `A` to *upload files* and *toggle Assistants* respectively.
 - **Image Generation**: *IMPORTANT!*
   - Specific *Syntax* is needed to activate *DALL·E 3*:
     - Type: "**Generate:**" followed by your prompt.
