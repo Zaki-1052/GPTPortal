@@ -126,7 +126,7 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
   - Specifically, the download link for various devices can be seen [**here**](https://nodejs.org/en/download).
 - [*Optional*] **Git** or **GitHub Desktop** to clone the repository.
   - You can also simply download the repo as a `.zip` file and place it elsewhere.
-- An OpenAI **API** key for accessing *GPT-4*. Billing Credit may be needed.
+- An OpenAI **API** key for accessing *GPT-4*. [Billing Credit](https://platform.openai.com/account/billing/) may be needed.
   - See [**here**](https://platform.openai.com/api-keys) to *create your key*.
 - [*Optional*] Google AI Key for accessing *Gemini*. **Free** temporarily.
   - See [**here**](https://makersuite.google.com/app/apikey) to *create your key*.
@@ -485,7 +485,7 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 | Claude 2.0    | $8 / MTok       | $24 / MTok      | 100k Context |
 | Claude Instant| $0.80 / MTok    | $2.40 / MTok    | 100k Context |
 
-- The [**Mistral Documentation**](https://docs.anthropic.com/claude/docs/intro-to-claude) is linked [*HERE*](https://docs.anthropic.com/claude/reference/messages_post) for **API Messages**.
+- The [**Claude Documentation**](https://docs.anthropic.com/claude/docs/intro-to-claude) is linked [*HERE*](https://docs.anthropic.com/claude/reference/messages_post) for **API Messages**.
 - Anthropic's [**Prompt Library**](https://docs.anthropic.com/claude/prompt-library) is also linked.
 - Anthropic claims that *Claude Opus* **beats** *GPT-4* in benchmarks!
 
@@ -507,6 +507,9 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 - [Model Parameters](https://ai.google.dev/docs/concepts#model_parameters) - Google's documentation on their Gemini model parameters.
 - [Mistral API Key](https://console.mistral.ai/user/api-keys/) - Create your Mistral API Key here.
 - [Mistral Documentation](https://docs.mistral.ai/) - Their Docs can be found here.
+- [Claude API Key](https://console.anthropic.com/settings/keys)
+- [Claude Documentation](https://docs.anthropic.com/)
+- [Anthropic Prompts](https://docs.anthropic.com/claude/prompt-library)
 
 ### Author Links & Custom GPTs
 
