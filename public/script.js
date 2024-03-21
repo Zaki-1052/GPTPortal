@@ -79,12 +79,12 @@ fetchConfig();
   };
 
   
-
+// Set the Default Model
 
 // Default model functionality
   function setDefaultModel() {
   let selectedModelDiv = document.getElementById("selected-model");
-  let defaultModel = "gpt-4";
+  let defaultModel = "gpt-4-turbo-preview";
 
   // Check if a model has been selected, if not, set to default model ID and update display
   if (selectedModelDiv.textContent.trim() === "Select a Model") {
@@ -93,7 +93,7 @@ fetchConfig();
   }
 }
 
-let currentModelID = 'gpt-4'; // Global declaration
+let currentModelID = 'gpt-4-turbo-preview'; // Global declaration
 
 let selectedImage = null;
 
