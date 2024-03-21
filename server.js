@@ -990,7 +990,23 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
     }
     if (base64Image) {
       user_input.content.push({ type: "text", text: imageName });
-      user_input.content.push({ type: "image_url", image_url: { url: base64Image } });
+      if (modelID.startsWith('claude')) {
+        // Split the base64 string to get the media type and actual base64 data
+        const [mediaPart, base64Data] = base64Image.split(';base64,');
+        const mediaType = mediaPart.split(':')[1]; // to get 'image/jpeg' from 'data:image/jpeg'
+
+        user_input.content.push({
+            type: "image",
+            source: {
+                type: "base64",
+                media_type: mediaType,
+                data: base64Data
+            }
+        });
+    } else {
+        user_input.content.push({ type: "image_url", image_url: { url: base64Image } });
+      }
+      
       // Optional: Clean up the uploaded file after sending to OpenAI
     fs.unlink(uploadedImagePath, (err) => {
       if (err) console.error("Error deleting temp file:", err);
