@@ -48,14 +48,7 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
   - Includes **Automatic Python Execution** in stateful *Jupyter Environment*.
   - **Retrieval Augmented Generation** of *uploaded files*.
 - New **Google Gemini** & **Mistral** Models...Ultra *Coming Soon*!
-- **Keyboard Shortcuts**:
-  - `Shift + Esc`: Focuses the chat input box, allowing immediate typing.
-  - `Cmd/Ctrl + Shift + X`: Triggers the export chat history function.
-  - `Cmd/Ctrl + Shift + V`: Toggles the voice mode on and off.
-  - `Cmd/Ctrl + Shift + C`: Copies the text of the latest chat message to the clipboard.
-  - `Cmd/Ctrl + Shift + ;`: Copies the content of the latest code block to the clipboard.
-  - `Cmd/Ctrl + Shift + F`: Opens the file input dialog to allow file selection.
-  - `Cmd/Cntrl + Shift + A`: Toggles the Assistants Mode.
+- **Keyboard shortcuts** to control various *ChatGPT-like functions*.
 - **Model Selector** of various *OpenAI APIs*. Includes:
   - **GPT-4**: Default – Snapshot of the *Most Intelligent* Version
   - **GPT-4-Vision**: Able to View & Analyze *Images*
@@ -169,6 +162,7 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
       USER_PASSWORD=Password
       GOOGLE_API_KEY=your_google_ai_key_here
       MISTRAL_API_KEY=your_mistral_ai_key_here
+      CLAUDE_API_KEY=your_anthropic_ai_key_here
      ```
 
 5. **Start the Server**:
@@ -226,12 +220,13 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 - Type: "**Bye!**" in the text input box in order to *end the conversation* and *kill the server*.
   - This will also *Export* the *Conversation History*.
 - **Keyboard Shortcuts**:
-  - See the shortcuts listed above in *features*.
-  - They generally align with those of *ChatGPT*.
-    - Focus the text box with `Shift+Esc`.
-    - End & Export with `Control+Shift+X`.
-      - *Copying* is the same as CGPT (`C` & `;`).
-    - `Cmd+Shift` + `F` and `A` to *upload files* and *toggle Assistants* respectively.
+  - `Shift + Esc`: Focuses the chat input box, allowing immediate typing.
+  - `Cmd/Ctrl + Shift + X`: Triggers the export chat history function.
+  - `Cmd/Ctrl + Shift + V`: Toggles the voice mode on and off.
+  - `Cmd/Ctrl + Shift + C`: Copies the text of the latest chat message to the clipboard.
+  - `Cmd/Ctrl + Shift + ;`: Copies the content of the latest code block to the clipboard.
+  - `Cmd/Ctrl + Shift + F`: Opens the file input dialog to allow file selection.
+  - `Cmd/Cntrl + Shift + A`: Toggles the Assistants Mode.
 - **Image Generation**: *IMPORTANT!*
   - Specific *Syntax* is needed to activate *DALL·E 3*:
     - Type: "**Generate:**" followed by your prompt.
@@ -281,6 +276,8 @@ THREAD_ID=thread_0LhmZXMUOljwx8jojB2dcMyU
   - Always keep track of your token usage (relevant link found below); adjust instructions and/or parameters as needed.
 - **Voice Chat**: Calls to OpenAI's proprietary *multi-modal APIs* via your key; be sure to keep an eye on your *expenses*.
 - **Billing for API Use**: A $5 deposit is required to access the *paid tier* of the OpenAI API. See OpenAI *Documentation* for billing setup.
+- **Custom Instructions**: If you'd like to adjust the model's *System Prompt*, you can modify the `instructions.md` file found in the **public** directory.
+  - It will be passed via *API*, so the model will follow these instructions at the expense of anything from the user!
 - **Understanding GPT Parameters**: The *Basics*
   - **Temperature**: Controls randomness. Lower values make responses more predictable.
   - **Max Tokens**: Determines the length of each completion.
@@ -319,6 +316,7 @@ THREAD_ID=thread_0LhmZXMUOljwx8jojB2dcMyU
 - **API Chat Completions**: Tailor chat completions to your specific use case.
 - **Session Management**: Each page reload starts a new session. Session history isn't preserved.
 - **Custom Instructions**: Found in `instructions.md`. Modify user profile and instructions as needed. These are optimized for GPT-4 based on extensive research.
+- **Streaming** is currently *disabled*, but if you'd like to re-enable it, you can *uncomment* the marked lines in `server.js`.
 - For *security reasons*, this *web portal* requires the user to do some work of their own: *installing* the necessary dependencies and packages, adding their own *environment variables* like *API Key* and *HTTP Auth Credentials* (you can simply make these up) in a `.env` file, and manually running the *server* in your terminal.
   - Be assured that this repo is incapable of grabbing any information from the User, including their Key, but they should still be careful when experimenting with *Pull Requests*, regardless of the `.gitignore` file in the root of this repository.
 - Instructions for setting up **Google Gemini** through *Vertex AI Studio* with your **API Key** is below.
