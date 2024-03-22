@@ -48,7 +48,7 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
   - Includes **Automatic Python Execution** in stateful *Jupyter Environment*.
   - **Retrieval Augmented Generation** of *uploaded files*.
 - New **Google Gemini** & **Mistral** Models...Ultra *Coming Soon*!
-- **Keyboard shortcuts** to control various *ChatGPT-like functions*.
+- **Keyboard Shortcuts** to control various *ChatGPT-like functions*.
 - **Model Selector** of various *OpenAI APIs*. Includes:
   - **GPT-4**: Default – Snapshot of the *Most Intelligent* Version
   - **GPT-4-Vision**: Able to View & Analyze *Images*
@@ -201,7 +201,7 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
   - Like the *image upload*, simply choose a compatible *text-file* and *send*.
   - The *name* and *contents* will be *added* to your query.
     - **All** *UTF-8* encoded *text-based* file-types are *fully supported*.
-- **Assistans API Mode**:
+- **Assistants API Mode**:
   - Scroll under the main chat container to *toggle* **Assistants Mode**.
     - An *indicator* will appear when it is *enabled*.
   - Sending a new message and/or uploading a file will create a *new assistant* and *thread*.
