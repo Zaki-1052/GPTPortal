@@ -1,4 +1,4 @@
 .env
 .DS_Store
-instructions.md
-geminiMessage.txt
+public/instructions.md
+public/geminiMessage.txt
