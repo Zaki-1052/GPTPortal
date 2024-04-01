@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="chat.css">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
 </head>
 <body>
 <div>
@@ -54,9 +55,14 @@
     <button type="button" id="voice-button">🎤</button>
     <div id="voice-indicator">Voice Mode ON</div>
     <button id="send-button">Send</button>
+    <div class="custom-select" id="mode-selector">Assistants Mode</div>
     <div id="upload-status"></div>
   </div>
-    <div class="custom-select" id="mode-selector">Assistants Mode</div>
+    <button id="edit-instructions-btn" class="custom-select">Edit Instructions</button>
+  <div id="edit-instructions-container" style="display:none;">
+    <textarea id="instructions-content" rows="10" cols="80"></textarea>
+    <button onclick="saveChanges()">Save Changes</button>
+  </div>
   <script src="script.js"></script>
 </body>
 </html>

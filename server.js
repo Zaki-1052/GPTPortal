@@ -1039,7 +1039,11 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
 
 
 
+let tokens = 4000;
 
+if (modelID === 'gpt-4') {
+  tokens = 6000; // If 'modelID' is 'gpt-4', set 'tokens' to 6000
+}
 
 
 // Model Parameters Below!
@@ -1258,6 +1262,27 @@ app.get('/export-chat-html', async (req, res) => {
     });
   }, 100); // 1-second delay
   
+});
+
+app.get('/get-instructions', (req, res) => {
+  fs.readFile('./public/instructions.md', 'utf8', (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error reading the file');
+    }
+    res.send(data);
+  });
+});
+
+app.post('/update-instructions', (req, res) => {
+  const newContent = req.body.content;
+  fs.writeFile('./public/instructions.md', newContent, 'utf8', (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send({ message: 'Error saving the file' });
+    }
+    res.send({ message: 'File updated successfully' });
+  });
 });
 
 

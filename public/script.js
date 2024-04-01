@@ -1016,3 +1016,46 @@ document.getElementById('file-input').addEventListener('change', function(event)
     updateUploadStatus('No file selected or unsupported file type');
   }
 });
+
+document.getElementById('edit-instructions-btn').addEventListener('click', function() {
+  const container = document.getElementById('edit-instructions-container');
+  const isHidden = container.style.display === 'none';
+  
+  // Toggle the display of the container
+  container.style.display = isHidden ? 'block' : 'none';
+  
+  // If we're showing the container, load the content and scroll to it
+  if (isHidden) {
+    fetch('/get-instructions')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('instructions-content').value = data;
+        container.scrollIntoView({ behavior: 'smooth' });
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }
+});
+
+function saveChanges() {
+  const content = document.getElementById('instructions-content').value;
+  fetch('/update-instructions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ content: content })
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Success:', data);
+    // Show a success message
+    alert('Changes saved successfully');
+    // Hide the edit container
+    document.getElementById('edit-instructions-container').style.display = 'none';
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
