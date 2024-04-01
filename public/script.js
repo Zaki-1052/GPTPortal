@@ -2,7 +2,7 @@
 
 // configures host and port 
 
-// Initialize a variable to hold the base URL
+/// Initialize a variable to hold the base URL
 let baseURL = 'http://localhost:3000'; // default value
 
 // Function to fetch configuration from the server

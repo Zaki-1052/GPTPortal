@@ -1285,28 +1285,28 @@ app.post('/update-instructions', (req, res) => {
   });
 });
 
-
-app.get('/portal', (req, res) => {
-    res.sendFile('portal.html', { root: 'public' });
-  });
-
-  // Expose a configuration endpoint
-  app.get('/config', (req, res) => {
-    res.json({
-      host: HOST,
-      port: PORT
-    });
-  });
-
   
 
 // Start the server
 // Ensure that the server can be accessed via any host
+// Set trust proxy to ensure the server can be accessed via any host
 app.set('trust proxy', true);
 
-const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || 'localhost';
+app.get('/portal', (req, res) => {
+  res.sendFile('portal.html', { root: 'public' });
+});
 
-const server = app.listen(PORT, HOST, () => {
-  console.log(`Server running at http://${HOST}:${PORT}`);
+// Expose a configuration endpoint for the client
+app.get('/config', (req, res) => {
+  res.json({
+    host: process.env.HOST_CLIENT || 'localhost',
+    port: process.env.PORT_CLIENT || 3000
+  });
+});
+
+const PORT_SERVER = process.env.PORT_SERVER || 3000;
+const HOST_SERVER = process.env.HOST_SERVER || '0.0.0.0';
+
+const server = app.listen(PORT_SERVER, HOST_SERVER, () => {
+  console.log(`Server running at http://${HOST_SERVER}:${PORT_SERVER}`);
 });
