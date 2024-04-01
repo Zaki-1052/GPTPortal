@@ -49,6 +49,7 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
   - **Retrieval Augmented Generation** of *uploaded files*.
 - New **Google Gemini** & **Mistral** Models...Ultra *Coming Soon*!
 - **Keyboard Shortcuts** to control various *ChatGPT-like functions*.
+- **Editable Custom Instructions** via a *frontend UI*.
 - **Model Selector** of various *OpenAI APIs*. Includes:
   - **GPT-4**: Default – Snapshot of the *Most Intelligent* Version
   - **GPT-4-Vision**: Able to View & Analyze *Images*
@@ -63,7 +64,7 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
   - **Gemini-Vision**: Multi-Modal Model – One-Time Use
   - **Gemini-1.5-Pro**: Early Access Model – *1 Million Tokens*!
   - **Gemini-Ultra**: Currently *Unreleased* – Largest Model
-  - **Claude Opus-Instant**: Six New *Anthropic* High *Performance* Models
+  - **Claude Opus-Instant**: *Six* New *Anthropic* High *Performance* Models
     - *Claude-Opus* is said to perform *better than GPT-4* at some tasks!
   - **Mistral**: *Tiny-Medium*
     - **Five** *New* **Mistral AI** Models
@@ -71,6 +72,9 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
       - A Description can be found under [**Mistral AI Setup**](#9-optional-mistral-ai-setup).
 
 ## Examples
+
+<details>
+<summary>Images/Demos</summary>
 
 ### Latest [**Demo**](https://youtu.be/MvuxNr60u0M) Video
 
@@ -104,6 +108,8 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 
 ![Base Interface](public/uploads/interface.jpeg)
 
+</details>
+
 ## Structure
 
 - **portal.html**: The main HTML file for user interaction. It includes the chat interface layout, a message input area, an image upload and export button for history, voice chat functionality, a model selector, and it links to the `script.js` file.
@@ -129,6 +135,12 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
   - See [**here**](#9-optional-mistral-ai-setup) for further *setup*.
 
 ## Installation
+
+### Vercel Deployment
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?template=[YOUR_GITHUB_REPOSITORY_URL]&env=OPENAI_API_KEY,USER_USERNAME,USER_PASSWORD,GOOGLE_API_KEY,MISTRAL_API_KEY,CLAUDE_API_KEY)
+
+### Manual Build
 
 1. **Clone the Repository**:
    - Use *Git* to clone the repository to your local machine:

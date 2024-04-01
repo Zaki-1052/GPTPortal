@@ -1292,21 +1292,40 @@ app.post('/update-instructions', (req, res) => {
 // Set trust proxy to ensure the server can be accessed via any host
 app.set('trust proxy', true);
 
+app.get('*', (req, res) => {
+  res.redirect('/public/portal.html');
+});
+
 app.get('/portal', (req, res) => {
   res.sendFile('portal.html', { root: 'public' });
 });
 
 // Expose a configuration endpoint for the client
 app.get('/config', (req, res) => {
-  res.json({
-    host: process.env.HOST_CLIENT || 'localhost',
-    port: process.env.PORT_CLIENT || 3000
-  });
+  // Check if running on Vercel
+  const isVercelEnvironment = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+
+  // If it's Vercel, we don't need to specify host and port
+  if (isVercelEnvironment) {
+    res.json({
+      // We could omit host and port entirely or set them to null/undefined
+      host: undefined,
+      port: undefined
+    });
+  } else {
+    // For non-Vercel environments, return the necessary configuration
+    res.json({
+      host: process.env.HOST_CLIENT || 'localhost',
+      port: process.env.PORT_CLIENT || 3000
+    });
+  }
 });
 
-const PORT_SERVER = process.env.PORT_SERVER || 3000;
-const HOST_SERVER = process.env.HOST_SERVER || '0.0.0.0';
 
-const server = app.listen(PORT_SERVER, HOST_SERVER, () => {
-  console.log(`Server running at http://${HOST_SERVER}:${PORT_SERVER}`);
+const isVercelEnvironment = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+const PORT = isVercelEnvironment ? process.env.PORT : process.env.PORT_SERVER || 3000;
+const HOST = isVercelEnvironment ? '0.0.0.0' : process.env.HOST_SERVER || 'localhost';
+
+const server = app.listen(PORT, HOST, () => {
+  console.log(`Server running at http://${HOST}:${PORT}`);
 });

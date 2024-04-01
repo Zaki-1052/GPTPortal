@@ -1,0 +1,24 @@
+{
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/public/portal.html"
+    }
+  ],
+  "env": {
+    "OPENAI_API_KEY": "",
+      "USER_USERNAME": "",
+      "USER_PASSWORD": "",
+      "GOOGLE_API_KEY": "",
+      "MISTRAL_API_KEY": "",
+      "CLAUDE_API_KEY": ""
+  },
+  "build": {
+    "env": {
+    }
+  }
+}
