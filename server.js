@@ -7,6 +7,10 @@ const axios = require('axios');
 const basicAuth = require('express-basic-auth');
 const fs = require('fs');
 const { marked } = require('marked');
+const bodyParser = require('body-parser');
+// Increase the limit for JSON bodies
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
 const app = express();
 app.use(express.json()); // for parsing application/json
 app.use(express.static('public')); // Serves your static files from 'public' directory
@@ -45,12 +49,6 @@ app.use(basicAuth({
   users: users,
   challenge: true
 }));
-
-const bodyParser = require('body-parser');
-
-// Increase the limit for JSON bodies
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
 
 
 // Serve uploaded files from the 'public/uploads' directory

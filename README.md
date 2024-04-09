@@ -138,7 +138,7 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 
 ### Vercel Deployment
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?template=[YOUR_GITHUB_REPOSITORY_URL]&env=OPENAI_API_KEY,USER_USERNAME,USER_PASSWORD,GOOGLE_API_KEY,MISTRAL_API_KEY,CLAUDE_API_KEY)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?template=[https://github.com/Zaki-1052/GPTPortal]&env=OPENAI_API_KEY,USER_USERNAME,USER_PASSWORD,GOOGLE_API_KEY,MISTRAL_API_KEY,CLAUDE_API_KEY)
 
 ### Manual Build
 
@@ -679,6 +679,14 @@ Please fully review this entire ReadMe page before raising an issue. Thank you!
 20. **Session**: A period of interaction with the ChatBot, beginning when the user starts the conversation and ending when they terminate it or after a period of inactivity. Sessions begin when you run `node server.js` in your terminal and end either when writing, "*Bye!*" in the text box or manually ending the server with `Control`+`C`.
 
 ### Updates
+
+**IMPORTANT**: To *update* your local copy of of the repository, run the following command after changing into the root directory:
+
+```bash
+git pull origin main
+```
+
+This will keep your `.env` configure file, but override the other code and bring the software *up-to-date* with the *latest updates*.
 
 This **Updates** Section will showcase any further features added to the repository.
 
