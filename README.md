@@ -282,7 +282,7 @@ THREAD_ID=thread_0LhmZXMUOljwx8jojB2dcMyU
 
 [**~~Deprecated~~**]
 
-- **Smartest Snapshot of ChatGPT**: This application uses the `gpt-4` model without vision capabilities. However, users can switch to the standard `gpt-4-turbo-preview` model and adjust token limits (default is 4000) for different use cases.
+- **Smartest Snapshot of ChatGPT**: This application uses the `gpt-4-turbo` model by default. However, users can switch to the old standard `gpt-4` model, which has a higher maxmimum completion output of 6000 tokens, rather than 4k.
   - The Model Parameters, including the model itself, can be found on/around Line 200 in `server.js`, and has multiple comments to guide you if you're just getting started with customizing the API Responses.
   - Be aware that although the API returns will be objectively better than what you receive on ChatGPT, usage adds up, and you may soon run out of credits.
   - Always keep track of your token usage (relevant link found below); adjust instructions and/or parameters as needed.

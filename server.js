@@ -463,7 +463,7 @@ let thread = null;
 let response = '';
 let initialize = true;
 let messages;
-let modelID = 'gpt-4-turbo-preview';
+let modelID = 'gpt-4-turbo';
 
 // Utility function to ensure Assistant and Thread initialization
 async function AssistantAndThread(modelID, systemMessage) {
@@ -1062,7 +1062,7 @@ if (modelID === 'gpt-4') {
       
       // top_p: 1,  // Controls diversity via nucleus sampling: 0.5 means half of all likelihood-weighted options are considered.
 
-      max_tokens: 4000, // The maximum number of tokens to **generate** shared between the prompt and completion. The exact limit varies by model. 
+      max_tokens: tokens, // The maximum number of tokens to **generate** shared between the prompt and completion. The exact limit varies by model. 
       // (One token is roughly 4 characters for standard English text)
       
       // frequency_penalty: 0, 
