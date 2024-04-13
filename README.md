@@ -51,21 +51,22 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
 - **Keyboard Shortcuts** to control various *ChatGPT-like functions*.
 - **Editable Custom Instructions** via a *frontend UI*.
 - **Model Selector** of various *OpenAI APIs*. Includes:
-  - **GPT-4**: Default – Snapshot of the *Most Intelligent* Version
-  - **GPT-4-Vision**: Able to View & Analyze *Images*
+  - **GPT-4**: Default – Snapshot of the *Old* Version
   - **GPT-4-32k**: Longer Context Window – More *Expensive*
     - Must be hosted on Microsoft Azure for access.
   - **GPT-4-Turbo**: Currently used in *ChatGPT Plus*
-    - *Cheaper* and Longest Context, but *Less Intelligent*.
-      - Maximum Token Window: 128,000
+    - *Cheaper* and Longest Context, with *Vision Analysis*.
+      - Maximum Token Window: *128,000*
   - **GPT-3.5-Turbo**: *Cheapest* Model
   - **Gemini-Pro**: Latest Google Model – GPT-3.5 Equivalent
     - **Free** Until February 2024!
   - **Gemini-Vision**: Multi-Modal Model – One-Time Use
   - **Gemini-1.5-Pro**: Early Access Model – *1 Million Tokens*!
   - **Gemini-Ultra**: Currently *Unreleased* – Largest Model
-  - **Claude Opus-Instant**: *Six* New *Anthropic* High *Performance* Models
-    - *Claude-Opus* is said to perform *better than GPT-4* at some tasks!
+  - **Claude Opus-Instant**:
+    - *Six* New *Anthropic* High *Performance* Models
+      - *Claude-Opus* is said to perform *better than GPT-4* at some tasks!
+      - A Description can be found under [**Anthropic AI Setup**](#10-optional-anthropic-claude-setup).
   - **Mistral**: *Tiny-Medium*
     - **Five** *New* **Mistral AI** Models
       - *Intelligence* **Varies** by *Size*
