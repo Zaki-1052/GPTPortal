@@ -1117,7 +1117,7 @@ if (modelID === 'gpt-4') {
         // 'OpenAI-Organization': 'process.env.ORGANIZATION' // Uncomment if using an organization ID
       };
       apiUrl = 'https://api.openai.com/v1/chat/completions';
-    } else if (modelID.startsWith('mistral')) {
+    } else if (modelID.includes('mistral') || modelID.includes('mixtral')) {
       conversationHistory.push(user_input);
       headers = {
         'Authorization': `Bearer ${process.env.MISTRAL_API_KEY}`,

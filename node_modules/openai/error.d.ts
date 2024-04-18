@@ -8,6 +8,7 @@ export declare class APIError extends OpenAIError {
     readonly code: string | null | undefined;
     readonly param: string | null | undefined;
     readonly type: string | undefined;
+    readonly request_id: string | null | undefined;
     constructor(status: number | undefined, error: Object | undefined, message: string | undefined, headers: Headers | undefined);
     private static makeMessage;
     static generate(status: number | undefined, errorResponse: Object | undefined, message: string | undefined, headers: Headers | undefined): APIError;

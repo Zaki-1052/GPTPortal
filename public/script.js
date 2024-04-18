@@ -48,8 +48,9 @@ fetchConfig();
     "Claude-2.1": "claude-2.1",
     "Claude-2.0": "claude-2.0",
     "Claude-1.2": "claude-instant-1.2",
-    "Mistral-Tiny": "mistral-tiny-2312",
-    "Mistral-8x7b": "mistral-small-2312",
+    "Mistral-Tiny": "open-mistral-7b",
+    "Mistral-8x7b": "open-mixtral-8x7b",
+    "Mistral-8x-22b": "open-mixtral-8x22b",
     "Mistral-Small": "mistral-small-latest",
     "Mistral-Medium": "mistral-medium-latest",
     "Mistral-Large": "mistral-large-latest"
@@ -71,8 +72,9 @@ fetchConfig();
     "claude-2.1": "Claude-2.1",
     "claude-2.0": "Claude-2.0",
     "claude-instant-1.2": "Claude-1.2",
-    "mistral-tiny-2312": "Mistral-Tiny",
-    "mistral-small-2312": "Mistral-8x7b",
+    "open-mistral-7b": "Mistral-Tiny",
+    "open-mixtral-8x7b": "Mistral-8x7b",
+    "open-mixtral-8x22b": "Mistral-8x22b",
     "mistral-small-latest": "Mistral-Small",
     "mistral-medium-latest": "Mistral-Medium",
     "mistral-large-latest": "Mistral-Large"
@@ -246,8 +248,9 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       "claude-2.1": "Claude-2.1: Best Instant Model — 200k Tokens",
       "claude-2.0": "Claude-2.0: Average Cheap Model — 100k Tokens",
       "claude-1.2": "Claude-1.2: Cheapest Instant Model — 100k Context",
-      "mistral-tiny-2312": "Mistral-Tiny: Cheapest — Open Source 7B",
-      "mistral-small-2312": "Mixtral 7xB: Mixture of Experts (MoE) Model",
+      "open-mistral-7b": "Mistral-Tiny: Cheapest — Open Source 7B",
+      "open-mixtral-8x7b": "Mixtral 8x7B: Mixture of Experts (MoE) Model",
+      "open-mixtral-8x22b": "Mixtral 8x22b: Strongest Open Source Model",
       "mistral-small-latest": "Mistral-Small: Smarter — More Costly",
       "mistral-medium-latest": "Mistral-Medium: Intelligent — Beats Gemini-Pro",
       "mistral-large-latest": "Mistral-Large: Most Expensive and Intelligent"
@@ -354,15 +357,17 @@ document.getElementById('model-gemini-1.5-pro').addEventListener('mouseover', (e
 document.getElementById('model-gemini-ultra').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-1.0-ultra"], event.currentTarget));
 
 // Event listeners for selecting Mistral models
-document.getElementById('model-mistral-tiny').addEventListener('click', () => selectModel('mistral-tiny-2312'));
-document.getElementById('model-mistral-8x7b').addEventListener('click', () => selectModel('mistral-small-2312'));
+document.getElementById('model-mistral-tiny').addEventListener('click', () => selectModel('open-mistral-7b'));
+document.getElementById('model-mistral-8x7b').addEventListener('click', () => selectModel('open-mixtral-8x7b'));
+document.getElementById('model-mistral-8x22b').addEventListener('click', () => selectModel('open-mixtral-8x22b'));
 document.getElementById('model-mistral-small').addEventListener('click', () => selectModel('mistral-small-latest'));
 document.getElementById('model-mistral-medium').addEventListener('click', () => selectModel('mistral-medium-latest'));
 document.getElementById('model-mistral-large').addEventListener('click', () => selectModel('mistral-large-latest'));
 
 // Event listeners for showing Mistral model descriptions on hover
-document.getElementById('model-mistral-tiny').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-tiny-2312"], event.currentTarget));
-document.getElementById('model-mistral-8x7b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-small-2312"], event.currentTarget));
+document.getElementById('model-mistral-tiny').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["open-mistral-7b"], event.currentTarget));
+document.getElementById('model-mistral-8x7b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["open-mixtral-8x7b"], event.currentTarget));
+document.getElementById('model-mistral-8x22b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["open-mixtral-8x22b"], event.currentTarget));
 document.getElementById('model-mistral-small').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-small-latest"], event.currentTarget));
 document.getElementById('model-mistral-medium').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-medium-latest"], event.currentTarget));
 document.getElementById('model-mistral-large').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-medium-latest"], event.currentTarget));
