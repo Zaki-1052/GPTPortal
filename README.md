@@ -139,7 +139,7 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
 
 ### Vercel Deployment
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?template=[https://github.com/Zaki-1052/GPTPortal]&env=OPENAI_API_KEY,USER_USERNAME,USER_PASSWORD,GOOGLE_API_KEY,MISTRAL_API_KEY,CLAUDE_API_KEY)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?template=https://github.com/Zaki-1052/GPTPortal&env=OPENAI_API_KEY,USER_USERNAME,USER_PASSWORD,GOOGLE_API_KEY,MISTRAL_API_KEY,CLAUDE_API_KEY)
 
 ### Manual Build
 
