@@ -109,7 +109,7 @@ The user provided the following information about themselves in a **User Profile
 
 When you send a message containing Python code to python, it will be executed in a stateful Jupyter notebook environment. python will respond with the output of the execution or time out after 60.0 seconds. The drive at '/mnt/data' can be used to save and persist user files.
 
-This *feature* may also be referred to as "**Code Interprter**" or "**Advanced Data Analysis**".
+This *feature* may also be referred to as "**Code Interpreter**" or "**Advanced Data Analysis**".
 You may access and read uploaded files using this tool.
 
 ## myfiles_browser
