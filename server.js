@@ -1104,14 +1104,19 @@ if (modelID === 'gpt-4') {
 
   // Add more parameters here as needed
 
+  tools: tools,
+  tool_choice: "auto",
+
     };
 
     // END
+    
   
     // Define the headers with the Authorization and, if needed, Organization
     // Determine the API to use based on modelID prefix
     if (modelID.startsWith('gpt')) {
       conversationHistory.push(user_input);
+      console.log("Received API response", response.data);
       headers = {
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
         // 'OpenAI-Organization': 'process.env.ORGANIZATION' // Uncomment if using an organization ID
@@ -1148,79 +1153,40 @@ if (modelID === 'gpt-4') {
     console.log(`Sending to ${modelID.startsWith('gpt') ? 'OpenAI' : 'Mistral/Claude'} API:`, JSON.stringify(data, null, 2));
 
     try {
-      // const response = await axios.post(apiUrl, data, { headers, responseType: 'stream' });
       const response = await axios.post(apiUrl, data, { headers });
-      // Process the response as needed
-        // optional streaming implentation (currently disabled)
-
-        /*
-    let buffer = '';
-  
-    response.data.on('data', (chunk) => {
-      buffer += chunk.toString(); // Accumulate the chunks in a buffer
-    });
-  
-    response.data.on('end', () => {
-      try {
-        const lines = buffer.split('\n');
-        let messageContent = '';
-  
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const jsonString = line.substring(6).trim();
-            if (jsonString !== '[DONE]') {
-              const parsedChunk = JSON.parse(jsonString);
-              messageContent += parsedChunk.choices.map(choice => choice.delta?.content).join('');
-            }
-          }
-        }
-        */
-       let messageContent;
-
-       if (modelID.startsWith('claude')) {
-        messageContent = response.data.content;
+      let messageContent = await handleFunctionCall(response);
+      const initialMessage = response.data.choices[0].message.content;
+    
+      // Build the response text based on the desired UI presentation
+      let responseText = initialMessage; // Default to initial message
+      let sendBothMessages = false; // Flag to decide if both messages should be sent
+    
+      // Append the second message if required
+      if (sendBothMessages && responseText) {
+        responseText += "\n\n" + messageContent; // Use newline or other delimiter as per UI needs
+      }
+    
+      // Logging and pushing to conversation history
+      if (sendBothMessages) {
+        conversationHistory.push(
+          { role: "assistant", content: initialMessage },
+          { role: "assistant", content: messageContent }
+        );
+        res.json({ text: responseText });
       } else {
-        messageContent = response.data.choices[0].message.content;
+        conversationHistory.push({ role: "assistant", content: messageContent });
+        res.json({ text: messageContent });
       }
-      const lastMessageContent = messageContent;
-        
-  
-        if (lastMessageContent) {
-
-          console.log("Assistant Response: ", lastMessageContent)
-
-          if (modelID.startsWith('claude')) {
-            claudeHistory.push({ role: "assistant", content: lastMessageContent[0].text });
-            console.log("Claude History: ", claudeHistory);
-            res.json({ text: lastMessageContent[0].text });
-          } else {
-            // Add assistant's message to the conversation history
-            conversationHistory.push({ role: "assistant", content: lastMessageContent });
-            console.log("Conversation History: ", conversationHistory);
-            // Send this back to the client
-            res.json({ text: lastMessageContent });
-          }
+      console.log("Conversation History: ", conversationHistory);
           
-          
-          
-        } else {
-          // Handle no content scenario
-          res.status(500).json({ error: "No text was returned from the API" });
-        }
-        /*
-      } catch (parseError) {
-        console.error('Error parsing complete response:', parseError.message);
-        res.status(500).json({ error: "Error parsing the response from OpenAI API" });
+    
+    } catch (error) {
+      console.error('Error calling OpenAI API:', error.message);
+      if (error.response) {
+        console.error(error.response.data);
       }
-    });
-  */
-  } catch (error) {
-    console.error('Error calling OpenAI API:', error.message);
-    if (error.response) {
-      console.error(error.response.data);
+      res.status(500).json({ error: "An error occurred when communicating with the OpenAI API.", details: error.message });
     }
-    res.status(500).json({ error: "An error occurred when communicating with the OpenAI API.", details: error.message });
-  }
   
 });
 
@@ -1283,7 +1249,245 @@ app.post('/update-instructions', (req, res) => {
   });
 });
 
-  
+async function handleFunctionCall(response) {
+  console.log("fn response", response)
+  console.log(response.data.choices[0].message.tool_calls);
+  console.log(response.data.choices[0].finish_reason);
+  // Check if the response contains the 'function_call' field
+  if (response.data.choices[0].finish_reason === 'tool_calls') {
+    const toolCalls = response.data.choices[0].message.tool_calls;
+    console.log(toolCalls);
+    const availableFunctions = {
+      retrieve_genomic_data: async (startChromosome, startBasePair, endChromosome, endBasePair, query) => {
+        const regions = [{
+          chr: startChromosome,
+          start: startBasePair,
+          end: endBasePair
+        }];
+        await retrieveGenomicData(regions);
+        const matches = await handleUserQuery(query);
+        const metadata = await loadMetadata();
+        const detailedResponse = generateDetailedResponse(matches);
+        const finalResponse = `${detailedResponse}\n\nAdditional Context:\n${JSON.stringify(metadata, null, 2)}`;
+        console.log("Final Response: ", finalResponse)
+        return finalResponse;
+      },
+    };
+
+    const messages = conversationHistory.slice(); // Create a copy of the conversationHistory array
+    console.log("messages", messages);
+    messages.push(response.data.choices[0].message); // Extend conversation with assistant's reply
+
+    for (const toolCall of toolCalls) {
+      const functionName = toolCall.function.name;
+      const functionToCall = availableFunctions[functionName];
+      const functionArgs = JSON.parse(toolCall.function.arguments);
+
+      if (!functionToCall) {
+        console.error(`Function not found: ${functionName}`);
+        continue; // Skip to the next tool call
+      }
+    
+      const functionResponse = await functionToCall(
+        functionArgs.startChromosome,
+        functionArgs.startBasePair,
+        functionArgs.endChromosome,
+        functionArgs.endBasePair,
+        functionArgs.query
+      );
+    
+      messages.push({
+        tool_call_id: toolCall.id,
+        role: "tool",
+        name: functionName,
+        content: functionResponse,
+      });
+    }
+
+    const secondResponse = await axios.post(apiUrl, {
+      model: modelID,
+      messages: messages,
+    }, { headers });
+
+    messageContent = secondResponse.data.choices[0].message.content;
+    console.log(messageContent);
+    return messageContent;
+  } else {
+    // If no function call is needed, return the assistant's message content
+    return response.data.choices[0].message.content;
+  }
+}
+
+
+
+
+
+const { AxiosDataLoader, BigWigReader } = require('genomic-reader');
+// Load multiple methylation profiles from BigWig files
+const BigWig = require('bigwig-reader').default;
+
+async function getMultipleMethylationProfiles(regions) {
+  const loader = new AxiosDataLoader("http://localhost:3000/99736.EpiHK.EGAN00002270063.WGB-Seq.methylation_profile.bigWig", /* Optional */ axios.create());
+  const bigWigReader = new BigWigReader(loader);
+  let results = [];
+  console.log("Loading methylation profiles for regions:", regions);
+  for (let region of regions) {
+    try {
+      const wigData = await bigWigReader.readBigWigData(region.chr, region.start, region.chr, region.end);
+      results.push({
+        region: region,
+        data: wigData.map(entry => ({
+          start: entry.start,
+          end: entry.end,
+          value: entry.value
+        }))
+      });
+      console.log("Retrieved data for region:", region, "Data:", wigData);
+    } catch (error) {
+      console.error("Error reading BigWig file for region", region, error);
+      console.error(`Error reading BigWig file for region ${region.chr}:${region.start}-${region.end}:`, error);
+    }
+  }
+  return results;
+}
+
+
+async function loadMetadata() {
+  // Retrieve the metadata based on the query or context
+  const metadata = {
+    assayType: "DNA Methylation",
+    cellType: "melanocyte",
+    analysisSoftware: "gemBS v3.5.1",
+    sampleDetails: "Primary human epidermal melanocytes from adult skin"
+  };
+  return metadata;
+}
+
+
+const tools = [
+  {
+    type: "function",
+    function: {
+      name: "retrieve_genomic_data",
+      description: "Retrieve genomic data based on specified regions and generate embeddings for user queries",
+      parameters: {
+        type: "object",
+        properties: {
+          startChromosome: {
+            type: "string",
+            description: "The starting chromosome for the region"
+          },
+          startBasePair: {
+            type: "integer",
+            description: "The starting base pair for the region"
+          },
+          endChromosome: {
+            type: "string",
+            description: "The ending chromosome for the region"
+          },
+          endBasePair: {
+            type: "integer",
+            description: "The ending base pair for the region"
+          },
+          query: {
+            type: "string",
+            description: "The user's query text to find the most relevant regions"
+          }
+        },
+        required: ["startChromosome", "startBasePair", "endChromosome", "endBasePair", "query"]
+      }
+    }
+  }
+];
+
+const regionData = []; // In-memory storage for region data and embeddings
+
+async function retrieveGenomicData(regions) {
+  console.log("Retrieving genomic data for regions:", regions);
+
+  for (let region of regions) {
+    console.log("Processing genomic data for region:", region);
+
+    try {
+      const methylationData = await getMultipleMethylationProfiles([region]);
+      const textDescription = createTextDescription(methylationData[0]);
+      const embedding = await generateEmbedding(textDescription);
+      console.log("Region data processed and embeddings generated", { region, textDescription, embedding });
+      regionData.push({ region, textDescription, embedding });
+    } catch (error) {
+      console.error("Error processing region", region, error);
+      console.error(`Error processing region ${region.chr}:${region.start}-${region.end}:`, error);
+    }
+  }
+}
+
+function createTextDescription(regionData) {
+  const { region, data } = regionData;
+  const methylationValues = data.map(d => d.value);
+  const minMethylation = Math.min(...methylationValues);
+  const maxMethylation = Math.max(...methylationValues);
+  const avgMethylation = methylationValues.reduce((sum, value) => sum + value, 0) / methylationValues.length;
+
+  const description = `Region ${region.chr}:${region.start}-${region.end} has methylation values ranging from ${minMethylation.toFixed(2)} to ${maxMethylation.toFixed(2)}, with an average methylation level of ${avgMethylation.toFixed(2)}.`;
+  return description;
+}
+
+async function generateEmbedding(text) {
+  console.log("Generating embedding for text:", text);
+
+  const response = await openai.embeddings.create({
+    model: "text-embedding-3-large",
+    input: text,
+  });
+  console.log(response);
+  console.log("Embedding generated", response.data[0].embedding);
+  return response.data[0].embedding;
+}
+
+async function handleUserQuery(query) {
+  console.log("Handling user query:", query);
+  const queryEmbedding = await generateEmbedding(query);
+  console.log("Query embedding:", queryEmbedding);
+  const matches = findClosestMatches(queryEmbedding, regionData);
+  console.log("Found matches:", matches);
+  return matches;
+}
+
+function findClosestMatches(queryEmbedding, regionData, numMatches = 3) {
+  const similarities = regionData.map(({ region, textDescription, embedding }) => ({
+    region,
+    textDescription,
+    similarity: cosineSimilarity(queryEmbedding, embedding),
+  }));
+console.log(similarities);
+  similarities.sort((a, b) => b.similarity - a.similarity);
+  return similarities.slice(0, numMatches);
+}
+
+function cosineSimilarity(embedding1, embedding2) {
+  console.log("Calculating cosine similarity");
+
+  const dotProduct = embedding1.reduce((sum, val, i) => sum + val * embedding2[i], 0);
+  const magnitude1 = Math.sqrt(embedding1.reduce((sum, val) => sum + val ** 2, 0));
+  const magnitude2 = Math.sqrt(embedding2.reduce((sum, val) => sum + val ** 2, 0));
+  const similarity = dotProduct / (magnitude1 * magnitude2);
+    console.log("Cosine similarity calculated:", similarity);
+    return similarity;
+}
+
+function generateDetailedResponse(matches) {
+  if (matches.length === 0) {
+    console.log("No matches found");
+    return "No closely matching regions found for the given query.";
+  }
+
+  const responseLines = matches.map(({ region, textDescription, similarity }, index) => {
+    return `Match ${index + 1}: ${textDescription} (Similarity: ${similarity.toFixed(2)})`;
+  });
+  console.log("Detailed response generated", responseLines);
+  return `The most closely matching regions for the query are:\n${responseLines.join("\n")}`;
+}
+
 
 // Start the server
 // Ensure that the server can be accessed via any host
@@ -1327,3 +1531,21 @@ const HOST = isVercelEnvironment ? '0.0.0.0' : process.env.HOST_SERVER || 'local
 const server = app.listen(PORT, HOST, () => {
   console.log(`Server running at http://${HOST}:${PORT}`);
 });
+
+/*
+async function testReadBigWig() {
+  const url = "http://localhost:3000/99736.EpiHK.EGAN00002270063.WGB-Seq.methylation_profile.bigWig";
+  const loader = new AxiosDataLoader(url, axios.create());
+  const bigWigReader = new BigWigReader(loader);
+
+  try {
+      // Example region to read: adjust chr, start, and end as appropriate
+      const data = await bigWigReader.readBigWigData("chr14", 19_485_000, "chr14", 20_000_100);
+      console.log("Successfully retrieved data:", JSON.stringify(data, null, 2));
+  } catch (error) {
+      console.error("Failed to read BigWig file:", error);
+  }
+}
+
+testReadBigWig();
+*/
