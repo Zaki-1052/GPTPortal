@@ -1291,7 +1291,7 @@ app.post('/update-instructions', (req, res) => {
 app.set('trust proxy', true);
 
 app.get('*', (req, res) => {
-  res.redirect('/public/portal.html');
+  res.redirect('/portal.html');
 });
 
 app.get('/portal', (req, res) => {
