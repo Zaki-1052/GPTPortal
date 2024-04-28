@@ -8,8 +8,8 @@
   ],
   "routes": [
     {
-      "src": "/",
-      "dest": "/portal"
+      "src": "/portal",
+      "dest": "/public/portal.html"
     },
     {
       "src": "/(.*)",
