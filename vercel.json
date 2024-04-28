@@ -8,12 +8,8 @@
   ],
   "routes": [
     {
-      "src": "/portal",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/config",
-      "dest": "/server.js"
+      "src": "/",
+      "dest": "/portal"
     },
     {
       "src": "/(.*)",
