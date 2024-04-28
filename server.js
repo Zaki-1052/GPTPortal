@@ -836,7 +836,7 @@ if (!history && (!imageParts || imageParts.length === 0)) {
     }
     // Handle text-and-image input (multimodal)
     else if (imageParts && imageParts.length > 0 && !history) {
-      if (model !== 'gemini-pro-vision') {
+      if (model !== 'gemini-pro-vision' && model !== 'gemini-1.5-pro') {
         return res.status(400).json({ error: 'Invalid model for text-and-image input. Use gemini-pro-vision.' });
       }
 
@@ -1141,6 +1141,18 @@ if (modelID === 'gpt-4') {
         // Add any Mistral-specific headers here if necessary
       };
       apiUrl = 'https://api.anthropic.com/v1/messages';
+    } else if (modelID.startsWith('llama') || modelID.startsWith('Llama')) {
+      conversationHistory.push(user_input);
+      headers = {
+        'Authorization': `Bearer ${process.env.LLAMA_API_KEY}`,
+      };
+      apiUrl = 'https://api.llama-api.com/chat/completions';
+    } else {
+      conversationHistory.push(user_input);
+      headers = {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      };
+      apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
     }
 
     // Log the data payload just before sending it to the chosen API

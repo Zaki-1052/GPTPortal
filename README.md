@@ -17,6 +17,7 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
 - [Google Gemini](#8-optional-google-gemini-setup)
 - [Mistral AI](#9-optional-mistral-ai-setup)
 - [Anthropic Claude](#10-optional-anthropic-claude-setup)
+- [Meta LLaMA AI](#)
 - [Relevant Links](#relevant-links)
 - [Author Links](#author-links--custom-gpts)
 - [Research Papers](#research-papers)
@@ -499,6 +500,30 @@ Lastly, if you have uploaded an image and are working with the Vision model, you
 - The [**Claude Documentation**](https://docs.anthropic.com/claude/docs/intro-to-claude) is linked [*HERE*](https://docs.anthropic.com/claude/reference/messages_post) for **API Messages**.
 - Anthropic's [**Prompt Library**](https://docs.anthropic.com/claude/prompt-library) is also linked.
 - Anthropic claims that *Claude Opus* **beats** *GPT-4* in benchmarks!
+
+#### 11. [*OPTIONAL*] **Meta LLaMA Setup**
+
+##### [**Llama Console**](https://console.llama-api.com/account/my-account)
+
+##### [**API Creation Link**](https://console.llama-api.com/account/api-token)
+
+##### [**Billing**](https://console.llama-api.com/account/billing) & [**Payment**](https://console.llama-api.com/account/payment)
+
+- First, **Create an Account** with the *Llama API*.
+- **Refresh** your *API token* and **add billing**.
+- **Paste** your *API Key* into the `.env` as normal.
+- **Pricing**: $ 0.0032 / 1K Tokens
+
+#### 12. [*OPTIONAL*] **Open Router Setup**
+
+##### [**OpenRouter Credits**](https://openrouter.ai/credits)
+
+##### [**API Creation Link**](https://openrouter.ai/keys)
+
+- **Create** an *OpenRouter Account*
+- **Buy Credits**
+- **Paste** your *API Key*
+- [**Supported Models**](https://openrouter.ai/docs#models)
 
 ## Relevant [Links](https://arc.net/folder/B777A318-2A95-4C36-86AA-156166895CC2)
 

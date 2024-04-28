@@ -44,7 +44,7 @@ fetchConfig();
     "Gemini-Ultra": "gemini-1.0-ultra",
     "Claude-Opus": "claude-3-opus-20240229",
     "Claude-Sonnet": "claude-3-sonnet-20240229",
-    "Claude-Haiku": "claude-3-haiku",
+    "Claude-Haiku": "claude-3-haiku-20240307",
     "Claude-2.1": "claude-2.1",
     "Claude-2.0": "claude-2.0",
     "Claude-1.2": "claude-instant-1.2",
@@ -53,7 +53,9 @@ fetchConfig();
     "Mistral-8x-22b": "open-mixtral-8x22b",
     "Mistral-Small": "mistral-small-latest",
     "Mistral-Medium": "mistral-medium-latest",
-    "Mistral-Large": "mistral-large-latest"
+    "Mistral-Large": "mistral-large-latest",
+    "Llama3-70b": "llama3-70b",
+    "Llama3-8b": "Llama3-8b",
   };
 
   
@@ -68,7 +70,7 @@ fetchConfig();
     "gemini-1.0-ultra": "Gemini-Ultra",
     "claude-3-opus-20240229": "Claude-Opus",
     "claude-3-sonnet-20240229": "Claude-Sonnet",
-    "claude-3-haiku": "Claude-Haiku",
+    "claude-3-haiku-20240307": "Claude-Haiku",
     "claude-2.1": "Claude-2.1",
     "claude-2.0": "Claude-2.0",
     "claude-instant-1.2": "Claude-1.2",
@@ -77,7 +79,9 @@ fetchConfig();
     "open-mixtral-8x22b": "Mistral-8x22b",
     "mistral-small-latest": "Mistral-Small",
     "mistral-medium-latest": "Mistral-Medium",
-    "mistral-large-latest": "Mistral-Large"
+    "mistral-large-latest": "Mistral-Large",
+    "llama3-70b": "Llama3-70b",
+    "Llama3-8b": "Llama3-8b",
   };
 
   
@@ -244,7 +248,7 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       "gemini-1.0-ultra": "Gemini-Ultra: Largest Google Model — Unreleased",
       "claude-3-opus-20240229": "Claude-Opus: Most Powerful — GPT-4 Level",
       "claude-3-sonnet-20240229": "Claude-Sonnet: Hard-Working — 3.5 Level",
-      "claude-3-haiku": "Claude-Haiku: Light, Cheap, & Fast — Unreleased",
+      "claude-3-haiku-20240307": "Claude-Haiku: Light, Cheap, & Fast — New",
       "claude-2.1": "Claude-2.1: Best Instant Model — 200k Tokens",
       "claude-2.0": "Claude-2.0: Average Cheap Model — 100k Tokens",
       "claude-1.2": "Claude-1.2: Cheapest Instant Model — 100k Context",
@@ -253,7 +257,9 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       "open-mixtral-8x22b": "Mixtral 8x22b: Strongest Open Source Model",
       "mistral-small-latest": "Mistral-Small: Smarter — More Costly",
       "mistral-medium-latest": "Mistral-Medium: Intelligent — Beats Gemini-Pro",
-      "mistral-large-latest": "Mistral-Large: Most Expensive and Intelligent"
+      "mistral-large-latest": "Mistral-Large: Most Expensive and Intelligent",
+      "llama3-70b": "Llama3 70b: GPT-4 Level Performance — Intelligent",
+      "Llama3-8b": "Llama3 8b: Smaller, Faster Model — Cheaper",
     };
     
   
@@ -375,7 +381,7 @@ document.getElementById('model-mistral-large').addEventListener('mouseover', (ev
 // Event listeners for selecting Claude models
 document.getElementById('model-claude-opus').addEventListener('click', () => selectModel('claude-3-opus-20240229'));
 document.getElementById('model-claude-sonnet').addEventListener('click', () => selectModel('claude-3-sonnet-20240229'));
-document.getElementById('model-claude-haiku').addEventListener('click', () => selectModel('claude-3-haiku'));
+document.getElementById('model-claude-haiku').addEventListener('click', () => selectModel('claude-3-haiku-20240307'));
 document.getElementById('model-claude-2.1').addEventListener('click', () => selectModel('claude-2.1'));
 document.getElementById('model-claude-2.0').addEventListener('click', () => selectModel('claude-2.0'));
 document.getElementById('model-claude-1.2').addEventListener('click', () => selectModel('claude-instant-1.2'));
@@ -383,11 +389,18 @@ document.getElementById('model-claude-1.2').addEventListener('click', () => sele
 // Event listeners for showing Claude model descriptions on hover
 document.getElementById('model-claude-opus').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-3-opus-20240229"], event.currentTarget));
 document.getElementById('model-claude-sonnet').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-3-sonnet-20240229"], event.currentTarget));
-document.getElementById('model-claude-haiku').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-3-haiku"], event.currentTarget));
+document.getElementById('model-claude-haiku').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-3-haiku-20240307"], event.currentTarget));
 document.getElementById('model-claude-2.1').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-2.1"], event.currentTarget));
 document.getElementById('model-claude-2.0').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-2.0"], event.currentTarget));
 document.getElementById('model-claude-1.2').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-instant-1.2"], event.currentTarget));
 
+// Event listeners for selecting Llama3 models
+document.getElementById('model-llama-70b').addEventListener('click', () => selectModel('llama3-70b'));
+document.getElementById('model-llama-8b').addEventListener('click', () => selectModel('Llama3-8b'));
+
+// Event listeners for showing Llama3 model descriptions on hover
+document.getElementById('model-llama-70b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["llama3-70b"], event.currentTarget));
+document.getElementById('model-llama-8b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["Llama3-8b"], event.currentTarget));
 
   // Add mouseout event listener for all model buttons
   document.querySelectorAll('.select-options button').forEach(button => {
