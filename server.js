@@ -1147,7 +1147,7 @@ if (modelID === 'gpt-4') {
         'Authorization': `Bearer ${process.env.LLAMA_API_KEY}`,
       };
       apiUrl = 'https://api.llama-api.com/chat/completions';
-    } else {
+    } else if (modelID.includes('/')) {
       conversationHistory.push(user_input);
       headers = {
         'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
