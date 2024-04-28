@@ -1,5 +1,5 @@
 /**
- * marked v12.0.1 - a markdown parser
+ * marked v12.0.2 - a markdown parser
  * Copyright (c) 2011-2024, Christopher Jeffrey. (MIT Licensed)
  * https://github.com/markedjs/marked
  */
@@ -328,7 +328,9 @@
         blockquote(src) {
             const cap = this.rules.block.blockquote.exec(src);
             if (cap) {
-                const text = rtrim(cap[0].replace(/^ *>[ \t]?/gm, ''), '\n');
+                // precede setext continuation with 4 spaces so it isn't a setext
+                let text = cap[0].replace(/\n {0,3}((?:=+|-+) *)(?=\n|$)/g, '\n    $1');
+                text = rtrim(text.replace(/^ *>[ \t]?/gm, ''), '\n');
                 const top = this.lexer.state.top;
                 this.lexer.state.top = true;
                 const tokens = this.lexer.blockTokens(text);
@@ -964,7 +966,7 @@
     const paragraph = edit(_paragraph)
         .replace('hr', hr)
         .replace('heading', ' {0,3}#{1,6}(?:\\s|$)')
-        .replace('|lheading', '') // setex headings don't interrupt commonmark paragraphs
+        .replace('|lheading', '') // setext headings don't interrupt commonmark paragraphs
         .replace('|table', '')
         .replace('blockquote', ' {0,3}>')
         .replace('fences', ' {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n')
@@ -1014,7 +1016,7 @@
         paragraph: edit(_paragraph)
             .replace('hr', hr)
             .replace('heading', ' {0,3}#{1,6}(?:\\s|$)')
-            .replace('|lheading', '') // setex headings don't interrupt commonmark paragraphs
+            .replace('|lheading', '') // setext headings don't interrupt commonmark paragraphs
             .replace('table', gfmTable) // interrupt paragraphs with table
             .replace('blockquote', ' {0,3}>')
             .replace('fences', ' {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n')
