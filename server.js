@@ -1290,8 +1290,12 @@ app.post('/update-instructions', (req, res) => {
 // Set trust proxy to ensure the server can be accessed via any host
 app.set('trust proxy', true);
 
-app.get('*', (req, res) => {
-  res.redirect('/portal.html');
+app.get('*', (req, res, next) => {
+  if (req.path === '/portal' || req.path === '/config') {
+    next();
+  } else {
+    res.redirect('/portal');
+  }
 });
 
 app.get('/portal', (req, res) => {

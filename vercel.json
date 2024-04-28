@@ -1,12 +1,23 @@
 {
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    }
+  ],
   "routes": [
     {
-      "src": "/",
+      "src": "/portal",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/config",
       "dest": "/server.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/portal.html"
+      "dest": "/server.js"
     }
   ],
   "env": {
