@@ -1231,7 +1231,7 @@ async function uploadImageAndGetUrl(imageFile) {
             file: fileUrl, // Existing image handling for OpenAI
             initialize: isFirstMessage
           };
-          endpoint = 'http://localhost:3000/assistant'; // OpenAI endpoint
+          endpoint = `${baseURL}/assistant`; // OpenAI endpoint
         } else {
         if (currentModelID.startsWith('gemini')) {
           // Prepare the payload for Google Gemini API

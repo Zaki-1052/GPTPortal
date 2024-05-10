@@ -489,7 +489,7 @@ async function AssistantAndThread(modelID, systemMessage) {
       assistant = await openai.beta.assistants.create({
         name: "Assistant",
         instructions: systemMessage,
-        tools: [{type: "retrieval"}, {type: "code_interpreter"}],
+        tools: [{type: "file_search"}, {type: "code_interpreter"}],
         model: modelID
       });
       console.log("Creating new Assistant:", assistant)
@@ -1334,6 +1334,10 @@ app.get('/config', (req, res) => {
     });
   }
 });
+
+app.use(cors({
+  origin: '*'
+}));
 
 
 const isVercelEnvironment = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
