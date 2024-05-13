@@ -35,6 +35,7 @@ fetchConfig();
 
   const modelID = {
     "GPT-4": "gpt-4",
+    "GPT-4o": "gpt-4o",
     "GPT-4-32k": "gpt-4-32k",
     "GPT-4-Turbo": "gpt-4-turbo",
     "GPT-3.5-Turbo": "gpt-3.5-turbo-0125",
@@ -187,6 +188,7 @@ fetchConfig();
   
   const customModelNames = {
     "gpt-4": "GPT-4",
+    "gpt-4o": "GPT-4o",
     "gpt-4-32k": "GPT-4-32k",
     "gpt-4-turbo": "GPT-4-Turbo",
     "gpt-3.5-turbo-0125": "GPT-3.5-Turbo",
@@ -342,7 +344,7 @@ fetchConfig();
 // Default model functionality
   function setDefaultModel() {
   let selectedModelDiv = document.getElementById("selected-model");
-  let defaultModel = "gpt-4-turbo";
+  let defaultModel = "gpt-4o";
 
   // Check if a model has been selected, if not, set to default model ID and update display
   if (selectedModelDiv.textContent.trim() === "Select a Model") {
@@ -351,7 +353,7 @@ fetchConfig();
   }
 }
 
-let currentModelID = 'gpt-4-turbo'; // Global declaration
+let currentModelID = 'gpt-4o'; // Global declaration
 
 let selectedImage = null;
 
@@ -490,7 +492,8 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
 
     // Define model descriptions
     const modelDescriptions = {
-      "gpt-4": "GPT-4: Most Intelligent — Default",
+      "gpt-4": "GPT-4: Oldest Intelligent Model",
+      "gpt-4o": "GPT-4o: Latest OpenAI Intelligent Model",
       "gpt-4-32k": "GPT-4-32k: Longer Context Window — Higher Price",
       "gpt-4-turbo": "GPT-4-Turbo: ChatGPT-Plus Model — 128k Tokens",
       "gpt-3.5-turbo-0125": "GPT-3.5-Turbo: Cheapest Option Available",
@@ -592,12 +595,14 @@ document.querySelector('.custom-select').addEventListener('click', toggleDropdow
 
 // Event listeners for selecting GPT models
 document.getElementById('model-gpt-4').addEventListener('click', () => selectModel('gpt-4'));
+document.getElementById('model-gpt-4o').addEventListener('click', () => selectModel('gpt-4o'));
 document.getElementById('model-gpt-4-32k').addEventListener('click', () => selectModel('gpt-4-32k'));
 document.getElementById('model-gpt-4-turbo').addEventListener('click', () => selectModel('gpt-4-turbo'));
 document.getElementById('model-gpt-3.5').addEventListener('click', () => selectModel('gpt-3.5-turbo-0125'));
 
 // Event listeners for showing GPT model descriptions on hover
 document.getElementById('model-gpt-4').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4"], event.currentTarget));
+document.getElementById('model-gpt-4o').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4o"], event.currentTarget));
 document.getElementById('model-gpt-4-32k').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-32k"], event.currentTarget));
 document.getElementById('model-gpt-4-turbo').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-turbo"], event.currentTarget));
 document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-3.5-turbo-0125"], event.currentTarget));
