@@ -6,7 +6,7 @@
     return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   }
 
-  let isGemini = true;
+  let isGemini = false;
 
 
   const modelID = {
@@ -68,7 +68,7 @@
 // Default model functionality
   function setDefaultModel() {
   let selectedModelDiv = document.getElementById("selected-model");
-  let defaultModel = "gemini-pro";
+  let defaultModel = "gpt-4o";
 
   // Check if a model has been selected, if not, set to default model ID and update display
   if (selectedModelDiv.textContent.trim() === "Select a Model") {
@@ -77,7 +77,7 @@
   }
 }
 
-let currentModelID = 'gemini-pro'; // Global declaration
+let currentModelID = 'gpt-4o'; // Global declaration
 
 
 let transcriptionResult = '';
