@@ -8,15 +8,25 @@ const basicAuth = require('express-basic-auth');
 const fs = require('fs');
 const { marked } = require('marked');
 const app = express();
+const bodyParser = require('body-parser');
+// Increase the limit for JSON bodies
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
 app.use(express.json()); // for parsing application/json
 app.use(express.static('public')); // Serves your static files from 'public' directory
+const download = require('image-downloader');
 const cors = require('cors');
 app.use(cors());
 const router = express.Router();
+const { v4: uuidv4 } = require('uuid');
+
+// openai
+const OpenAI = require('openai').default;
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY // This is also the default, can be omitted
+});
 
 // integrate google gemini
-
-
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 const googleGenerativeAI = require("@google/generative-ai");
@@ -39,13 +49,6 @@ app.use(basicAuth({
   users: users,
   challenge: true
 }));
-
-const bodyParser = require('body-parser');
-
-// Increase the limit for JSON bodies
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
-
 
 // Serve uploaded files from the 'public/uploads' directory
 app.get('/uploads/:filename', (req, res) => {
@@ -161,18 +164,23 @@ async function readInstructionsFile() {
   }
 }
 
-
-
 // Function to initialize the conversation history with instructions
 // giving the model a system prompt and adding tp 
 async function initializeConversationHistory() {
   const fileInstructions = await readInstructionsFile();
-  let systemMessage = `You are a helpful and intelligent AI assistant, knowledgeable about a wide range of topics and highly capable of a great many tasks.\n Specifically:\n ${fileInstructions}`;
+  systemMessage = `You are a helpful and intelligent AI assistant, knowledgeable about a wide range of topics and highly capable of a great many tasks.\n Specifically:\n ${fileInstructions}`;
   conversationHistory.push({ role: "system", content: systemMessage });
+  return systemMessage;
 }
 
 // Call this function when the server starts
 initializeConversationHistory();
+
+async function initializeSystem() {
+  const systemMessage = await initializeConversationHistory();
+  // Make sure this systemMessage is passed where needed
+  // Continue with the rest of your initialization logic
+}
 
 let geminiHistory = '';
 
@@ -203,6 +211,28 @@ initializeGeminiConversationHistory();
 
  // Function to convert conversation history to HTML
  function exportChatToHTML() {
+  // Log the current state of both conversation histories before deciding which one to use
+  console.log("Current GPT Conversation History: ", JSON.stringify(conversationHistory, null, 2));
+  console.log("Current Claude Conversation History: ", JSON.stringify(claudeHistory, null, 2));
+
+  let containsAssistantMessage = conversationHistory.some(entry => entry.role === 'assistant');
+
+  let chatHistory;
+  if (containsAssistantMessage) {
+      console.log("Using GPT conversation history because it's non-empty.");
+      chatHistory = conversationHistory;
+  } else {
+      console.log("Using Claude conversation history as GPT history is empty or undefined.");
+      chatHistory = [...claudeHistory];
+      chatHistory.unshift({
+        role: 'system',
+        content: systemMessage
+      });
+  }
+
+  // Log the determined chatHistory
+  console.log("Determined Chat History: ", JSON.stringify(chatHistory, null, 2));
+
   let htmlContent = `
     <html>
     <head>
@@ -220,7 +250,9 @@ initializeGeminiConversationHistory();
     <body>
   `;
 
-  conversationHistory.forEach(entry => {
+  console.log("Chat History: ", JSON.stringify(chatHistory, null, 2));
+
+  chatHistory.forEach(entry => {
     let formattedContent = '';
 
     if (Array.isArray(entry.content)) {
@@ -292,6 +324,8 @@ function exportGeminiChatToHTML() {
   htmlContent += '</body></html>';
   return htmlContent;
 }
+
+
 
 // Gemini Safety settings reduced to none for each required category.
 // Feel free to adjust, but be aware that the RLHP severely neuters the model.
@@ -379,6 +413,8 @@ geminiHistory += 'User Prompt: ' + prompt + '\n';
 
 let headers;
 let apiUrl = '';
+let data;
+let claudeHistory = [];
 
 app.post('/message', async (req, res) => {
   console.log("req.file:", req.file); // Check if the file is received
@@ -391,18 +427,91 @@ app.post('/message', async (req, res) => {
 
    let user_input = {
     role: "user",
-    content: '' // Initialize content as an empty string
-};
+    content: [] // Default initialization
+  };
 
-if (user_message) {
-  // Directly assign user_message to content
-  user_input.content = user_message; // Assuming user_message is a string
+   // Assuming modelID is declared globally and available here
+// Determine the structure of user_input.content based on modelID
+if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
+
+  // Add text content if present
+  if (user_message) {
+      user_input.content.push({ type: "text", text: user_message });
+  }
+
+  if (fileContents) {
+    console.log(fileContents);
+    user_input.content.push({ type: "text", text: file_id });
+    user_input.content.push({ type: "text", text: fileContents });
+    fileContents = null;
+  }
+
+  // Check for image in the payload
+  if (req.body.image) {
+    let base64Image;
+    // If req.file is defined, it means the image is uploaded as a file
+    if (req.file) {
+      base64Image = imageToBase64(req.file.path);
+    } else {
+      // If req.file is not present, fetch the image from the URL
+      base64Image = await imageURLToBase64(req.body.image);
+    }
+    if (base64Image) {
+      user_input.content.push({ type: "text", text: imageName });
+      if (modelID.startsWith('claude')) {
+        // Split the base64 string to get the media type and actual base64 data
+        const [mediaPart, base64Data] = base64Image.split(';base64,');
+        const mediaType = mediaPart.split(':')[1]; // to get 'image/jpeg' from 'data:image/jpeg'
+
+        user_input.content.push({
+            type: "image",
+            source: {
+                type: "base64",
+                media_type: mediaType,
+                data: base64Data
+            }
+        });
+    } else {
+        user_input.content.push({ type: "image_url", image_url: { url: base64Image } });
+      }
+      
+      // Optional: Clean up the uploaded file after sending to OpenAI
+    fs.unlink(uploadedImagePath, (err) => {
+      if (err) console.error("Error deleting temp file:", err);
+      console.log("Temp file deleted");
+    });
+    }
+  }
+} else {
+  // For Mistral models, user_input.content is a string and set to user_message
+  user_input = {
+    role: "user",
+    content: ''
+  };
+  
+  if (user_message) {
+    // Directly assign user_message to content
+    user_input.content = user_message; // Assuming user_message is a string
+  }
+
+  if (fileContents) {
+    console.log(fileContents);
+    user_input.content += "\n";
+    user_input.content += file_id;
+    user_input.content += "\n";
+    user_input.content += fileContents;
+    fileContents = null;
+  }
+
 }
 
 
-conversationHistory.push(user_input);
 
+let tokens = 4000;
 
+if (modelID === 'gpt-4') {
+  tokens = 6000; // If 'modelID' is 'gpt-4', set 'tokens' to 6000
+}
 
 
 // Model Parameters Below!
@@ -410,28 +519,7 @@ conversationHistory.push(user_input);
 
 
     // Define the data payload with system message and additional parameters
-    const data = {
-
-      // model: "gpt-4-vision-preview", // Use "gpt-4" for non-vision capabilities.
-      // Model is specified here as the vision-capable GPT-4. 
-      // If users are using this portal solely for its intelligence, and do not care about "vision", then they should change the model name.
-      // The Model Name can be changed to: 
-      // model: "gpt-4",
-      // So Delete the "// " before "model" labelling GPT-4 and add/put them before "model: "gpt-4-vision-preview", if you'd like to switch.
-      // This is called "commenting out", and is good practice for code maintainability, like:
-      
-      // model: "gpt-4-vision-preview", 
-
-      // model: "gpt-4",
-
-      // there's also the higher 32k context model
-
-      // model: "gpt-4-32k",
-      
-      // use this longer context model **only** if you've considered the expenses properly
-
-      // The Default Model is now Default GPT-4, pointing to the snapshot released on August 13th. 
-      // If users would like to use Vision capabilities, please comment out the above model and comment in the "vision-preview" at the top.
+    data = {
 
 // UPDATE: Model Selector added for variability
 
@@ -442,9 +530,9 @@ conversationHistory.push(user_input);
       temperature: 1, // Controls randomness: Lowering results in less random completions. 
       // As the temperature approaches zero, the model will become deterministic and repetitive.
       
-      top_p: 1,  // Controls diversity via nucleus sampling: 0.5 means half of all likelihood-weighted options are considered.
+      // top_p: 1,  // Controls diversity via nucleus sampling: 0.5 means half of all likelihood-weighted options are considered.
 
-      max_tokens: 4000, // The maximum number of tokens to **generate** shared between the prompt and completion. The exact limit varies by model. 
+      max_tokens: tokens, // The maximum number of tokens to **generate** shared between the prompt and completion. The exact limit varies by model. 
       // (One token is roughly 4 characters for standard English text)
       
       // frequency_penalty: 0, 
@@ -455,7 +543,7 @@ conversationHistory.push(user_input);
       // How much to penalize new tokens based on whether they appear in the text so far.
       // Increases the model's likelihood to talk about new topics.
 
-      stream: true, // streaming messages from server to api for better memory efficiency
+      // stream: true, // streaming messages from server to api for better memory efficiency
       
        // Additional Parameters
   // Stop Sequences
@@ -493,27 +581,61 @@ conversationHistory.push(user_input);
     // Define the headers with the Authorization and, if needed, Organization
     // Determine the API to use based on modelID prefix
     if (modelID.startsWith('gpt')) {
+      conversationHistory.push(user_input);
       headers = {
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
         // 'OpenAI-Organization': 'process.env.ORGANIZATION' // Uncomment if using an organization ID
       };
       apiUrl = 'https://api.openai.com/v1/chat/completions';
-    } else if (modelID.startsWith('mistral')) {
+    } else if (modelID.includes('mistral') || modelID.includes('mixtral')) {
+      conversationHistory.push(user_input);
       headers = {
         'Authorization': `Bearer ${process.env.MISTRAL_API_KEY}`,
         // Add any Mistral-specific headers here if necessary
       };
       apiUrl = 'https://api.mistral.ai/v1/chat/completions';
+    } else if (modelID.startsWith('claude')) {
+      claudeHistory.push(user_input);
+      data = {
+        // New data structure for Claude model
+        model: modelID,
+        max_tokens: 4000,
+        temperature: 1,
+        system: systemMessage,
+        messages: claudeHistory,
+      };
+      headers = {
+        'x-api-key': `${process.env.CLAUDE_API_KEY}`,
+        'content-type': 'application/json',
+        'anthropic-version': '2023-06-01',
+        // Add any Mistral-specific headers here if necessary
+      };
+      apiUrl = 'https://api.anthropic.com/v1/messages';
+    } else if (modelID.startsWith('llama') || modelID.startsWith('Llama')) {
+      conversationHistory.push(user_input);
+      headers = {
+        'Authorization': `Bearer ${process.env.LLAMA_API_KEY}`,
+      };
+      apiUrl = 'https://api.llama-api.com/chat/completions';
+    } else if (modelID.includes('/')) {
+      conversationHistory.push(user_input);
+      headers = {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      };
+      apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
     }
 
     // Log the data payload just before sending it to the chosen API
     console.log("API URL", apiUrl);
-    console.log(`Sending to ${modelID.startsWith('gpt') ? 'OpenAI' : 'Mistral'} API:`, JSON.stringify(data, null, 2));
+    console.log(`Sending to ${modelID.startsWith('gpt') ? 'OpenAI' : 'Mistral/Claude'} API:`, JSON.stringify(data, null, 2));
 
     try {
-      const response = await axios.post(apiUrl, data, { headers, responseType: 'stream' });
+      // const response = await axios.post(apiUrl, data, { headers, responseType: 'stream' });
+      const response = await axios.post(apiUrl, data, { headers });
       // Process the response as needed
-        
+        // optional streaming implentation (currently disabled)
+
+        /*
     let buffer = '';
   
     response.data.on('data', (chunk) => {
@@ -534,26 +656,46 @@ conversationHistory.push(user_input);
             }
           }
         }
+        */
+       let messageContent;
 
-        const lastMessageContent = messageContent;
-
+       if (modelID.startsWith('claude')) {
+        messageContent = response.data.content;
+      } else {
+        messageContent = response.data.choices[0].message.content;
+      }
+      const lastMessageContent = messageContent;
+        
   
         if (lastMessageContent) {
-          // Add assistant's message to the conversation history
-          conversationHistory.push({ role: "assistant", content: lastMessageContent.trim() });
-    
-          // Send this back to the client
-          res.json({ text: lastMessageContent.trim() });
+
+          console.log("Assistant Response: ", lastMessageContent)
+
+          if (modelID.startsWith('claude')) {
+            claudeHistory.push({ role: "assistant", content: lastMessageContent[0].text });
+            console.log("Claude History: ", claudeHistory);
+            res.json({ text: lastMessageContent[0].text });
+          } else {
+            // Add assistant's message to the conversation history
+            conversationHistory.push({ role: "assistant", content: lastMessageContent });
+            console.log("Conversation History: ", conversationHistory);
+            // Send this back to the client
+            res.json({ text: lastMessageContent });
+          }
+          
+          
+          
         } else {
           // Handle no content scenario
           res.status(500).json({ error: "No text was returned from the API" });
         }
+        /*
       } catch (parseError) {
         console.error('Error parsing complete response:', parseError.message);
         res.status(500).json({ error: "Error parsing the response from OpenAI API" });
       }
     });
-  
+  */
   } catch (error) {
     console.error('Error calling OpenAI API:', error.message);
     if (error.response) {
@@ -567,14 +709,16 @@ conversationHistory.push(user_input);
 
 // export markdown to html
 
-app.get('/export-chat-html', (req, res) => {
+app.get('/export-chat-html', async (req, res) => {
   console.log("Export request received for type:", req.query.type);
   const type = req.query.type; // Expecting 'gemini' or 'conversation' as query parameter
   console.log("Export request received for type:", type);
   let htmlContent;
   if (type === 'gemini') {
     htmlContent = exportGeminiChatToHTML();
-  } else {
+  } else if (type === 'assistants') {
+    htmlContent = await exportAssistantsChat();
+  } else if (type === 'conversation') {
     htmlContent = exportChatToHTML();
   }
 
@@ -600,18 +744,75 @@ app.get('/export-chat-html', (req, res) => {
   
 });
 
-
-app.get('/portal', (req, res) => {
-    res.sendFile('portal.html', { root: 'public' });
+app.get('/get-instructions', (req, res) => {
+  fs.readFile('./public/instructions.md', 'utf8', (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error reading the file');
+    }
+    res.send(data);
   });
+});
+
+app.post('/update-instructions', (req, res) => {
+  const newContent = req.body.content;
+  fs.writeFile('./public/instructions.md', newContent, 'utf8', (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send({ message: 'Error saving the file' });
+    }
+    res.send({ message: 'File updated successfully' });
+  });
+});
+
   
 
 // Start the server
-// Assuming `app` is an instance of your server (like an Express app)
-const PORT = process.env.PORT || 3000;
+// Ensure that the server can be accessed via any host
+// Set trust proxy to ensure the server can be accessed via any host
+app.set('trust proxy', true);
 
-// Listen only on the loopback interface (localhost)
-const HOST = process.env.HOST || 'localhost';
+app.get('*', (req, res, next) => {
+  if (req.path === '/portal' || req.path === '/config') {
+    next();
+  } else {
+    res.redirect('/portal');
+  }
+});
+
+app.get('/portal', (req, res) => {
+  res.sendFile('portal.html', { root: 'public' });
+});
+
+// Expose a configuration endpoint for the client
+app.get('/config', (req, res) => {
+  // Check if running on Vercel
+  const isVercelEnvironment = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+
+  // If it's Vercel, we don't need to specify host and port
+  if (isVercelEnvironment) {
+    res.json({
+      // We could omit host and port entirely or set them to null/undefined
+      host: undefined,
+      port: undefined
+    });
+  } else {
+    // For non-Vercel environments, return the necessary configuration
+    res.json({
+      host: process.env.HOST_CLIENT || 'localhost',
+      port: process.env.PORT_CLIENT || 3000
+    });
+  }
+});
+
+app.use(cors({
+  origin: '*'
+}));
+
+
+const isVercelEnvironment = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+const PORT = isVercelEnvironment ? process.env.PORT : process.env.PORT_SERVER || 3000;
+const HOST = isVercelEnvironment ? '0.0.0.0' : process.env.HOST_SERVER || 'localhost';
 
 const server = app.listen(PORT, HOST, () => {
   console.log(`Server running at http://${HOST}:${PORT}`);

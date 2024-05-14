@@ -14,15 +14,26 @@
     <div class="custom-select" id="selected-model">Select a Model</div>
       <div id="model-options" class="select-options">
         <button id="model-gpt-4" data-value="gpt-4">GPT-4: Default</button>
-        <button id="model-gpt-4-vision" data-value="gpt-4-vision-preview">GPT-4-Vision</button>
-        <button id="model-gpt-4-32k" data-value="gpt-4-32k">GPT-4-32k</button>
-        <button id="model-gpt-4-turbo" data-value="gpt-4-turbo-preview">GPT-4-Turbo</button>
+        <button id="model-gpt-4o" data-value="gpt-4o">GPT-4o: Latest</button>
+        <button id="model-gpt-4-turbo" data-value="gpt-4-turbo-">GPT-4-Turbo</button>
+        <button id="model-claude-opus" data-value="claude-3-opus-20240229">Claude Opus</button>
         <button id="model-gpt-3.5" data-value="gpt-3.5-turbo-0125">GPT-3.5-Turbo</button>
         <button id="model-gemini-pro" data-value="gemini-pro">Gemini Pro</button>
+        <button id="model-claude-sonnet" data-value="claude-3-sonnet-20240229">Claude Sonnet</button>
+        <button id="model-claude-haiku" data-value="claude-3-haiku-20240307">Claude Haiku</button>
+        <button id="model-mistral-large" data-value="mistral-large-latest">Mistral Large</button>
+        <button id="model-llama-70b" data-value="llama3-70b">Llama3 70b</button>
+        <button id="model-gemini-1.5-pro" data-value="gemini-1.5-pro">Gemini-1.5 Pro</button>
         <button id="model-gemini-pro-vision" data-value="gemini-pro-vision">Gemini Pro Vision</button>
-        <button id="model-mistral-tiny" data-value="mistral-tiny">Mistral Tiny</button>
-        <button id="model-mistral-small" data-value="mistral-small">Mistral Small</button>
-        <button id="model-mistral-medium" data-value="mistral-medium">Mistral Medium</button>
+        <button id="model-llama-8b" data-value="Llama3-8b">Llama3 8b</button>
+        <button id="model-mistral-small" data-value="mistral-small-latest">Mistral Small</button>
+        <button id="model-mistral-medium" data-value="mistral-medium-latest">Mistral Medium</button>
+        <button id="model-mistral-8x7b" data-value="open-mixtral-8x7b">Mixtral 8x7b</button>
+        <button id="model-mistral-8x22b" data-value="open-mixtral-8x22b">Mixtral 8x22b</button>
+        <button id="model-mistral-tiny" data-value="open-mistral-7b">Mistral Tiny</button>
+        <button id="model-claude-1.2" data-value="claude-instant-1.2">Claude 1.2</button>
+        <button id="model-claude-2.0" data-value="claude-2.0">Claude 2.0</button>
+        <button id="model-claude-2.1" data-value="claude-2.1">Claude 2.1</button>
         <!-- Add other models as options -->
       </div>
     </div>
@@ -41,6 +52,11 @@
     <div id="voice-indicator">Voice Mode ON</div>
     <button type="button" id="voice-button">🎤</button>
   </div>
+  </div>
+  <button id="edit-instructions-btn" class="custom-select">Edit Instructions</button>
+  <div id="edit-instructions-container" style="display:none;">
+    <textarea id="instructions-content" rows="10" cols="80"></textarea>
+    <button onclick="saveChanges()">Save Changes</button>
   </div>
   <script src="script.js"></script>
 </body>

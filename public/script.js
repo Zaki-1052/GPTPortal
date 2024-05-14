@@ -11,29 +11,55 @@
 
   const modelID = {
     "GPT-4": "gpt-4",
-    "GPT-4-Vision": "gpt-4-vision-preview",
+    "GPT-4o": "gpt-4o",
     "GPT-4-32k": "gpt-4-32k",
-    "GPT-4-Turbo": "gpt-4-turbo-preview",
+    "GPT-4-Turbo": "gpt-4-turbo",
     "GPT-3.5-Turbo": "gpt-3.5-turbo-0125",
     "Gemini-Pro": "gemini-pro",
     "Gemini-Pro-Vision": "gemini-pro-vision",
-    "Mistral-Tiny": "mistral-tiny",
-    "Mistral-Small": "mistral-small",
-    "Mistral-Medium": "mistral-medium"
+    "Gemini-1.5-Pro": "gemini-1.5-pro",
+    "Gemini-Ultra": "gemini-1.0-ultra",
+    "Claude-Opus": "claude-3-opus-20240229",
+    "Claude-Sonnet": "claude-3-sonnet-20240229",
+    "Claude-Haiku": "claude-3-haiku-20240307",
+    "Claude-2.1": "claude-2.1",
+    "Claude-2.0": "claude-2.0",
+    "Claude-1.2": "claude-instant-1.2",
+    "Mistral-Tiny": "open-mistral-7b",
+    "Mistral-8x7b": "open-mixtral-8x7b",
+    "Mistral-8x-22b": "open-mixtral-8x22b",
+    "Mistral-Small": "mistral-small-latest",
+    "Mistral-Medium": "mistral-medium-latest",
+    "Mistral-Large": "mistral-large-latest",
+    "Llama3-70b": "llama3-70b",
+    "Llama3-8b": "Llama3-8b",
   };
 
   
   const customModelNames = {
     "gpt-4": "GPT-4",
-    "gpt-4-vision-preview": "GPT-4-Vision",
+    "gpt-4o": "GPT-4o",
     "gpt-4-32k": "GPT-4-32k",
-    "gpt-4-turbo-preview": "GPT-4-Turbo",
+    "gpt-4-turbo": "GPT-4-Turbo",
     "gpt-3.5-turbo-0125": "GPT-3.5-Turbo",
     "gemini-pro": "Gemini-Pro",
     "gemini-pro-vision": "Gemini-Pro-Vision",
-    "mistral-tiny": "Mistral-Tiny",
-    "mistral-small": "Mistral-Small",
-    "mistral-medium": "Mistral-Medium"
+    "gemini-1.5-pro": "Gemini-1.5-Pro",
+    "gemini-1.0-ultra": "Gemini-Ultra",
+    "claude-3-opus-20240229": "Claude-Opus",
+    "claude-3-sonnet-20240229": "Claude-Sonnet",
+    "claude-3-haiku-20240307": "Claude-Haiku",
+    "claude-2.1": "Claude-2.1",
+    "claude-2.0": "Claude-2.0",
+    "claude-instant-1.2": "Claude-1.2",
+    "open-mistral-7b": "Mistral-Tiny",
+    "open-mixtral-8x7b": "Mistral-8x7b",
+    "open-mixtral-8x22b": "Mistral-8x22b",
+    "mistral-small-latest": "Mistral-Small",
+    "mistral-medium-latest": "Mistral-Medium",
+    "mistral-large-latest": "Mistral-Large",
+    "llama3-70b": "Llama3-70b",
+    "Llama3-8b": "Llama3-8b",
   };
 
   
@@ -107,16 +133,29 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
   document.addEventListener('DOMContentLoaded', () => {
     // Define model descriptions
     const modelDescriptions = {
-      "gpt-4": "GPT-4: Most Intelligent — Default",
-      "gpt-4-vision-preview": "GPT-4-Vision: View & Analyze Images",
+      "gpt-4": "GPT-4: Oldest Intelligent Model",
+      "gpt-4o": "GPT-4o: Latest OpenAI Intelligent Model",
       "gpt-4-32k": "GPT-4-32k: Longer Context Window — Higher Price",
-      "gpt-4-turbo-preview": "GPT-4-Turbo: ChatGPT-Plus Model — 128k Tokens",
+      "gpt-4-turbo": "GPT-4-Turbo: ChatGPT-Plus Model — 128k Tokens",
       "gpt-3.5-turbo-0125": "GPT-3.5-Turbo: Cheapest Option Available",
       "gemini-pro": "Gemini-Pro: Google Bard Model — 3.5 Equivalent",
       "gemini-pro-vision": "Gemini-Vision: View Images — One-Time Use",
-      "mistral-tiny": "Mistral-Tiny: Cheapest Model — English Proficient",
-      "mistral-small": "Mistral-Small: Smarter and More Costly",
-      "mistral-medium": "Mistral-Medium: Most Expensive — Beats Gemini"
+      "gemini-1.5-pro": "Gemini-Pro-1.5: Early Access — 1 Million Tokens",
+      "gemini-1.0-ultra": "Gemini-Ultra: Largest Google Model — Unreleased",
+      "claude-3-opus-20240229": "Claude-Opus: Most Powerful — GPT-4 Level",
+      "claude-3-sonnet-20240229": "Claude-Sonnet: Hard-Working — 3.5 Level",
+      "claude-3-haiku-20240307": "Claude-Haiku: Light, Cheap, & Fast — New",
+      "claude-2.1": "Claude-2.1: Best Instant Model — 200k Tokens",
+      "claude-2.0": "Claude-2.0: Average Cheap Model — 100k Tokens",
+      "claude-1.2": "Claude-1.2: Cheapest Instant Model — 100k Context",
+      "open-mistral-7b": "Mistral-Tiny: Cheapest — Open Source 7B",
+      "open-mixtral-8x7b": "Mixtral 8x7B: Mixture of Experts (MoE) Model",
+      "open-mixtral-8x22b": "Mixtral 8x22b: Strongest Open Source Model",
+      "mistral-small-latest": "Mistral-Small: Smarter — More Costly",
+      "mistral-medium-latest": "Mistral-Medium: Intelligent — Beats Gemini-Pro",
+      "mistral-large-latest": "Mistral-Large: Most Expensive and Intelligent",
+      "llama3-70b": "Llama3 70b: GPT-4 Level Performance — Intelligent",
+      "Llama3-8b": "Llama3 8b: Smaller, Faster Model — Cheaper",
     };
     
   
@@ -174,35 +213,69 @@ document.querySelector('.custom-select').addEventListener('click', toggleDropdow
 
 // Event listeners for selecting GPT models
 document.getElementById('model-gpt-4').addEventListener('click', () => selectModel('gpt-4'));
-document.getElementById('model-gpt-4-vision').addEventListener('click', () => selectModel('gpt-4-vision-preview'));
+document.getElementById('model-gpt-4o').addEventListener('click', () => selectModel('gpt-4o'));
 document.getElementById('model-gpt-4-32k').addEventListener('click', () => selectModel('gpt-4-32k'));
-document.getElementById('model-gpt-4-turbo').addEventListener('click', () => selectModel('gpt-4-turbo-preview'));
+document.getElementById('model-gpt-4-turbo').addEventListener('click', () => selectModel('gpt-4-turbo'));
 document.getElementById('model-gpt-3.5').addEventListener('click', () => selectModel('gpt-3.5-turbo-0125'));
 
 // Event listeners for showing GPT model descriptions on hover
 document.getElementById('model-gpt-4').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4"], event.currentTarget));
-document.getElementById('model-gpt-4-vision').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-vision-preview"], event.currentTarget));
+document.getElementById('model-gpt-4o').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4o"], event.currentTarget));
 document.getElementById('model-gpt-4-32k').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-32k"], event.currentTarget));
-document.getElementById('model-gpt-4-turbo').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-turbo-preview"], event.currentTarget));
+document.getElementById('model-gpt-4-turbo').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-turbo"], event.currentTarget));
 document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-3.5-turbo-0125"], event.currentTarget));
 
 // Event listeners for selecting Gemini models
 document.getElementById('model-gemini-pro').addEventListener('click', () => selectModel('gemini-pro'));
 document.getElementById('model-gemini-pro-vision').addEventListener('click', () => selectModel('gemini-pro-vision'));
+document.getElementById('model-gemini-1.5-pro').addEventListener('click', () => selectModel('gemini-1.5-pro'));
+document.getElementById('model-gemini-ultra').addEventListener('click', () => selectModel('gemini-1.0-ultra'));
 
 // Event listeners for showing Gemini model descriptions on hover
 document.getElementById('model-gemini-pro').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-pro"], event.currentTarget));
 document.getElementById('model-gemini-pro-vision').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-pro-vision"], event.currentTarget));
+document.getElementById('model-gemini-1.5-pro').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-1.5-pro"], event.currentTarget));
+document.getElementById('model-gemini-ultra').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-1.0-ultra"], event.currentTarget));
 
 // Event listeners for selecting Mistral models
-document.getElementById('model-mistral-tiny').addEventListener('click', () => selectModel('mistral-tiny'));
-document.getElementById('model-mistral-small').addEventListener('click', () => selectModel('mistral-small'));
-document.getElementById('model-mistral-medium').addEventListener('click', () => selectModel('mistral-medium'));
+document.getElementById('model-mistral-tiny').addEventListener('click', () => selectModel('open-mistral-7b'));
+document.getElementById('model-mistral-8x7b').addEventListener('click', () => selectModel('open-mixtral-8x7b'));
+document.getElementById('model-mistral-8x22b').addEventListener('click', () => selectModel('open-mixtral-8x22b'));
+document.getElementById('model-mistral-small').addEventListener('click', () => selectModel('mistral-small-latest'));
+document.getElementById('model-mistral-medium').addEventListener('click', () => selectModel('mistral-medium-latest'));
+document.getElementById('model-mistral-large').addEventListener('click', () => selectModel('mistral-large-latest'));
 
 // Event listeners for showing Mistral model descriptions on hover
-document.getElementById('model-mistral-tiny').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-tiny"], event.currentTarget));
-document.getElementById('model-mistral-small').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-small"], event.currentTarget));
-document.getElementById('model-mistral-medium').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-medium"], event.currentTarget));
+document.getElementById('model-mistral-tiny').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["open-mistral-7b"], event.currentTarget));
+document.getElementById('model-mistral-8x7b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["open-mixtral-8x7b"], event.currentTarget));
+document.getElementById('model-mistral-8x22b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["open-mixtral-8x22b"], event.currentTarget));
+document.getElementById('model-mistral-small').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-small-latest"], event.currentTarget));
+document.getElementById('model-mistral-medium').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-medium-latest"], event.currentTarget));
+document.getElementById('model-mistral-large').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mistral-medium-latest"], event.currentTarget));
+
+// Event listeners for selecting Claude models
+document.getElementById('model-claude-opus').addEventListener('click', () => selectModel('claude-3-opus-20240229'));
+document.getElementById('model-claude-sonnet').addEventListener('click', () => selectModel('claude-3-sonnet-20240229'));
+document.getElementById('model-claude-haiku').addEventListener('click', () => selectModel('claude-3-haiku-20240307'));
+document.getElementById('model-claude-2.1').addEventListener('click', () => selectModel('claude-2.1'));
+document.getElementById('model-claude-2.0').addEventListener('click', () => selectModel('claude-2.0'));
+document.getElementById('model-claude-1.2').addEventListener('click', () => selectModel('claude-instant-1.2'));
+
+// Event listeners for showing Claude model descriptions on hover
+document.getElementById('model-claude-opus').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-3-opus-20240229"], event.currentTarget));
+document.getElementById('model-claude-sonnet').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-3-sonnet-20240229"], event.currentTarget));
+document.getElementById('model-claude-haiku').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-3-haiku-20240307"], event.currentTarget));
+document.getElementById('model-claude-2.1').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-2.1"], event.currentTarget));
+document.getElementById('model-claude-2.0').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-2.0"], event.currentTarget));
+document.getElementById('model-claude-1.2').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-instant-1.2"], event.currentTarget));
+
+// Event listeners for selecting Llama3 models
+document.getElementById('model-llama-70b').addEventListener('click', () => selectModel('llama3-70b'));
+document.getElementById('model-llama-8b').addEventListener('click', () => selectModel('Llama3-8b'));
+
+// Event listeners for showing Llama3 model descriptions on hover
+document.getElementById('model-llama-70b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["llama3-70b"], event.currentTarget));
+document.getElementById('model-llama-8b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["Llama3-8b"], event.currentTarget));
 
   // Add mouseout event listener for all model buttons
   document.querySelectorAll('.select-options button').forEach(button => {
@@ -241,6 +314,29 @@ document.getElementById('model-mistral-medium').addEventListener('mouseover', (e
             voice();
           }
         });
+
+        // CMD+SHIFT+X for exporting chat history
+        if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'X') {
+          console.log("exporting");
+          event.preventDefault();
+          exportChatHistory();
+        }
+    
+        // CMD+SHIFT+R for toggling voice mode
+        if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'V') {
+          event.preventDefault();
+          voice();
+        }
+
+        // CMD+SHIFT+C for copying the latest chat message
+    if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'C') {
+      event.preventDefault();
+      const copyButtons = document.querySelectorAll('.message button'); // Get all buttons in messages
+      const latestCopyButton = Array.from(copyButtons).reverse().find(btn => btn.textContent.includes('Copy') && !btn.textContent.includes('Copy Code'));
+      if (latestCopyButton) {
+        latestCopyButton.click();
+      }
+    }
       
         document.getElementById('export-button').addEventListener('click', exportChatHistory);
         
@@ -273,7 +369,16 @@ async function processAndSendMessage() {
 
       // Function to export chat history based on the type (conversation or gemini)
       function exportChatHistory() {
-        const historyType = isGemini ? 'gemini' : 'conversation';
+        // Determine the history type based on isGemini and isAssistants flags
+        let historyType;
+        if (isGemini) {
+          historyType = 'gemini';
+        } else if (isAssistants) {
+          historyType = 'assistants';
+        } else {
+          historyType = 'conversation';
+        }
+        
         console.log("Exporting chat history for:", historyType);
         const exportUrl = '/export-chat-html?type=' + historyType;
         fetch(exportUrl)
@@ -293,7 +398,14 @@ async function processAndSendMessage() {
       
 // Modify exportChatOnShutdown to use the isGemini flag
 function exportChatOnShutdown() {
-  const historyType = isGemini ? 'gemini' : 'conversation';
+  let historyType;
+  if (isGemini) {
+    historyType = 'gemini';
+  } else if (isAssistants) {
+    historyType = 'assistants';
+  } else {
+    historyType = 'conversation';
+  }
   exportChatHistory(historyType);
 }
 
@@ -546,3 +658,63 @@ function displayMessage(message, type) {
     });
     }
     
+// Function to update upload status message
+function updateUploadStatus(message) {
+  const statusElement = document.getElementById('upload-status');
+  if (statusElement) {
+    statusElement.textContent = message;
+  }
+}
+
+// Modifying handleFileSelect function to include upload status update
+document.getElementById('file-input').addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (file) { // Removed the type check for demonstration purposes
+    updateUploadStatus('File Uploaded: ' + file.name);
+  } else {
+    updateUploadStatus('No file selected or unsupported file type');
+  }
+});
+
+document.getElementById('edit-instructions-btn').addEventListener('click', function() {
+  const container = document.getElementById('edit-instructions-container');
+  const isHidden = container.style.display === 'none';
+  
+  // Toggle the display of the container
+  container.style.display = isHidden ? 'block' : 'none';
+  
+  // If we're showing the container, load the content and scroll to it
+  if (isHidden) {
+    fetch('/get-instructions')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('instructions-content').value = data;
+        container.scrollIntoView({ behavior: 'smooth' });
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }
+});
+
+function saveChanges() {
+  const content = document.getElementById('instructions-content').value;
+  fetch('/update-instructions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ content: content })
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Success:', data);
+    // Show a success message
+    alert('Changes saved successfully');
+    // Hide the edit container
+    document.getElementById('edit-instructions-container').style.display = 'none';
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
