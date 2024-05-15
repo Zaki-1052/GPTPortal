@@ -463,7 +463,7 @@ let thread = null;
 let response = '';
 let initialize = true;
 let messages;
-let modelID = 'gpt-4-turbo';
+let modelID = 'gpt-4o';
 
 // Utility function to ensure Assistant and Thread initialization
 async function AssistantAndThread(modelID, systemMessage) {
@@ -841,7 +841,7 @@ if (!history && (!imageParts || imageParts.length === 0)) {
       }
 
       // Initialize the Google model for text-and-image input
-      const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro-vision', generationConfig: defaultConfig, safetySettings });
+      const googleModel = genAI.getGenerativeModel({ model: model, generationConfig: defaultConfig, safetySettings });
 console.log(googleModel);
       // Convert image parts to the required format using the new function
       // Construct file paths from received filenames and convert image parts

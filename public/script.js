@@ -42,6 +42,7 @@ fetchConfig();
     "Gemini-Pro": "gemini-pro",
     "Gemini-Pro-Vision": "gemini-pro-vision",
     "Gemini-1.5-Pro": "gemini-1.5-pro",
+    "Gemini-1.5-Flash": "gemini-1.5-flash",
     "Gemini-Ultra": "gemini-1.0-ultra",
     "Claude-Opus": "claude-3-opus-20240229",
     "Claude-Sonnet": "claude-3-sonnet-20240229",
@@ -195,6 +196,7 @@ fetchConfig();
     "gemini-pro": "Gemini-Pro",
     "gemini-pro-vision": "Gemini-Pro-Vision",
     "gemini-1.5-pro": "Gemini-1.5-Pro",
+    "gemini-1.5-flash": "Gemini-1.5-Flash",
     "gemini-1.0-ultra": "Gemini-Ultra",
     "claude-3-opus-20240229": "Claude-Opus",
     "claude-3-sonnet-20240229": "Claude-Sonnet",
@@ -611,6 +613,7 @@ document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) =
 document.getElementById('model-gemini-pro').addEventListener('click', () => selectModel('gemini-pro'));
 document.getElementById('model-gemini-pro-vision').addEventListener('click', () => selectModel('gemini-pro-vision'));
 document.getElementById('model-gemini-1.5-pro').addEventListener('click', () => selectModel('gemini-1.5-pro'));
+document.getElementById('model-gemini-1.5-flash').addEventListener('click', () => selectModel('gemini-1.5-flash'));
 document.getElementById('model-gemini-ultra').addEventListener('click', () => selectModel('gemini-1.0-ultra'));
 
 // Event listeners for showing Gemini model descriptions on hover
