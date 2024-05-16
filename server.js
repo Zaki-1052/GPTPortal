@@ -231,7 +231,6 @@ initializeGeminiConversationHistory();
   }
 
   // Log the determined chatHistory
-  console.log("Determined Chat History: ", JSON.stringify(chatHistory, null, 2));
 
   let htmlContent = `
     <html>

@@ -77,8 +77,7 @@
   }
 }
 
-let currentModelID = 'gpt-4o'; // Global declaration
-
+setDefaultModel();
 
 let transcriptionResult = '';
 
