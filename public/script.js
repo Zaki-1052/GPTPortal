@@ -77,7 +77,7 @@
   }
 }
 
-setDefaultModel();
+let currentModelID = 'gpt-4o';
 
 let transcriptionResult = '';
 
