@@ -355,7 +355,7 @@ fetchConfig();
   }
 }
 
-setDefaultModel();
+let currentModelID = 'gpt-40';
 
 let selectedImage = null;
 
