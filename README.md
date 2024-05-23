@@ -2,6 +2,74 @@
 
 Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web application that allows users to interact with a chatbot powered by *OpenAI*'s **GPT-4 API**, including the latest *Vision*, *Hearing*, and *Speaking* capabilities with *image-generation*, *file uploads*, and superior *Model Performance*. Now includes the **Google Gemini** & **Anthropic Claude** models via *free* API, plus **Mistral AI**, and a *native* **Code Environment** via **Assistants Mode** to reuse *files* and *instructions* from OpenAI's *Beta API*!
 
+## BioMed
+
+Development of a Node.js Portal for Epigenetic Data Analysis Using Vector Embeddings and Large Language Models
+Abstract
+In this project, I developed a web-based application using Node.js that simplifies the analysis of epigenetic data. This application integrates techniques such as vector embeddings, retrieval augmented generation, and large language models (LLMs) to process and interpret complex biological data, mainly focusing on DNA Methylation. The primary function of the portal is to
+enable users to query epigenetic modifying agents, matching these queries with relevant
+genetic sequences through the use of vector similarity models. This facilitates a better understanding of how certain regions of DNA can influence gene activity. I designed my system
+to be user-friendly, providing clear and accessible explanations of intricate genetic information.
+My portal integrates software engineering techniques with biological concepts like genomic analysis.
+Introduction
+Background
+Epigenetics involves the study of changes in gene activity that do not involve alterations to the underlying DNA sequence. These changes can affect how genes are turned on or off and are influenced by various factors including the environment and lifestyle. I believe that understanding epigenetics will help advance our knowledge of genetics, development, and disease treatment. More specifically, when analyzing DNA Methylation under certain cellular sequences on a chromosome, a user can determine whether a specific level of methylation on a phenotype contributes to the inhibition of the gene functionality, and thus analyzes practical outcomes.
+Problem Statement
+Analyzing epigenetic data will require access to and the ability to read methyl values on DNA in chromosomes, after RNA transcription. This is a challenge because current tools visualize such patterns in a non-user friendly and extremely complex method. It is difficult to correctly analyze and interpret such data in order to derive any meaningful insights from the pure datasets.
+Project Objective
+The objective of this project was to develop a web-based application that can simplify and expedite the process of epigenetic data analysis. By integrating advanced computational tools such as vector embeddings and large language models, my portal provides a more intuitive and accessible platform for exploring genetic information. Specifically, it will combine the power of Machine Learning with Computational Biology for an original and useful bioinformatics project.
+   
+ Significance
+The significance of this project is in its potential to enhance educational and research methodologies in genetics. By making epigenetic data more accessible and easier to interpret, it supports broader engagement with genetic research among the ordinary consumer, and can aid in the discovery of new insights into gene regulation and its implications for health and disease. Specifically, it will allow for people to query functions such as cancerous cells and find the direct correlation between questions and biological results, easily interpretable with SOTA AI models. Note: SOTA = State-Of-The-Art
+Methods
+System Architecture
+The architecture of the web-based application is centered around a Node.js server, which handles the backend processes and data management. The server interacts with a frontend interface where users can input their queries related to epigenetic data. It queries Genetic Patterns in EpiHK.WGB-Seq. Methylation Profile, influenced by SQL and complex APIs.
+Data Acquisition
+For this project, I utilized a comprehensive dataset consisting of epigenetic modifying agents. This data was sourced from publicly available genetic research databases such as the USC and UCSD Genomic portals, and I manually structured this data into a format suitable for processing. The primary data type used was the bigwig format, known for storing dense, continuous data like those used in genomics and bioinformatics. I loaded and processed this data into JSONl files.
+Implementation of Vector Embeddings & RAG
+Vector Embeddings combined with Retrieval Augmented Generation were crucial for mapping genetic sequences into a numerical space that the system could effectively analyze. I employed a pre-trained model, manually fine-tuned model that translates complex genetic information into vectors. These vectors allow the system to measure similarity and relevance between user queries and genetic data points. It takes advantage of cosine similarity and tokenization as well.
+Integration of Language Models
+Large Language Models (LLMs) are integrated into the application to interpret and process
+user inputs and genetic data. My custom-trained model understands data structured into chromosomal frequencies and methylated data values paired with nitrogen bases.
+The strength of bonded methyl groups were structured and trained at scale upon multiple ML epochs and training checkpoints via SOTA techniques. As these models primarily understand and generate human-like text, it is possible for me to provide contextually aware explanations of function calls and match them with user queries to provide relevant and accurate genetic information.
+The LLMs are designed by me to call specific functions that fetch and analyze the data corresponding to user queries, then storing them in a vector space for processing/analysis.
+ 
+ Retrieval and Augmented Generation Techniques
+The Retrieval-Augmented Generation (RAG) approach combines the retrieval of relevant documents with data-driven text generation. In the context of this application, RAG is used to find and retrieve the most relevant genetic sequences based on the user’s query. My system then uses this information, once embedded upon my specified parameters, to generate a response that is both informative and directly related to the queried topic in the form of levels.
+Performance Metrics
+To assess the functionality and efficiency of the application, several performance metrics were established. These included response time, accuracy of data retrieval, and number of glitches. These metrics helped in fine-tuning the system to ensure that it met the required standards for effective epigenetic data analysis. I knew that results were accurate when returned levels matched with a set scale and metric I had established for training the model to measure whether gene inhibition was statistically significant for the passed sequences loaded in my schematic.
+Results
+Functionality Tests
+Initial tests focused on the application's ability to accurately process and respond to user queries. These tests involved standard queries related to epigenetic modifying agents and genetic sequences, including primary methylation levels, where my system demonstrated a high level of accuracy in retrieving and interpreting the correct data when trained at scale and on synthetic data. Response times averaged below 15 seconds, indicating a high efficiency in data processing.
+Data Analysis Capabilities
+The application was further tested for its ability to analyze and interpret complex genetic information. Through the use of vector embeddings and LLMs, the system could effectively map user queries to relevant genetic sequences and provide detailed explanations of the epigenetic implications. For instance, when queried about the impact of a specific modifying agent on gene expression of BRCA1 genes, the application successfully identified relevant gene regions and provided a comprehensible analysis based on research I provided. It was also able to similarly analyze phenotypic aging clocks such as Levine’s standard without being given a patient’s age.
+Discussion
+Interpretation of Results
+The results from the tests confirm that the web-based application effectively simplifies the analysis of epigenetic data through an intuitive interface and advanced computational tools.
+The high accuracy in data retrieval and the quick response time enhance user trust in the system's reliability and efficiency. Furthermore, the application's ability to provide detailed, understandable explanations of complex genetic information addresses a significant challenge in epigenetic research -- making intricate data accessible to non-specialists and the ordinary person.
+  
+ Comparison with Existing Methods
+Compared to traditional data analysis methods in epigenetics, which often require extensive computational skills and knowledge of bioinformatics tools, this application offers a more user-friendly and faster approach. While other platforms may provide similar analytical capabilities, in the form of graphs and SQL databases, the integration of LLMs and vector embeddings in this project sets it apart by enabling a more nuanced interpretation of queries and generating more contextually relevant responses. In other words, I can now convert raw epigenetic data into natural language that can be understood and elaborated upon by a knowledgeable and expert genomic specialist designed to inform users of the implications.
+Limitations and Challenges
+Despite its successes, the project faces several limitations. The accuracy of the system, while high, still depends on the quality & completeness of the input data. Incomplete or erroneous data can lead to less accurate or misleading outputs. Additionally, I am currently unable to correlate singular provided cellular DNA sequences on separate chromosomes to directly correlate with performance across metrics of different patient qualities. In other words, my data cannot be interpreted in the same manner as another’s, so new scaling metrics will need to be created.
+Future Directions
+Future work could focus on expanding the database to include a broader range of epigenetic
+data and improving the vector embedding models to enhance accuracy and response comprehensiveness. Additionally, developing a more robust handling of ambiguous or complex queries could further improve user satisfaction. There is also potential to adapt the technology
+for other areas of genetics and biology, broadening the impact of this tool. For example, while I focused on methylation, I could potentially measure factors such as telomere decay for a more
+holistic examination of a person’s risk factors for organ failure at advanced stages and ages.
+Lastly, I hope that my GitHub repository and commitment to open source will continue to gain attention and publicity, so that more people will find the project useful and be encouraged to contribute further.
+Conclusion
+Summary
+As a whole, my epigenetic portal makes great strides towards allowing users to “talk” to their DNA, and has impressive real-world applications for interpreting and analyzing genomic information to better understand agentic effects on our phenotypes, based in actual data.
+The impact of the project lies in its ability to process such data and convert it into usable, practical explanations for what it means in a human patient, thus enhancing research as a whole.
+Reflection
+Looking back, I would likely get more involved in wetwork labs so that I could use my own gene sequences, and not be unable to license my work without the original data files. I might also
+further explore the implications for extrapolating epigenetic functions across multiple genotypes.
+I certainly found the experience worthwhile, informative, and would like to do more research in the future.
+Sources
+Arc Link to Research Folder
+https://arc.net/folder/348D80BB-7FFC-4C2A-8F31-D94B210F78BC
+  
 ## Table of Contents
 
 - [Features](#features)
