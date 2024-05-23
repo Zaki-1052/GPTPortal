@@ -12,6 +12,8 @@ I was unable to host the DNA itself due to copyright concerns, and the district 
 
 The portfolio is an Arc Folder, and the public document you are reading here also attaches to various instructions and processes. Please see all of the different files on this service, which have the holistic examination of my project. 
 
+The intermediate product can be seen by clicking the clock history icon, which shows ALL of my progress over the course of the year.
+
 The result itself can be installed here, and fulfills the rubric requirements via PLTW; as long as you don't hit any filters, my evidence for the project is all here. 
 
 [HERE](https://arc.net/folder/E32B3009-1742-4DC8-8B73-9668692820EC) is the Arc folder for various docs, and the final project is in the industry standard for a coding project, fulfilling all requirements. 
