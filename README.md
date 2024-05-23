@@ -6,6 +6,16 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
 
 ### Development of a Node.js Portal for Epigenetic Data Analysis Using Vector Embeddings and Large Language Models
 
+#### Address to Teacher
+
+I was unable to host the DNA itself due to copyright concerns, and the district cannot host my code, but please see the attached Microsoft GitHub documentation with my table of contents, and all of the requirements are in attached "Code" files. GitHub hosts all of my work here, and you should be able to see and examine the work. The separate docs, including my analysis and citations, are hyperlinks in this ReadMe portfolio. 
+
+The portfolio is an Arc Folder, and the public document you are reading here also attaches to various instructions and processes. Please see all of the different files on this service, which have the holistic examination of my project. 
+
+The result itself can be installed here, and fulfills the rubric requirements via PLTW; as long as you don't hit any filters, my evidence for the project is all here. 
+
+[HERE](https://arc.net/folder/E32B3009-1742-4DC8-8B73-9668692820EC) is the Arc folder for various docs, and the final project is in the industry standard for a coding project, fulfilling all requirements. 
+
 #### Abstract
 
 In this project, I developed a web-based application using Node.js that simplifies the analysis of epigenetic data. This application integrates techniques such as vector embeddings, retrieval augmented generation, and large language models (LLMs) to process and interpret complex biological data, mainly focusing on DNA Methylation. 
@@ -27,6 +37,7 @@ Epigenetics involves the study of changes in gene activity that do not involve a
 Analyzing epigenetic data will require access to and the ability to read methyl values on DNA in chromosomes, after RNA transcription. This is a challenge because current tools visualize such patterns in a non-user friendly and extremely complex method. It is difficult to correctly analyze and interpret such data in order to derive any meaningful insights from the pure datasets.
 
 ##### Project Objective
+
 The objective of this project was to develop a web-based application that can simplify and expedite the process of epigenetic data analysis. By integrating advanced computational tools such as vector embeddings and large language models, my portal provides a more intuitive and accessible platform for exploring genetic information. Specifically, it will combine the power of Machine Learning with Computational Biology for an original and useful bioinformatics project.
    
 ##### Significance
@@ -82,13 +93,14 @@ The high accuracy in data retrieval and the quick response time enhance user tru
   
 ##### Comparison with Existing Methods
 
-##### Compared to traditional data analysis methods in epigenetics, which often require extensive computational skills and knowledge of bioinformatics tools, this application offers a more user-friendly and faster approach. While other platforms may provide similar analytical capabilities, in the form of graphs and SQL databases, the integration of LLMs and vector embeddings in this project sets it apart by enabling a more nuanced interpretation of queries and generating more contextually relevant responses. In other words, I can now convert raw epigenetic data into natural language that can be understood and elaborated upon by a knowledgeable and expert genomic specialist designed to inform users of the implications.
+Compared to traditional data analysis methods in epigenetics, which often require extensive computational skills and knowledge of bioinformatics tools, this application offers a more user-friendly and faster approach. While other platforms may provide similar analytical capabilities, in the form of graphs and SQL databases, the integration of LLMs and vector embeddings in this project sets it apart by enabling a more nuanced interpretation of queries and generating more contextually relevant responses. In other words, I can now convert raw epigenetic data into natural language that can be understood and elaborated upon by a knowledgeable and expert genomic specialist designed to inform users of the implications.
 
 ##### Limitations and Challenges
 
 Despite its successes, the project faces several limitations. The accuracy of the system, while high, still depends on the quality & completeness of the input data. Incomplete or erroneous data can lead to less accurate or misleading outputs. Additionally, I am currently unable to correlate singular provided cellular DNA sequences on separate chromosomes to directly correlate with performance across metrics of different patient qualities. In other words, my data cannot be interpreted in the same manner as another’s, so new scaling metrics will need to be created.
 
 ##### Future Directions
+
 Future work could focus on expanding the database to include a broader range of epigenetic data and improving the vector embedding models to enhance accuracy and response comprehensiveness. Additionally, developing a more robust handling of ambiguous or complex queries could further improve user satisfaction. There is also potential to adapt the technology
 for other areas of genetics and biology, broadening the impact of this tool. For example, while I focused on methylation, I could potentially measure factors such as telomere decay for a more
 holistic examination of a person’s risk factors for organ failure at advanced stages and ages.
