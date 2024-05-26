@@ -438,49 +438,6 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
       user_input.content.push({ type: "text", text: user_message });
   }
 
-  if (fileContents) {
-    console.log(fileContents);
-    user_input.content.push({ type: "text", text: file_id });
-    user_input.content.push({ type: "text", text: fileContents });
-    fileContents = null;
-  }
-
-  // Check for image in the payload
-  if (req.body.image) {
-    let base64Image;
-    // If req.file is defined, it means the image is uploaded as a file
-    if (req.file) {
-      base64Image = imageToBase64(req.file.path);
-    } else {
-      // If req.file is not present, fetch the image from the URL
-      base64Image = await imageURLToBase64(req.body.image);
-    }
-    if (base64Image) {
-      user_input.content.push({ type: "text", text: imageName });
-      if (modelID.startsWith('claude')) {
-        // Split the base64 string to get the media type and actual base64 data
-        const [mediaPart, base64Data] = base64Image.split(';base64,');
-        const mediaType = mediaPart.split(':')[1]; // to get 'image/jpeg' from 'data:image/jpeg'
-
-        user_input.content.push({
-            type: "image",
-            source: {
-                type: "base64",
-                media_type: mediaType,
-                data: base64Data
-            }
-        });
-    } else {
-        user_input.content.push({ type: "image_url", image_url: { url: base64Image } });
-      }
-      
-      // Optional: Clean up the uploaded file after sending to OpenAI
-    fs.unlink(uploadedImagePath, (err) => {
-      if (err) console.error("Error deleting temp file:", err);
-      console.log("Temp file deleted");
-    });
-    }
-  }
 } else {
   // For Mistral models, user_input.content is a string and set to user_message
   user_input = {
@@ -491,15 +448,6 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
   if (user_message) {
     // Directly assign user_message to content
     user_input.content = user_message; // Assuming user_message is a string
-  }
-
-  if (fileContents) {
-    console.log(fileContents);
-    user_input.content += "\n";
-    user_input.content += file_id;
-    user_input.content += "\n";
-    user_input.content += fileContents;
-    fileContents = null;
   }
 
 }

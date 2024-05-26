@@ -372,8 +372,6 @@ async function processAndSendMessage() {
         let historyType;
         if (isGemini) {
           historyType = 'gemini';
-        } else if (isAssistants) {
-          historyType = 'assistants';
         } else {
           historyType = 'conversation';
         }
@@ -400,8 +398,6 @@ function exportChatOnShutdown() {
   let historyType;
   if (isGemini) {
     historyType = 'gemini';
-  } else if (isAssistants) {
-    historyType = 'assistants';
   } else {
     historyType = 'conversation';
   }
