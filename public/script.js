@@ -213,14 +213,12 @@ document.querySelector('.custom-select').addEventListener('click', toggleDropdow
 // Event listeners for selecting GPT models
 document.getElementById('model-gpt-4').addEventListener('click', () => selectModel('gpt-4'));
 document.getElementById('model-gpt-4o').addEventListener('click', () => selectModel('gpt-4o'));
-document.getElementById('model-gpt-4-32k').addEventListener('click', () => selectModel('gpt-4-32k'));
 document.getElementById('model-gpt-4-turbo').addEventListener('click', () => selectModel('gpt-4-turbo'));
 document.getElementById('model-gpt-3.5').addEventListener('click', () => selectModel('gpt-3.5-turbo-0125'));
 
 // Event listeners for showing GPT model descriptions on hover
 document.getElementById('model-gpt-4').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4"], event.currentTarget));
 document.getElementById('model-gpt-4o').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4o"], event.currentTarget));
-document.getElementById('model-gpt-4-32k').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-32k"], event.currentTarget));
 document.getElementById('model-gpt-4-turbo').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-turbo"], event.currentTarget));
 document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-3.5-turbo-0125"], event.currentTarget));
 
@@ -660,16 +658,6 @@ function updateUploadStatus(message) {
     statusElement.textContent = message;
   }
 }
-
-// Modifying handleFileSelect function to include upload status update
-document.getElementById('file-input').addEventListener('change', function(event) {
-  const file = event.target.files[0];
-  if (file) { // Removed the type check for demonstration purposes
-    updateUploadStatus('File Uploaded: ' + file.name);
-  } else {
-    updateUploadStatus('No file selected or unsupported file type');
-  }
-});
 
 document.getElementById('edit-instructions-btn').addEventListener('click', function() {
   const container = document.getElementById('edit-instructions-container');
