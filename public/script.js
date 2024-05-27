@@ -1465,3 +1465,49 @@ function saveChanges() {
     console.error('Error:', error);
   });
 }
+
+
+
+
+document.getElementById('edit-env-btn').addEventListener('click', function() {
+  const container = document.getElementById('edit-env-container');
+  const isHidden = container.style.display === 'none';
+  
+  // Toggle the display of the container
+  container.style.display = isHidden ? 'block' : 'none';
+  
+  // If we're showing the container, load the content and scroll to it
+  if (isHidden) {
+    fetch('/get-my-env')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('env-content').value = data;
+        container.scrollIntoView({ behavior: 'smooth' });
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }
+});
+
+function saveEnvChanges() {
+  const content = document.getElementById('env-content').value;
+  fetch('/update-my-env', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ content: content })
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Success:', data);
+    // Show a success message
+    alert('Changes saved successfully');
+    // Hide the edit container
+    document.getElementById('edit-env-container').style.display = 'none';
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}

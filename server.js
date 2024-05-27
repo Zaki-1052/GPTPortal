@@ -39,16 +39,93 @@ const HarmCategory = googleGenerativeAI.HarmCategory;
 const username = process.env.USER_USERNAME;
 const password = process.env.USER_PASSWORD;
 
-const users = {
-  [username]: password
-};
+if (username && password) {
+  const users = {
+    [username]: password
+  };
+
+  // Apply basic authentication middleware
+  app.use(basicAuth({
+    users: users,
+    challenge: true
+  }));
+  // Allow access to the '/portal' route
+  app.get('/portal', (req, res) => {
+    res.sendFile('portal.html', { root: 'public' });
+  });
+
+  // Redirect all other routes (except for '/config' and '/setup') to '/portal'
+  app.get('*', (req, res, next) => {
+    if (req.path === '/portal' || req.path === '/config') {
+      next();
+    } else {
+      res.redirect('/portal');
+    }
+  });
+} else {
+  // Redirect to the setup page if username and password are not set
+  app.get('*', (req, res, next) => {
+    if (req.path === '/setup' || req.path === '/config') {
+      next();
+    } else {
+      res.redirect('/setup');
+    }
+  });
+}
 
 
-// Apply basic authentication middleware
-app.use(basicAuth({
-  users: users,
-  challenge: true
-}));
+app.get('/setup', (req, res) => {
+  res.sendFile('setup.html', { root: 'public' });
+});
+
+app.post('/setup', (req, res) => {
+  const { username, password, openaiApiKey, googleApiKey, mistralApiKey, claudeApiKey } = req.body;
+
+  let envContent = `USER_USERNAME=${username}\nUSER_PASSWORD=${password}\n`;
+
+  if (openaiApiKey) {
+    envContent += `OPENAI_API_KEY=${openaiApiKey}\n`;
+  }
+  if (googleApiKey) {
+    envContent += `GOOGLE_API_KEY=${googleApiKey}\n`;
+  }
+  if (mistralApiKey) {
+    envContent += `MISTRAL_API_KEY=${mistralApiKey}\n`;
+  }
+  if (claudeApiKey) {
+    envContent += `CLAUDE_API_KEY=${claudeApiKey}\n`;
+  }
+
+  fs.writeFileSync('.env', envContent);
+
+  res.json({ message: 'Environment variables successfully written' });
+
+// Allow access to the '/portal' route
+app.get('/portal', (req, res) => {
+  res.sendFile('portal.html', { root: 'public' });
+});
+
+// Redirect all other routes (except for '/config' and '/setup') to '/portal'
+app.get('*', (req, res, next) => {
+  if (req.path === '/portal' || req.path === '/config') {
+    next();
+  } else {
+    res.redirect('/portal');
+  }
+});
+
+});
+
+app.get('/get-env', (req, res) => {
+  const envContent = fs.readFileSync('.env', 'utf-8');
+  res.send(envContent);
+});
+
+app.post('/update-env', (req, res) => {
+  const newEnvContent = req.body.envContent;
+  fs.writeFileSync('.env', newEnvContent);
+  res.send('Environment variables updated successfully.');
+});
 
 
 // Serve uploaded files from the 'public/uploads' directory
@@ -1295,6 +1372,43 @@ app.post('/update-instructions', (req, res) => {
   });
 });
 
+app.get('/get-my-env', (req, res) => {
+  fs.readFile('.env', 'utf8', (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error reading the file');
+    }
+    res.send(data);
+  });
+});
+
+app.post('/update-my-env', (req, res) => {
+  const newContent = req.body.content;
+  fs.writeFile('.env', newContent, 'utf8', (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send({ message: 'Error saving the file' });
+    }
+    res.send({ message: 'File updated successfully' });
+  });
+});
+
+
+app.post('/shutdown-server', (req, res) => {
+  if (isShuttingDown) {
+    return res.status(503).send('Server is already shutting down');
+  }
+
+  isShuttingDown = true;
+  res.send('Server shutdown initiated');
+
+  setTimeout(() => {
+    server.close(() => {
+      console.log('Server successfully shut down.');
+      process.exit(0);
+    });
+  }, 1000); // 1-second delay for the response to be sent
+});
   
 
 // Start the server

@@ -188,11 +188,11 @@ https://github.com/Zaki-1052/GPTPortal/assets/134018102/de7cb401-54f3-4cdd-a041-
      ```
 
 6. **Access the Chat Interface**:
-   - Open a web browser and go to `http://localhost:3000/portal`.
+   - Open a web browser and go to `http://localhost:3000`.
      - *Portal URL*:
   
      ```sh
-     http://localhost:3000/portal
+     http://localhost:3000
      ```
 
 ## Usage
@@ -955,7 +955,7 @@ For users who want to quickly start the application without manual Docker comman
     - This will pull the necessary Docker image, set up the container, and start the application. The service defined in the `docker-compose.yml` file will be orchestrated accordingly.
 
 4. **Accessing the Application**:
-    - Once the container is up and running, the application should be accessible via `http://localhost:3000/portal` on your browser.
+    - Once the container is up and running, the application should be accessible via `http://localhost:3000/` on your browser.
 
 5. **Stopping the Application**:
     - To stop the application, you can press `Ctrl+C` in the terminal where the Docker Compose is running.
@@ -987,7 +987,7 @@ If you prefer to build and run the Docker image manually, follow these steps:
     - This will start a Docker container named `gptportal-instance` which exposes port 3000 to your local machine.
 
 3. **Accessing the Application**:
-    - The application should now be running and accessible through `http://localhost:3000/portal`.
+    - The application should now be running and accessible through `http://localhost:3000`.
 
 #### Additional Information
 

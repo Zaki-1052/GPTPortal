@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup</title>
+</head>
+<body>
+    <h1>Setup</h1>
+    <form id="setupForm">
+      <label for="username">Username (required):</label>
+      <input type="text" id="username" name="username" required><br>
+  
+      <label for="password">Password (required):</label>
+      <input type="password" id="password" name="password" required><br>
+  
+      <label for="openaiApiKey">OpenAI API Key (optional):</label>
+      <input type="text" id="openaiApiKey" name="openaiApiKey"><br>
+  
+      <label for="googleApiKey">Google API Key (optional):</label>
+      <input type="text" id="googleApiKey" name="googleApiKey"><br>
+  
+      <label for="mistralApiKey">Mistral API Key (optional):</label>
+      <input type="text" id="mistralApiKey" name="mistralApiKey"><br>
+  
+      <label for="claudeApiKey">Claude API Key (optional):</label>
+      <input type="text" id="claudeApiKey" name="claudeApiKey"><br>
+  
+      <button type="submit">Submit</button>
+    </form>
+    <script>
+        document.getElementById('setupForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const formData = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                openaiApiKey: document.getElementById('openaiApiKey').value,
+                googleApiKey: document.getElementById('googleApiKey').value,
+                mistralApiKey: document.getElementById('mistralApiKey').value,
+                claudeApiKey: document.getElementById('claudeApiKey').value
+            };
+
+            fetch('/setup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            }).then(response => {
+                if (response.ok) {
+                    alert('Changes saved successfully');
+
+                    return fetch('/shutdown-server', {
+                        method: 'POST'
+                    });
+                } else {
+                    alert('An error occurred during setup. Please try again.');
+                }
+            }).then(shutdownResponse => {
+                if (shutdownResponse && shutdownResponse.ok) {
+                    document.body.innerHTML = '<h2>Server is shutting down. Please restart it at <a href="http://localhost:3000">localhost:3000</a>.</h2>';
+                } else {
+                    alert('Failed to shut down the server.');
+                }
+            }).catch(err => {
+                alert('Error: ' + err.message);
+            });
+        });
+    </script>
+</body>
+</html>
