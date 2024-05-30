@@ -1218,12 +1218,12 @@ if (modelID === 'gpt-4') {
         // Add any Mistral-specific headers here if necessary
       };
       apiUrl = 'https://api.anthropic.com/v1/messages';
-    } else if (modelID.startsWith('llama') || modelID.startsWith('Llama')) {
+    } else if (modelID.startsWith('llama') || modelID.startsWith('gemma')) {
       conversationHistory.push(user_input);
       headers = {
-        'Authorization': `Bearer ${process.env.LLAMA_API_KEY}`,
+        'Authorization': `Bearer ${process.env.QROQ_API_KEY}`,
       };
-      apiUrl = 'https://api.llama-api.com/chat/completions';
+      apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
     } else if (modelID.includes('/')) {
       conversationHistory.push(user_input);
       headers = {

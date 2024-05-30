@@ -56,8 +56,9 @@ fetchConfig();
     "Mistral-Small": "mistral-small-latest",
     "Mistral-Medium": "mistral-medium-latest",
     "Mistral-Large": "mistral-large-latest",
-    "Llama3-70b": "llama3-70b",
-    "Llama3-8b": "Llama3-8b",
+    "Llama3-70b": "llama3-70b-8192",
+    "Llama3-8b": "llama3-8b-8192",
+    "Gemma-7b": "gemma-7b-it",
     // Open Router Models
     "OpenRouter Auto": "openrouter/auto",
     "Nous: Capybara 7B (free)": "nousresearch/nous-capybara-7b:free",
@@ -210,8 +211,9 @@ fetchConfig();
     "mistral-small-latest": "Mistral-Small",
     "mistral-medium-latest": "Mistral-Medium",
     "mistral-large-latest": "Mistral-Large",
-    "llama3-70b": "Llama3-70b",
-    "Llama3-8b": "Llama3-8b",
+    "llama3-70b-8192": "Llama3-70b",
+    "llama3-8b-8192": "Llama3-8b",
+    "gemma-7b-it": "Gemma-7b",
     // Open Router Models
     "openrouter/auto": "OpenRouter Auto",
     "nousresearch/nous-capybara-7b:free": "Nous: Capybara 7B (free)",
@@ -655,12 +657,16 @@ document.getElementById('model-claude-2.0').addEventListener('mouseover', (event
 document.getElementById('model-claude-1.2').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-instant-1.2"], event.currentTarget));
 
 // Event listeners for selecting Llama3 models
-document.getElementById('model-llama-70b').addEventListener('click', () => selectModel('llama3-70b'));
-document.getElementById('model-llama-8b').addEventListener('click', () => selectModel('Llama3-8b'));
+document.getElementById('model-llama-70b').addEventListener('click', () => selectModel('llama3-70b-8192'));
+document.getElementById('model-llama-8b').addEventListener('click', () => selectModel('llama3-8b-8192'));
 
 // Event listeners for showing Llama3 model descriptions on hover
-document.getElementById('model-llama-70b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["llama3-70b"], event.currentTarget));
-document.getElementById('model-llama-8b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["Llama3-8b"], event.currentTarget));
+document.getElementById('model-llama-70b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["llama3-70b-8192"], event.currentTarget));
+document.getElementById('model-llama-8b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["llama3-8b-8192"], event.currentTarget));
+
+// gemma it via qroq
+document.getElementById('model-gemma-it').addEventListener('click', () => selectModel('gemma-7b-it'));
+document.getElementById('model-gemma-it').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemma-7b-it"], event.currentTarget));
 
 // select open router models lol
 
