@@ -217,6 +217,63 @@ body {
   background-color: #357ae8; /* Darker blue on hover */
 }
 
+#edit-env-btn {
+  text-align: center; /* Center align the container */
+  padding: 6px; /* Add some padding */
+  margin-bottom: 70px; /* Space before the chat container */
+  padding: 10px; /* Padding inside the selector */
+  border-radius: 5px; /* Rounded corners */
+  border: 1px solid #5f6368; /* Border color */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Shadow effect */
+  align-content: center; /* Center align the container */
+  display: block; /* Ensure it's a block-level element */
+  width: 12%; /* Or any specific width */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#edit-env-container {
+  background-color: #000; /* Black background */
+  color: #fff; /* White text */
+  font-family: 'Roboto', sans-serif; /* Roboto font */
+  text-align: center; /* Center align content */
+  width: 80%; /* Set a width for the container */
+  margin: 20px auto; /* Center the container on the page with margin */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
+}
+
+#edit-env-container textarea {
+  width: calc(100% - 20px); /* Full width of the container minus padding */
+  height: 350px; /* Fixed height for the textarea */
+  margin: 10px; /* Margin around the textarea */
+  padding: 10px; /* Padding inside the textarea */
+  background-color: #121212; /* Slightly lighter black for contrast */
+  color: #fff; /* White text */
+  border: 1px solid #5f6368; /* Border color */
+  border-radius: 5px; /* Rounded corners */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+#edit-env-container button {
+  display: block; /* Block level for stacking */
+  margin: 10px auto; /* Center the button horizontally */
+  padding: 10px 20px; /* Padding inside the button */
+  font-family: 'Roboto', sans-serif; /* Roboto font */
+  text-transform: uppercase; /* Uppercase text */
+  color: #fff; /* White text */
+  background-color: #1a73e8; /* Blue background for the button */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Shadow effect */
+  transition: background-color 0.3s; /* Transition for the button background */
+}
+
+#edit-env-container button:hover {
+  background-color: #357ae8; /* Darker blue on hover */
+}
+
 .select-options {
   display: none;
   position: absolute;
