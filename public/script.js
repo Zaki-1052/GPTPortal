@@ -41,8 +41,8 @@ fetchConfig();
     "GPT-3.5-Turbo": "gpt-3.5-turbo-0125",
     "Gemini-Pro": "gemini-pro",
     "Gemini-Pro-Vision": "gemini-pro-vision",
-    "Gemini-1.5-Pro": "gemini-1.5-pro",
-    "Gemini-1.5-Flash": "gemini-1.5-flash",
+    "Gemini-1.5-Pro": "gemini-1.5-pro-latest",
+    "Gemini-1.5-Flash": "gemini-1.5-flash-latest",
     "Gemini-Ultra": "gemini-1.0-ultra",
     "Claude-Opus": "claude-3-opus-20240229",
     "Claude-Sonnet": "claude-3-sonnet-20240229",
@@ -196,8 +196,8 @@ fetchConfig();
     "gpt-3.5-turbo-0125": "GPT-3.5-Turbo",
     "gemini-pro": "Gemini-Pro",
     "gemini-pro-vision": "Gemini-Pro-Vision",
-    "gemini-1.5-pro": "Gemini-1.5-Pro",
-    "gemini-1.5-flash": "Gemini-1.5-Flash",
+    "gemini-1.5-pro-latest": "Gemini-1.5-Pro",
+    "gemini-1.5-flash-latest": "Gemini-1.5-Flash",
     "gemini-1.0-ultra": "Gemini-Ultra",
     "claude-3-opus-20240229": "Claude-Opus",
     "claude-3-sonnet-20240229": "Claude-Sonnet",
@@ -614,8 +614,8 @@ document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) =
 // Event listeners for selecting Gemini models
 document.getElementById('model-gemini-pro').addEventListener('click', () => selectModel('gemini-pro'));
 document.getElementById('model-gemini-pro-vision').addEventListener('click', () => selectModel('gemini-pro-vision'));
-document.getElementById('model-gemini-1.5-pro').addEventListener('click', () => selectModel('gemini-1.5-pro'));
-document.getElementById('model-gemini-1.5-flash').addEventListener('click', () => selectModel('gemini-1.5-flash'));
+document.getElementById('model-gemini-1.5-pro').addEventListener('click', () => selectModel('gemini-1.5-pro-latest'));
+document.getElementById('model-gemini-1.5-flash').addEventListener('click', () => selectModel('gemini-1.5-flash-latest'));
 document.getElementById('model-gemini-ultra').addEventListener('click', () => selectModel('gemini-1.0-ultra'));
 
 // Event listeners for showing Gemini model descriptions on hover
@@ -1247,7 +1247,7 @@ async function uploadImageAndGetUrl(imageFile) {
           };
           endpoint = `${baseURL}/assistant`; // OpenAI endpoint
         } else {
-        if (currentModelID.startsWith('gemini')) {
+        if (currentModelID.includes('gemini')) {
           // Prepare the payload for Google Gemini API
           payload = {
             prompt: message,

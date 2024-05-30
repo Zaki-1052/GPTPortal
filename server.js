@@ -893,13 +893,10 @@ geminiHistory += 'User Prompt: ' + prompt + '\n';
 
 // Handle text-only input
 if (!history && (!imageParts || imageParts.length === 0)) {
-  if (model !== 'gemini-pro') {
-    return res.status(400).json({ error: 'Invalid model for text-only input. Use gemini-pro.' });
-  }
 
 
   // Initialize the Google model for text-only input
-  const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro', generationConfig: defaultConfig, safetySettings });
+  const googleModel = genAI.getGenerativeModel({ model: model, generationConfig: defaultConfig, safetySettings });
   // Generate content based on the geminiHistory
   const result = await googleModel.generateContent(geminiHistory);
 
@@ -913,9 +910,6 @@ if (!history && (!imageParts || imageParts.length === 0)) {
     }
     // Handle text-and-image input (multimodal)
     else if (imageParts && imageParts.length > 0 && !history) {
-      if (model !== 'gemini-pro-vision' && model !== 'gemini-1.5-pro') {
-        return res.status(400).json({ error: 'Invalid model for text-and-image input. Use gemini-pro-vision.' });
-      }
 
       // Initialize the Google model for text-and-image input
       const googleModel = genAI.getGenerativeModel({ model: model, generationConfig: defaultConfig, safetySettings });
