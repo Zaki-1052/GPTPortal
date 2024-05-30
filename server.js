@@ -56,7 +56,7 @@ if (username && password) {
 
   // Redirect all other routes (except for '/config' and '/setup') to '/portal'
   app.get('*', (req, res, next) => {
-    if (req.path === '/portal' || req.path === '/config') {
+    if (req.path !== '/setup') {
       next();
     } else {
       res.redirect('/portal');
@@ -65,7 +65,7 @@ if (username && password) {
 } else {
   // Redirect to the setup page if username and password are not set
   app.get('*', (req, res, next) => {
-    if (req.path === '/setup' || req.path === '/config') {
+    if (req.path !== '/portal') {
       next();
     } else {
       res.redirect('/setup');
@@ -350,8 +350,8 @@ initializeGeminiConversationHistory();
  // Function to convert conversation history to HTML
  function exportChatToHTML() {
   // Log the current state of both conversation histories before deciding which one to use
-  console.log("Current GPT Conversation History: ", JSON.stringify(conversationHistory, null, 2));
-  console.log("Current Claude Conversation History: ", JSON.stringify(claudeHistory, null, 2));
+  // console.log("Current GPT Conversation History: ", JSON.stringify(conversationHistory, null, 2));
+  // console.log("Current Claude Conversation History: ", JSON.stringify(claudeHistory, null, 2));
 
   let containsAssistantMessage = conversationHistory.some(entry => entry.role === 'assistant');
 
@@ -369,7 +369,7 @@ initializeGeminiConversationHistory();
   }
 
   // Log the determined chatHistory
-  console.log("Determined Chat History: ", JSON.stringify(chatHistory, null, 2));
+  // console.log("Determined Chat History: ", JSON.stringify(chatHistory, null, 2));
 
   let htmlContent = `
     <html>
