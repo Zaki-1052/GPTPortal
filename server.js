@@ -893,12 +893,14 @@ geminiHistory += 'User Prompt: ' + prompt + '\n';
 
 // Handle text-only input
 if (!history && (!imageParts || imageParts.length === 0)) {
-
+console.log("this endpoint");
 
   // Initialize the Google model for text-only input
   const googleModel = genAI.getGenerativeModel({ model: model, generationConfig: defaultConfig, safetySettings });
+  console.log(googleModel);
   // Generate content based on the geminiHistory
   const result = await googleModel.generateContent(geminiHistory);
+  console.log(result);
 
   const text = result.response.text();
   console.log('Response: ', text)

@@ -25,8 +25,8 @@
         <button id="model-claude-haiku" data-value="claude-3-haiku-20240307">Claude Haiku</button>
         <button id="model-llama-70b" data-value="llama3-70b-8192">Llama3 70b</button>
         <button id="model-mistral-large" data-value="mistral-large-latest">Mistral Large</button>
-        <button id="model-gemini-1.5-pro" data-value="gemini-1.5-pro-latest">Gemini-1.5 Pro</button>
-        <button id="model-gemini-1.5-flash" data-value="gemini-1.5-flash-latest">Gemini-1.5 Flash</button>
+        <button id="model-gemini-1.5-pro" data-value="gemini-1.5-pro">Gemini-1.5 Pro</button>
+        <button id="model-gemini-1.5-flash" data-value="gemini-1.5-flash">Gemini-1.5 Flash</button>
         <button id="model-gemini-pro-vision" data-value="gemini-pro-vision">Gemini Pro Vision</button>
         <button id="model-llama-8b" data-value="llama3-8b-8192">Llama3 8b</button>
         <button id="model-gemma-it" data-value="gemma-7b-it">Gemma 7B</button>
@@ -44,132 +44,167 @@
         <button id="model-gemini-ultra" data-value="gemini-1.0-ultra">Gemini Ultra</button>
         <!-- Add other models as options -->
         <!-- Text Models: Show Tokens per $ -->
-<button id="model-openrouter-auto" data-value="openrouter/auto">OpenRouter Auto</button>
-<button id="model-nous-capybara-7b-free" data-value="nousresearch/nous-capybara-7b:free">Nous: Capybara 7B (free)</button>
-<button id="model-mistral-7b-instruct-free" data-value="mistralai/mistral-7b-instruct:free">Mistral 7B Instruct (free)</button>
-<button id="model-openchat-7b-free" data-value="openchat/openchat-7b:free">OpenChat 3.5 (free)</button>
-<button id="model-mythomist-7b-free" data-value="gryphe/mythomist-7b:free">MythoMist 7B (free)</button>
-<button id="model-toppy-m-7b-free" data-value="undi95/toppy-m-7b:free">Toppy M 7B (free)</button>
-<button id="model-cinematika-7b-free" data-value="openrouter/cinematika-7b:free">Cinematika 7B (alpha) (free)</button>
-<button id="model-gemma-7b-free" data-value="google/gemma-7b-it:free">Google: Gemma 7B (free)</button>
-<button id="model-psyfighter-v2-13b" data-value="koboldai/psyfighter-13b-2">Psyfighter v2 13B</button>
-<button id="model-neural-chat-7b" data-value="intel/neural-chat-7b">Neural Chat 7B v3.1</button>
-<button id="model-mythomax-13b" data-value="gryphe/mythomax-l2-13b">MythoMax 13B</button>
-<button id="model-mythalion-13b" data-value="pygmalionai/mythalion-13b">Pygmalion: Mythalion 13B</button>
-<button id="model-xwin-70b" data-value="xwin-lm/xwin-lm-70b">Xwin 70B</button>
-<button id="model-goliath-120b" data-value="alpindale/goliath-120b">Goliath 120B</button>
-<button id="model-noromaid-20b" data-value="neversleep/noromaid-20b">Noromaid 20B</button>
-<button id="model-mythomist-7b" data-value="gryphe/mythomist-7b">MythoMist 7B</button>
-<button id="model-midnight-rose-70b" data-value="sophosympatheia/midnight-rose-70b">Midnight Rose 70B</button>
-<button id="model-fimbulvetr-11b-v2" data-value="sao10k/fimbulvetr-11b-v2">Fimbulvetr 11B v2</button>
-<button id="model-remm-slerp-13b-extended" data-value="undi95/remm-slerp-l2-13b:extended">ReMM SLERP 13B (extended)</button>
-<button id="model-mythomax-13b-extended" data-value="gryphe/mythomax-l2-13b:extended">MythoMax 13B (extended)</button>
-<button id="model-llama-3-8b-instruct-extended" data-value="meta-llama/llama-3-8b-instruct:extended">Meta: Llama 3 8B Instruct (extended)</button>
-<button id="model-weaver" data-value="mancer/weaver">Mancer: Weaver (alpha)</button>
-<button id="model-nous-capybara-7b" data-value="nousresearch/nous-capybara-7b">Nous: Capybara 7B</button>
-<button id="model-codellama-34b-instruct" data-value="meta-llama/codellama-34b-instruct">Meta: CodeLlama 34B Instruct</button>
-<button id="model-codellama-70b-instruct" data-value="codellama/codellama-70b-instruct">Meta: CodeLlama 70B Instruct</button>
-<button id="model-phind-codellama-34b" data-value="phind/phind-codellama-34b">Phind: CodeLlama 34B v2</button>
-<button id="model-openhermes-2-mistral-7b" data-value="teknium/openhermes-2-mistral-7b">OpenHermes 2 Mistral 7B</button>
-<button id="model-remm-slerp-13b" data-value="undi95/remm-slerp-l2-13b">ReMM SLERP 13B</button>
-<button id="model-cinematika-7b" data-value="openrouter/cinematika-7b">Cinematika 7B (alpha)</button>
-<button id="model-yi-34b-chat" data-value="01-ai/yi-34b-chat">Yi 34B Chat</button>
-<button id="model-yi-34b" data-value="01-ai/yi-34b">Yi 34B (base)</button>
-<button id="model-yi-6b" data-value="01-ai/yi-6b">Yi 6B (base)</button>
-<button id="model-stripedhyena-nous-7b" data-value="togethercomputer/stripedhyena-nous-7b">StripedHyena Nous 7B</button>
-<button id="model-stripedhyena-hessian-7b" data-value="togethercomputer/stripedhyena-hessian-7b">StripedHyena Hessian 7B (base)</button>
-<button id="model-mixtral-8x7b" data-value="mistralai/mixtral-8x7b">Mixtral 8x7B (base)</button>
-<button id="model-nous-hermes-yi-34b" data-value="nousresearch/nous-hermes-yi-34b">Nous: Hermes 2 Yi 34B</button>
-<button id="model-nous-hermes-2-mixtral-8x7b-sft" data-value="nousresearch/nous-hermes-2-mixtral-8x7b-sft">Nous: Hermes 2 Mixtral 8x7B SFT</button>
-<button id="model-nous-hermes-2-mistral-7b-dpo" data-value="nousresearch/nous-hermes-2-mistral-7b-dpo">Nous: Hermes 2 Mistral 7B DPO</button>
-<button id="model-llama-3-70b-instruct" data-value="meta-llama/llama-3-70b-instruct">Meta: Llama 3 70B Instruct</button>
-<button id="model-mixtral-8x7b-instruct-nitro" data-value="mistralai/mixtral-8x7b-instruct:nitro">Mixtral 8x7b Instruct (nitro)</button>
-<button id="model-mistral-7b-openorca" data-value="open-orca/mistral-7b-openorca">Mistral OpenOrca 7B</button>
-<button id="model-zephyr-7b-beta" data-value="huggingfaceh4/zephyr-7b-beta">Hugging Face: Zephyr 7B</button>
-<button id="model-gpt-3-5-turbo" data-value="openai/gpt-3.5-turbo">OpenAI: GPT-3.5 Turbo</button>
-<button id="model-gpt-3-5-turbo-0125" data-value="openai/gpt-3.5-turbo-0125">OpenAI: GPT-3.5 Turbo 16k</button>
-<button id="model-gpt-3-5-turbo-16k" data-value="openai/gpt-3.5-turbo-16k">OpenAI: GPT-3.5 Turbo 16k</button>
-<button id="model-open-gpt-4-turbo" data-value="openai/gpt-4-turbo">OpenAI: GPT-4 Turbo</button>
-<button id="model-gpt-4-turbo-preview" data-value="openai/gpt-4-turbo-preview">OpenAI: GPT-4 Turbo Preview</button>
-<button id="model-open-gpt-4" data-value="openai/gpt-4">OpenAI: GPT-4</button>
-<button id="model-open-gpt-4-32k" data-value="openai/gpt-4-32k">OpenAI: GPT-4 32k</button>
-<button id="model-gpt-4-vision" data-value="openai/gpt-4-vision-preview">OpenAI: GPT-4 Vision</button>
-<button id="model-gpt-3-5-turbo-instruct" data-value="openai/gpt-3.5-turbo-instruct">OpenAI: GPT-3.5 Turbo Instruct</button>
-<button id="model-palm-2-chat" data-value="google/palm-2-chat-bison">Google: PaLM 2 Chat</button>
-<button id="model-palm-2-code-chat" data-value="google/palm-2-codechat-bison">Google: PaLM 2 Code Chat</button>
-<button id="model-palm-2-chat-32k" data-value="google/palm-2-chat-bison-32k">Google: PaLM 2 Chat 32k</button>
-<button id="model-palm-2-code-chat-32k" data-value="google/palm-2-codechat-bison-32k">Google: PaLM 2 Code Chat 32k</button>
-<button id="model-open-gemini-pro" data-value="google/gemini-pro">Google: Gemini Pro 1.0</button>
-<button id="model-open-gemini-pro-vision" data-value="google/gemini-pro-vision">Google: Gemini Pro Vision 1.0</button>
-<button id="model-gemini-pro-1-5" data-value="google/gemini-pro-1.5">Google: Gemini Pro 1.5 (preview)</button>
-<button id="model-pplx-70b-online" data-value="perplexity/pplx-70b-online">Perplexity: PPLX 70B Online</button>
-<button id="model-pplx-7b-online" data-value="perplexity/pplx-7b-online">Perplexity: PPLX 7B Online</button>
-<button id="model-pplx-7b-chat" data-value="perplexity/pplx-7b-chat">Perplexity: PPLX 7B Chat</button>
-<button id="model-pplx-70b-chat" data-value="perplexity/pplx-70b-chat">Perplexity: PPLX 70B Chat</button>
-<button id="model-sonar-7b" data-value="perplexity/sonar-small-chat">Perplexity: Sonar 7B</button>
-<button id="model-sonar-8x7b" data-value="perplexity/sonar-medium-chat">Perplexity: Sonar 8x7B</button>
-<button id="model-sonar-7b-online" data-value="perplexity/sonar-small-online">Perplexity: Sonar 7B Online</button>
-<button id="model-sonar-8x7b-online" data-value="perplexity/sonar-medium-online">Perplexity: Sonar 8x7B Online</button>
-<button id="model-firellava-13b" data-value="fireworks/firellava-13b">FireLLaVA 13B</button>
-<button id="model-claude-3-opus" data-value="anthropic/claude-3-opus">Anthropic: Claude 3 Opus</button>
-<button id="model-claude-3-sonnet" data-value="anthropic/claude-3-sonnet">Anthropic: Claude 3 Sonnet</button>
-<button id="model-claude-3-haiku" data-value="anthropic/claude-3-haiku">Anthropic: Claude 3 Haiku</button>
-<button id="model-claude-v2" data-value="anthropic/claude-2">Anthropic: Claude v2</button>
-<button id="model-claude-2-0" data-value="anthropic/claude-2.0">Anthropic: Claude v2.0</button>
-<button id="model-claude-2-1" data-value="anthropic/claude-2.1">Anthropic: Claude v2.1</button>
-<button id="model-claude-instant-1" data-value="anthropic/claude-instant-1">Anthropic: Claude Instant v1</button>
-<button id="model-claude-3-opus-self-moderated" data-value="anthropic/claude-3-opus:beta">Anthropic: Claude 3 Opus (self-moderated)</button>
-<button id="model-claude-3-sonnet-self-moderated" data-value="anthropic/claude-3-sonnet:beta">Anthropic: Claude 3 Sonnet (self-moderated)</button>
-<button id="model-claude-3-haiku-self-moderated" data-value="anthropic/claude-3-haiku:beta">Anthropic: Claude 3 Haiku (self-moderated)</button>
-<button id="model-claude-v2-self-moderated" data-value="anthropic/claude-2:beta">Anthropic: Claude v2 (self-moderated)</button>
-<button id="model-claude-2-0-self-moderated" data-value="anthropic/claude-2.0:beta">Anthropic: Claude v2.0 (self-moderated)</button>
-<button id="model-claude-2-1-self-moderated" data-value="anthropic/claude-2.1:beta">Anthropic: Claude v2.1 (self-moderated)</button>
-<button id="model-claude-instant-1-self-moderated" data-value="anthropic/claude-instant-1:beta">Anthropic: Claude Instant v1 (self-moderated)</button>
-<button id="model-llama-v2-13b-chat" data-value="meta-llama/llama-2-13b-chat">Meta: Llama v2 13B Chat</button>
-<button id="model-llama-v2-70b-chat" data-value="meta-llama/llama-2-70b-chat">Meta: Llama v2 70B Chat</button>
-<button id="model-nous-hermes-13b" data-value="nousresearch/nous-hermes-llama2-13b">Nous: Hermes 13B</button>
-<button id="model-nous-capybara-34b" data-value="nousresearch/nous-capybara-34b">Nous: Capybara 34B</button>
-<button id="model-airoboros-70b" data-value="jondurbin/airoboros-l2-70b">Airoboros 70B</button>
-<button id="model-chronos-hermes-13b" data-value="austism/chronos-hermes-13b">Chronos Hermes 13B v2</button>
-<button id="model-mistral-7b-instruct" data-value="mistralai/mistral-7b-instruct">Mistral 7B Instruct</button>
-<button id="model-openhermes-2-5-mistral-7b" data-value="teknium/openhermes-2.5-mistral-7b">OpenHermes 2.5 Mistral 7B</button>
-<button id="model-openchat-3-5" data-value="openchat/openchat-7b">OpenChat 3.5</button>
-<button id="model-toppy-m-7b" data-value="undi95/toppy-m-7b">Toppy M 7B</button>
-<button id="model-lzlv-70b" data-value="lizpreciatior/lzlv-70b-fp16-hf">lzlv 70B</button>
-<button id="model-mixtral-8x7b-instruct" data-value="mistralai/mixtral-8x7b-instruct">Mixtral 8x7B Instruct</button>
-<button id="model-dolphin-2-6-mixtral-8x7b" data-value="cognitivecomputations/dolphin-mixtral-8x7b">Dolphin 2.6 Mixtral 8x7B 🐬</button>
-<button id="model-noromaid-mixtral-8x7b-instruct" data-value="neversleep/noromaid-mixtral-8x7b-instruct">Noromaid Mixtral 8x7B Instruct</button>
-<button id="model-nous-hermes-2-mixtral-8x7b-dpo" data-value="nousresearch/nous-hermes-2-mixtral-8x7b-dpo">Nous: Hermes 2 Mixtral 8x7B DPO</button>
-<button id="model-rwkv-5-world-3b" data-value="rwkv/rwkv-5-world-3b">RWKV v5 World 3B</button>
-<button id="model-rwkv-5-3b-ai-town" data-value="recursal/rwkv-5-3b-ai-town">RWKV v5 3B AI Town</button>
-<button id="model-rwkv-5-eagle-7b" data-value="recursal/eagle-7b">RWKV v5: Eagle 7B</button>
-<button id="model-gemma-7b" data-value="google/gemma-7b-it">Google: Gemma 7B</button>
-<button id="model-dbrx-132b-instruct" data-value="databricks/dbrx-instruct">Databricks: DBRX 132B Instruct</button>
-<button id="model-zephyr-141b-a35b" data-value="huggingfaceh4/zephyr-orpo-141b-a35b">Zephyr 141B-A35B</button>
-<button id="model-meta-llama-3-8b-instruct" data-value="meta-llama/llama-3-8b-instruct">Meta: Llama 3 8B Instruct</button>
-<button id="model-wizardlm-2-8x22b" data-value="microsoft/wizardlm-2-8x22b">WizardLM-2 8x22B</button>
-<button id="model-wizardlm-2-7b" data-value="microsoft/wizardlm-2-7b">WizardLM-2 7B</button>
-<button id="model-mixtral-8x22b" data-value="mistralai/mixtral-8x22b">Mistral: Mixtral 8x22B (base)</button>
-<button id="model-mixtral-8x22b-instruct" data-value="mistralai/mixtral-8x22b-instruct">Mistral: Mixtral 8x22B Instruct</button>
-<button id="model-soliloquy-l3" data-value="lynn/soliloquy-l3">Lynn: Llama 3 Soliloquy 8B</button>
-<button id="model-zephyr-7b-beta-free" data-value="huggingfaceh4/zephyr-7b-beta:free">Hugging Face: Zephyr 7B (free)</button>
-<button id="model-llama-2-70b-chat-nitro" data-value="meta-llama/llama-2-70b-chat:nitro">Meta: Llama v2 70B Chat (nitro)</button>
-<button id="model-mythomax-13b-nitro" data-value="gryphe/mythomax-l2-13b:nitro">MythoMax 13B (nitro)</button>
-<button id="model-mistral-7b-instruct-nitro" data-value="mistralai/mistral-7b-instruct:nitro">Mistral 7B Instruct (nitro)</button>
-<button id="model-gemma-7b-nitro" data-value="google/gemma-7b-it:nitro">Google: Gemma 7B (nitro)</button>
-<button id="model-toppy-m-7b-nitro" data-value="undi95/toppy-m-7b:nitro">Toppy M 7B (nitro)</button>
-<button id="model-wizardlm-2-8x22b-nitro" data-value="microsoft/wizardlm-2-8x22b:nitro">WizardLM-2 8x22B (nitro)</button>
-<button id="model-llama-3-8b-instruct-nitro" data-value="meta-llama/llama-3-8b-instruct:nitro">Meta: Llama 3 8B Instruct (nitro)</button>
-<button id="model-llama-3-70b-instruct-nitro" data-value="meta-llama/llama-3-70b-instruct:nitro">Meta: Llama 3 70B Instruct (nitro)</button>
-<button id="model-llava-13b" data-value="haotian-liu/llava-13b">Llava 13B</button>
-<button id="model-nous-hermes-2-vision-7b" data-value="nousresearch/nous-hermes-2-vision-7b">Nous: Hermes 2 Vision 7B (alpha)</button>
-<button id="model-open-mistral-tiny" data-value="mistralai/mistral-tiny">Mistral Tiny</button>
-<button id="model-open-mistral-small" data-value="mistralai/mistral-small">Mistral Small</button>
-<button id="model-open-mistral-medium" data-value="mistralai/mistral-medium">Mistral Medium</button>
-<button id="model-open-mistral-large" data-value="mistralai/mistral-large">Mistral Large</button>
-<button id="model-command" data-value="cohere/command">Cohere: Command</button>
-<button id="model-command-r" data-value="cohere/command-r">Cohere: Command R</button>
-<button id="model-command-r-plus" data-value="cohere/command-r-plus">Cohere: Command R+</button>
+        <button id="open-router-model-openrouter-auto" data-value="openrouter/auto">Auto (best for prompt)</button>
+        <button id="open-router-model-nousresearch-nous-capybara-7b-free" data-value="nousresearch/nous-capybara-7b:free">Nous: Capybara 7B (free)</button>
+        <button id="open-router-model-mistralai-mistral-7b-instruct-free" data-value="mistralai/mistral-7b-instruct:free">Mistral: Mistral 7B Instruct (free)</button>
+        <button id="open-router-model-huggingfaceh4-zephyr-7b-beta-free" data-value="huggingfaceh4/zephyr-7b-beta:free">Hugging Face: Zephyr 7B (free)</button>
+        <button id="open-router-model-openchat-openchat-7b-free" data-value="openchat/openchat-7b:free">OpenChat 3.5 (free)</button>
+        <button id="open-router-model-gryphe-mythomist-7b-free" data-value="gryphe/mythomist-7b:free">MythoMist 7B (free)</button>
+        <button id="open-router-model-undi95-toppy-m-7b-free" data-value="undi95/toppy-m-7b:free">Toppy M 7B (free)</button>
+        <button id="open-router-model-openrouter-cinematika-7b-free" data-value="openrouter/cinematika-7b:free">Cinematika 7B (alpha) (free)</button>
+        <button id="open-router-model-google-gemma-7b-it-free" data-value="google/gemma-7b-it:free">Google: Gemma 7B (free)</button>
+        <button id="open-router-model-meta-llama-llama-3-8b-instruct-free" data-value="meta-llama/llama-3-8b-instruct:free">Meta: Llama 3 8B Instruct (free)</button>
+        <button id="open-router-model-microsoft-phi-3-mini-128k-instruct-free" data-value="microsoft/phi-3-mini-128k-instruct:free">Phi-3 Mini Instruct (free)</button>
+        <button id="open-router-model-microsoft-phi-3-medium-128k-instruct-free" data-value="microsoft/phi-3-medium-128k-instruct:free">Phi-3 Medium Instruct (free)</button>
+        <button id="open-router-model-koboldai-psyfighter-13b-2" data-value="koboldai/psyfighter-13b-2">Psyfighter v2 13B</button>
+        <button id="open-router-model-intel-neural-chat-7b" data-value="intel/neural-chat-7b">Neural Chat 7B v3.1</button>
+        <button id="open-router-model-pygmalionai-mythalion-13b" data-value="pygmalionai/mythalion-13b">Pygmalion: Mythalion 13B</button>
+        <button id="open-router-model-xwin-lm-xwin-lm-70b" data-value="xwin-lm/xwin-lm-70b">Xwin 70B</button>
+        <button id="open-router-model-alpindale-goliath-120b" data-value="alpindale/goliath-120b">Goliath 120B</button>
+        <button id="open-router-model-neversleep-noromaid-20b" data-value="neversleep/noromaid-20b">Noromaid 20B</button>
+        <button id="open-router-model-gryphe-mythomist-7b" data-value="gryphe/mythomist-7b">MythoMist 7B</button>
+        <button id="open-router-model-sophosympatheia-midnight-rose-70b" data-value="sophosympatheia/midnight-rose-70b">Midnight Rose 70B</button>
+        <button id="open-router-model-sao10k-fimbulvetr-11b-v2" data-value="sao10k/fimbulvetr-11b-v2">Fimbulvetr 11B v2</button>
+        <button id="open-router-model-neversleep-llama-3-lumimaid-8b" data-value="neversleep/llama-3-lumimaid-8b">Llama 3 Lumimaid 8B</button>
+        <button id="open-router-model-neversleep-llama-3-lumimaid-70b" data-value="neversleep/llama-3-lumimaid-70b">Llama 3 Lumimaid 70B</button>
+        <button id="open-router-model-undi95-remm-slerp-l2-13b-extended" data-value="undi95/remm-slerp-l2-13b:extended">ReMM SLERP 13B (extended)</button>
+        <button id="open-router-model-gryphe-mythomax-l2-13b-extended" data-value="gryphe/mythomax-l2-13b:extended">MythoMax 13B (extended)</button>
+        <button id="open-router-model-meta-llama-llama-3-8b-instruct-extended" data-value="meta-llama/llama-3-8b-instruct:extended">Meta: Llama 3 8B Instruct (extended)</button>
+        <button id="open-router-model-neversleep-llama-3-lumimaid-8b-extended" data-value="neversleep/llama-3-lumimaid-8b:extended">Llama 3 Lumimaid 8B (extended)</button>
+        <button id="open-router-model-mancer-weaver" data-value="mancer/weaver">Mancer: Weaver (alpha)</button>
+        <button id="open-router-model-nousresearch-nous-capybara-7b" data-value="nousresearch/nous-capybara-7b">Nous: Capybara 7B</button>
+        <button id="open-router-model-meta-llama-codellama-34b-instruct" data-value="meta-llama/codellama-34b-instruct">Meta: CodeLlama 34B Instruct</button>
+        <button id="open-router-model-codellama-codellama-70b-instruct" data-value="codellama/codellama-70b-instruct">Meta: CodeLlama 70B Instruct</button>
+        <button id="open-router-model-phind-phind-codellama-34b" data-value="phind/phind-codellama-34b">Phind: CodeLlama 34B v2</button>
+        <button id="open-router-model-open-orca-mistral-7b-openorca" data-value="open-orca/mistral-7b-openorca">Mistral OpenOrca 7B</button>
+        <button id="open-router-model-teknium-openhermes-2-mistral-7b" data-value="teknium/openhermes-2-mistral-7b">OpenHermes 2 Mistral 7B</button>
+        <button id="open-router-model-undi95-remm-slerp-l2-13b" data-value="undi95/remm-slerp-l2-13b">ReMM SLERP 13B</button>
+        <button id="open-router-model-openrouter-cinematika-7b" data-value="openrouter/cinematika-7b">Cinematika 7B (alpha)</button>
+        <button id="open-router-model-01-ai-yi-34b-chat" data-value="01-ai/yi-34b-chat">Yi 34B Chat</button>
+        <button id="open-router-model-01-ai-yi-34b" data-value="01-ai/yi-34b">Yi 34B (base)</button>
+        <button id="open-router-model-01-ai-yi-6b" data-value="01-ai/yi-6b">Yi 6B (base)</button>
+        <button id="open-router-model-togethercomputer-stripedhyena-nous-7b" data-value="togethercomputer/stripedhyena-nous-7b">StripedHyena Nous 7B</button>
+        <button id="open-router-model-togethercomputer-stripedhyena-hessian-7b" data-value="togethercomputer/stripedhyena-hessian-7b">StripedHyena Hessian 7B (base)</button>
+        <button id="open-router-model-mistralai-mixtral-8x7b" data-value="mistralai/mixtral-8x7b">Mixtral 8x7B (base)</button>
+        <button id="open-router-model-nousresearch-nous-hermes-yi-34b" data-value="nousresearch/nous-hermes-yi-34b">Nous: Hermes 2 Yi 34B</button>
+        <button id="open-router-model-nousresearch-nous-hermes-2-mixtral-8x7b-sft" data-value="nousresearch/nous-hermes-2-mixtral-8x7b-sft">Nous: Hermes 2 Mixtral 8x7B SFT</button>
+        <button id="open-router-model-nousresearch-nous-hermes-2-mistral-7b-dpo" data-value="nousresearch/nous-hermes-2-mistral-7b-dpo">Nous: Hermes 2 Mistral 7B DPO</button>
+        <button id="open-router-model-meta-llama-llama-3-8b" data-value="meta-llama/llama-3-8b">Meta: Llama 3 8B (Base)</button>
+        <button id="open-router-model-meta-llama-llama-3-70b" data-value="meta-llama/llama-3-70b">Meta: Llama 3 70B (Base)</button>
+        <button id="open-router-model-databricks-dbrx-instruct" data-value="databricks/dbrx-instruct">Databricks: DBRX 132B Instruct</button>
+        <button id="open-router-model-allenai-olmo-7b-instruct" data-value="allenai/olmo-7b-instruct">OLMo 7B Instruct</button>
+        <button id="open-router-model-snowflake-snowflake-arctic-instruct" data-value="snowflake/snowflake-arctic-instruct">Snowflake: Arctic Instruct</button>
+        <button id="open-router-model-qwen-qwen-110b-chat" data-value="qwen/qwen-110b-chat">Qwen 1.5 110B Chat</button>
+        <button id="open-router-model-qwen-qwen-14b-chat" data-value="qwen/qwen-14b-chat">Qwen 1.5 14B Chat</button>
+        <button id="open-router-model-qwen-qwen-7b-chat" data-value="qwen/qwen-7b-chat">Qwen 1.5 7B Chat</button>
+        <button id="open-router-model-qwen-qwen-4b-chat" data-value="qwen/qwen-4b-chat">Qwen 1.5 4B Chat</button>
+        <button id="open-router-model-mistralai-mixtral-8x7b-instruct-nitro" data-value="mistralai/mixtral-8x7b-instruct:nitro">Mixtral 8x7B Instruct (nitro)</button>
+        <button id="open-router-model-openai-gpt-3.5-turbo" data-value="openai/gpt-3.5-turbo">OpenAI: GPT-3.5 Turbo</button>
+        <button id="open-router-model-openai-gpt-3.5-turbo-0125" data-value="openai/gpt-3.5-turbo-0125">OpenAI: GPT-3.5 Turbo 16k</button>
+        <button id="open-router-model-openai-gpt-3.5-turbo-1106" data-value="openai/gpt-3.5-turbo-1106">OpenAI: GPT-3.5 Turbo 16k (older v1106)</button>
+        <button id="open-router-model-openai-gpt-3.5-turbo-0613" data-value="openai/gpt-3.5-turbo-0613">OpenAI: GPT-3.5 Turbo (older v0613)</button>
+        <button id="open-router-model-openai-gpt-3.5-turbo-0301" data-value="openai/gpt-3.5-turbo-0301">OpenAI: GPT-3.5 Turbo (older v0301)</button>
+        <button id="open-router-model-openai-gpt-3.5-turbo-16k" data-value="openai/gpt-3.5-turbo-16k">OpenAI: GPT-3.5 Turbo 16k</button>
+        <button id="open-router-model-openai-gpt-4o" data-value="openai/gpt-4o">OpenAI: GPT-4o</button>
+        <button id="open-router-model-openai-gpt-4o-2024-05-13" data-value="openai/gpt-4o-2024-05-13">OpenAI: GPT-4o (2024-05-13)</button>
+        <button id="open-router-model-openai-gpt-4-turbo" data-value="openai/gpt-4-turbo">OpenAI: GPT-4 Turbo</button>
+        <button id="open-router-model-openai-gpt-4-turbo-preview" data-value="openai/gpt-4-turbo-preview">OpenAI: GPT-4 Turbo Preview</button>
+        <button id="open-router-model-openai-gpt-4-1106-preview" data-value="openai/gpt-4-1106-preview">OpenAI: GPT-4 Turbo (older v1106)</button>
+        <button id="open-router-model-openai-gpt-4" data-value="openai/gpt-4">OpenAI: GPT-4</button>
+        <button id="open-router-model-openai-gpt-4-0314" data-value="openai/gpt-4-0314">OpenAI: GPT-4 (older v0314)</button>
+        <button id="open-router-model-openai-gpt-4-32k" data-value="openai/gpt-4-32k">OpenAI: GPT-4 32k</button>
+        <button id="open-router-model-openai-gpt-4-32k-0314" data-value="openai/gpt-4-32k-0314">OpenAI: GPT-4 32k (older v0314)</button>
+        <button id="open-router-model-openai-gpt-4-vision-preview" data-value="openai/gpt-4-vision-preview">OpenAI: GPT-4 Vision</button>
+        <button id="open-router-model-openai-gpt-3.5-turbo-instruct" data-value="openai/gpt-3.5-turbo-instruct">OpenAI: GPT-3.5 Turbo Instruct</button>
+        <button id="open-router-model-google-palm-2-chat-bison" data-value="google/palm-2-chat-bison">Google: PaLM 2 Chat</button>
+        <button id="open-router-model-google-palm-2-codechat-bison" data-value="google/palm-2-codechat-bison">Google: PaLM 2 Code Chat</button>
+        <button id="open-router-model-google-palm-2-chat-bison-32k" data-value="google/palm-2-chat-bison-32k">Google: PaLM 2 Chat 32k</button>
+        <button id="open-router-model-google-palm-2-codechat-bison-32k" data-value="google/palm-2-codechat-bison-32k">Google: PaLM 2 Code Chat 32k</button>
+        <button id="open-router-model-google-gemini-pro" data-value="google/gemini-pro">Google: Gemini Pro 1.0</button>
+        <button id="open-router-model-google-gemini-pro-vision" data-value="google/gemini-pro-vision">Google: Gemini Pro Vision 1.0</button>
+        <button id="open-router-model-google-gemini-pro-1.5" data-value="google/gemini-pro-1.5">Google: Gemini Pro 1.5 (preview)</button>
+        <button id="open-router-model-google-gemini-flash-1.5" data-value="google/gemini-flash-1.5">Google: Gemini Flash 1.5 (preview)</button>
+        <button id="open-router-model-perplexity-llama-3-sonar-small-32k-chat" data-value="perplexity/llama-3-sonar-small-32k-chat">Perplexity: Llama3 Sonar 8B</button>
+        <button id="open-router-model-perplexity-llama-3-sonar-small-32k-online" data-value="perplexity/llama-3-sonar-small-32k-online">Perplexity: Llama3 Sonar 8B Online</button>
+        <button id="open-router-model-perplexity-llama-3-sonar-large-32k-chat" data-value="perplexity/llama-3-sonar-large-32k-chat">Perplexity: Llama3 Sonar 70B</button>
+        <button id="open-router-model-perplexity-llama-3-sonar-large-32k-online" data-value="perplexity/llama-3-sonar-large-32k-online">Perplexity: Llama3 Sonar 70B Online</button>
+        <button id="open-router-model-fireworks-firellava-13b" data-value="fireworks/firellava-13b">FireLLaVA 13B</button>
+        <button id="open-router-model-anthropic-claude-3-opus" data-value="anthropic/claude-3-opus">Anthropic: Claude 3 Opus</button>
+        <button id="open-router-model-anthropic-claude-3-sonnet" data-value="anthropic/claude-3-sonnet">Anthropic: Claude 3 Sonnet</button>
+        <button id="open-router-model-anthropic-claude-3-haiku" data-value="anthropic/claude-3-haiku">Anthropic: Claude 3 Haiku</button>
+        <button id="open-router-model-anthropic-claude-2" data-value="anthropic/claude-2">Anthropic: Claude v2</button>
+        <button id="open-router-model-anthropic-claude-2.0" data-value="anthropic/claude-2.0">Anthropic: Claude v2.0</button>
+        <button id="open-router-model-anthropic-claude-2.1" data-value="anthropic/claude-2.1">Anthropic: Claude v2.1</button>
+        <button id="open-router-model-anthropic-claude-instant-1" data-value="anthropic/claude-instant-1">Anthropic: Claude Instant v1</button>
+        <button id="open-router-model-anthropic-claude-3-opus-beta" data-value="anthropic/claude-3-opus:beta">Anthropic: Claude 3 Opus (self-moderated)</button>
+        <button id="open-router-model-anthropic-claude-3-sonnet-beta" data-value="anthropic/claude-3-sonnet:beta">Anthropic: Claude 3 Sonnet (self-moderated)</button>
+        <button id="open-router-model-anthropic-claude-3-haiku-beta" data-value="anthropic/claude-3-haiku:beta">Anthropic: Claude 3 Haiku (self-moderated)</button>
+        <button id="open-router-model-anthropic-claude-2-beta" data-value="anthropic/claude-2:beta">Anthropic: Claude v2 (self-moderated)</button>
+        <button id="open-router-model-anthropic-claude-2.0-beta" data-value="anthropic/claude-2.0:beta">Anthropic: Claude v2.0 (self-moderated)</button>
+        <button id="open-router-model-anthropic-claude-2.1-beta" data-value="anthropic/claude-2.1:beta">Anthropic: Claude v2.1 (self-moderated)</button>
+        <button id="open-router-model-anthropic-claude-instant-1-beta" data-value="anthropic/claude-instant-1:beta">Anthropic: Claude Instant v1 (self-moderated)</button>
+        <button id="open-router-model-meta-llama-llama-2-13b-chat" data-value="meta-llama/llama-2-13b-chat">Meta: Llama v2 13B Chat</button>
+        <button id="open-router-model-meta-llama-llama-2-70b-chat" data-value="meta-llama/llama-2-70b-chat">Meta: Llama v2 70B Chat</button>
+        <button id="open-router-model-nousresearch-nous-hermes-llama2-13b" data-value="nousresearch/nous-hermes-llama2-13b">Nous: Hermes 13B</button>
+        <button id="open-router-model-nousresearch-nous-capybara-34b" data-value="nousresearch/nous-capybara-34b">Nous: Capybara 34B</button>
+        <button id="open-router-model-jondurbin-airoboros-l2-70b" data-value="jondurbin/airoboros-l2-70b">Airoboros 70B</button>
+        <button id="open-router-model-jondurbin-bagel-34b" data-value="jondurbin/bagel-34b">Bagel 34B v0.2</button>
+        <button id="open-router-model-austism-chronos-hermes-13b" data-value="austism/chronos-hermes-13b">Chronos Hermes 13B v2</button>
+        <button id="open-router-model-teknium-openhermes-2.5-mistral-7b" data-value="teknium/openhermes-2.5-mistral-7b">OpenHermes 2.5 Mistral 7B</button>
+        <button id="open-router-model-gryphe-mythomax-l2-13b" data-value="gryphe/mythomax-l2-13b">MythoMax 13B</button>
+        <button id="open-router-model-huggingfaceh4-zephyr-7b-beta" data-value="huggingfaceh4/zephyr-7b-beta">Hugging Face: Zephyr 7B</button>
+        <button id="open-router-model-openchat-openchat-7b" data-value="openchat/openchat-7b">OpenChat 3.5</button>
+        <button id="open-router-model-undi95-toppy-m-7b" data-value="undi95/toppy-m-7b">Toppy M 7B</button>
+        <button id="open-router-model-lizpreciatior-lzlv-70b-fp16-hf" data-value="lizpreciatior/lzlv-70b-fp16-hf">lzlv 70B</button>
+        <button id="open-router-model-jebcarter-psyfighter-13b" data-value="jebcarter/psyfighter-13b">Psyfighter 13B</button>
+        <button id="open-router-model-mistralai-mixtral-8x7b-instruct" data-value="mistralai/mixtral-8x7b-instruct">Mixtral 8x7B Instruct</button>
+        <button id="open-router-model-neversleep-noromaid-mixtral-8x7b-instruct" data-value="neversleep/noromaid-mixtral-8x7b-instruct">Noromaid Mixtral 8x7B Instruct</button>
+        <button id="open-router-model-nousresearch-nous-hermes-2-mixtral-8x7b-dpo" data-value="nousresearch/nous-hermes-2-mixtral-8x7b-dpo">Nous: Hermes 2 Mixtral 8x7B DPO</button>
+        <button id="open-router-model-rwkv-rwkv-5-world-3b" data-value="rwkv/rwkv-5-world-3b">RWKV v5 World 3B</button>
+        <button id="open-router-model-recursal-rwkv-5-3b-ai-town" data-value="recursal/rwkv-5-3b-ai-town">RWKV v5 3B AI Town</button>
+        <button id="open-router-model-recursal-eagle-7b" data-value="recursal/eagle-7b">RWKV v5: Eagle 7B</button>
+        <button id="open-router-model-google-gemma-7b-it" data-value="google/gemma-7b-it">Google: Gemma 7B</button>
+        <button id="open-router-model-meta-llama-llama-3-8b-instruct" data-value="meta-llama/llama-3-8b-instruct">Meta: Llama 3 8B Instruct</button>
+        <button id="open-router-model-meta-llama-llama-3-70b-instruct" data-value="meta-llama/llama-3-70b-instruct">Meta: Llama 3 70B Instruct</button>
+        <button id="open-router-model-meta-llama-llama-guard-2-8b" data-value="meta-llama/llama-guard-2-8b">Meta: LlamaGuard 2 8B</button>
+        <button id="open-router-model-microsoft-wizardlm-2-8x22b" data-value="microsoft/wizardlm-2-8x22b">WizardLM-2 8x22B</button>
+        <button id="open-router-model-microsoft-wizardlm-2-7b" data-value="microsoft/wizardlm-2-7b">WizardLM-2 7B</button>
+        <button id="open-router-model-microsoft-phi-3-mini-128k-instruct" data-value="microsoft/phi-3-mini-128k-instruct">Phi-3 Mini Instruct</button>
+        <button id="open-router-model-microsoft-phi-3-medium-128k-instruct" data-value="microsoft/phi-3-medium-128k-instruct">Phi-3 Medium Instruct</button>
+        <button id="open-router-model-mistralai-mixtral-8x22b" data-value="mistralai/mixtral-8x22b">Mistral: Mixtral 8x22B (base)</button>
+        <button id="open-router-model-mistralai-mixtral-8x22b-instruct" data-value="mistralai/mixtral-8x22b-instruct">Mistral: Mixtral 8x22B Instruct</button>
+        <button id="open-router-model-mistralai-mistral-7b-instruct-v0.1" data-value="mistralai/mistral-7b-instruct-v0.1">Mistral: Mistral 7B Instruct v0.1</button>
+        <button id="open-router-model-mistralai-mistral-7b-instruct-v0.2" data-value="mistralai/mistral-7b-instruct-v0.2">Mistral: Mistral 7B Instruct v0.2</button>
+        <button id="open-router-model-mistralai-mistral-7b-instruct" data-value="mistralai/mistral-7b-instruct">Mistral: Mistral 7B Instruct</button>
+        <button id="open-router-model-mistralai-mistral-7b-instruct-v0.3" data-value="mistralai/mistral-7b-instruct-v0.3">Mistral: Mistral 7B Instruct v0.3</button>
+        <button id="open-router-model-lynn-soliloquy-l3" data-value="lynn/soliloquy-l3">Lynn: Llama 3 Soliloquy 8B v2</button>
+        <button id="open-router-model-cognitivecomputations-dolphin-mixtral-8x7b" data-value="cognitivecomputations/dolphin-mixtral-8x7b">Dolphin 2.6 Mixtral 8x7B 🐬</button>
+        <button id="open-router-model-liuhaotian-llava-yi-34b" data-value="liuhaotian/llava-yi-34b">LLaVA v1.6 34B</button>
+        <button id="open-router-model-nousresearch-hermes-2-pro-llama-3-8b" data-value="nousresearch/hermes-2-pro-llama-3-8b">NousResearch: Hermes 2 Pro - Llama-3 8B</button>
+        <button id="open-router-model-qwen-qwen-72b-chat" data-value="qwen/qwen-72b-chat">Qwen 1.5 72B Chat</button>
+        <button id="open-router-model-qwen-qwen-32b-chat" data-value="qwen/qwen-32b-chat">Qwen 1.5 32B Chat</button>
+        <button id="open-router-model-deepseek-deepseek-chat" data-value="deepseek/deepseek-chat">DeepSeek-V2 Chat</button>
+        <button id="open-router-model-deepseek-deepseek-coder" data-value="deepseek/deepseek-coder">Deepseek Coder</button>
+        <button id="open-router-model-anthropic-claude-1" data-value="anthropic/claude-1">Anthropic: Claude v1</button>
+        <button id="open-router-model-anthropic-claude-1.2" data-value="anthropic/claude-1.2">Anthropic: Claude (older v1)</button>
+        <button id="open-router-model-anthropic-claude-instant-1.0" data-value="anthropic/claude-instant-1.0">Anthropic: Claude Instant (older v1)</button>
+        <button id="open-router-model-anthropic-claude-instant-1.1" data-value="anthropic/claude-instant-1.1">Anthropic: Claude Instant (older v1.1)</button>
+        <button id="open-router-model-meta-llama-llama-2-70b-chat-nitro" data-value="meta-llama/llama-2-70b-chat:nitro">Meta: Llama v2 70B Chat (nitro)</button>
+        <button id="open-router-model-gryphe-mythomax-l2-13b-nitro" data-value="gryphe/mythomax-l2-13b:nitro">MythoMax 13B (nitro)</button>
+        <button id="open-router-model-mistralai-mistral-7b-instruct-nitro" data-value="mistralai/mistral-7b-instruct:nitro">Mistral: Mistral 7B Instruct (nitro)</button>
+        <button id="open-router-model-google-gemma-7b-it-nitro" data-value="google/gemma-7b-it:nitro">Google: Gemma 7B (nitro)</button>
+        <button id="open-router-model-undi95-toppy-m-7b-nitro" data-value="undi95/toppy-m-7b:nitro">Toppy M 7B (nitro)</button>
+        <button id="open-router-model-meta-llama-llama-3-8b-instruct-nitro" data-value="meta-llama/llama-3-8b-instruct:nitro">Meta: Llama 3 8B Instruct (nitro)</button>
+        <button id="open-router-model-meta-llama-llama-3-70b-instruct-nitro" data-value="meta-llama/llama-3-70b-instruct:nitro">Meta: Llama 3 70B Instruct (nitro)</button>
+        <button id="open-router-model-liuhaotian-llava-13b" data-value="liuhaotian/llava-13b">LLaVA 13B</button>
+        <button id="open-router-model-nousresearch-nous-hermes-2-vision-7b" data-value="nousresearch/nous-hermes-2-vision-7b">Nous: Hermes 2 Vision 7B (alpha)</button>
+        <button id="open-router-model-mistralai-mistral-tiny" data-value="mistralai/mistral-tiny">Mistral Tiny</button>
+        <button id="open-router-model-mistralai-mistral-small" data-value="mistralai/mistral-small">Mistral Small</button>
+        <button id="open-router-model-mistralai-mistral-medium" data-value="mistralai/mistral-medium">Mistral Medium</button>
+        <button id="open-router-model-mistralai-mistral-large" data-value="mistralai/mistral-large">Mistral Large</button>
+        <button id="open-router-model-cohere-command" data-value="cohere/command">Cohere: Command</button>
+        <button id="open-router-model-cohere-command-r" data-value="cohere/command-r">Cohere: Command R</button>
+        <button id="open-router-model-cohere-command-r-plus" data-value="cohere/command-r-plus">Cohere: Command R+</button>
 
       </div>
     </div>
