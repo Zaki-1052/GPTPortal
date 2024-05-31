@@ -1128,7 +1128,7 @@ if (modelID === 'gpt-4') {
 
       messages: conversationHistory, // Includes the System Prompt, previous queries and responses, and your most recently sent message.
 
-      temperature: 1, // Controls randomness: Lowering results in less random completions. 
+      temperature: 0.8, // Controls randomness: Lowering results in less random completions. 
       // As the temperature approaches zero, the model will become deterministic and repetitive.
       
       // top_p: 1,  // Controls diversity via nucleus sampling: 0.5 means half of all likelihood-weighted options are considered.
@@ -1195,6 +1195,13 @@ if (modelID === 'gpt-4') {
         // Add any Mistral-specific headers here if necessary
       };
       apiUrl = 'https://api.mistral.ai/v1/chat/completions';
+    } else if (modelID === 'codestral-latest') {
+      conversationHistory.push(user_input);
+      headers = {
+        'Authorization': `Bearer ${process.env.CODESTRAL_API_KEY}`,
+        // Add any Mistral-specific headers here if necessary
+      };
+      apiUrl = 'https://codestral.mistral.ai/v1/chat/completions';
     } else if (modelID.startsWith('claude')) {
       claudeHistory.push(user_input);
       data = {

@@ -59,6 +59,7 @@ fetchConfig();
     "Llama3-70b": "llama3-70b-8192",
     "Llama3-8b": "llama3-8b-8192",
     "Gemma-7b": "gemma-7b-it",
+    "Codestral": "codestral-latest",
     // Open Router Models
     "OpenRouter Auto": "openrouter/auto",
     "Nous: Capybara 7B (free)": "nousresearch/nous-capybara-7b:free",
@@ -214,6 +215,7 @@ fetchConfig();
     "llama3-70b-8192": "Llama3-70b",
     "llama3-8b-8192": "Llama3-8b",
     "gemma-7b-it": "Gemma-7b",
+    "codestral-latest": "Codestral",
     // Open Router Models
     "openrouter/auto": "OpenRouter Auto",
     "nousresearch/nous-capybara-7b:free": "Nous: Capybara 7B (free)",
@@ -667,6 +669,9 @@ document.getElementById('model-llama-8b').addEventListener('mouseover', (event) 
 // gemma it via qroq
 document.getElementById('model-gemma-it').addEventListener('click', () => selectModel('gemma-7b-it'));
 document.getElementById('model-gemma-it').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemma-7b-it"], event.currentTarget));
+document.getElementById('model-codestral').addEventListener('click', () => selectModel('codestral-latest'));
+document.getElementById('model-codestral').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["codestral-latest"], event.currentTarget));
+
 
 // select open router models lol
 
