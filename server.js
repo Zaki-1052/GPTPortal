@@ -1181,13 +1181,25 @@ if (modelID === 'gpt-4') {
   
     // Define the headers with the Authorization and, if needed, Organization
     // Determine the API to use based on modelID prefix
-    if (modelID.startsWith('gpt')) {
+    if (modelID.includes('/')) {
+      conversationHistory.push(user_input);
+      headers = {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      };
+      apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
+    } else if (modelID.startsWith('gpt')) {
       conversationHistory.push(user_input);
       headers = {
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
         // 'OpenAI-Organization': 'process.env.ORGANIZATION' // Uncomment if using an organization ID
       };
       apiUrl = 'https://api.openai.com/v1/chat/completions';
+    } else if (modelID.startsWith('llama') || modelID.startsWith('gemma') || modelID === 'mixtral-8x7b-32768') {
+      conversationHistory.push(user_input);
+      headers = {
+        'Authorization': `Bearer ${process.env.QROQ_API_KEY}`,
+      };
+      apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
     } else if (modelID.includes('mistral') || modelID.includes('mixtral')) {
       conversationHistory.push(user_input);
       headers = {
@@ -1219,18 +1231,6 @@ if (modelID === 'gpt-4') {
         // Add any Mistral-specific headers here if necessary
       };
       apiUrl = 'https://api.anthropic.com/v1/messages';
-    } else if (modelID.startsWith('llama') || modelID.startsWith('gemma')) {
-      conversationHistory.push(user_input);
-      headers = {
-        'Authorization': `Bearer ${process.env.QROQ_API_KEY}`,
-      };
-      apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
-    } else if (modelID.includes('/')) {
-      conversationHistory.push(user_input);
-      headers = {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      };
-      apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
     }
 
     // Log the data payload just before sending it to the chosen API

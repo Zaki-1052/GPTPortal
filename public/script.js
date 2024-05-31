@@ -60,6 +60,7 @@ fetchConfig();
     "Llama3-8b": "llama3-8b-8192",
     "Gemma-7b": "gemma-7b-it",
     "Codestral": "codestral-latest",
+    "Free Mixtral 8x7b": "mixtral-8x7b-32768",
     // Open Router Models
     "OpenRouter Auto": "openrouter/auto",
     "Nous: Capybara 7B (free)": "nousresearch/nous-capybara-7b:free",
@@ -216,6 +217,7 @@ fetchConfig();
     "llama3-8b-8192": "Llama3-8b",
     "gemma-7b-it": "Gemma-7b",
     "codestral-latest": "Codestral",
+    "mixtral-8x7b-32768": "Free Mixtral 8x7b",
     // Open Router Models
     "openrouter/auto": "OpenRouter Auto",
     "nousresearch/nous-capybara-7b:free": "Nous: Capybara 7B (free)",
@@ -671,6 +673,8 @@ document.getElementById('model-gemma-it').addEventListener('click', () => select
 document.getElementById('model-gemma-it').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemma-7b-it"], event.currentTarget));
 document.getElementById('model-codestral').addEventListener('click', () => selectModel('codestral-latest'));
 document.getElementById('model-codestral').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["codestral-latest"], event.currentTarget));
+document.getElementById('model-qroq-mistral-8x7b').addEventListener('click', () => selectModel('mixtral-8x7b-32768'));
+document.getElementById('model-qroq-mistral-8x7b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mixtral-8x7b-32768"], event.currentTarget));
 
 
 // select open router models lol
