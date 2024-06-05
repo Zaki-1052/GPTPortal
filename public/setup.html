@@ -29,5 +29,64 @@
       <button type="submit">Submit</button>
     </form>
     <script src="script.js"></script>
+    
+    <script>
+        document.getElementById('setupForm').addEventListener('submit', function (event) {
+  event.preventDefault();
+
+  const formData = {
+      username: document.getElementById('username').value,
+      password: document.getElementById('password').value,
+      openaiApiKey: document.getElementById('openaiApiKey').value,
+      googleApiKey: document.getElementById('googleApiKey').value,
+      mistralApiKey: document.getElementById('mistralApiKey').value,
+      claudeApiKey: document.getElementById('claudeApiKey').value
+  };
+
+  fetch('/setup', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+  }).then(response => {
+      if (response.ok) {
+          alert('Changes saved successfully');
+
+          // Copy 'node server.js' to clipboard
+          navigator.clipboard.writeText('node server.js').then(() => {
+              console.log('Text copied to clipboard');
+          }).catch(err => {
+              console.error('Could not copy text: ', err);
+          });
+
+          // Inform the user to restart the server manually
+          document.body.innerHTML = '<h2>Setup is complete. Please access the web app at <a href="http://localhost:3000">localhost:3000</a>.</h2>';
+          // Redirect to /portal after 3 seconds
+          setTimeout(() => {
+              window.location.href = `${baseURL}/portal`;
+          }, 3000);
+
+          // Call the endpoint to restart the server
+          fetch('/restart-server', {
+              method: 'POST'
+          }).then(restartResponse => {
+              if (restartResponse.ok) {
+                  console.log('Server restart initiated');
+              } else {
+                  console.error('Failed to initiate server restart');
+              }
+          }).catch(err => {
+              console.error('Error:', err);
+          });
+      } else {
+          alert('An error occurred during setup. Please try again.');
+      }
+  }).catch(err => {
+      alert('Error: ' + err.message);
+  });
+});
+    </script>
+    
 </body>
 </html>
