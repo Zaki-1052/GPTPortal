@@ -894,6 +894,8 @@ if (prompt === "Bye!") {
 
     // Delay before shutting down the server to allow file download
     setTimeout(() => {
+      console.log("Sending SIGTERM to self...");
+        process.kill(process.pid, 'SIGTERM'); // Send SIGTERM to self
       server.close(() => {
         console.log("Server successfully shut down.");
       });
@@ -1031,6 +1033,8 @@ if (user_message === "Bye!") {
 
     // Delay before shutting down the server to allow file download
     setTimeout(() => {
+      console.log("Sending SIGTERM to self...");
+        process.kill(process.pid, 'SIGTERM'); // Send SIGTERM to self
       server.close(() => {
         console.log("Server successfully shut down.");
       });
@@ -1362,6 +1366,8 @@ app.get('/export-chat-html', async (req, res) => {
   isShuttingDown = true; // Set the shutdown flag
   // Delay before shutting down the server to allow file download
   setTimeout(() => {
+    console.log("Sending SIGTERM to self...");
+    process.kill(process.pid, 'SIGTERM'); // Send SIGTERM to self
     server.close(() => {
       console.log("Server successfully shut down.");
     });
@@ -1421,6 +1427,8 @@ app.post('/shutdown-server', (req, res) => {
   res.send('Server shutdown initiated');
 
   setTimeout(() => {
+    console.log("Sending SIGTERM to self...");
+        process.kill(process.pid, 'SIGTERM'); // Send SIGTERM to self
     server.close(() => {
       console.log('Server successfully shut down.');
       process.exit(0);
@@ -1478,4 +1486,13 @@ const HOST = isVercelEnvironment ? '0.0.0.0' : process.env.HOST_SERVER || 'local
 
 const server = app.listen(PORT, HOST, () => {
   console.log(`Server running at http://${HOST}:${PORT}`);
+});
+
+// Gracefully handle shutdown
+process.on('SIGTERM', () => {
+  console.log('Received SIGTERM, shutting down gracefully...');
+  server.close(() => {
+    console.log('Server successfully shut down.');
+    process.exit(0);
+  });
 });

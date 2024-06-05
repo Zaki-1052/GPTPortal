@@ -1,1 +1,1 @@
-testing script...say "cheese" and nothing else!
+testing script...say "success" and nothing else!
