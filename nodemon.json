@@ -1,6 +1,7 @@
 {
-    "watch": ["server.js", "public/instructions.md", "public/geminiMessage.txt", ".env"],
-    "ext": "js,json,md,env",
+    "watch": ["server.js", "public/instructions.md", "public/geminiMessage.txt", ".env", ".env.example"],
+    "ext": "js,json,md,env,example",
+    "verbose": true,
     "env": {
         "NODE_ENV": "development"
     }

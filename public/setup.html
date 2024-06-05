@@ -28,52 +28,6 @@
   
       <button type="submit">Submit</button>
     </form>
-    <script>
-        document.getElementById('setupForm').addEventListener('submit', function (event) {
-            event.preventDefault();
-
-            const formData = {
-                username: document.getElementById('username').value,
-                password: document.getElementById('password').value,
-                openaiApiKey: document.getElementById('openaiApiKey').value,
-                googleApiKey: document.getElementById('googleApiKey').value,
-                mistralApiKey: document.getElementById('mistralApiKey').value,
-                claudeApiKey: document.getElementById('claudeApiKey').value
-            };
-
-            fetch('/setup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            }).then(response => {
-                if (response.ok) {
-                    alert('Changes saved successfully');
-
-                    // Copy 'node server.js' to clipboard
-                navigator.clipboard.writeText('node server.js').then(() => {
-                    console.log('Text copied to clipboard');
-                }).catch(err => {
-                    console.error('Could not copy text: ', err);
-                });
-
-                    return fetch('/shutdown-server', {
-                        method: 'POST'
-                    });
-                } else {
-                    alert('An error occurred during setup. Please try again.');
-                }
-            }).then(shutdownResponse => {
-                if (shutdownResponse && shutdownResponse.ok) {
-                    document.body.innerHTML = '<h2>Server is shutting down. Please restart it at <a href="http://localhost:3000">localhost:3000</a>.</h2>';
-                } else {
-                    alert('Failed to shut down the server.');
-                }
-            }).catch(err => {
-                alert('Error: ' + err.message);
-            });
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>

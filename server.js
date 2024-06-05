@@ -128,6 +128,21 @@ app.post('/update-env', (req, res) => {
 });
 
 
+// Endpoint to restart the server
+app.post('/restart-server', (req, res) => {
+  fs.appendFile('.env.example', '\nRESTART=TRUE', (err) => {
+    if (err) {
+      console.error('Failed to write to .env.example:', err);
+      return res.status(500).send('Failed to write to .env.example');
+    }
+    res.send('Server is restarting...');
+  });
+  setTimeout(() => {
+    process.exit(0); // This will trigger nodemon to restart the server
+  }, 1000); // 1-second delay to ensure the response is sent
+});
+
+
 // Serve uploaded files from the 'public/uploads' directory
 app.get('/uploads/:filename', (req, res) => {
   const filename = req.params.filename;
