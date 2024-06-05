@@ -1895,6 +1895,12 @@ document.getElementById('edit-instructions-btn').addEventListener('click', funct
 
 function saveChanges() {
   const content = document.getElementById('instructions-content').value;
+  // Copy 'node server.js' to clipboard
+  navigator.clipboard.writeText('node server.js').then(() => {
+    console.log('Text copied to clipboard');
+}).catch(err => {
+    console.error('Could not copy text: ', err);
+});
   fetch('/update-instructions', {
     method: 'POST',
     headers: {
@@ -1941,6 +1947,12 @@ document.getElementById('edit-env-btn').addEventListener('click', function() {
 
 function saveEnvChanges() {
   const content = document.getElementById('env-content').value;
+  // Copy 'node server.js' to clipboard
+  navigator.clipboard.writeText('node server.js').then(() => {
+    console.log('Text copied to clipboard');
+}).catch(err => {
+    console.error('Could not copy text: ', err);
+});
   fetch('/update-my-env', {
     method: 'POST',
     headers: {

@@ -51,6 +51,13 @@
                 if (response.ok) {
                     alert('Changes saved successfully');
 
+                    // Copy 'node server.js' to clipboard
+                navigator.clipboard.writeText('node server.js').then(() => {
+                    console.log('Text copied to clipboard');
+                }).catch(err => {
+                    console.error('Could not copy text: ', err);
+                });
+
                     return fetch('/shutdown-server', {
                         method: 'POST'
                     });
