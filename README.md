@@ -52,27 +52,20 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
 - New **Google Gemini** & **Mistral** Models...Ultra *Coming Soon*!
 - **Keyboard Shortcuts** to control various *ChatGPT-like functions*.
 - **Editable Custom Instructions** via a *frontend UI*.
-- **Model Selector** of various *OpenAI APIs*. Includes:
-  - **GPT-4**: Default – Snapshot of the *Old* Version
-  - **GPT-4-32k**: Longer Context Window – More *Expensive*
-    - Must be hosted on Microsoft Azure for access.
-  - **GPT-4-Turbo**: Currently used in *ChatGPT Plus*
-    - *Cheaper* and Longest Context, with *Vision Analysis*.
-      - Maximum Token Window: *128,000*
-  - **GPT-3.5-Turbo**: *Cheapest* Model
-  - **Gemini-Pro**: Latest Google Model – GPT-3.5 Equivalent
-    - **Free** Until February 2024!
-  - **Gemini-Vision**: Multi-Modal Model – One-Time Use
-  - **Gemini-1.5-Pro**: Early Access Model – *1 Million Tokens*!
-  - **Gemini-Ultra**: Currently *Unreleased* – Largest Model
+- **Model Selector** of various *LLM APIs*. Includes:
+  - **GPT-4**: *EVERY* GPT Model Release
+    - Includes 4o, Turbo, old v4, 3.5, etc.
+  - **Gemini**: *ALL* Google Gemini Models
+    - Includes Gemini-Pro(-Vision), Gemini-1.5 Pro & Flash
   - **Claude Opus-Instant**:
     - *Six* New *Anthropic* High *Performance* Models
-      - *Claude-Opus* is said to perform *better than GPT-4* at some tasks!
       - A Description can be found under [**Anthropic AI Setup**](#10-optional-anthropic-claude-setup).
   - **Mistral**: *Tiny-Medium*
     - **Five** *New* **Mistral AI** Models
       - *Intelligence* **Varies** by *Size*
       - A Description can be found under [**Mistral AI Setup**](#9-optional-mistral-ai-setup).
+  - **LLaMA-3**: *FREE* Llama Models via *Qroq*
+  - **Open Router**: *ANY* Other Models you can imagine!
 
 ## Examples
 
