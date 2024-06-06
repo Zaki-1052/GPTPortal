@@ -1896,12 +1896,14 @@ document.getElementById('edit-instructions-btn').addEventListener('click', funct
 
 function saveChanges() {
   const content = document.getElementById('instructions-content').value;
+  
   // Copy 'node server.js' to clipboard
   navigator.clipboard.writeText('node server.js').then(() => {
     console.log('Text copied to clipboard');
-}).catch(err => {
+  }).catch(err => {
     console.error('Could not copy text: ', err);
-});
+  });
+
   fetch('/update-instructions', {
     method: 'POST',
     headers: {
@@ -1916,9 +1918,26 @@ function saveChanges() {
     alert('Changes saved successfully');
     // Hide the edit container
     document.getElementById('edit-instructions-container').style.display = 'none';
+
+    // Display the restart server message
+    document.body.innerHTML = '<h2>Complete. Please restart the server and access the web app at <a href="http://localhost:3000">localhost:3000</a>. Simply paste `node server.js` into your Terminal to start again, reloading the page.</h2>';
+
+    // Call the endpoint to shutdown the server
+    fetch('/shutdown-server', {
+      method: 'POST'
+    }).then(restartResponse => {
+      if (restartResponse.ok) {
+        console.log('Server shutdown initiated');
+      } else {
+        console.error('Failed to initiate server shutdown');
+      }
+    }).catch(err => {
+      console.error('Error:', err);
+    });
   })
   .catch(error => {
     console.error('Error:', error);
+    alert('An error occurred during setup. Please try again.');
   });
 }
 
@@ -1948,12 +1967,14 @@ document.getElementById('edit-env-btn').addEventListener('click', function() {
 
 function saveEnvChanges() {
   const content = document.getElementById('env-content').value;
+  
   // Copy 'node server.js' to clipboard
   navigator.clipboard.writeText('node server.js').then(() => {
     console.log('Text copied to clipboard');
-}).catch(err => {
+  }).catch(err => {
     console.error('Could not copy text: ', err);
-});
+  });
+
   fetch('/update-my-env', {
     method: 'POST',
     headers: {
@@ -1968,12 +1989,28 @@ function saveEnvChanges() {
     alert('Changes saved successfully');
     // Hide the edit container
     document.getElementById('edit-env-container').style.display = 'none';
+
+    // Display the restart server message
+    document.body.innerHTML = '<h2>Setup is complete. Please restart the server and access the web app at <a href="http://localhost:3000">localhost:3000</a>. Simply paste `node server.js` into your Terminal to start again, reloading the page.</h2>';
+
+    // Call the endpoint to shutdown the server
+    fetch('/shutdown-server', {
+      method: 'POST'
+    }).then(restartResponse => {
+      if (restartResponse.ok) {
+        console.log('Server shutdown initiated');
+      } else {
+        console.error('Failed to initiate server shutdown');
+      }
+    }).catch(err => {
+      console.error('Error:', err);
+    });
   })
   .catch(error => {
     console.error('Error:', error);
+    alert('An error occurred during setup. Please try again.');
   });
 }
-
 
 
 document.addEventListener('DOMContentLoaded', function () {

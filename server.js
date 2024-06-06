@@ -130,6 +130,7 @@ app.post('/update-env', (req, res) => {
 
 // Endpoint to restart the server
 app.post('/restart-server', (req, res) => {
+  /*
   fs.appendFile('.env.example', '\nRESTART=TRUE', (err) => {
     if (err) {
       console.error('Failed to write to .env.example:', err);
@@ -137,9 +138,12 @@ app.post('/restart-server', (req, res) => {
     }
     res.send('Server is restarting...');
   });
-  setTimeout(() => {
-    process.exit(0); // This will trigger nodemon to restart the server
-  }, 1000); // 1-second delay to ensure the response is sent
+  */
+  
+  server.close(() => {
+    console.log("Server successfully shut down.");
+    process.exit(0);
+}, 100); // 1-second delay
 });
 
 
@@ -895,9 +899,10 @@ if (prompt === "Bye!") {
     // Delay before shutting down the server to allow file download
     setTimeout(() => {
       console.log("Sending SIGTERM to self...");
-        process.kill(process.pid, 'SIGTERM'); // Send SIGTERM to self
+        process.kill(process.pid, 'SIGINT'); // Send SIGTERM to self
       server.close(() => {
         console.log("Server successfully shut down.");
+        process.exit(99);
       });
     }, 1000); // 10 seconds delay
   });
@@ -1034,9 +1039,10 @@ if (user_message === "Bye!") {
     // Delay before shutting down the server to allow file download
     setTimeout(() => {
       console.log("Sending SIGTERM to self...");
-        process.kill(process.pid, 'SIGTERM'); // Send SIGTERM to self
+        process.kill(process.pid, 'SIGINT'); // Send SIGTERM to self
       server.close(() => {
         console.log("Server successfully shut down.");
+        process.exit(99);
       });
     }, 1000); // 1 seconds delay
   });
@@ -1367,12 +1373,12 @@ app.get('/export-chat-html', async (req, res) => {
   // Delay before shutting down the server to allow file download
   setTimeout(() => {
     console.log("Sending SIGTERM to self...");
-    process.kill(process.pid, 'SIGTERM'); // Send SIGTERM to self
+    process.kill(process.pid, 'SIGINT'); // Send SIGTERM to self
     server.close(() => {
       console.log("Server successfully shut down.");
+      process.exit(99);
     });
   }, 100); // 1-second delay
-  
 });
 
 app.get('/get-instructions', (req, res) => {
@@ -1428,10 +1434,10 @@ app.post('/shutdown-server', (req, res) => {
 
   setTimeout(() => {
     console.log("Sending SIGTERM to self...");
-        process.kill(process.pid, 'SIGTERM'); // Send SIGTERM to self
+        process.kill(process.pid, 'SIGINT'); // Send SIGTERM to self
     server.close(() => {
       console.log('Server successfully shut down.');
-      process.exit(0);
+      process.exit(99);
     });
   }, 1000); // 1-second delay for the response to be sent
 });
@@ -1488,11 +1494,28 @@ const server = app.listen(PORT, HOST, () => {
   console.log(`Server running at http://${HOST}:${PORT}`);
 });
 
-// Gracefully handle shutdown
-process.on('SIGTERM', () => {
-  console.log('Received SIGTERM, shutting down gracefully...');
+/*
+// Gracefully handle SIGINT
+process.on('SIGINT', () => {
+  console.log('Received SIGINT, shutting down gracefully...');
   server.close(() => {
     console.log('Server successfully shut down.');
-    process.exit(0);
+    process.exit(99); // Custom exit code to signal nodemon
   });
 });
+
+
+
+// Prevent nodemon from restarting on shutdown
+if (process.env.NODE_ENV === 'development') {
+  const nodemonShutdown = () => {
+    console.log("Killing nodemon process...");
+    process.kill(process.ppid, 'SIGUSR2');
+  };
+
+  process.on('SIGTERM', nodemonShutdown);
+  process.on('SIGINT', nodemonShutdown);
+  process.on('exit', nodemonShutdown);
+}
+
+*/

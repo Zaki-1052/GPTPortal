@@ -61,11 +61,11 @@
           });
 
           // Inform the user to restart the server manually
-          document.body.innerHTML = '<h2>Setup is complete. Please access the web app at <a href="http://localhost:3000">localhost:3000</a>.</h2>';
+          document.body.innerHTML = '<h2>Setup is now complete. Please restart the server and access the web app at <a href="http://localhost:3000">localhost:3000</a>. Reload the page now .... You can simply paste `node server.js` into your Terminal to start again. It is already copied to your clipboard.</h2>';
           // Redirect to /portal after 3 seconds
           setTimeout(() => {
               window.location.href = `${baseURL}/portal`;
-          }, 3000);
+          }, 5000);
 
           // Call the endpoint to restart the server
           fetch('/restart-server', {
