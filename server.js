@@ -33,11 +33,13 @@ const OpenAI = require('openai').default;
 // Check if the OPENAI_API_KEY environment variable is set
 const apiKey = process.env.OPENAI_API_KEY;
 
+let openai; // Declare openai outside the conditional block
+
 if (!apiKey) {
   console.warn("Warning: The OPENAI_API_KEY environment variable is missing. OpenAI features will be disabled.");
 } else {
   // Initialize OpenAI only if the API key is present
-  const openai = new OpenAI({
+  openai = new OpenAI({
     apiKey: apiKey
   });
 }
