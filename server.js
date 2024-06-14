@@ -21,10 +21,26 @@ const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 
 // openai
+/*
 const OpenAI = require('openai').default;
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY // This is also the default, can be omitted
 });
+*/
+
+const OpenAI = require('openai').default;
+
+// Check if the OPENAI_API_KEY environment variable is set
+const apiKey = process.env.OPENAI_API_KEY;
+
+if (!apiKey) {
+  console.warn("Warning: The OPENAI_API_KEY environment variable is missing. OpenAI features will be disabled.");
+} else {
+  // Initialize OpenAI only if the API key is present
+  const openai = new OpenAI({
+    apiKey: apiKey
+  });
+}
 
 // integrate google gemini
 const { GoogleGenerativeAI } = require('@google/generative-ai');
