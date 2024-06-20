@@ -775,17 +775,6 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       tooltip.style.left = `${rect.right + 10}px`; // 10 pixels to the right of the element
       tooltip.style.top = `${window.scrollY + rect.top}px`; // 10 pixels above the top of the element
     }
-  
-// Toggle dropdown on clicking the custom-select div
-document.querySelector('.custom-select').addEventListener('click', toggleDropdown);
-
-    // Function to hide the custom tooltip
-    function hideCustomTooltip() {
-      let tooltip = document.getElementById("custom-tooltip");
-      tooltip.style.display = 'none';
-    }
-    
-    document.getElementById('selected-model').addEventListener('click', toggleDropdown);
 
     function toggleDropdown(event) {
       console.log("toggleDropdown triggered", event.target); // Debugging line
@@ -798,6 +787,18 @@ document.querySelector('.custom-select').addEventListener('click', toggleDropdow
         console.log("New display: ", options.style.display); // Debugging line
       }
     }
+  
+// Toggle dropdown on clicking the custom-select div
+document.querySelector('.custom-select').addEventListener('click', toggleDropdown);
+
+    // Function to hide the custom tooltip
+    function hideCustomTooltip() {
+      let tooltip = document.getElementById("custom-tooltip");
+      tooltip.style.display = 'none';
+    }
+    
+    document.getElementById('selected-model').addEventListener('click', toggleDropdown);
+
     
     // Toggle Assistants Mode on clicking the custom-select div
   document.getElementById('mode-selector').addEventListener('click', () => {
@@ -854,14 +855,14 @@ document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) =
 
 // Event listeners for selecting Gemini models
 document.getElementById('model-gemini-pro').addEventListener('click', () => selectModel('gemini-pro'));
-document.getElementById('model-gemini-pro-vision').addEventListener('click', () => selectModel('gemini-pro-vision'));
+// document.getElementById('model-gemini-pro-vision').addEventListener('click', () => selectModel('gemini-pro-vision'));
 document.getElementById('model-gemini-1.5-pro').addEventListener('click', () => selectModel('gemini-1.5-pro'));
 document.getElementById('model-gemini-1.5-flash').addEventListener('click', () => selectModel('gemini-1.5-flash'));
 document.getElementById('model-gemini-ultra').addEventListener('click', () => selectModel('gemini-1.0-ultra'));
 
 // Event listeners for showing Gemini model descriptions on hover
 document.getElementById('model-gemini-pro').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-pro"], event.currentTarget));
-document.getElementById('model-gemini-pro-vision').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-pro-vision"], event.currentTarget));
+// document.getElementById('model-gemini-pro-vision').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-pro-vision"], event.currentTarget));
 document.getElementById('model-gemini-1.5-pro').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-1.5-pro"], event.currentTarget));
 document.getElementById('model-gemini-ultra').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-1.0-ultra"], event.currentTarget));
 
@@ -2018,66 +2019,3 @@ function saveEnvChanges() {
     alert('An error occurred during setup. Please try again.');
   });
 }
-
-
-document.addEventListener('DOMContentLoaded', function () {
-
-  console.log('DOM fully loaded and parsed');
-
-  
-  document.getElementById('setupForm').addEventListener('submit', function (event) {
-      event.preventDefault();
-
-      const formData = {
-          username: document.getElementById('username').value,
-          password: document.getElementById('password').value,
-          openaiApiKey: document.getElementById('openaiApiKey').value,
-          googleApiKey: document.getElementById('googleApiKey').value,
-          mistralApiKey: document.getElementById('mistralApiKey').value,
-          claudeApiKey: document.getElementById('claudeApiKey').value
-      };
-
-      fetch('/setup', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(formData)
-      }).then(response => {
-          if (response.ok) {
-              alert('Changes saved successfully');
-
-              // Copy 'node server.js' to clipboard
-              navigator.clipboard.writeText('node server.js').then(() => {
-                  console.log('Text copied to clipboard');
-              }).catch(err => {
-                  console.error('Could not copy text: ', err);
-              });
-
-              // Inform the user to restart the server manually
-              document.body.innerHTML = '<h2>Setup is complete. Please access the web app at <a href="http://localhost:3000">localhost:3000</a>.</h2>';
-              // Redirect to /portal after 3 seconds
-              setTimeout(() => {
-                  window.location.href = '/portal';
-              }, 3000);
-
-              // Call the endpoint to restart the server
-              fetch('/restart-server', {
-                  method: 'POST'
-              }).then(restartResponse => {
-                  if (restartResponse.ok) {
-                      console.log('Server restart initiated');
-                  } else {
-                      console.error('Failed to initiate server restart');
-                  }
-              }).catch(err => {
-                  console.error('Error:', err);
-              });
-          } else {
-              alert('An error occurred during setup. Please try again.');
-          }
-      }).catch(err => {
-          alert('Error: ' + err.message);
-      });
-  });
-});
