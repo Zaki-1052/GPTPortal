@@ -522,7 +522,7 @@ async function readClaudeFile() {
 // giving the model a system prompt and adding tp 
 async function initializeClaudeInstructions() {
   let instructions = await readClaudeFile();
-  systemMessage = `${instructions}`;
+  claudeInstructions = `${instructions}`;
 }
 
 // Call this function when the server starts
@@ -1115,7 +1115,7 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
     } else if (modelID.startsWith('claude')) {
       user_input.content.push({ type: "text", text: "<user_message>" });
       user_input.content.push({ type: "text", text: user_message });
-      user_input.content.push({ type: "text", text: "<user_message>" });
+      user_input.content.push({ type: "text", text: "</user_message>" });
     }
   }
 
