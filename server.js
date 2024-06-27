@@ -501,6 +501,34 @@ function exportGeminiChatToHTML() {
 }
 
 
+
+// claude instructions
+
+let claudeInstructions;
+
+// Function to read instructions from the file using fs promises
+async function readClaudeFile() {
+  try {
+      // Adjust the path if your folder structure is different
+      const claudeFile = await fs.promises.readFile('./public/claudeInstructions.xml', 'utf8');
+      return claudeFile;
+  } catch (error) {
+      console.error('Error reading instructions file:', error);
+      return ''; // Return empty string or handle error as needed
+  }
+}
+
+// Function to initialize the conversation history with instructions
+// giving the model a system prompt and adding tp 
+async function initializeClaudeInstructions() {
+  let instructions = await readInstructionsFile();
+  systemMessage = `${instructions}`;
+}
+
+// Call this function when the server starts
+initializeClaudeInstructions();
+
+
 // file upload
 
 let file_id;
@@ -1082,13 +1110,30 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
 
   // Add text content if present
   if (user_message) {
+    if (modelID.startsWith('gpt')) {
       user_input.content.push({ type: "text", text: user_message });
+    } else if (modelID.startsWith('claude')) {
+      user_input.content.push({ type: "text", text: "<user_message>" });
+      user_input.content.push({ type: "text", text: user_message });
+      user_input.content.push({ type: "text", text: "<user_message>" });
+    }
   }
 
   if (fileContents) {
     console.log(fileContents);
-    user_input.content.push({ type: "text", text: file_id });
-    user_input.content.push({ type: "text", text: fileContents });
+    if (modelID.startsWith('gpt')) {
+      user_input.content.push({ type: "text", text: file_id });
+      user_input.content.push({ type: "text", text: fileContents });
+    } else if (modelID.startsWith('claude')) {
+      user_input.content.push({ type: "text", text: "<file_name>" });
+      user_input.content.push({ type: "text", text: file_id });
+      user_input.content.push({ type: "text", text: "</file_name>" });
+      user_input.content.push({ type: "text", text: "<file_contents>" });
+      user_input.content.push({ type: "text", text: fileContents });
+      user_input.content.push({ type: "text", text: "</file_contents>" });
+    }
+    
+    
     fileContents = null;
   }
 
@@ -1103,12 +1148,17 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
       base64Image = await imageURLToBase64(req.body.image);
     }
     if (base64Image) {
+      if (modelID.startsWith('gpt')) {
       user_input.content.push({ type: "text", text: imageName });
+      }
       if (modelID.startsWith('claude')) {
         // Split the base64 string to get the media type and actual base64 data
         const [mediaPart, base64Data] = base64Image.split(';base64,');
         const mediaType = mediaPart.split(':')[1]; // to get 'image/jpeg' from 'data:image/jpeg'
-
+        user_input.content.push({ type: "text", text: "<image_name>" });
+        user_input.content.push({ type: "text", text: imageName });
+        user_input.content.push({ type: "text", text: "</image_name>" });
+        user_input.content.push({ type: "text", text: "<image_content>" });
         user_input.content.push({
             type: "image",
             source: {
@@ -1117,6 +1167,7 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
                 data: base64Data
             }
         });
+        user_input.content.push({ type: "text", text: "</image_content>" });
     } else {
         user_input.content.push({ type: "image_url", image_url: { url: base64Image } });
       }
@@ -1266,7 +1317,7 @@ if (modelID === 'gpt-4') {
         model: modelID,
         max_tokens: 4000,
         temperature: 1,
-        system: systemMessage,
+        system: claudeInstructions,
         messages: claudeHistory,
       };
       headers = {
