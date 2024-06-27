@@ -401,7 +401,7 @@ initializeGeminiConversationHistory();
       chatHistory = [...claudeHistory];
       chatHistory.unshift({
         role: 'system',
-        content: systemMessage
+        content: claudeInstructions
       });
   }
 
