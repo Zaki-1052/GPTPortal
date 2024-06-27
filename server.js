@@ -521,7 +521,7 @@ async function readClaudeFile() {
 // Function to initialize the conversation history with instructions
 // giving the model a system prompt and adding tp 
 async function initializeClaudeInstructions() {
-  let instructions = await readInstructionsFile();
+  let instructions = await readClaudeFile();
   systemMessage = `${instructions}`;
 }
 
