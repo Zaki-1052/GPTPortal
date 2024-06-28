@@ -362,7 +362,7 @@ let geminiHistory = '';
 async function readGeminiFile() {
   try {
       // Adjust the path if your folder structure is different
-      const geminiFile = await fs.promises.readFile('./public/geminiMessage.txt', 'utf8');
+      const geminiFile = await fs.promises.readFile('./public/uploads/geminiMessage.txt', 'utf8');
       return geminiFile;
   } catch (error) {
       console.error('Error reading instructions file:', error);
@@ -385,7 +385,7 @@ async function initializeGeminiConversationHistory() {
 initializeGeminiConversationHistory();
 
  // Function to convert conversation history to HTML
- function exportChatToHTML() {
+ async function exportChatToHTML() {
   // Log the current state of both conversation histories before deciding which one to use
   // console.log("Current GPT Conversation History: ", JSON.stringify(conversationHistory, null, 2));
   // console.log("Current Claude Conversation History: ", JSON.stringify(claudeHistory, null, 2));
@@ -427,6 +427,19 @@ initializeGeminiConversationHistory();
 
   console.log("Chat History: ", JSON.stringify(chatHistory, null, 2));
 
+  // Convert chat history to a string for title generation
+  const savedHistory = chatHistory.map(entry => {
+    if (Array.isArray(entry.content)) {
+      return entry.content.map(item => item.type === 'text' ? item.text : '').join(' ');
+    } else if (typeof entry.content === 'string') {
+      return entry.content;
+    }
+    return '';
+  }).join('\n');
+
+  // Generate title and save chat history
+  await titleChat(savedHistory);
+
   chatHistory.forEach(entry => {
     let formattedContent = '';
 
@@ -451,9 +464,36 @@ initializeGeminiConversationHistory();
   return htmlContent;
 }
 
+async function titleChat(chatHistory) {
+  // Request to OpenAI to generate a title
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-4',
+    messages: [
+      { role: 'system', content: 'Title this chat by summarizing the topic of the conversation in under 5 or 6 words. This will be the name of the file in which it is saved, so include underscores instead of spaces and keep it short and concise.' },
+      { role: 'user', content: chatHistory }
+    ]
+  });
+
+  // Extract the title from the response
+  title = completion.choices[0].message.content.trim().replace(/ /g, '_');
+  console.log("Generated Title: ", title);
+  const folderPath = path.join(__dirname, 'public/uploads/chats');
+  // Ensure the nested folder exists
+  fs.mkdirSync(folderPath, { recursive: true });
+
+  // Define the full file path
+  const filePath = path.join(folderPath, `${title}.txt`);
+
+
+  // Save the chat history to a file with the generated title
+  fs.writeFileSync(filePath, chatHistory);
+  console.log(`Chat history saved to ${filePath}`);
+}
+
+
 
 // Function to convert Gemini conversation history to HTML
-function exportGeminiChatToHTML() {
+async function exportGeminiChatToHTML() {
   let htmlContent = `
     <html>
     <head>
@@ -478,6 +518,11 @@ function exportGeminiChatToHTML() {
   const messageRegex = /(System Prompt: |User Prompt: |Response: )/g;
   // Split the history by the regex, but keep the delimiters
   const messages = geminiHistory.split(messageRegex).slice(1); // slice to remove the first empty string if any
+  console.log("Gemini History: ", JSON.stringify(geminiHistory, null, 2));
+
+  // process chat history in a similar way
+  await nameChat(geminiHistory);
+
 
   // Process the messages in pairs (label + content)
   for (let i = 0; i < messages.length; i += 2) {
@@ -773,7 +818,6 @@ async function exportAssistantsChat() {
   // Assuming messages are in reverse chronological order; sort them to chronological order
   messages.sort((a, b) => a.created_at - b.created_at);
 
-  console.log("Messages Response:", JSON.stringify(messages, null, 2)); // Enhanced debugging: Log the messages response with formatting
   const systemMessage = await initializeConversationHistory();
   // Convert systemMessage from markdown to HTML and ensure it's only added if defined
   const systemMessageHtml = systemMessage ? convertMarkdownToHtml(systemMessage) : '';
@@ -796,12 +840,25 @@ async function exportAssistantsChat() {
   ${systemMessageHtml ? `<div class="message system-message"><strong>SYSTEM:</strong> ${systemMessageHtml}</div>` : ''}
   `; // Conditionally prepend the systemMessage in HTML format to the chat history
 
+  console.log("Assistant History: ", JSON.stringify(messages, null, 2));
+
+  // Get the latest message (last in the sorted array)
+  const latestMessage = messages[messages.length - 1];
+  const assistantId = latestMessage.assistant_id || 'N/A';
+  const threadId = latestMessage.thread_id || 'N/A';
+  const runId = latestMessage.run_id || 'N/A';
+
+  // Prepend assistant ID, thread ID, and run ID to the chatHistory
+  let chatHistory = `ASSISTANT ID: ${assistantId}\nTHREAD ID: ${threadId}\nRUN ID: ${runId}\n\n`;
+  chatHistory += systemMessage ? `SYSTEM: ${systemMessage}\n` : '';
+
   messages.forEach(message => {
       const roleClass = message.role;
       let formattedContent = message.content.map(contentItem => {
           if (contentItem.type === 'text') {
               // Handle nested text object structure
               const textContent = typeof contentItem.text === 'object' ? (contentItem.text.value || "") : contentItem.text;
+              chatHistory += `${roleClass.toUpperCase()}: ${textContent}\n`;
               return convertMarkdownToHtml(textContent);
           } else if (contentItem.type === 'image') {
               // Handle image content
@@ -813,7 +870,39 @@ async function exportAssistantsChat() {
   });
 
   htmlContent += '</body></html>';
+  console.log("Chat History: ", JSON.stringify(chatHistory, null, 2));
+
+  await nameChat(chatHistory);
+
   return htmlContent;
+}
+
+let title = '';
+
+async function nameChat(chatHistory) {
+  // Request to OpenAI to generate a title
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-4',
+    messages: [
+      { role: 'system', content: 'Title this chat by summarizing the topic of the conversation in under 5 or 6 words. This will be the name of the file in which it is saved, so include underscores instead of spaces and keep it short and concise.' },
+      { role: 'user', content: chatHistory }
+    ]
+  });
+
+  // Extract the title from the response
+  title = completion.choices[0].message.content.trim().replace(/ /g, '_');
+  console.log("Generated Title: ", title);
+  const folderPath = path.join(__dirname, 'public/uploads/chats');
+  // Ensure the nested folder exists
+  fs.mkdirSync(folderPath, { recursive: true });
+
+  // Define the full file path
+  const filePath = path.join(folderPath, `${title}.txt`);
+
+
+  // Save the chat history to a file with the generated title
+  fs.writeFileSync(filePath, chatHistory);
+  console.log(`Chat history saved to ${filePath}`);
 }
 
 
@@ -937,11 +1026,11 @@ if (prompt === "Bye!") {
   console.log("Shutdown message received. Exporting chat and closing server...");
 
   // Export chat history to HTML
-  const htmlContent = exportGeminiChatToHTML();
+  const htmlContent = await exportGeminiChatToHTML();
 
   // Set headers for file download
   res.set('Content-Type', 'text/html');
-  res.set('Content-Disposition', 'attachment; filename="chat_history.html"');
+  res.set('Content-Disposition', 'attachment; filename="gemini_history.html"');
 
   // Send the HTML content
   res.send(htmlContent);
@@ -974,14 +1063,11 @@ geminiHistory += 'User Prompt: ' + prompt + '\n';
 
 // Handle text-only input
 if (!history && (!imageParts || imageParts.length === 0)) {
-console.log("this endpoint");
 
   // Initialize the Google model for text-only input
   const googleModel = genAI.getGenerativeModel({ model: model, generationConfig: defaultConfig, safetySettings });
-  console.log(googleModel);
   // Generate content based on the geminiHistory
   const result = await googleModel.generateContent(geminiHistory);
-  console.log(result);
 
   const text = result.response.text();
   console.log('Response: ', text)
@@ -1077,7 +1163,7 @@ if (user_message === "Bye!") {
   console.log("Shutdown message received. Exporting chat and closing server...");
 
   // Export chat history to HTML
-  const htmlContent = exportChatToHTML();
+  const htmlContent = await exportChatToHTML();
 
   // Set headers for file download
   res.set('Content-Type', 'text/html');
@@ -1386,6 +1472,7 @@ if (modelID === 'gpt-4') {
   
         if (lastMessageContent) {
 
+          console.log("Assistant Response: ", lastMessageContent)
 
           if (modelID.startsWith('claude')) {
             claudeHistory.push({ role: "assistant", content: lastMessageContent[0].text });
@@ -1431,15 +1518,15 @@ app.get('/export-chat-html', async (req, res) => {
   console.log("Export request received for type:", type);
   let htmlContent;
   if (type === 'gemini') {
-    htmlContent = exportGeminiChatToHTML();
+    htmlContent = await exportGeminiChatToHTML();
   } else if (type === 'assistants') {
     htmlContent = await exportAssistantsChat();
   } else if (type === 'conversation') {
-    htmlContent = exportChatToHTML();
+    htmlContent = await exportChatToHTML();
   }
 
   res.set('Content-Type', 'text/html');
-  res.set('Content-Disposition', 'attachment; filename="' + (type === 'gemini' ? 'gemini_chat_history.html' : 'chat_history.html') + '"');
+  res.set('Content-Disposition', 'attachment; filename="' + title + '.html"');
   // console.log(htmlContent);
   res.send(htmlContent);
 
