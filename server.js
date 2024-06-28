@@ -568,10 +568,7 @@ app.post('/upload-file', upload.single('file'), async (req, res) => {
       fileContents = await fs.promises.readFile(tempFilePath, 'utf8');
       console.log("File Contents:", fileContents);
       console.log("File ID:", file_id);
-      console.log(fileContents);
-
     // embedding = send to /embeddings python backend in FlaskApp
-      console.log("File ID:", file_id)
     } else if (isAssistants === true) {
     // Create a file for the assistants
     if (!assistant) {
@@ -1389,16 +1386,15 @@ if (modelID === 'gpt-4') {
   
         if (lastMessageContent) {
 
-          console.log("Assistant Response: ", lastMessageContent)
 
           if (modelID.startsWith('claude')) {
             claudeHistory.push({ role: "assistant", content: lastMessageContent[0].text });
-            console.log("Claude History: ", claudeHistory);
+            console.log("Claude History");
             res.json({ text: lastMessageContent[0].text });
           } else {
             // Add assistant's message to the conversation history
             conversationHistory.push({ role: "assistant", content: lastMessageContent });
-            console.log("Conversation History: ", conversationHistory);
+            console.log("Conversation History");
             // Send this back to the client
             res.json({ text: lastMessageContent });
           }
@@ -1444,6 +1440,7 @@ app.get('/export-chat-html', async (req, res) => {
 
   res.set('Content-Type', 'text/html');
   res.set('Content-Disposition', 'attachment; filename="' + (type === 'gemini' ? 'gemini_chat_history.html' : 'chat_history.html') + '"');
+  // console.log(htmlContent);
   res.send(htmlContent);
 
   // No need to call res.end() after res.send(), as send() ends the response.
