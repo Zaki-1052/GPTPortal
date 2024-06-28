@@ -529,6 +529,22 @@ async function initializeClaudeInstructions() {
 initializeClaudeInstructions();
 
 
+let prompt;
+
+async function loadPrompts() {
+  try {
+    // Adjust the path if your folder structure is different
+    const file = await fs.promises.readFile('./public/uploads/prompts/template.md', 'utf8');
+    let contents = file;
+    prompt = `/n${contents}`;
+} catch (error) {
+    console.error('Error reading instructions file:', error);
+    return ''; // Return empty string or handle error as needed
+}
+}
+
+loadPrompts();
+
 // file upload
 
 let file_id;
