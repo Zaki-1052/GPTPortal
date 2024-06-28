@@ -331,7 +331,7 @@ let conversationHistory = [];
 async function readInstructionsFile() {
   try {
       // Adjust the path if your folder structure is different
-      const instructions = await fs.promises.readFile('./public/instructions.md', 'utf8');
+      const instructions = await fs.promises.readFile('./public/uploads/task.md', 'utf8');
       return instructions;
   } catch (error) {
       console.error('Error reading instructions file:', error);
@@ -1551,7 +1551,7 @@ app.get('/export-chat-html', async (req, res) => {
 });
 
 app.get('/get-instructions', (req, res) => {
-  fs.readFile('./public/instructions.md', 'utf8', (err, data) => {
+  fs.readFile('./public/uploads/task.md', 'utf8', (err, data) => {
     if (err) {
       console.error(err);
       return res.status(500).send('Error reading the file');
@@ -1562,7 +1562,7 @@ app.get('/get-instructions', (req, res) => {
 
 app.post('/update-instructions', (req, res) => {
   const newContent = req.body.content;
-  fs.writeFile('./public/instructions.md', newContent, 'utf8', (err) => {
+  fs.writeFile('./public/uploads/task.md', newContent, 'utf8', (err) => {
     if (err) {
       console.error(err);
       return res.status(500).send({ message: 'Error saving the file' });
