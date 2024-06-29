@@ -350,6 +350,7 @@ async function initializeConversationHistory() {
   systemMessage = `You are a helpful and intelligent AI assistant, knowledgeable about a wide range of topics and highly capable of a great many tasks.\n Specifically:\n ${fileInstructions}`;
   if (continueConv) {
     if (summariesOnly) {
+      console.log("summaries only", summariesOnly);
       const contextAndSummary = await continueConversation(chosenChat);
       systemMessage += `\n---\n${contextAndSummary}`;
     } else {
@@ -414,8 +415,7 @@ async function continueConversation(chosenChat) {
     // Read the chosen chat file
     const conversationFile = await fs.promises.readFile(path.join(__dirname, 'public/uploads/chats', `${chosenChat}.txt`), 'utf8');
     if (summariesOnly) {
-      return conversationFile
-    } else {
+      console.log("summaries only regex", summariesOnly);
       // Regex to extract everything starting from CONTEXT
       const regex = /\n\n-----\n\n(.+)/s;
       const match = conversationFile.match(regex);
@@ -425,9 +425,12 @@ async function continueConversation(chosenChat) {
       } else {
         throw new Error('Context and summary not found in the conversation file.');
       }
-    }
-    
-  } catch (error) {
+    } else {
+      console.log("summaries only", summariesOnly);
+      return conversationFile
+      
+      }
+    } catch (error) {
     console.error('Error in continueConversation:', error);
     throw error;
   }
@@ -492,6 +495,7 @@ app.get('/getSummary/:chatName', async (req, res) => {
 app.post('/setSummariesOnly', (req, res) => {
   try {
     summariesOnly = req.body.summariesOnly;
+    console.log(summariesOnly);
     res.status(200).json({ message: 'Summaries only setting updated successfully', summariesOnly });
   } catch (error) {
     console.error('Error in /setSummariesOnly endpoint:', error);

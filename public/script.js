@@ -1316,7 +1316,7 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
               const summaryData = await summaryResponse.json();
       
               if (summaryData.summary) {
-                displayMessage(summaryData.summary, 'response');
+                displayMessage(summaryData.summary, 'response', false);
               } else {
                 console.error('Summary not found.');
               }
@@ -1875,31 +1875,43 @@ function displayMessage(message, type) {
   messageElement.classList.add('message', type);
 
   if (type === 'image') {
-      const imageElement = document.createElement('img');
-      imageElement.src = message;
-      imageElement.alt = "Generated Image";
-      imageElement.classList.add('generated-image'); // A class for styling images
-
-      messageElement.appendChild(imageElement);
+    const imageElement = document.createElement('img');
+    imageElement.src = message;
+    imageElement.alt = "Generated Image";
+    imageElement.classList.add('generated-image');
+    messageElement.appendChild(imageElement);
   } else {
     // Check if message contains a code block
-  if (message.includes('```')) {
-    // Improved regex pattern to correctly identify and split code blocks
-    const parts = message.split(/(```[\s\S]+?```)/);
-    parts.forEach(part => {
-      if (part.startsWith('```') && part.endsWith('```')) {
-        // Handle code blocks
-        const codeContent = part.substring(3, part.length - 3);
-        const pre = document.createElement('pre');
-        const codeElement = document.createElement('code');
-        codeElement.innerText = codeContent; // Use innerText to display raw code content
-        pre.appendChild(codeElement);
-        messageElement.appendChild(pre);
-        // Add a "Copy Code" button for this code block
-        const copyCodeButton = document.createElement('button');
-        copyCodeButton.textContent = 'Copy Code';
-        copyCodeButton.onclick = function() { copyToClipboard(codeContent); };
-        pre.appendChild(copyCodeButton);
+    if (message.includes('\`\`\`')) {
+      // Improved regex pattern to correctly identify and split code blocks
+      const parts = message.split(/(\`\`\`[\s\S]+?\`\`\`)/);
+      parts.forEach(part => {
+        if (part.startsWith('\`\`\`') && part.endsWith('\`\`\`')) {
+          // Handle code blocks
+          const codeContent = part.substring(3, part.length - 3);
+          const languageMatch = codeContent.match(/^[^\n]+/);
+          const language = languageMatch ? languageMatch[0].trim() : '';
+          const actualCode = codeContent.replace(/^[^\n]+/, '').trim();
+
+          const pre = document.createElement('pre');
+          const codeElement = document.createElement('code');
+          /*
+          if (language) {
+            codeElement.classList.add(`language-${language}`);
+          }
+          */
+          codeElement.textContent = actualCode;
+          pre.appendChild(codeElement);
+          messageElement.appendChild(pre);
+
+          // Add a "Copy Code" button on a new line after the code block
+          const copyCodeButtonWrapper = document.createElement('div');
+          copyCodeButtonWrapper.style.marginTop = '10px'; // Add some space above the button
+          const copyCodeButton = document.createElement('button');
+          copyCodeButton.textContent = 'Copy Code';
+          copyCodeButton.onclick = function() { copyToClipboard(actualCode); };
+          copyCodeButtonWrapper.appendChild(copyCodeButton);
+          messageElement.appendChild(copyCodeButtonWrapper);
         } else {
           // This is regular text, render as markdown
           const textSpan = document.createElement('span');
@@ -1907,13 +1919,8 @@ function displayMessage(message, type) {
           const safeHtml = DOMPurify.sanitize(rawHtml);
           textSpan.innerHTML = safeHtml;
           messageElement.appendChild(textSpan);
-          
         }
       });
-      const copyButton = document.createElement('button');
-      copyButton.textContent = 'Copy';
-      copyButton.onclick = function() { copyToClipboard(messageElement.innerText); };
-      messageElement.appendChild(copyButton);
     } else {
       const messageText = document.createElement('span');
       // Convert markdown to HTML using marked.js and sanitize it with DOMPurify
@@ -1935,10 +1942,9 @@ function displayMessage(message, type) {
   chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest message
 
   if (type === 'response' && isVoiceTranscription) {
-      callTTSAPI(message); // Read out the response message only if it should be read aloud
+    callTTSAPI(message); // Read out the response message only if it should be read aloud
   }
 }
-
     
     // copy button feature
     
@@ -2114,3 +2120,4 @@ function saveEnvChanges() {
     alert('An error occurred during setup. Please try again.');
   });
 }
+
