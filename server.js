@@ -490,7 +490,7 @@ async function titleChat(history, tokens, cost) {
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o',
     messages: [
-      { role: 'system', content: 'You will be given the contents of a conversation between a Human and an AI Assistant. Please title this chat by summarizing the topic of the conversation in under 5 plaintext words. Ignore the System Message and focus on the User-AI interaction. This will be the name of the file saved via Node, so keep it *extremely* short and concise! Examples: "Friendly AI Assistance", "Install Plex Media Server", "App Layout Feedback", "Calculating Indefinite Integrals", or "Total Cost Calculation", etc. The title should resemble a quick and easy reference point for the User to remember the conversation, and follow smart and short naming conventions.' },
+      { role: 'system', content: 'You will be given the contents of a conversation between a Human and an AI Assistant. Please title this chat by summarizing the topic of the conversation in under 5 plaintext words. Ignore the System Message and focus solely on the User-AI interaction. This will be the name of the file saved via Node, so keep it *extremely* short and concise! Examples: "Friendly AI Assistance", "Install Plex Media Server", "App Layout Feedback", "Calculating Indefinite Integrals", or "Total Cost Calculation", etc. The title should resemble a quick and easy reference point for the User to remember the conversation, and follow smart and short naming conventions.' },
       { role: 'user', content: history }
     ]
   });
@@ -498,7 +498,7 @@ async function titleChat(history, tokens, cost) {
   summary = await openai.chat.completions.create({
     model: 'gpt-3.5-turbo-0125',
     messages: [
-      { role: 'system', content: 'Summarize this conversation in a short paragraph consisting of no more than 4 sentences. This description will be appended to the chat file for the user to reference. Keep it extremely concise but thorough.' },
+      { role: 'system', content: 'You will be shown the contents of a conversation between a Human and an AI Assistant. Please summarize this chat in a short paragraph consisting of no more than 4 sentences. Ignore the System Message and focus solely on the User-AI interaction. This description will be appended to the chat file for the user to reference. Keep it extremely concise but thorough.' },
       { role: 'user', content: history }
     ]
   });
@@ -728,6 +728,8 @@ async function calculateCost(tokens, model) {
       cumulativeInputTokens += segment.tokens;
     }
   }
+
+  totalCost += tokens.totalTokens;
 
   return totalCost;
 }
@@ -1161,12 +1163,12 @@ async function nameChat(chatHistory, tokens) {
 
   const googleModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: defaultConfig, safetySettings });
   // Generate content based on the geminiHistory
-  const answer = await googleModel.generateContent(`Title this chat by summarizing the topic of the conversation in under 5 or 6 words. This will be the name of the file in which it is saved, so keep it extremely short and concise!\n\n${chatHistory}`);
+  const answer = await googleModel.generateContent(`You will be given the contents of a conversation between a Human and an AI Assistant. Please title this chat by summarizing the topic of the conversation in under 5 plaintext words. Ignore the System Message and focus on the User-AI interaction. This will be the name of the file saved via Node, so keep it *extremely* short and concise! Examples: "Friendly AI Assistance", "Install Plex Media Server", "App Layout Feedback", "Calculating Indefinite Integrals", or "Total Cost Calculation", etc. The title should resemble a quick and easy reference point for the User to remember the conversation, and follow smart and short naming conventions.\n\n${chatHistory}`);
 
   title = answer.response.text().trim().replace(/ /g, '_');
   
   // Generate content based on the geminiHistory
-  const result = await googleModel.generateContent(`Summarize this conversation in a short paragraph consisting of no more than 4 sentences. This description will be appended to the chat file for the user to reference. Keep it extremely concise but thorough.\n\n${chatHistory}`);
+  const result = await googleModel.generateContent(`You will be shown Summarize this conversation in a short paragraph consisting of no more than 4 sentences. This description will be appended to the chat file for the user to reference. Keep it extremely concise but thorough.\n\n${chatHistory}`);
 
   const summary = result.response.text();
 
