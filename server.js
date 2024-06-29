@@ -729,7 +729,11 @@ async function calculateCost(tokens, model) {
     }
   }
 
-  totalCost += tokens.totalTokens;
+  let extraCost = (tokens.totalTokens / 1000000) * inputCostPerMillion;
+  extraCost * 2;
+
+
+  totalCost += extraCost;
 
   return totalCost;
 }
