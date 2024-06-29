@@ -490,7 +490,7 @@ async function titleChat(history, tokens, cost) {
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o',
     messages: [
-      { role: 'system', content: 'Title this chat by summarizing the topic of the conversation in under 5 or 6 words. This will be the name of the file in which it is saved, so keep it extremely short and concise!' },
+      { role: 'system', content: 'Title this chat by summarizing the topic of the conversation in under 5 plaintext words. This will be the name of the file saved via Node, so keep it *extremely* short and concise! Examples: "Friendly AI Assistance", "Install Plex Media Server", "App Layout Feedback", "Calculating Indefinite Integrals", or "Total Cost Calculation", etc. The title should resemble a quick and easy reference point for the User to remember the conversation, and follow smart and short naming conventions.' },
       { role: 'user', content: history }
     ]
   });
@@ -1807,7 +1807,7 @@ app.get('/export-chat-html', async (req, res) => {
   }
 
   res.set('Content-Type', 'text/html');
-  res.set('Content-Disposition', 'attachment; filename="' + title + '.html"');
+  res.set('Content-Disposition', `attachment; filename="${title}.html"`);
   // console.log(htmlContent);
   res.send(htmlContent);
 

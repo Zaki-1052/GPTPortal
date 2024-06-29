@@ -1430,13 +1430,24 @@ sendButton.addEventListener('click', async () => {
         console.log("Exporting chat history for:", historyType);
         const exportUrl = '/export-chat-html?type=' + historyType;
         fetch(exportUrl)
-          .then(response => response.blob())
-          .then(blob => {
+          .then(async response => {
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = 'chat_history.html';
+            if (contentDisposition) {
+              const match = contentDisposition.match(/filename="(.+)"/);
+              if (match.length > 1) {
+                filename = match[1];
+              }
+            }
+            const blob = await response.blob();
+            return ({ blob, filename });
+          })
+          .then(({ blob, filename }) => {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
-            a.download = historyType + '_chat_history.html';
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
