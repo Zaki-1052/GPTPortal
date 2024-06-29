@@ -4,6 +4,7 @@ import { Stream } from "./streaming.js";
 import { APIError } from "./error.js";
 import { type Readable, type Agent, type RequestInfo, type RequestInit, type Response, type HeadersInit } from "./_shims/index.js";
 export { type Response };
+import { BlobLike } from "./uploads.js";
 export { maybeMultipartFormRequestOptions, multipartFormRequestOptions, createForm, type Uploadable, } from "./uploads.js";
 export type Fetch = (url: RequestInfo, init?: RequestInit) => Promise<Response>;
 type PromiseOrValue<T> = T | Promise<T>;
@@ -183,7 +184,7 @@ export type DefaultQuery = Record<string, string | undefined>;
 export type KeysEnum<T> = {
     [P in keyof Required<T>]: true;
 };
-export type RequestOptions<Req = unknown | Record<string, unknown> | Readable> = {
+export type RequestOptions<Req = unknown | Record<string, unknown> | Readable | BlobLike | ArrayBufferView | ArrayBuffer> = {
     method?: HTTPMethod;
     path?: string;
     query?: Req | undefined;
@@ -195,11 +196,12 @@ export type RequestOptions<Req = unknown | Record<string, unknown> | Readable> =
     httpAgent?: Agent;
     signal?: AbortSignal | undefined | null;
     idempotencyKey?: string;
+    __binaryRequest?: boolean | undefined;
     __binaryResponse?: boolean | undefined;
     __streamClass?: typeof Stream;
 };
 export declare const isRequestOptions: (obj: unknown) => obj is RequestOptions<unknown>;
-export type FinalRequestOptions<Req = unknown | Record<string, unknown> | Readable> = RequestOptions<Req> & {
+export type FinalRequestOptions<Req = unknown | Record<string, unknown> | Readable | DataView> = RequestOptions<Req> & {
     method: HTTPMethod;
     path: string;
 };

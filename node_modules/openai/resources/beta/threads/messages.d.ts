@@ -1,5 +1,5 @@
-import * as Core from "../../../core.js";
 import { APIResource } from "../../../resource.js";
+import * as Core from "../../../core.js";
 import * as MessagesAPI from "./messages.js";
 import * as AssistantsAPI from "../assistants.js";
 import { CursorPage, type CursorPageParams } from "../../../pagination.js";
@@ -64,10 +64,6 @@ export declare namespace FileCitationAnnotation {
          * The ID of the specific File the citation is from.
          */
         file_id: string;
-        /**
-         * The specific quote in the file.
-         */
-        quote: string;
     }
 }
 /**
@@ -338,7 +334,15 @@ export declare namespace Message {
         /**
          * The tools to add this file to.
          */
-        tools?: Array<AssistantsAPI.CodeInterpreterTool | AssistantsAPI.FileSearchTool>;
+        tools?: Array<AssistantsAPI.CodeInterpreterTool | Attachment.AssistantToolsFileSearchTypeOnly>;
+    }
+    namespace Attachment {
+        interface AssistantToolsFileSearchTypeOnly {
+            /**
+             * The type of tool being defined: `file_search`
+             */
+            type: 'file_search';
+        }
     }
     /**
      * On an incomplete message, details about why the message is incomplete.
@@ -487,7 +491,15 @@ export declare namespace MessageCreateParams {
         /**
          * The tools to add this file to.
          */
-        tools?: Array<AssistantsAPI.CodeInterpreterTool | AssistantsAPI.FileSearchTool>;
+        tools?: Array<AssistantsAPI.CodeInterpreterTool | Attachment.FileSearch>;
+    }
+    namespace Attachment {
+        interface FileSearch {
+            /**
+             * The type of tool being defined: `file_search`
+             */
+            type: 'file_search';
+        }
     }
 }
 export interface MessageUpdateParams {

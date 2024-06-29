@@ -1,7 +1,7 @@
-import * as Core from "../../core.js";
 import { APIResource } from "../../resource.js";
-import { type Response } from "../../_shims/index.js";
+import * as Core from "../../core.js";
 import * as SpeechAPI from "./speech.js";
+import { type Response } from "../../_shims/index.js";
 export declare class Speech extends APIResource {
     /**
      * Generates audio from the input text.

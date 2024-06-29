@@ -1,6 +1,6 @@
-import * as Core from "../core.js";
-import { APIPromise } from "../core.js";
 import { APIResource } from "../resource.js";
+import { APIPromise } from "../core.js";
+import * as Core from "../core.js";
 import * as CompletionsAPI from "./completions.js";
 import * as ChatCompletionsAPI from "./chat/completions.js";
 import { Stream } from "../streaming.js";

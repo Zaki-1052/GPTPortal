@@ -1,0 +1,118 @@
+{
+  "name": "tiktoken",
+  "version": "1.0.15",
+  "description": "JS/WASM bindings for tiktoken",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dqbd/tiktoken"
+  },
+  "dependencies": {},
+  "publishConfig": {
+    "directory": "./dist",
+    "access": "public"
+  },
+  "files": [
+    "**/*"
+  ],
+  "main": "tiktoken.cjs",
+  "types": "tiktoken.d.ts",
+  "exports": {
+    ".": {
+      "types": "./tiktoken.d.ts",
+      "edge-light": "./tiktoken.js",
+      "node": "./tiktoken.cjs",
+      "default": "./tiktoken.js"
+    },
+    "./init": {
+      "types": "./init.d.ts",
+      "edge-light": "./init.js",
+      "node": "./init.cjs",
+      "default": "./init.js"
+    },
+    "./load": {
+      "types": "./load.d.ts",
+      "edge-light": "./load.js",
+      "node": "./load.cjs",
+      "default": "./load.js"
+    },
+    "./tiktoken_bg.wasm": {
+      "types": "./tiktoken_bg.wasm.d.ts",
+      "default": "./tiktoken_bg.wasm"
+    },
+    "./tiktoken_bg.wasm?module": {
+      "types": "./tiktoken_bg.wasm.d.ts",
+      "default": "./tiktoken_bg.wasm?module"
+    },
+    "./lite": {
+      "types": "./lite/tiktoken.d.ts",
+      "edge-light": "./lite/tiktoken.js",
+      "node": "./lite/tiktoken.cjs",
+      "default": "./lite/tiktoken.js"
+    },
+    "./lite/init": {
+      "types": "./lite/init.d.ts",
+      "edge-light": "./lite/init.js",
+      "node": "./lite/init.cjs",
+      "default": "./lite/init.js"
+    },
+    "./lite/load": {
+      "types": "./lite/load.d.ts",
+      "edge-light": "./lite/load.js",
+      "node": "./lite/load.cjs",
+      "default": "./lite/load.js"
+    },
+    "./lite/tiktoken_bg.wasm": {
+      "types": "./lite/tiktoken_bg.wasm.d.ts",
+      "default": "./lite/tiktoken_bg.wasm"
+    },
+    "./lite/tiktoken_bg.wasm?module": {
+      "types": "./lite/tiktoken_bg.wasm.d.ts",
+      "default": "./lite/tiktoken_bg.wasm?module"
+    },
+    "./model_to_encoding.json": "./model_to_encoding.json",
+    "./registry.json": "./registry.json",
+    "./encoders/gpt2.json": "./encoders/gpt2.json",
+    "./encoders/gpt2": {
+      "types": "./encoders/gpt2.d.ts",
+      "edge-light": "./encoders/gpt2.js",
+      "node": "./encoders/gpt2.cjs",
+      "default": "./encoders/gpt2.js"
+    },
+    "./encoders/r50k_base.json": "./encoders/r50k_base.json",
+    "./encoders/r50k_base": {
+      "types": "./encoders/r50k_base.d.ts",
+      "edge-light": "./encoders/r50k_base.js",
+      "node": "./encoders/r50k_base.cjs",
+      "default": "./encoders/r50k_base.js"
+    },
+    "./encoders/p50k_base.json": "./encoders/p50k_base.json",
+    "./encoders/p50k_base": {
+      "types": "./encoders/p50k_base.d.ts",
+      "edge-light": "./encoders/p50k_base.js",
+      "node": "./encoders/p50k_base.cjs",
+      "default": "./encoders/p50k_base.js"
+    },
+    "./encoders/p50k_edit.json": "./encoders/p50k_edit.json",
+    "./encoders/p50k_edit": {
+      "types": "./encoders/p50k_edit.d.ts",
+      "edge-light": "./encoders/p50k_edit.js",
+      "node": "./encoders/p50k_edit.cjs",
+      "default": "./encoders/p50k_edit.js"
+    },
+    "./encoders/cl100k_base.json": "./encoders/cl100k_base.json",
+    "./encoders/cl100k_base": {
+      "types": "./encoders/cl100k_base.d.ts",
+      "edge-light": "./encoders/cl100k_base.js",
+      "node": "./encoders/cl100k_base.cjs",
+      "default": "./encoders/cl100k_base.js"
+    },
+    "./encoders/o200k_base.json": "./encoders/o200k_base.json",
+    "./encoders/o200k_base": {
+      "types": "./encoders/o200k_base.d.ts",
+      "edge-light": "./encoders/o200k_base.js",
+      "node": "./encoders/o200k_base.cjs",
+      "default": "./encoders/o200k_base.js"
+    }
+  }
+}

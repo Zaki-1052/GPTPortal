@@ -1,5 +1,5 @@
-import * as Core from "../core.js";
 import { APIResource } from "../resource.js";
+import * as Core from "../core.js";
 import * as ModelsAPI from "./models.js";
 import { Page } from "../pagination.js";
 export declare class Models extends APIResource {

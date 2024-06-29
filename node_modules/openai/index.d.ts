@@ -1,7 +1,7 @@
-import * as Core from "./core.js";
 import * as Errors from "./error.js";
-import { type Agent, type RequestInit } from "./_shims/index.js";
 import * as Uploads from "./uploads.js";
+import { type Agent, type RequestInit } from "./_shims/index.js";
+import * as Core from "./core.js";
 import * as Pagination from "./pagination.js";
 import * as API from "./resources/index.js";
 export interface ClientOptions {
@@ -72,7 +72,9 @@ export interface ClientOptions {
      */
     dangerouslyAllowBrowser?: boolean;
 }
-/** API Client for interfacing with the OpenAI API. */
+/**
+ * API Client for interfacing with the OpenAI API.
+ */
 export declare class OpenAI extends Core.APIClient {
     apiKey: string;
     organization: string | null;

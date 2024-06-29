@@ -408,23 +408,6 @@ initializeGeminiConversationHistory();
   // Log the determined chatHistory
   // console.log("Determined Chat History: ", JSON.stringify(chatHistory, null, 2));
 
-  let htmlContent = `
-    <html>
-    <head>
-      <title>Chat History</title>
-      <style>
-        body { font-family: Arial, sans-serif; }
-        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
-        .system { background-color: #f0f0f0; }
-        .user { background-color: #d1e8ff; }
-        .assistant { background-color: #c8e6c9; }
-        .generated-image { max-width: 100%; height: auto; }
-        /* Add more styles as needed for Markdown elements like headers, lists, etc. */
-      </style>
-    </head>
-    <body>
-  `;
-
   console.log("Chat History: ", JSON.stringify(chatHistory, null, 2));
 
   // Convert chat history to a string for title generation
@@ -437,8 +420,36 @@ initializeGeminiConversationHistory();
     return '';
   }).join('\n');
 
+  console.log(savedHistory);
+
+  chatType = 'chat';
+  const tokens = await tokenizeHistory(chatHistory, modelID, chatType);
+  console.log("Total Tokens: ", tokens);
+  const cost = await calculateCost(tokens, modelID);
+  console.log("Total Cost: ", cost);
   // Generate title and save chat history
-  await titleChat(savedHistory);
+  const { title, summary } = await titleChat(savedHistory, tokens, cost);
+  console.log(`Title: ${title}`);
+  console.log(`Summary: ${summary}`);
+
+  let htmlContent = `
+    <html>
+    <head>
+      <title>${title}</title>
+      <style>
+        body { font-family: Arial, sans-serif; }
+        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .system { background-color: #f0f0f0; }
+        .user { background-color: #d1e8ff; }
+        .assistant { background-color: #c8e6c9; }
+        .generated-image { max-width: 100%; height: auto; }
+        .summary { background-color: #f9f9f9; padding: 10px; margin: 20px 0; border-radius: 5px; }
+        .summary h3 { margin-top: 0; }
+      </style>
+    </head>
+    <body>
+  `;
+
 
   chatHistory.forEach(entry => {
     let formattedContent = '';
@@ -460,19 +471,38 @@ initializeGeminiConversationHistory();
     htmlContent += `<div class="message ${entry.role}"><strong>${entry.role.toUpperCase()}:</strong> ${formattedContent}</div>`;
   });
 
-  htmlContent += '</body></html>';
+  htmlContent += `
+    <div class="summary">
+      <h3>Summary</h3>
+      <p>Total Tokens: ${tokens.totalTokens}</p>
+      <p>Total Cost: $${cost.toFixed(15)}</p>
+      <p>Summary: ${summary}</p>
+    </div>
+  </body></html>`;
+
   return htmlContent;
 }
 
-async function titleChat(chatHistory) {
+let summary = '';
+
+async function titleChat(history, tokens, cost) {
   // Request to OpenAI to generate a title
   const completion = await openai.chat.completions.create({
-    model: 'gpt-4',
+    model: 'gpt-4o',
     messages: [
-      { role: 'system', content: 'Title this chat by summarizing the topic of the conversation in under 5 or 6 words. This will be the name of the file in which it is saved, so include underscores instead of spaces and keep it short and concise.' },
-      { role: 'user', content: chatHistory }
+      { role: 'system', content: 'Title this chat by summarizing the topic of the conversation in under 5 or 6 words. This will be the name of the file in which it is saved, so keep it short and concise.' },
+      { role: 'user', content: history }
     ]
   });
+
+  summary = await openai.chat.completions.create({
+    model: 'gpt-3.5-turbo-0125',
+    messages: [
+      { role: 'system', content: 'Summarize this conversation in a short paragraph consisting of no more than 4 sentences. This description will be appended to the chat file for the user to reference. Keep it extremely concise but thorough.' },
+      { role: 'user', content: history }
+    ]
+  });
+  summary = summary.choices[0].message.content;
 
   // Extract the title from the response
   title = completion.choices[0].message.content.trim().replace(/ /g, '_');
@@ -483,11 +513,224 @@ async function titleChat(chatHistory) {
 
   // Define the full file path
   const filePath = path.join(folderPath, `${title}.txt`);
+  const chatText = `${history}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(5)}\n\nSummary: ${summary}`;
+  fs.writeFileSync(filePath, chatText);
 
 
   // Save the chat history to a file with the generated title
-  fs.writeFileSync(filePath, chatHistory);
+  fs.writeFileSync(filePath, history);
   console.log(`Chat history saved to ${filePath}`);
+  return { title, summary };
+}
+
+
+const { get_encoding, encoding_for_model } = require("tiktoken");
+
+/**
+ * Tokenize chat history based on a specified model and type
+ * @param {string} history - The chat history as a string
+ * @param {string} model - The OpenAI model to use for encoding
+ * @param {string} type - The format type of the chat history (e.g., 'gemini')
+ * @returns {Promise<Object>} - An object containing the total tokens and tokens per segment
+ */
+async function tokenizeHistory(history, model, type) {
+  // Load the encoder for the specified model
+  const encoder = encoding_for_model(model);
+
+  // Function to split history into segments for 'gemini' format
+  function splitGeminiSegments(chatHistory) {
+      // Regex pattern to separate different parts of the conversation
+      const segmentRegex = /(?:System Prompt:|User Prompt:|Response:)([^:]+)(?=System Prompt:|User Prompt:|Response:|$)/g;
+      const matches = [];
+      let match;
+      while ((match = segmentRegex.exec(chatHistory)) !== null) {
+          matches.push(match[1].trim());
+      }
+      return matches.map((text, index) => ({
+          role: index % 3 === 0 ? 'System Prompt' : index % 3 === 1 ? 'User Prompt' : 'Response',
+          text
+      }));
+  }
+
+  // Function to split history into segments for 'assistant' format
+function splitAssistantSegments(chatHistory) {
+  // Regex pattern to separate different parts of the conversation starting from SYSTEM
+  const segmentRegex = /(SYSTEM:|USER:|ASSISTANT:)(.*?)(?=(SYSTEM:|USER:|ASSISTANT:|$))/gs;
+  const matches = [];
+  let match;
+  while ((match = segmentRegex.exec(chatHistory)) !== null) {
+      matches.push({
+          role: match[1].replace(':', '').trim(),
+          text: match[2].trim()
+      });
+  }
+  return matches;
+}
+
+// Function to split history into segments for 'chat' format
+function splitChatSegments(chatHistory) {
+  return chatHistory.map(entry => ({
+    role: entry.role.toUpperCase(),
+    text: Array.isArray(entry.content) ? entry.content.map(item => item.type === 'text' ? item.text : '').join(' ') : entry.content
+  }));
+}
+
+
+  // Function to split history into segments based on the type
+  function splitSegments(chatHistory, type) {
+    if (type === 'gemini') {
+        return splitGeminiSegments(chatHistory);
+    } else if (type === 'assistant') {
+        return splitAssistantSegments(chatHistory);
+    } else if (type === 'chat') {
+        return splitChatSegments(chatHistory);
+    }
+    throw new Error(`Unknown history type: ${type}`);
+  }
+
+  // Split the chat history into segments
+  let segments;
+  try {
+      segments = splitSegments(history, type);
+  } catch (error) {
+      console.error(error.message);
+      encoder.free();
+      return;
+  }
+
+  // Calculate the number of tokens for each segment and the total
+  let totalTokens = 0;
+  const tokensPerSegment = segments.map(segment => {
+      const tokens = encoder.encode(segment.text);
+      totalTokens += tokens.length;
+      return {
+          role: segment.role,
+          text: segment.text,
+          tokens: tokens.length
+      };
+  });
+
+  // Free the encoder
+  encoder.free();
+
+  // console.log("Total Tokens: ", totalTokens);
+  // console.log("Tokens Per Segment: ", tokensPerSegment);
+
+  return {
+      totalTokens,
+      tokensPerSegment
+  };
+}
+
+
+/**
+ * Calculate the total cost of a conversation based on token counts, model pricing, and role
+ * @param {Object} tokens - Object containing totalTokens and tokensPerSegment
+ * @param {string} model - String identifying the OpenAI or Claude model
+ * @returns {Promise<number>} - Total cost of the conversation
+ */
+async function calculateCost(tokens, model) {
+  let totalCost = 0;
+  let cumulativeInputTokens = 0;
+
+  // Define pricing based on model
+  let inputCostPerMillion, outputCostPerMillion;
+  if (model === 'gpt-4') {
+      inputCostPerMillion = 30.00;
+      outputCostPerMillion = 60.00;
+  } else if (model === 'gpt-4-turbo') {
+      inputCostPerMillion = 10.00;
+      outputCostPerMillion = 30.00;
+  } else if (model === 'gpt-4o') {
+      inputCostPerMillion = 5.00;
+      outputCostPerMillion = 15.00;
+  } else if (model === 'gpt-3.5-turbo-0125') {
+      inputCostPerMillion = 0.50;
+      outputCostPerMillion = 1.50;
+  } else if (model === 'claude-3-5-sonnet-20240620' || model === 'claude-3-sonnet-20240229') {
+      inputCostPerMillion = 3.00;
+      outputCostPerMillion = 15.00;
+  } else if (model === 'claude-3-opus-20240229') {
+      inputCostPerMillion = 15.00;
+      outputCostPerMillion = 75.00;
+  } else if (model === 'claude-3-haiku-20240307') {
+      inputCostPerMillion = 0.25;
+      outputCostPerMillion = 1.25;
+  } else if (model === 'claude-2.1' || model === 'claude-2.0') {
+      inputCostPerMillion = 8.00;
+      outputCostPerMillion = 24.00;
+  } else if (model === 'claude-instant-1.2') {
+      inputCostPerMillion = 0.80;
+      outputCostPerMillion = 2.40;
+  } else if (model === 'open-mistral-7b') {
+      inputCostPerMillion = 0.25;
+      outputCostPerMillion = 0.25;
+  } else if (model === 'open-mixtral-8x7b') {
+      inputCostPerMillion = 0.70;
+      outputCostPerMillion = 0.70;
+  } else if (model === 'open-mixtral-8x22b') {
+      inputCostPerMillion = 2.00;
+      outputCostPerMillion = 6.00;
+  } else if (model === 'mistral-small-2402') {
+      inputCostPerMillion = 1.00;
+      outputCostPerMillion = 3.00;
+  } else if (model === 'codestral-2405') {
+      inputCostPerMillion = 1.00;
+      outputCostPerMillion = 3.00;
+  } else if (model === 'mistral-medium-2312') {
+      inputCostPerMillion = 2.70;
+      outputCostPerMillion = 8.10;
+  } else if (model === 'mistral-large-2402') {
+      inputCostPerMillion = 4.00;
+      outputCostPerMillion = 12.00;
+  } else if (model === 'gemini-pro') {
+      inputCostPerMillion = 0;
+      outputCostPerMillion = 0;
+  } else if (model === 'gemini-pro-vision') {
+      inputCostPerMillion = 0;
+      outputCostPerMillion = 0;
+  } else if (model === 'gemini-1.5-pro') {
+      inputCostPerMillion = 0;
+      outputCostPerMillion = 0;
+  } else if (model === 'gemini-1.5-flash') {
+      inputCostPerMillion = 0;
+      outputCostPerMillion = 0;
+  } else if (model === 'llama3-70b-8192') {
+      inputCostPerMillion = 0;
+      outputCostPerMillion = 0;
+  } else if (model === 'llama3-8b-8192') {
+      inputCostPerMillion = 0;
+      outputCostPerMillion = 0;
+  } else if (model === 'gemma-7b-it') {
+      inputCostPerMillion = 0;
+      outputCostPerMillion = 0;
+  } else if (model === 'mixtral-8x7b-32768') {
+      inputCostPerMillion = 0;
+      outputCostPerMillion = 0;
+  } else {
+      throw new Error(`Unknown model: ${model}.`);
+  }
+
+  // Process each segment in tokensPerSegment
+  for (const segment of tokens.tokensPerSegment) {
+    if (segment.role === 'SYSTEM' || segment.role === 'USER') {
+      cumulativeInputTokens += segment.tokens;
+      if (segment.role === 'USER') {
+        // Calculate the cost for the cumulative input tokens
+        const inputCost = (cumulativeInputTokens / 1000000) * inputCostPerMillion;
+        totalCost += inputCost;
+      }
+    } else if (segment.role === 'ASSISTANT') {
+      // Calculate the output cost for the assistant tokens
+      const outputCost = (segment.tokens / 1000000) * outputCostPerMillion;
+      totalCost += outputCost;
+
+      // Include assistant tokens in cumulative input tokens
+      cumulativeInputTokens += segment.tokens;
+    }
+  }
+
+  return totalCost;
 }
 
 
@@ -520,9 +763,12 @@ async function exportGeminiChatToHTML() {
   const messages = geminiHistory.split(messageRegex).slice(1); // slice to remove the first empty string if any
   console.log("Gemini History: ", JSON.stringify(geminiHistory, null, 2));
 
+  
+  chatType = 'gemini';
+  const tokens = await tokenizeHistory(geminiHistory, modelID, chatType);
+  console.log(tokens);
   // process chat history in a similar way
   await nameChat(geminiHistory);
-
 
   // Process the messages in pairs (label + content)
   for (let i = 0; i < messages.length; i += 2) {
@@ -822,10 +1068,33 @@ async function exportAssistantsChat() {
   // Convert systemMessage from markdown to HTML and ensure it's only added if defined
   const systemMessageHtml = systemMessage ? convertMarkdownToHtml(systemMessage) : '';
 
+  chatType = 'assistant';
+  const tokens = await tokenizeHistory(chatHistory, modelID, chatType);
+  console.log("Total Tokens: ", tokens);
+  const cost = await calculateCost(tokens, modelID);
+  console.log("Total Cost: ", cost);
+  
+  // Generate title and save chat history
+  const { title, summary } = await titleChat(chatHistory, tokens, cost);
+  console.log(`Title: ${title}`);
+  console.log(`Summary: ${summary}`);
+
+  console.log("Assistant History: ", JSON.stringify(messages, null, 2));
+
+  // Get the latest message (last in the sorted array)
+  const latestMessage = messages[messages.length - 1];
+  const assistantId = latestMessage.assistant_id || 'N/A';
+  const threadId = latestMessage.thread_id || 'N/A';
+  const runId = latestMessage.run_id || 'N/A';
+
+  // Prepend assistant ID, thread ID, and run ID to the chatHistory
+  let chatHistory = `ASSISTANT ID: ${assistantId}\nTHREAD ID: ${threadId}\nRUN ID: ${runId}\n\n`;
+  chatHistory += systemMessage ? `SYSTEM: ${systemMessage}\n` : '';
+
   let htmlContent = `
   <html>
   <head>
-      <title>Chat History</title>
+      <title>${title}</title>
       <style>
           body { font-family: Arial, sans-serif; }
           .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
@@ -839,18 +1108,6 @@ async function exportAssistantsChat() {
   <body>
   ${systemMessageHtml ? `<div class="message system-message"><strong>SYSTEM:</strong> ${systemMessageHtml}</div>` : ''}
   `; // Conditionally prepend the systemMessage in HTML format to the chat history
-
-  console.log("Assistant History: ", JSON.stringify(messages, null, 2));
-
-  // Get the latest message (last in the sorted array)
-  const latestMessage = messages[messages.length - 1];
-  const assistantId = latestMessage.assistant_id || 'N/A';
-  const threadId = latestMessage.thread_id || 'N/A';
-  const runId = latestMessage.run_id || 'N/A';
-
-  // Prepend assistant ID, thread ID, and run ID to the chatHistory
-  let chatHistory = `ASSISTANT ID: ${assistantId}\nTHREAD ID: ${threadId}\nRUN ID: ${runId}\n\n`;
-  chatHistory += systemMessage ? `SYSTEM: ${systemMessage}\n` : '';
 
   messages.forEach(message => {
       const roleClass = message.role;
@@ -869,15 +1126,23 @@ async function exportAssistantsChat() {
       htmlContent += `<div class="message ${roleClass}"><strong>${roleClass.toUpperCase()}:</strong> ${formattedContent}</div>`;
   });
 
-  htmlContent += '</body></html>';
+  htmlContent += `
+    <div class="summary">
+      <h3>Summary</h3>
+      <p>Total Tokens: ${tokens.totalTokens}</p>
+      <p>Total Cost: $${cost.toFixed(5)}</p>
+      <p>Summary: ${summary}</p>
+    </div>
+  </body></html>`;
+
   console.log("Chat History: ", JSON.stringify(chatHistory, null, 2));
 
-  await nameChat(chatHistory);
 
   return htmlContent;
 }
 
 let title = '';
+let chatType = '';
 
 async function nameChat(chatHistory) {
   // Request to OpenAI to generate a title

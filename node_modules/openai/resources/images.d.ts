@@ -1,7 +1,6 @@
-import * as Core from "../core.js";
 import { APIResource } from "../resource.js";
+import * as Core from "../core.js";
 import * as ImagesAPI from "./images.js";
-import { type Uploadable } from "../core.js";
 export declare class Images extends APIResource {
     /**
      * Creates a variation of a given image.
@@ -44,7 +43,7 @@ export interface ImageCreateVariationParams {
      * The image to use as the basis for the variation(s). Must be a valid PNG file,
      * less than 4MB, and square.
      */
-    image: Uploadable;
+    image: Core.Uploadable;
     /**
      * The model to use for image generation. Only `dall-e-2` is supported at this
      * time.
@@ -78,7 +77,7 @@ export interface ImageEditParams {
      * The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask
      * is not provided, image must have transparency, which will be used as the mask.
      */
-    image: Uploadable;
+    image: Core.Uploadable;
     /**
      * A text description of the desired image(s). The maximum length is 1000
      * characters.
@@ -89,7 +88,7 @@ export interface ImageEditParams {
      * indicate where `image` should be edited. Must be a valid PNG file, less than
      * 4MB, and have the same dimensions as `image`.
      */
-    mask?: Uploadable;
+    mask?: Core.Uploadable;
     /**
      * The model to use for image generation. Only `dall-e-2` is supported at this
      * time.

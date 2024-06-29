@@ -1,5 +1,5 @@
-import * as Core from "../core.js";
 import { APIResource } from "../resource.js";
+import * as Core from "../core.js";
 import * as EmbeddingsAPI from "./embeddings.js";
 export declare class Embeddings extends APIResource {
     /**

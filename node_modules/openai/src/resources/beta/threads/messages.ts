@@ -1,8 +1,8 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import * as Core from '../../../core';
 import { APIResource } from '../../../resource';
 import { isRequestOptions } from '../../../core';
+import * as Core from '../../../core';
 import * as MessagesAPI from './messages';
 import * as AssistantsAPI from '../assistants';
 import { CursorPage, type CursorPageParams } from '../../../pagination';
@@ -129,11 +129,6 @@ export namespace FileCitationAnnotation {
      * The ID of the specific File the citation is from.
      */
     file_id: string;
-
-    /**
-     * The specific quote in the file.
-     */
-    quote: string;
   }
 }
 
@@ -459,7 +454,16 @@ export namespace Message {
     /**
      * The tools to add this file to.
      */
-    tools?: Array<AssistantsAPI.CodeInterpreterTool | AssistantsAPI.FileSearchTool>;
+    tools?: Array<AssistantsAPI.CodeInterpreterTool | Attachment.AssistantToolsFileSearchTypeOnly>;
+  }
+
+  export namespace Attachment {
+    export interface AssistantToolsFileSearchTypeOnly {
+      /**
+       * The type of tool being defined: `file_search`
+       */
+      type: 'file_search';
+    }
   }
 
   /**
@@ -637,7 +641,16 @@ export namespace MessageCreateParams {
     /**
      * The tools to add this file to.
      */
-    tools?: Array<AssistantsAPI.CodeInterpreterTool | AssistantsAPI.FileSearchTool>;
+    tools?: Array<AssistantsAPI.CodeInterpreterTool | Attachment.FileSearch>;
+  }
+
+  export namespace Attachment {
+    export interface FileSearch {
+      /**
+       * The type of tool being defined: `file_search`
+       */
+      type: 'file_search';
+    }
   }
 }
 
