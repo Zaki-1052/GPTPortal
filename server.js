@@ -475,7 +475,7 @@ initializeGeminiConversationHistory();
     <div class="summary">
       <h3>Summary</h3>
       <p>Total Tokens: ${tokens.totalTokens}</p>
-      <p>Total Cost: $${cost.toFixed(15)}</p>
+      <p>Total Cost: $${cost.toFixed(6)}</p>
       <p>Summary: ${summary}</p>
     </div>
   </body></html>`;
@@ -490,7 +490,7 @@ async function titleChat(history, tokens, cost) {
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o',
     messages: [
-      { role: 'system', content: 'Title this chat by summarizing the topic of the conversation in under 5 or 6 words. This will be the name of the file in which it is saved, so keep it short and concise.' },
+      { role: 'system', content: 'You will be given the contents of a conversation between a Human and an AI Assistant. Please title this chat by summarizing the topic of the conversation in under 5 plaintext words. Ignore the System Message and focus solely on the User-AI interaction. This will be the name of the file saved via Node, so keep it *extremely* short and concise! Examples: "Friendly AI Assistance", "Install Plex Media Server", "App Layout Feedback", "Calculating Indefinite Integrals", or "Total Cost Calculation", etc. The title should resemble a quick and easy reference point for the User to remember the conversation, and follow smart and short naming conventions.' },
       { role: 'user', content: history }
     ]
   });
@@ -498,7 +498,7 @@ async function titleChat(history, tokens, cost) {
   summary = await openai.chat.completions.create({
     model: 'gpt-3.5-turbo-0125',
     messages: [
-      { role: 'system', content: 'Summarize this conversation in a short paragraph consisting of no more than 4 sentences. This description will be appended to the chat file for the user to reference. Keep it extremely concise but thorough.' },
+      { role: 'system', content: 'You will be shown the contents of a conversation between a Human and an AI Assistant. Please summarize this chat in a short paragraph consisting of no more than 4 sentences. Ignore the System Message and focus solely on the User-AI interaction. This description will be appended to the chat file for the user to reference. Keep it extremely concise but thorough.' },
       { role: 'user', content: history }
     ]
   });
@@ -513,12 +513,11 @@ async function titleChat(history, tokens, cost) {
 
   // Define the full file path
   const filePath = path.join(folderPath, `${title}.txt`);
-  const chatText = `${history}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(5)}\n\nSummary: ${summary}`;
+  const chatText = `${history}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(6)}\n\nSummary: ${summary}`;
   fs.writeFileSync(filePath, chatText);
 
 
   // Save the chat history to a file with the generated title
-  fs.writeFileSync(filePath, history);
   console.log(`Chat history saved to ${filePath}`);
   return { title, summary };
 }
@@ -730,6 +729,12 @@ async function calculateCost(tokens, model) {
     }
   }
 
+  let extraCost = (tokens.totalTokens / 1000000) * inputCostPerMillion;
+  extraCost * 2;
+
+
+  totalCost += extraCost;
+
   return totalCost;
 }
 
@@ -737,23 +742,7 @@ async function calculateCost(tokens, model) {
 
 // Function to convert Gemini conversation history to HTML
 async function exportGeminiChatToHTML() {
-  let htmlContent = `
-    <html>
-    <head>
-      <title>Gemini Chat History</title>
-      <style>
-        body { font-family: Arial, sans-serif; }
-        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
-        .system { background-color: #f0f0f0; }
-        .user { background-color: #d1e8ff; }
-        .assistant { background-color: #c8e6c9; }
-        .generated-image { max-width: 100%; height: auto; }
-        /* Additional styles */
-      </style>
-    </head>
-    <body>
-  `;
-
+  
   // Convert newlines in each part of the chat history to <br> for HTML display
   const convertNewlinesToHtml = text => text.replace(/\n/g, '<br>');
 
@@ -768,7 +757,27 @@ async function exportGeminiChatToHTML() {
   const tokens = await tokenizeHistory(geminiHistory, modelID, chatType);
   console.log(tokens);
   // process chat history in a similar way
-  await nameChat(geminiHistory);
+  const { title, summary } = await nameChat(geminiHistory, tokens);
+  console.log(`Title: ${title}`);
+  console.log(`Summary: ${summary}`);
+
+  let htmlContent = `
+    <html>
+    <head>
+      <title>Gemini: ${title}</title>
+      <style>
+        body { font-family: Arial, sans-serif; }
+        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .system { background-color: #f0f0f0; }
+        .user { background-color: #d1e8ff; }
+        .assistant { background-color: #c8e6c9; }
+        .generated-image { max-width: 100%; height: auto; }
+        .summary { background-color: #f9f9f9; padding: 10px; margin: 20px 0; border-radius: 5px; }
+        .summary h3 { margin-top: 0; }
+      </style>
+    </head>
+    <body>
+  `;
 
   // Process the messages in pairs (label + content)
   for (let i = 0; i < messages.length; i += 2) {
@@ -787,7 +796,14 @@ async function exportGeminiChatToHTML() {
     htmlContent += `<div class="message ${roleClass}"><strong>${label.trim()}</strong> ${convertNewlinesToHtml(content.trim())}</div>`;
   }
 
-  htmlContent += '</body></html>';
+  htmlContent += `
+    <div class="summary">
+      <h3>Summary</h3>
+      <p>Total Tokens: ${tokens.totalTokens}</p>
+      <p>Total Cost: $0.00!</p>
+      <p>Summary: ${summary}</p>
+    </div>
+  </body></html>`;
   return htmlContent;
 }
 
@@ -1103,6 +1119,8 @@ async function exportAssistantsChat() {
           .user { background-color: #d1e8ff; }
           .assistant { background-color: #c8e6c9; }
           .generated-image { max-width: 100%; height: auto; }
+          .summary { background-color: #f9f9f9; padding: 10px; margin: 20px 0; border-radius: 5px; }
+          .summary h3 { margin-top: 0; }
       </style>
   </head>
   <body>
@@ -1130,7 +1148,7 @@ async function exportAssistantsChat() {
     <div class="summary">
       <h3>Summary</h3>
       <p>Total Tokens: ${tokens.totalTokens}</p>
-      <p>Total Cost: $${cost.toFixed(5)}</p>
+      <p>Total Cost: $${cost.toFixed(6)}</p>
       <p>Summary: ${summary}</p>
     </div>
   </body></html>`;
@@ -1144,18 +1162,22 @@ async function exportAssistantsChat() {
 let title = '';
 let chatType = '';
 
-async function nameChat(chatHistory) {
+async function nameChat(chatHistory, tokens) {
   // Request to OpenAI to generate a title
-  const completion = await openai.chat.completions.create({
-    model: 'gpt-4',
-    messages: [
-      { role: 'system', content: 'Title this chat by summarizing the topic of the conversation in under 5 or 6 words. This will be the name of the file in which it is saved, so include underscores instead of spaces and keep it short and concise.' },
-      { role: 'user', content: chatHistory }
-    ]
-  });
+
+  const googleModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: defaultConfig, safetySettings });
+  // Generate content based on the geminiHistory
+  const answer = await googleModel.generateContent(`You will be given the contents of a conversation between a Human and an AI Assistant. Please title this chat by summarizing the topic of the conversation in under 5 plaintext words. Ignore the System Message and focus on the User-AI interaction. This will be the name of the file saved via Node, so keep it *extremely* short and concise! Examples: "Friendly AI Assistance", "Install Plex Media Server", "App Layout Feedback", "Calculating Indefinite Integrals", or "Total Cost Calculation", etc. The title should resemble a quick and easy reference point for the User to remember the conversation, and follow smart and short naming conventions.\n\n${chatHistory}`);
+
+  title = answer.response.text().trim().replace(/ /g, '_');
+  
+  // Generate content based on the geminiHistory
+  const result = await googleModel.generateContent(`You will be shown Summarize this conversation in a short paragraph consisting of no more than 4 sentences. This description will be appended to the chat file for the user to reference. Keep it extremely concise but thorough.\n\n${chatHistory}`);
+
+  const summary = result.response.text();
+
 
   // Extract the title from the response
-  title = completion.choices[0].message.content.trim().replace(/ /g, '_');
   console.log("Generated Title: ", title);
   const folderPath = path.join(__dirname, 'public/uploads/chats');
   // Ensure the nested folder exists
@@ -1163,11 +1185,13 @@ async function nameChat(chatHistory) {
 
   // Define the full file path
   const filePath = path.join(folderPath, `${title}.txt`);
+  const chatText = `${chatHistory}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $0.00!\n\nSummary: ${summary}`;
+  fs.writeFileSync(filePath, chatText);
 
 
   // Save the chat history to a file with the generated title
-  fs.writeFileSync(filePath, chatHistory);
   console.log(`Chat history saved to ${filePath}`);
+  return { title, summary };
 }
 
 
@@ -1791,7 +1815,7 @@ app.get('/export-chat-html', async (req, res) => {
   }
 
   res.set('Content-Type', 'text/html');
-  res.set('Content-Disposition', 'attachment; filename="' + title + '.html"');
+  res.set('Content-Disposition', `attachment; filename="${title}.html"`);
   // console.log(htmlContent);
   res.send(htmlContent);
 
