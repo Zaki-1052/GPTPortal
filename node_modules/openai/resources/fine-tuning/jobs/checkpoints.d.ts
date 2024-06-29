@@ -1,5 +1,5 @@
-import * as Core from "../../../core.js";
 import { APIResource } from "../../../resource.js";
+import * as Core from "../../../core.js";
 import * as CheckpointsAPI from "./checkpoints.js";
 import { CursorPage, type CursorPageParams } from "../../../pagination.js";
 export declare class Checkpoints extends APIResource {

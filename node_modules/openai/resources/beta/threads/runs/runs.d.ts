@@ -1,6 +1,6 @@
-import * as Core from "../../../../core.js";
-import { APIPromise } from "../../../../core.js";
 import { APIResource } from "../../../../resource.js";
+import { APIPromise } from "../../../../core.js";
+import * as Core from "../../../../core.js";
 import { AssistantStream, RunCreateParamsBaseStream } from "../../../../lib/AssistantStream.js";
 import { RunSubmitToolOutputsParamsStream } from "../../../../lib/AssistantStream.js";
 import * as RunsAPI from "./runs.js";
@@ -200,6 +200,12 @@ export interface Run {
      * The object type, which is always `thread.run`.
      */
     object: 'thread.run';
+    /**
+     * Whether to enable
+     * [parallel function calling](https://platform.openai.com/docs/guides/function-calling/parallel-function-calling)
+     * during tool use.
+     */
+    parallel_tool_calls: boolean;
     /**
      * Details on the action required to continue the run. Will be `null` if no action
      * is required.
@@ -421,6 +427,12 @@ export interface RunCreateParamsBase {
      */
     model?: (string & {}) | 'gpt-4o' | 'gpt-4o-2024-05-13' | 'gpt-4-turbo' | 'gpt-4-turbo-2024-04-09' | 'gpt-4-0125-preview' | 'gpt-4-turbo-preview' | 'gpt-4-1106-preview' | 'gpt-4-vision-preview' | 'gpt-4' | 'gpt-4-0314' | 'gpt-4-0613' | 'gpt-4-32k' | 'gpt-4-32k-0314' | 'gpt-4-32k-0613' | 'gpt-3.5-turbo' | 'gpt-3.5-turbo-16k' | 'gpt-3.5-turbo-0613' | 'gpt-3.5-turbo-1106' | 'gpt-3.5-turbo-0125' | 'gpt-3.5-turbo-16k-0613' | null;
     /**
+     * Whether to enable
+     * [parallel function calling](https://platform.openai.com/docs/guides/function-calling/parallel-function-calling)
+     * during tool use.
+     */
+    parallel_tool_calls?: boolean;
+    /**
      * Specifies the format that the model must output. Compatible with
      * [GPT-4o](https://platform.openai.com/docs/models/gpt-4o),
      * [GPT-4 Turbo](https://platform.openai.com/docs/models/gpt-4-turbo-and-gpt-4),
@@ -515,7 +527,15 @@ export declare namespace RunCreateParams {
             /**
              * The tools to add this file to.
              */
-            tools?: Array<AssistantsAPI.CodeInterpreterTool | AssistantsAPI.FileSearchTool>;
+            tools?: Array<AssistantsAPI.CodeInterpreterTool | Attachment.FileSearch>;
+        }
+        namespace Attachment {
+            interface FileSearch {
+                /**
+                 * The type of tool being defined: `file_search`
+                 */
+                type: 'file_search';
+            }
         }
     }
     /**

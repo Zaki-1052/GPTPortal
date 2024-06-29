@@ -1,7 +1,6 @@
-import * as Core from "../../core.js";
 import { APIResource } from "../../resource.js";
+import * as Core from "../../core.js";
 import * as TranscriptionsAPI from "./transcriptions.js";
-import { type Uploadable } from "../../core.js";
 export declare class Transcriptions extends APIResource {
     /**
      * Transcribes audio into the input language.
@@ -23,7 +22,7 @@ export interface TranscriptionCreateParams {
      * The audio file object (not file name) to transcribe, in one of these formats:
      * flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, or webm.
      */
-    file: Uploadable;
+    file: Core.Uploadable;
     /**
      * ID of the model to use. Only `whisper-1` (which is powered by our open source
      * Whisper V2 model) is currently available.
