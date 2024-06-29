@@ -402,7 +402,9 @@ async function continueConversation(chosenChat) {
   try {
     // Read the chosen chat file
     const conversationFile = await fs.promises.readFile(path.join(__dirname, 'public/uploads/chats', `${chosenChat}.txt`), 'utf8');
-    
+    // return conversationFile
+    // CHOICE: 
+    // REMOVE THE above line if you want the AI to have the full context of the conversation.
     // Regex to extract everything starting from CONTEXT
     const regex = /\n\n-----\n\n(.+)/s;
     const match = conversationFile.match(regex);
@@ -603,7 +605,9 @@ async function titleChat(history, tokens, cost) {
   // Define the full file path
   const filePath = path.join(folderPath, `${title}.txt`);
   const chatText = `${history}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(6)}\n\n-----\n\nCONTEXT: Below is a summary of the conversation between the User -- a Human -- and an AI Assistant (yourself). INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
+  //   const chatText = `${history}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(6)}\n\n-----\n\nCONTEXT: Above is the conversation between the User -- a Human -- and an AI Assistant (yourself). A summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
   fs.writeFileSync(filePath, chatText);
+// CHOICE: uncomment the second chatText if you want the whole conversation, comment out the first to undo summary-only mode
 
 
   // Save the chat history to a file with the generated title
@@ -1279,7 +1283,9 @@ async function nameChat(chatHistory, tokens) {
   // Define the full file path
   const filePath = path.join(folderPath, `${title}.txt`);
   const chatText = `${chatHistory}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $0.00!\n\n-----\n\nCONTEXT: Below is a summary of the conversation between the User -- a Human -- and an AI Assistant (yourself). INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
+  //   const chatText = `${chatHistory}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $0.00!\n\n-----\n\nCONTEXT: Below is a summary of the conversation between the User -- a Human -- and an AI Assistant (yourself). A summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
   fs.writeFileSync(filePath, chatText);
+// CHOICE: uncomment the second chatText if you want the whole conversation, comment out the first to undo summary-only mode
 
 
   // Save the chat history to a file with the generated title
