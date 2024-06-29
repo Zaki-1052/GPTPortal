@@ -737,23 +737,7 @@ async function calculateCost(tokens, model) {
 
 // Function to convert Gemini conversation history to HTML
 async function exportGeminiChatToHTML() {
-  let htmlContent = `
-    <html>
-    <head>
-      <title>Gemini Chat History</title>
-      <style>
-        body { font-family: Arial, sans-serif; }
-        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
-        .system { background-color: #f0f0f0; }
-        .user { background-color: #d1e8ff; }
-        .assistant { background-color: #c8e6c9; }
-        .generated-image { max-width: 100%; height: auto; }
-        /* Additional styles */
-      </style>
-    </head>
-    <body>
-  `;
-
+  
   // Convert newlines in each part of the chat history to <br> for HTML display
   const convertNewlinesToHtml = text => text.replace(/\n/g, '<br>');
 
@@ -768,7 +752,25 @@ async function exportGeminiChatToHTML() {
   const tokens = await tokenizeHistory(geminiHistory, modelID, chatType);
   console.log(tokens);
   // process chat history in a similar way
-  await nameChat(geminiHistory);
+  const title = await nameChat(geminiHistory, tokens);
+
+  let htmlContent = `
+    <html>
+    <head>
+      <title>Gemini: ${title}</title>
+      <style>
+        body { font-family: Arial, sans-serif; }
+        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .system { background-color: #f0f0f0; }
+        .user { background-color: #d1e8ff; }
+        .assistant { background-color: #c8e6c9; }
+        .generated-image { max-width: 100%; height: auto; }
+        .summary { background-color: #f9f9f9; padding: 10px; margin: 20px 0; border-radius: 5px; }
+        .summary h3 { margin-top: 0; }
+      </style>
+    </head>
+    <body>
+  `;
 
   // Process the messages in pairs (label + content)
   for (let i = 0; i < messages.length; i += 2) {
@@ -787,7 +789,14 @@ async function exportGeminiChatToHTML() {
     htmlContent += `<div class="message ${roleClass}"><strong>${label.trim()}</strong> ${convertNewlinesToHtml(content.trim())}</div>`;
   }
 
-  htmlContent += '</body></html>';
+  htmlContent += `
+    <div class="summary">
+      <h3>Summary</h3>
+      <p>Total Tokens: ${tokens.totalTokens}</p>
+      <p>Total Cost: $0.00!</p>
+      <p>Summary: ${summary}</p>
+    </div>
+  </body></html>`;
   return htmlContent;
 }
 
@@ -1103,6 +1112,8 @@ async function exportAssistantsChat() {
           .user { background-color: #d1e8ff; }
           .assistant { background-color: #c8e6c9; }
           .generated-image { max-width: 100%; height: auto; }
+          .summary { background-color: #f9f9f9; padding: 10px; margin: 20px 0; border-radius: 5px; }
+          .summary h3 { margin-top: 0; }
       </style>
   </head>
   <body>
@@ -1144,18 +1155,22 @@ async function exportAssistantsChat() {
 let title = '';
 let chatType = '';
 
-async function nameChat(chatHistory) {
+async function nameChat(chatHistory, tokens) {
   // Request to OpenAI to generate a title
-  const completion = await openai.chat.completions.create({
-    model: 'gpt-4',
-    messages: [
-      { role: 'system', content: 'Title this chat by summarizing the topic of the conversation in under 5 or 6 words. This will be the name of the file in which it is saved, so include underscores instead of spaces and keep it short and concise.' },
-      { role: 'user', content: chatHistory }
-    ]
-  });
+
+  const googleModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: defaultConfig, safetySettings });
+  // Generate content based on the geminiHistory
+  const answer = await googleModel.generateContent(`Title this chat by summarizing the topic of the conversation in under 5 or 6 words. This will be the name of the file in which it is saved, so keep it short and concise.\n\n${chatHistory}`);
+
+  const title = answer.response.text().trim().replace(/ /g, '_');
+  
+  // Generate content based on the geminiHistory
+  const result = await googleModel.generateContent(`Summarize this conversation in a short paragraph consisting of no more than 4 sentences. This description will be appended to the chat file for the user to reference. Keep it extremely concise but thorough.\n\n${chatHistory}`);
+
+  const summary = result.response.text();
+
 
   // Extract the title from the response
-  title = completion.choices[0].message.content.trim().replace(/ /g, '_');
   console.log("Generated Title: ", title);
   const folderPath = path.join(__dirname, 'public/uploads/chats');
   // Ensure the nested folder exists
@@ -1163,11 +1178,14 @@ async function nameChat(chatHistory) {
 
   // Define the full file path
   const filePath = path.join(folderPath, `${title}.txt`);
+  const chatText = `${chatHistory}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $0.00!\n\nSummary: ${summary}`;
+  fs.writeFileSync(filePath, chatText);
 
 
   // Save the chat history to a file with the generated title
   fs.writeFileSync(filePath, chatHistory);
   console.log(`Chat history saved to ${filePath}`);
+  return { title, summary };
 }
 
 
