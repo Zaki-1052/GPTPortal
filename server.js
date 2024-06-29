@@ -350,6 +350,8 @@ async function initializeConversationHistory() {
   if (continueConv) {
     const contextAndSummary = await continueConversation(chosenChat);
     systemMessage += `\n---\n${contextAndSummary}`;
+    // CHOICE: comment out the above and uncomment the following if you want the whole conversation
+    // systemMessage = await continueConversation(chosenChat);
   }
   conversationHistory.push({ role: "system", content: systemMessage });
   return systemMessage;
@@ -385,6 +387,8 @@ async function initializeGeminiConversationHistory() {
       if (continueConv) {
         const contextAndSummary = await continueConversation(chosenChat);
         systemMessage += `\n---\n${contextAndSummary}`;
+        // CHOICE: comment out the above and uncomment the following if you want the whole conversation
+      // systemMessage = await continueConversation(chosenChat);
       }
       geminiHistory += systemMessage + '\n';
   } catch (error) {
@@ -608,6 +612,9 @@ async function titleChat(history, tokens, cost) {
   //   const chatText = `${history}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(6)}\n\n-----\n\nCONTEXT: Above is the conversation between the User -- a Human -- and an AI Assistant (yourself). A summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
   fs.writeFileSync(filePath, chatText);
 // CHOICE: uncomment the second chatText if you want the whole conversation, comment out the first to undo summary-only mode
+
+// theory...
+//   const chatText = `${history}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(6)}\n\n-----\n\nCONTEXT: Above may be the conversation between the User -- a Human -- and an AI Assistant (yourself); if you do not see it, the User has decided to display only a summary. The summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
 
 
   // Save the chat history to a file with the generated title
@@ -926,6 +933,8 @@ async function initializeClaudeInstructions() {
   if (continueConv) {
     const contextAndSummary = await continueConversation(chosenChat);
     systemMessage += `\n---\n${contextAndSummary}`;
+    // CHOICE: comment out the above and uncomment the following if you want the whole conversation
+    // systemMessage = await continueConversation(chosenChat);
   }
 }
 
@@ -1286,6 +1295,9 @@ async function nameChat(chatHistory, tokens) {
   //   const chatText = `${chatHistory}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $0.00!\n\n-----\n\nCONTEXT: Below is a summary of the conversation between the User -- a Human -- and an AI Assistant (yourself). A summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
   fs.writeFileSync(filePath, chatText);
 // CHOICE: uncomment the second chatText if you want the whole conversation, comment out the first to undo summary-only mode
+
+// theory...
+//   const chatText = `${history}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(6)}\n\n-----\n\nCONTEXT: Above may be the conversation between the User -- a Human -- and an AI Assistant (yourself); if you do not see it, the User has decided to display only a summary. The summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
 
 
   // Save the chat history to a file with the generated title
