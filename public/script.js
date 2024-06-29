@@ -1435,6 +1435,12 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
     field.style.height = `${heightNeeded}px`;
   }
 }
+
+// New function to reset text area height
+function resetTextAreaHeight(field) {
+  field.style.height = '45px'; // Set to your default height
+  autoExpand(field); // Call autoExpand to adjust if there's any remaining content
+}
       
 
   messageInput.addEventListener('input', function() {
@@ -1451,6 +1457,7 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault(); // Prevent the default action (new line) when Enter alone is pressed
           sendButton.click(); // Trigger the send button click on Enter key press
+          resetTextAreaHeight(this); // Add this line to reset the height
         }
       });
 
@@ -1463,6 +1470,8 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
 sendButton.addEventListener('click', async () => {
   const message = messageInput.value.trim();
   messageInput.value = '';
+  resetTextAreaHeight(messageInput); // Add this line to reset the height
+
 
   // Get the selected model's display name and convert it to the actual model ID
   setDefaultModel(); // Update default model if needed
