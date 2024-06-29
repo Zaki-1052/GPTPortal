@@ -349,6 +349,7 @@ async function initializeConversationHistory() {
   const fileInstructions = await readInstructionsFile();
   systemMessage = `You are a helpful and intelligent AI assistant, knowledgeable about a wide range of topics and highly capable of a great many tasks.\n Specifically:\n ${fileInstructions}`;
   if (continueConv) {
+    console.log("continue conversation", continueConv);
     if (summariesOnly) {
       console.log("summaries only", summariesOnly);
       const contextAndSummary = await continueConversation(chosenChat);
@@ -358,12 +359,10 @@ async function initializeConversationHistory() {
     }
     
   }
-  conversationHistory.push({ role: "system", content: systemMessage });
   return systemMessage;
 }
 
 // Call this function when the server starts
-initializeConversationHistory();
 
 async function initializeSystem() {
   const systemMessage = await initializeConversationHistory();
@@ -405,7 +404,6 @@ async function initializeGeminiConversationHistory() {
 }
 
 // Call this function when the server starts
-initializeGeminiConversationHistory();
 
 
 
@@ -415,7 +413,6 @@ async function continueConversation(chosenChat) {
     // Read the chosen chat file
     const conversationFile = await fs.promises.readFile(path.join(__dirname, 'public/uploads/chats', `${chosenChat}.txt`), 'utf8');
     if (summariesOnly) {
-      console.log("summaries only regex", summariesOnly);
       // Regex to extract everything starting from CONTEXT
       const regex = /\n\n-----\n\n(.+)/s;
       const match = conversationFile.match(regex);
@@ -539,7 +536,7 @@ app.post('/setSummariesOnly', (req, res) => {
     return '';
   }).join('\n');
 
-  console.log(savedHistory);
+  // console.log(savedHistory);
 
   chatType = 'chat';
   const tokens = await tokenizeHistory(chatHistory, modelID, chatType);
@@ -882,7 +879,7 @@ async function exportGeminiChatToHTML() {
   
   chatType = 'gemini';
   const tokens = await tokenizeHistory(geminiHistory, modelID, chatType);
-  console.log(tokens);
+  console.log(tokens.totalTokens);
   // process chat history in a similar way
   const { title, summary } = await nameChat(geminiHistory, tokens);
   console.log(`Title: ${title}`);
@@ -968,7 +965,6 @@ async function initializeClaudeInstructions() {
 }
 
 // Call this function when the server starts
-initializeClaudeInstructions();
 
 
 let prompt;
@@ -1450,6 +1446,7 @@ const defaultConfig = {
 
 app.post('/gemini', async (req, res) => {
   try {
+    initializeGeminiConversationHistory();
     const { model, prompt, imageParts, history } = req.body;
     console.log('Prompt: ', prompt)
 isAssistants = false;
@@ -1638,6 +1635,14 @@ if (user_message === "Bye!") {
    // Assuming modelID is declared globally and available here
 // Determine the structure of user_input.content based on modelID
 if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
+  
+  if (modelID.startsWith('gpt')) {
+    systemMessage = await initializeConversationHistory();
+  } else if (modelID.startsWith('claude')) {
+    systemMessage = await initializeClaudeInstructions();
+  }
+
+  conversationHistory.push({ role: "system", content: systemMessage });
 
   // Add text content if present
   if (user_message) {
