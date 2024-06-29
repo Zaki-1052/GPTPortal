@@ -490,7 +490,7 @@ async function titleChat(history, tokens, cost) {
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o',
     messages: [
-      { role: 'system', content: 'Title this chat by summarizing the topic of the conversation in under 5 plaintext words. This will be the name of the file saved via Node, so keep it *extremely* short and concise! Examples: "Friendly AI Assistance", "Install Plex Media Server", "App Layout Feedback", "Calculating Indefinite Integrals", or "Total Cost Calculation", etc. The title should resemble a quick and easy reference point for the User to remember the conversation, and follow smart and short naming conventions.' },
+      { role: 'system', content: 'You will be given the contents of a conversation between a Human and an AI Assistant. Please title this chat by summarizing the topic of the conversation in under 5 plaintext words. Ignore the System Message and focus on the User-AI interaction. This will be the name of the file saved via Node, so keep it *extremely* short and concise! Examples: "Friendly AI Assistance", "Install Plex Media Server", "App Layout Feedback", "Calculating Indefinite Integrals", or "Total Cost Calculation", etc. The title should resemble a quick and easy reference point for the User to remember the conversation, and follow smart and short naming conventions.' },
       { role: 'user', content: history }
     ]
   });
@@ -751,7 +751,9 @@ async function exportGeminiChatToHTML() {
   const tokens = await tokenizeHistory(geminiHistory, modelID, chatType);
   console.log(tokens);
   // process chat history in a similar way
-  const title = await nameChat(geminiHistory, tokens);
+  const { title, summary } = await nameChat(geminiHistory, tokens);
+  console.log(`Title: ${title}`);
+  console.log(`Summary: ${summary}`);
 
   let htmlContent = `
     <html>
@@ -1161,7 +1163,7 @@ async function nameChat(chatHistory, tokens) {
   // Generate content based on the geminiHistory
   const answer = await googleModel.generateContent(`Title this chat by summarizing the topic of the conversation in under 5 or 6 words. This will be the name of the file in which it is saved, so keep it extremely short and concise!\n\n${chatHistory}`);
 
-  const title = answer.response.text().trim().replace(/ /g, '_');
+  title = answer.response.text().trim().replace(/ /g, '_');
   
   // Generate content based on the geminiHistory
   const result = await googleModel.generateContent(`Summarize this conversation in a short paragraph consisting of no more than 4 sentences. This description will be appended to the chat file for the user to reference. Keep it extremely concise but thorough.\n\n${chatHistory}`);
