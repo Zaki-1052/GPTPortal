@@ -1275,6 +1275,59 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
       const sendButton = document.getElementById('send-button');
       const messageInput = document.getElementById('message-input');
 
+      const sidebar = document.getElementById('sidebar');
+      const toggleArrow = document.getElementById('toggleArrow');
+
+      // Fetch the list of chats from the backend and display them in the sidebar
+      async function fetchChatList() {
+        try {
+          const response = await fetch('/listChats');
+          const data = await response.json();
+          sidebar.innerHTML = data.files.map(file => {
+            const fileNameWithoutExt = file.replace('.txt', '');
+            return `<a href="#" data-chat="${fileNameWithoutExt}">${fileNameWithoutExt}</a>`;
+          }).join('');
+        } catch (error) {
+          console.error('Error fetching chat list:', error);
+        }
+      }
+
+      // Handle chat selection
+      sidebar.addEventListener('click', async (event) => {
+        const chatName = event.target.getAttribute('data-chat');
+        if (chatName) {
+          try {
+            await fetch('/setChat', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ chosenChat: `${chatName}` })
+            });
+
+            const summaryResponse = await fetch(`/getSummary/${chatName}`);
+            const summaryData = await summaryResponse.json();
+
+            if (summaryData.summary) {
+              displayMessage(summaryData.summary, 'response', false);
+            } else {
+              console.error('Summary not found.');
+            }
+          } catch (error) {
+            console.error('Error setting chat:', error);
+          }
+        }
+      });
+
+      // Toggle sidebar visibility
+      toggleArrow.addEventListener('click', () => {
+        if (sidebar.style.display === 'block') {
+          sidebar.style.display = 'none';
+          toggleArrow.innerHTML = '&#x25B6;';
+        } else {
+          sidebar.style.display = 'block';
+          toggleArrow.innerHTML = '&#x25C0;';
+        }
+      });
+
       document.addEventListener('keydown', (event) => {
 
         // SHIFT+ESC for focusing the chat input
@@ -1869,6 +1922,9 @@ function copyToClipboard(text) {
     console.error('Error copying text: ', err);
   });
 }
+
+
+fetchChatList();
     
       
     });

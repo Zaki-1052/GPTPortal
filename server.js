@@ -325,6 +325,9 @@ app.post('/generate-image', async (req, res) => {
 
 // custom instructions read
 
+let continueConv = false;
+let chosenChat = '';
+
 let conversationHistory = [];
 
 // Function to read instructions from the file using fs promises
@@ -344,6 +347,10 @@ async function readInstructionsFile() {
 async function initializeConversationHistory() {
   const fileInstructions = await readInstructionsFile();
   systemMessage = `You are a helpful and intelligent AI assistant, knowledgeable about a wide range of topics and highly capable of a great many tasks.\n Specifically:\n ${fileInstructions}`;
+  if (continueConv) {
+    const contextAndSummary = await continueConversation(chosenChat);
+    systemMessage += `\n---\n${contextAndSummary}`;
+  }
   conversationHistory.push({ role: "system", content: systemMessage });
   return systemMessage;
 }
@@ -375,6 +382,10 @@ async function initializeGeminiConversationHistory() {
   try {
       const geminiMessage = await readGeminiFile();
       let systemMessage = 'System Prompt: ' + geminiMessage;
+      if (continueConv) {
+        const contextAndSummary = await continueConversation(chosenChat);
+        systemMessage += `\n---\n${contextAndSummary}`;
+      }
       geminiHistory += systemMessage + '\n';
   } catch (error) {
       console.error('Error initializing Gemini conversation history:', error);
@@ -383,6 +394,84 @@ async function initializeGeminiConversationHistory() {
 
 // Call this function when the server starts
 initializeGeminiConversationHistory();
+
+
+
+// Async function to continue conversation by loading chat context and summary
+async function continueConversation(chosenChat) {
+  try {
+    // Read the chosen chat file
+    const conversationFile = await fs.promises.readFile(path.join(__dirname, 'public/uploads/chats', `${chosenChat}.txt`), 'utf8');
+    
+    // Regex to extract everything starting from CONTEXT
+    const regex = /\n\n-----\n\n(.+)/s;
+    const match = conversationFile.match(regex);
+    if (match && match[1]) {
+      const contextAndSummary = match[1];
+      return contextAndSummary;
+    } else {
+      throw new Error('Context and summary not found in the conversation file.');
+    }
+  } catch (error) {
+    console.error('Error in continueConversation:', error);
+    throw error;
+  }
+}
+
+
+// Endpoint to receive chosen chat info from the frontend
+app.post('/setChat', async (req, res) => {
+  try {
+    // Extract chosen chat info from request body
+    chosenChat = req.body.chosenChat;
+
+    // Set continueConv to true
+    continueConv = true;
+
+    // Optionally call continueConversation to verify functionality
+    const contextAndSummary = await continueConversation(chosenChat);
+    console.log('Context and Summary:', contextAndSummary);
+
+    // Send response back to frontend
+    res.status(200).json({ message: 'Chat set successfully', chosenChat });
+  } catch (error) {
+    console.error('Error in /setChat endpoint:', error);
+    res.status(500).json({ message: 'Failed to set chat', error: error.message });
+  }
+});
+
+// Endpoint to list chat files
+app.get('/listChats', (req, res) => {
+  const folderPath = path.join(__dirname, 'public/uploads/chats');
+  fs.readdir(folderPath, (err, files) => {
+    if (err) {
+      console.error('Error reading chat files:', err);
+      res.status(500).json({ message: 'Failed to list chat files', error: err.message });
+      return;
+    }
+    const sortedFiles = files.sort((a, b) => fs.statSync(path.join(folderPath, b)).mtime - fs.statSync(path.join(folderPath, a)).mtime);
+    res.status(200).json({ files: sortedFiles });
+  });
+});
+
+// Endpoint to get chat summary
+app.get('/getSummary/:chatName', async (req, res) => {
+  try {
+    const chatName = req.params.chatName;
+    const conversationFile = await fs.promises.readFile(path.join(__dirname, 'public/uploads/chats', `${chatName}.txt`), 'utf8');
+    const regex = /Conversation Summary: (.+)/s;
+    const match = conversationFile.match(regex);
+    if (match && match[1]) {
+      const summary = match[1].split('\n\n')[0];
+      res.status(200).json({ summary });
+    } else {
+      res.status(404).json({ message: 'Summary not found in the conversation file.' });
+    }
+  } catch (error) {
+    console.error('Error in /getSummary endpoint:', error);
+    res.status(500).json({ message: 'Failed to get summary', error: error.message });
+  }
+});
 
  // Function to convert conversation history to HTML
  async function exportChatToHTML() {
@@ -498,7 +587,7 @@ async function titleChat(history, tokens, cost) {
   summary = await openai.chat.completions.create({
     model: 'gpt-3.5-turbo-0125',
     messages: [
-      { role: 'system', content: 'You will be shown the contents of a conversation between a Human and an AI Assistant. Please summarize this chat in a short paragraph consisting of no more than 4 sentences. Ignore the System Message and focus solely on the User-AI interaction. This description will be appended to the chat file for the user and AI to reference. Keep it extremely concise but thorough, shortly covering all important context necessary to retain.' },
+      { role: 'system', content: 'You will be shown the contents of a conversation between a Human and an AI Assistant. Please summarize this chat in a brief paragraph consisting of no more than 4-6 sentences. Ignore the System Message and focus solely on the User-AI interaction. This description will be appended to the chat file for the user and AI to reference. Keep it extremely concise but thorough, shortly covering all important context necessary to retain.' },
       { role: 'user', content: history }
     ]
   });
@@ -513,7 +602,7 @@ async function titleChat(history, tokens, cost) {
 
   // Define the full file path
   const filePath = path.join(folderPath, `${title}.txt`);
-  const chatText = `${history}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(6)}\n\n----\n\nCONTEXT: Below is a summary of the conversation between the User, a Human, and an AI Assistant (yourself). INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n\n---\n\nConversation Summary: ${summary}`;
+  const chatText = `${history}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(6)}\n\n-----\n\nCONTEXT: Below is a summary of the conversation between the User -- a Human -- and an AI Assistant (yourself). INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
   fs.writeFileSync(filePath, chatText);
 
 
@@ -830,6 +919,10 @@ async function readClaudeFile() {
 async function initializeClaudeInstructions() {
   let instructions = await readClaudeFile();
   claudeInstructions = `${instructions}`;
+  if (continueConv) {
+    const contextAndSummary = await continueConversation(chosenChat);
+    systemMessage += `\n---\n${contextAndSummary}`;
+  }
 }
 
 // Call this function when the server starts
@@ -1172,7 +1265,7 @@ async function nameChat(chatHistory, tokens) {
   title = answer.response.text().trim().replace(/ /g, '_');
   
   // Generate content based on the geminiHistory
-  const result = await googleModel.generateContent(`You will be shown the contents of a conversation between a Human and an AI Assistant. Please summarize this chat in a short paragraph consisting of no more than 4-6 sentences. This description will be appended to the chat file for the user and AI to reference. Keep it extremely concise but thorough, shortly covering all important context necessary to retain.\n\n----\n\n${chatHistory}`);
+  const result = await googleModel.generateContent(`You will be shown the contents of a conversation between a Human and an AI Assistant. Please summarize this chat in a brief paragraph consisting of no more than 4-6 sentences. Ignore the System Message and focus solely on the User-AI interaction. This description will be appended to the chat file for the user and AI to reference. Keep it extremely concise but thorough, shortly covering all important context necessary to retain.\n\n----\n\n${chatHistory}`);
 
   summary = result.response.text();
 
@@ -1185,7 +1278,7 @@ async function nameChat(chatHistory, tokens) {
 
   // Define the full file path
   const filePath = path.join(folderPath, `${title}.txt`);
-  const chatText = `${chatHistory}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $0.00!\n\n----\n\nCONTEXT: Below is a summary of the conversation between the User, a Human, and an AI Assistant (yourself). INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n\n---\n\nConversation Summary: ${summary}`;
+  const chatText = `${chatHistory}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $0.00!\n\n-----\n\nCONTEXT: Below is a summary of the conversation between the User -- a Human -- and an AI Assistant (yourself). INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
   fs.writeFileSync(filePath, chatText);
 
 
