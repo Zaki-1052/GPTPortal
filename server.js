@@ -498,7 +498,7 @@ async function titleChat(history, tokens, cost) {
   summary = await openai.chat.completions.create({
     model: 'gpt-3.5-turbo-0125',
     messages: [
-      { role: 'system', content: 'You will be shown the contents of a conversation between a Human and an AI Assistant. Please summarize this chat in a short paragraph consisting of no more than 4 sentences. Ignore the System Message and focus solely on the User-AI interaction. This description will be appended to the chat file for the user to reference. Keep it extremely concise but thorough.' },
+      { role: 'system', content: 'You will be shown the contents of a conversation between a Human and an AI Assistant. Please summarize this chat in a short paragraph consisting of no more than 4 sentences. Ignore the System Message and focus solely on the User-AI interaction. This description will be appended to the chat file for the user and AI to reference. Keep it extremely concise but thorough, shortly covering all important context necessary to retain.' },
       { role: 'user', content: history }
     ]
   });
@@ -513,7 +513,7 @@ async function titleChat(history, tokens, cost) {
 
   // Define the full file path
   const filePath = path.join(folderPath, `${title}.txt`);
-  const chatText = `${history}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(6)}\n\nSummary: ${summary}`;
+  const chatText = `${history}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(6)}\n\n----\n\nCONTEXT: Below is a summary of the conversation between the User, a Human, and an AI Assistant (yourself). INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n\n---\n\nConversation Summary: ${summary}`;
   fs.writeFileSync(filePath, chatText);
 
 
@@ -1172,9 +1172,9 @@ async function nameChat(chatHistory, tokens) {
   title = answer.response.text().trim().replace(/ /g, '_');
   
   // Generate content based on the geminiHistory
-  const result = await googleModel.generateContent(`You will be shown Summarize this conversation in a short paragraph consisting of no more than 4 sentences. This description will be appended to the chat file for the user to reference. Keep it extremely concise but thorough.\n\n${chatHistory}`);
+  const result = await googleModel.generateContent(`You will be shown the contents of a conversation between a Human and an AI Assistant. Please summarize this chat in a short paragraph consisting of no more than 4-6 sentences. This description will be appended to the chat file for the user and AI to reference. Keep it extremely concise but thorough, shortly covering all important context necessary to retain.\n\n----\n\n${chatHistory}`);
 
-  const summary = result.response.text();
+  summary = result.response.text();
 
 
   // Extract the title from the response
@@ -1185,7 +1185,7 @@ async function nameChat(chatHistory, tokens) {
 
   // Define the full file path
   const filePath = path.join(folderPath, `${title}.txt`);
-  const chatText = `${chatHistory}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $0.00!\n\nSummary: ${summary}`;
+  const chatText = `${chatHistory}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $0.00!\n\n----\n\nCONTEXT: Below is a summary of the conversation between the User, a Human, and an AI Assistant (yourself). INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n\n---\n\nConversation Summary: ${summary}`;
   fs.writeFileSync(filePath, chatText);
 
 
