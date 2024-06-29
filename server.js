@@ -475,7 +475,7 @@ initializeGeminiConversationHistory();
     <div class="summary">
       <h3>Summary</h3>
       <p>Total Tokens: ${tokens.totalTokens}</p>
-      <p>Total Cost: $${cost.toFixed(15)}</p>
+      <p>Total Cost: $${cost.toFixed(6)}</p>
       <p>Summary: ${summary}</p>
     </div>
   </body></html>`;
@@ -490,7 +490,7 @@ async function titleChat(history, tokens, cost) {
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o',
     messages: [
-      { role: 'system', content: 'Title this chat by summarizing the topic of the conversation in under 5 or 6 words. This will be the name of the file in which it is saved, so keep it short and concise.' },
+      { role: 'system', content: 'Title this chat by summarizing the topic of the conversation in under 5 or 6 words. This will be the name of the file in which it is saved, so keep it extremely short and concise!' },
       { role: 'user', content: history }
     ]
   });
@@ -513,12 +513,11 @@ async function titleChat(history, tokens, cost) {
 
   // Define the full file path
   const filePath = path.join(folderPath, `${title}.txt`);
-  const chatText = `${history}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(5)}\n\nSummary: ${summary}`;
+  const chatText = `${history}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(6)}\n\nSummary: ${summary}`;
   fs.writeFileSync(filePath, chatText);
 
 
   // Save the chat history to a file with the generated title
-  fs.writeFileSync(filePath, history);
   console.log(`Chat history saved to ${filePath}`);
   return { title, summary };
 }
@@ -1141,7 +1140,7 @@ async function exportAssistantsChat() {
     <div class="summary">
       <h3>Summary</h3>
       <p>Total Tokens: ${tokens.totalTokens}</p>
-      <p>Total Cost: $${cost.toFixed(5)}</p>
+      <p>Total Cost: $${cost.toFixed(6)}</p>
       <p>Summary: ${summary}</p>
     </div>
   </body></html>`;
@@ -1160,7 +1159,7 @@ async function nameChat(chatHistory, tokens) {
 
   const googleModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: defaultConfig, safetySettings });
   // Generate content based on the geminiHistory
-  const answer = await googleModel.generateContent(`Title this chat by summarizing the topic of the conversation in under 5 or 6 words. This will be the name of the file in which it is saved, so keep it short and concise.\n\n${chatHistory}`);
+  const answer = await googleModel.generateContent(`Title this chat by summarizing the topic of the conversation in under 5 or 6 words. This will be the name of the file in which it is saved, so keep it extremely short and concise!\n\n${chatHistory}`);
 
   const title = answer.response.text().trim().replace(/ /g, '_');
   
@@ -1183,7 +1182,6 @@ async function nameChat(chatHistory, tokens) {
 
 
   // Save the chat history to a file with the generated title
-  fs.writeFileSync(filePath, chatHistory);
   console.log(`Chat history saved to ${filePath}`);
   return { title, summary };
 }
