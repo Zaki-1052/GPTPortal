@@ -1,5 +1,27 @@
 // script.js
 
+// configures host and port 
+
+/// Initialize a variable to hold the base URL
+let baseURL = window.location.origin;
+
+// Function to fetch configuration from the server
+async function fetchConfig() {
+  try {
+    const response = await fetch('/config');
+    const config = await response.json();
+    if (config.host && config.port) {
+      baseURL = `http://${config.host}:${config.port}`;
+    }
+    console.log(`Base URL set to: ${baseURL}`);
+  } catch (error) {
+    console.error("Error fetching configuration:", error);
+  }
+}
+
+fetchConfig();
+
+
   // detects safari browser
 
   function isSafariBrowser() {
@@ -15,9 +37,11 @@
     "GPT-4-32k": "gpt-4-32k",
     "GPT-4-Turbo": "gpt-4-turbo",
     "GPT-3.5-Turbo": "gpt-3.5-turbo-0125",
+    "Claude-3.5-Sonnet": "claude-3-5-sonnet-20240620",
     "Gemini-Pro": "gemini-pro",
     "Gemini-Pro-Vision": "gemini-pro-vision",
     "Gemini-1.5-Pro": "gemini-1.5-pro",
+    "Gemini-1.5-Flash": "gemini-1.5-flash",
     "Gemini-Ultra": "gemini-1.0-ultra",
     "Claude-Opus": "claude-3-opus-20240229",
     "Claude-Sonnet": "claude-3-sonnet-20240229",
@@ -31,8 +55,11 @@
     "Mistral-Small": "mistral-small-latest",
     "Mistral-Medium": "mistral-medium-latest",
     "Mistral-Large": "mistral-large-latest",
-    "Llama3-70b": "llama3-70b",
-    "Llama3-8b": "Llama3-8b",
+    "Llama3-70b": "llama3-70b-8192",
+    "Llama3-8b": "llama3-8b-8192",
+    "Gemma-7b": "gemma-7b-it",
+    "Codestral": "codestral-latest",
+    "Free Mixtral 8x7b": "mixtral-8x7b-32768",
   };
 
   
@@ -42,9 +69,11 @@
     "gpt-4-32k": "GPT-4-32k",
     "gpt-4-turbo": "GPT-4-Turbo",
     "gpt-3.5-turbo-0125": "GPT-3.5-Turbo",
+    "claude-3-5-sonnet-20240620": "Claude-3.5-Sonnet",
     "gemini-pro": "Gemini-Pro",
     "gemini-pro-vision": "Gemini-Pro-Vision",
     "gemini-1.5-pro": "Gemini-1.5-Pro",
+    "gemini-1.5-flash": "Gemini-1.5-Flash",
     "gemini-1.0-ultra": "Gemini-Ultra",
     "claude-3-opus-20240229": "Claude-Opus",
     "claude-3-sonnet-20240229": "Claude-Sonnet",
@@ -58,8 +87,11 @@
     "mistral-small-latest": "Mistral-Small",
     "mistral-medium-latest": "Mistral-Medium",
     "mistral-large-latest": "Mistral-Large",
-    "llama3-70b": "Llama3-70b",
-    "Llama3-8b": "Llama3-8b",
+    "llama3-70b-8192": "Llama3-70b",
+    "llama3-8b-8192": "Llama3-8b",
+    "gemma-7b-it": "Gemma-7b",
+    "codestral-latest": "Codestral",
+    "mixtral-8x7b-32768": "Free Mixtral 8x7b",
   };
 
   
@@ -137,6 +169,7 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       "gpt-4-32k": "GPT-4-32k: Longer Context Window — Higher Price",
       "gpt-4-turbo": "GPT-4-Turbo: ChatGPT-Plus Model — 128k Tokens",
       "gpt-3.5-turbo-0125": "GPT-3.5-Turbo: Cheapest Option Available",
+      "claude-3-5-sonnet-20240620": "Most Advanced Anthropic Model",
       "gemini-pro": "Gemini-Pro: Google Bard Model — 3.5 Equivalent",
       "gemini-pro-vision": "Gemini-Vision: View Images — One-Time Use",
       "gemini-1.5-pro": "Gemini-Pro-1.5: Early Access — 1 Million Tokens",
@@ -154,7 +187,7 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       "mistral-medium-latest": "Mistral-Medium: Intelligent — Beats Gemini-Pro",
       "mistral-large-latest": "Mistral-Large: Most Expensive and Intelligent",
       "llama3-70b": "Llama3 70b: GPT-4 Level Performance — Intelligent",
-      "Llama3-8b": "Llama3 8b: Smaller, Faster Model — Cheaper",
+      "llama3-8b": "Llama3 8b: Smaller, Faster Model — Cheaper",
     };
     
   
@@ -213,24 +246,29 @@ document.querySelector('.custom-select').addEventListener('click', toggleDropdow
 // Event listeners for selecting GPT models
 document.getElementById('model-gpt-4').addEventListener('click', () => selectModel('gpt-4'));
 document.getElementById('model-gpt-4o').addEventListener('click', () => selectModel('gpt-4o'));
+document.getElementById('model-gpt-4-32k').addEventListener('click', () => selectModel('gpt-4-32k'));
 document.getElementById('model-gpt-4-turbo').addEventListener('click', () => selectModel('gpt-4-turbo'));
 document.getElementById('model-gpt-3.5').addEventListener('click', () => selectModel('gpt-3.5-turbo-0125'));
 
 // Event listeners for showing GPT model descriptions on hover
 document.getElementById('model-gpt-4').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4"], event.currentTarget));
 document.getElementById('model-gpt-4o').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4o"], event.currentTarget));
+document.getElementById('model-gpt-4-32k').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-32k"], event.currentTarget));
 document.getElementById('model-gpt-4-turbo').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4-turbo"], event.currentTarget));
 document.getElementById('model-gpt-3.5').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-3.5-turbo-0125"], event.currentTarget));
 
 // Event listeners for selecting Gemini models
 document.getElementById('model-gemini-pro').addEventListener('click', () => selectModel('gemini-pro'));
-document.getElementById('model-gemini-pro-vision').addEventListener('click', () => selectModel('gemini-pro-vision'));
+// document.getElementById('model-gemini-pro-vision').addEventListener('click', () => selectModel('gemini-pro-vision'));
 document.getElementById('model-gemini-1.5-pro').addEventListener('click', () => selectModel('gemini-1.5-pro'));
+document.getElementById('model-gemini-1.5-flash').addEventListener('click', () => selectModel('gemini-1.5-flash'));
+document.getElementById('model-gemini-ultra').addEventListener('click', () => selectModel('gemini-1.0-ultra'));
 
 // Event listeners for showing Gemini model descriptions on hover
 document.getElementById('model-gemini-pro').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-pro"], event.currentTarget));
-document.getElementById('model-gemini-pro-vision').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-pro-vision"], event.currentTarget));
+// document.getElementById('model-gemini-pro-vision').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-pro-vision"], event.currentTarget));
 document.getElementById('model-gemini-1.5-pro').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-1.5-pro"], event.currentTarget));
+document.getElementById('model-gemini-ultra').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemini-1.0-ultra"], event.currentTarget));
 
 // Event listeners for selecting Mistral models
 document.getElementById('model-mistral-tiny').addEventListener('click', () => selectModel('open-mistral-7b'));
@@ -265,12 +303,25 @@ document.getElementById('model-claude-2.0').addEventListener('mouseover', (event
 document.getElementById('model-claude-1.2').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-instant-1.2"], event.currentTarget));
 
 // Event listeners for selecting Llama3 models
-document.getElementById('model-llama-70b').addEventListener('click', () => selectModel('llama3-70b'));
-document.getElementById('model-llama-8b').addEventListener('click', () => selectModel('Llama3-8b'));
+document.getElementById('model-llama-70b').addEventListener('click', () => selectModel('llama3-70b-8192'));
+document.getElementById('model-llama-8b').addEventListener('click', () => selectModel('llama3-8b-8192'));
 
 // Event listeners for showing Llama3 model descriptions on hover
-document.getElementById('model-llama-70b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["llama3-70b"], event.currentTarget));
-document.getElementById('model-llama-8b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["Llama3-8b"], event.currentTarget));
+document.getElementById('model-llama-70b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["llama3-70b-8192"], event.currentTarget));
+document.getElementById('model-llama-8b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["llama3-8b-8192"], event.currentTarget));
+
+// gemma it via qroq
+document.getElementById('model-gemma-it').addEventListener('click', () => selectModel('gemma-7b-it'));
+document.getElementById('model-gemma-it').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gemma-7b-it"], event.currentTarget));
+document.getElementById('model-codestral').addEventListener('click', () => selectModel('codestral-latest'));
+document.getElementById('model-codestral').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["codestral-latest"], event.currentTarget));
+document.getElementById('model-qroq-mistral-8x7b').addEventListener('click', () => selectModel('mixtral-8x7b-32768'));
+document.getElementById('model-qroq-mistral-8x7b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mixtral-8x7b-32768"], event.currentTarget));
+
+document.getElementById('model-claude-3.5-sonnet').addEventListener('click', () => selectModel('claude-3-5-sonnet-20240620'));
+document.getElementById('model-claude-3.5-sonnet').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-3-5-sonnet-20240620"], event.currentTarget));
+
+
 
   // Add mouseout event listener for all model buttons
   document.querySelectorAll('.select-options button').forEach(button => {
@@ -649,14 +700,6 @@ function displayMessage(message, type) {
     });
     }
     
-// Function to update upload status message
-function updateUploadStatus(message) {
-  const statusElement = document.getElementById('upload-status');
-  if (statusElement) {
-    statusElement.textContent = message;
-  }
-}
-
 document.getElementById('edit-instructions-btn').addEventListener('click', function() {
   const container = document.getElementById('edit-instructions-container');
   const isHidden = container.style.display === 'none';
@@ -680,6 +723,14 @@ document.getElementById('edit-instructions-btn').addEventListener('click', funct
 
 function saveChanges() {
   const content = document.getElementById('instructions-content').value;
+  
+  // Copy 'node server.js' to clipboard
+  navigator.clipboard.writeText('node server.js').then(() => {
+    console.log('Text copied to clipboard');
+  }).catch(err => {
+    console.error('Could not copy text: ', err);
+  });
+
   fetch('/update-instructions', {
     method: 'POST',
     headers: {
@@ -694,8 +745,96 @@ function saveChanges() {
     alert('Changes saved successfully');
     // Hide the edit container
     document.getElementById('edit-instructions-container').style.display = 'none';
+
+    // Display the restart server message
+    document.body.innerHTML = '<h2>Complete. Please restart the server and access the web app at <a href="http://localhost:3000">localhost:3000</a>. Simply paste `node server.js` into your Terminal to start again, reloading the page.</h2>';
+
+    // Call the endpoint to shutdown the server
+    fetch('/shutdown-server', {
+      method: 'POST'
+    }).then(restartResponse => {
+      if (restartResponse.ok) {
+        console.log('Server shutdown initiated');
+      } else {
+        console.error('Failed to initiate server shutdown');
+      }
+    }).catch(err => {
+      console.error('Error:', err);
+    });
   })
   .catch(error => {
     console.error('Error:', error);
+    alert('An error occurred during setup. Please try again.');
+  });
+}
+
+
+
+
+document.getElementById('edit-env-btn').addEventListener('click', function() {
+  const container = document.getElementById('edit-env-container');
+  const isHidden = container.style.display === 'none';
+  
+  // Toggle the display of the container
+  container.style.display = isHidden ? 'block' : 'none';
+  
+  // If we're showing the container, load the content and scroll to it
+  if (isHidden) {
+    fetch('/get-my-env')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('env-content').value = data;
+        container.scrollIntoView({ behavior: 'smooth' });
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }
+});
+
+function saveEnvChanges() {
+  const content = document.getElementById('env-content').value;
+  
+  // Copy 'node server.js' to clipboard
+  navigator.clipboard.writeText('node server.js').then(() => {
+    console.log('Text copied to clipboard');
+  }).catch(err => {
+    console.error('Could not copy text: ', err);
+  });
+
+  fetch('/update-my-env', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ content: content })
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Success:', data);
+    // Show a success message
+    alert('Changes saved successfully');
+    // Hide the edit container
+    document.getElementById('edit-env-container').style.display = 'none';
+
+    // Display the restart server message
+    document.body.innerHTML = '<h2>Setup is complete. Please restart the server and access the web app at <a href="http://localhost:3000">localhost:3000</a>. Simply paste `node server.js` into your Terminal to start again, reloading the page.</h2>';
+
+    // Call the endpoint to shutdown the server
+    fetch('/shutdown-server', {
+      method: 'POST'
+    }).then(restartResponse => {
+      if (restartResponse.ok) {
+        console.log('Server shutdown initiated');
+      } else {
+        console.error('Failed to initiate server shutdown');
+      }
+    }).catch(err => {
+      console.error('Error:', err);
+    });
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('An error occurred during setup. Please try again.');
   });
 }

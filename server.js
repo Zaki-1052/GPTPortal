@@ -21,10 +21,28 @@ const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 
 // openai
+/*
 const OpenAI = require('openai').default;
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY // This is also the default, can be omitted
 });
+*/
+
+const OpenAI = require('openai').default;
+
+// Check if the OPENAI_API_KEY environment variable is set
+const apiKey = process.env.OPENAI_API_KEY;
+
+let openai; // Declare openai outside the conditional block
+
+if (!apiKey) {
+  console.warn("Warning: The OPENAI_API_KEY environment variable is missing. OpenAI features will be disabled.");
+} else {
+  // Initialize OpenAI only if the API key is present
+  openai = new OpenAI({
+    apiKey: apiKey
+  });
+}
 
 // integrate google gemini
 const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -39,16 +57,113 @@ const HarmCategory = googleGenerativeAI.HarmCategory;
 const username = process.env.USER_USERNAME;
 const password = process.env.USER_PASSWORD;
 
-const users = {
-  [username]: password
-};
+if (username && password) {
+  const users = {
+    [username]: password
+  };
+
+  // Apply basic authentication middleware
+  app.use(basicAuth({
+    users: users,
+    challenge: true
+  }));
+  // Allow access to the '/portal' route
+  app.get('/portal', (req, res) => {
+    res.sendFile('portal.html', { root: 'public' });
+  });
+
+  // Redirect all other routes (except for '/config' and '/setup') to '/portal'
+  app.get('*', (req, res, next) => {
+    if (req.path !== '/setup') {
+      next();
+    } else {
+      res.redirect('/portal');
+    }
+  });
+} else {
+  // Redirect to the setup page if username and password are not set
+  app.get('*', (req, res, next) => {
+    if (req.path !== '/portal') {
+      next();
+    } else {
+      res.redirect('/setup');
+    }
+  });
+}
 
 
-// Apply basic authentication middleware
-app.use(basicAuth({
-  users: users,
-  challenge: true
-}));
+app.get('/setup', (req, res) => {
+  res.sendFile('setup.html', { root: 'public' });
+});
+
+app.post('/setup', (req, res) => {
+  const { username, password, openaiApiKey, googleApiKey, mistralApiKey, claudeApiKey } = req.body;
+
+  let envContent = `USER_USERNAME=${username}\nUSER_PASSWORD=${password}\n`;
+
+  if (openaiApiKey) {
+    envContent += `OPENAI_API_KEY=${openaiApiKey}\n`;
+  }
+  if (googleApiKey) {
+    envContent += `GOOGLE_API_KEY=${googleApiKey}\n`;
+  }
+  if (mistralApiKey) {
+    envContent += `MISTRAL_API_KEY=${mistralApiKey}\n`;
+  }
+  if (claudeApiKey) {
+    envContent += `CLAUDE_API_KEY=${claudeApiKey}\n`;
+  }
+
+  fs.writeFileSync('.env', envContent);
+
+  res.json({ message: 'Environment variables successfully written' });
+
+// Allow access to the '/portal' route
+app.get('/portal', (req, res) => {
+  res.sendFile('portal.html', { root: 'public' });
+});
+
+// Redirect all other routes (except for '/config' and '/setup') to '/portal'
+app.get('*', (req, res, next) => {
+  if (req.path === '/portal' || req.path === '/config') {
+    next();
+  } else {
+    res.redirect('/portal');
+  }
+});
+
+});
+
+app.get('/get-env', (req, res) => {
+  const envContent = fs.readFileSync('.env', 'utf-8');
+  res.send(envContent);
+});
+
+app.post('/update-env', (req, res) => {
+  const newEnvContent = req.body.envContent;
+  fs.writeFileSync('.env', newEnvContent);
+  res.send('Environment variables updated successfully.');
+});
+
+
+// Endpoint to restart the server
+app.post('/restart-server', (req, res) => {
+  /*
+  fs.appendFile('.env.example', '\nRESTART=TRUE', (err) => {
+    if (err) {
+      console.error('Failed to write to .env.example:', err);
+      return res.status(500).send('Failed to write to .env.example');
+    }
+    res.send('Server is restarting...');
+  });
+  */
+  
+  server.close(() => {
+    console.log("Server successfully shut down.");
+    process.exit(0);
+}, 100); // 1-second delay
+});
+
 
 // Serve uploaded files from the 'public/uploads' directory
 app.get('/uploads/:filename', (req, res) => {
@@ -210,10 +325,10 @@ async function initializeGeminiConversationHistory() {
 initializeGeminiConversationHistory();
 
  // Function to convert conversation history to HTML
- function exportChatToHTML() {
+ async function exportChatToHTML() {
   // Log the current state of both conversation histories before deciding which one to use
-  console.log("Current GPT Conversation History: ", JSON.stringify(conversationHistory, null, 2));
-  console.log("Current Claude Conversation History: ", JSON.stringify(claudeHistory, null, 2));
+  // console.log("Current GPT Conversation History: ", JSON.stringify(conversationHistory, null, 2));
+  // console.log("Current Claude Conversation History: ", JSON.stringify(claudeHistory, null, 2));
 
   let containsAssistantMessage = conversationHistory.some(entry => entry.role === 'assistant');
 
@@ -226,11 +341,12 @@ initializeGeminiConversationHistory();
       chatHistory = [...claudeHistory];
       chatHistory.unshift({
         role: 'system',
-        content: systemMessage
+        content: claudeInstructions
       });
   }
 
   // Log the determined chatHistory
+  // console.log("Determined Chat History: ", JSON.stringify(chatHistory, null, 2));
 
   let htmlContent = `
     <html>
@@ -250,6 +366,19 @@ initializeGeminiConversationHistory();
   `;
 
   console.log("Chat History: ", JSON.stringify(chatHistory, null, 2));
+
+  // Convert chat history to a string for title generation
+  const savedHistory = chatHistory.map(entry => {
+    if (Array.isArray(entry.content)) {
+      return entry.content.map(item => item.type === 'text' ? item.text : '').join(' ');
+    } else if (typeof entry.content === 'string') {
+      return entry.content;
+    }
+    return '';
+  }).join('\n');
+
+  // Generate title and save chat history
+  await titleChat(savedHistory);
 
   chatHistory.forEach(entry => {
     let formattedContent = '';
@@ -275,9 +404,36 @@ initializeGeminiConversationHistory();
   return htmlContent;
 }
 
+async function titleChat(chatHistory) {
+  // Request to OpenAI to generate a title
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-4',
+    messages: [
+      { role: 'system', content: 'Title this chat by summarizing the topic of the conversation in under 5 or 6 words. This will be the name of the file in which it is saved, so include underscores instead of spaces and keep it short and concise.' },
+      { role: 'user', content: chatHistory }
+    ]
+  });
+
+  // Extract the title from the response
+  title = completion.choices[0].message.content.trim().replace(/ /g, '_');
+  console.log("Generated Title: ", title);
+  const folderPath = path.join(__dirname, 'public/uploads/chats');
+  // Ensure the nested folder exists
+  fs.mkdirSync(folderPath, { recursive: true });
+
+  // Define the full file path
+  const filePath = path.join(folderPath, `${title}.txt`);
+
+
+  // Save the chat history to a file with the generated title
+  fs.writeFileSync(filePath, chatHistory);
+  console.log(`Chat history saved to ${filePath}`);
+}
+
+
 
 // Function to convert Gemini conversation history to HTML
-function exportGeminiChatToHTML() {
+async function exportGeminiChatToHTML() {
   let htmlContent = `
     <html>
     <head>
@@ -302,6 +458,11 @@ function exportGeminiChatToHTML() {
   const messageRegex = /(System Prompt: |User Prompt: |Response: )/g;
   // Split the history by the regex, but keep the delimiters
   const messages = geminiHistory.split(messageRegex).slice(1); // slice to remove the first empty string if any
+  console.log("Gemini History: ", JSON.stringify(geminiHistory, null, 2));
+
+  // process chat history in a similar way
+  await nameChat(geminiHistory);
+
 
   // Process the messages in pairs (label + content)
   for (let i = 0; i < messages.length; i += 2) {
@@ -322,6 +483,62 @@ function exportGeminiChatToHTML() {
 
   htmlContent += '</body></html>';
   return htmlContent;
+}
+
+
+
+// claude instructions
+
+let claudeInstructions;
+
+// Function to read instructions from the file using fs promises
+async function readClaudeFile() {
+  try {
+      // Adjust the path if your folder structure is different
+      const claudeFile = await fs.promises.readFile('./public/claudeInstructions.xml', 'utf8');
+      return claudeFile;
+  } catch (error) {
+      console.error('Error reading instructions file:', error);
+      return ''; // Return empty string or handle error as needed
+  }
+}
+
+// Function to initialize the conversation history with instructions
+// giving the model a system prompt and adding tp 
+async function initializeClaudeInstructions() {
+  let instructions = await readClaudeFile();
+  claudeInstructions = `${instructions}`;
+}
+
+// Call this function when the server starts
+initializeClaudeInstructions();
+
+let title = '';
+
+async function nameChat(chatHistory) {
+  // Request to OpenAI to generate a title
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-4',
+    messages: [
+      { role: 'system', content: 'Title this chat by summarizing the topic of the conversation in under 5 or 6 words. This will be the name of the file in which it is saved, so include underscores instead of spaces and keep it short and concise.' },
+      { role: 'user', content: chatHistory }
+    ]
+  });
+
+  // Extract the title from the response
+  title = completion.choices[0].message.content.trim().replace(/ /g, '_');
+  console.log("Generated Title: ", title);
+  const folderPath = path.join(__dirname, 'public/uploads/chats');
+  // Ensure the nested folder exists
+  fs.mkdirSync(folderPath, { recursive: true });
+
+  // Define the full file path
+  const filePath = path.join(folderPath, `${title}.txt`);
+
+
+  // Save the chat history to a file with the generated title
+  fs.writeFileSync(filePath, chatHistory);
+  console.log(`Chat history saved to ${filePath}`);
 }
 
 
@@ -368,31 +585,38 @@ const defaultConfig = {
 
 app.post('/gemini', async (req, res) => {
   try {
-    const { model, prompt, history } = req.body;
-    console.log('Prompt: ', prompt)
+    const { model, prompt, imageParts, history } = req.body;
+    console.log('Prompt: ', prompt);
 
-// Add user's prompt to conversation history with a label
-geminiHistory += 'User Prompt: ' + prompt + '\n';
+    // Add user's prompt to conversation history with a label
+    geminiHistory += 'User Prompt: ' + prompt + '\n';
 
+    // Handle text-only input
+    if (!history && (!imageParts || imageParts.length === 0)) {
 
-  // Initialize the Google model for text-only input
-  const googleModel = genAI.getGenerativeModel({ model: 'gemini-pro', generationConfig: defaultConfig, safetySettings });
-  // Generate content based on the geminiHistory
-  const result = await googleModel.generateContent(geminiHistory);
+      // Initialize the Google model for text-only input
+      const googleModel = genAI.getGenerativeModel({ model: model, generationConfig: defaultConfig, safetySettings });
+      
+      // Generate content based on the geminiHistory
+      const result = await googleModel.generateContent(geminiHistory);
 
-  const text = result.response.text();
-  console.log('Response: ', text)
-  // Add assistant's response to conversation history
-  geminiHistory += 'Response: ' + text + '\n';
-  console.log('Gemini History: ', geminiHistory)
+      const text = result.response.text();
+      console.log('Response: ', text);
+      
+      // Add assistant's response to conversation history
+      geminiHistory += 'Response: ' + text + '\n';
+      console.log('Gemini History: ', geminiHistory);
+      
       // Send the response
       res.json({ success: true, text: text });
+    } else {
+      // Handle other cases, if any
+    }
   } catch (error) {
     console.error('Error with Gemini API:', error.message);
     res.status(500).json({ error: "Error with Gemini API", details: error.message });
   }
 });
-
 
 
 // Optional streaming implementation
@@ -435,9 +659,14 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
 
   // Add text content if present
   if (user_message) {
+    if (modelID.startsWith('gpt')) {
       user_input.content.push({ type: "text", text: user_message });
+    } else if (modelID.startsWith('claude')) {
+      user_input.content.push({ type: "text", text: "<user_message>" });
+      user_input.content.push({ type: "text", text: user_message });
+      user_input.content.push({ type: "text", text: "</user_message>" });
+    }
   }
-
 } else {
   // For Mistral models, user_input.content is a string and set to user_message
   user_input = {
@@ -474,7 +703,7 @@ if (modelID === 'gpt-4') {
 
       messages: conversationHistory, // Includes the System Prompt, previous queries and responses, and your most recently sent message.
 
-      temperature: 1, // Controls randomness: Lowering results in less random completions. 
+      temperature: 0.8, // Controls randomness: Lowering results in less random completions. 
       // As the temperature approaches zero, the model will become deterministic and repetitive.
       
       // top_p: 1,  // Controls diversity via nucleus sampling: 0.5 means half of all likelihood-weighted options are considered.
@@ -527,13 +756,25 @@ if (modelID === 'gpt-4') {
   
     // Define the headers with the Authorization and, if needed, Organization
     // Determine the API to use based on modelID prefix
-    if (modelID.startsWith('gpt')) {
+    if (modelID.includes('/')) {
+      conversationHistory.push(user_input);
+      headers = {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      };
+      apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
+    } else if (modelID.startsWith('gpt')) {
       conversationHistory.push(user_input);
       headers = {
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
         // 'OpenAI-Organization': 'process.env.ORGANIZATION' // Uncomment if using an organization ID
       };
       apiUrl = 'https://api.openai.com/v1/chat/completions';
+    } else if (modelID.startsWith('llama') || modelID.startsWith('gemma') || modelID === 'mixtral-8x7b-32768') {
+      conversationHistory.push(user_input);
+      headers = {
+        'Authorization': `Bearer ${process.env.QROQ_API_KEY}`,
+      };
+      apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
     } else if (modelID.includes('mistral') || modelID.includes('mixtral')) {
       conversationHistory.push(user_input);
       headers = {
@@ -541,6 +782,13 @@ if (modelID === 'gpt-4') {
         // Add any Mistral-specific headers here if necessary
       };
       apiUrl = 'https://api.mistral.ai/v1/chat/completions';
+    } else if (modelID === 'codestral-latest') {
+      conversationHistory.push(user_input);
+      headers = {
+        'Authorization': `Bearer ${process.env.CODESTRAL_API_KEY}`,
+        // Add any Mistral-specific headers here if necessary
+      };
+      apiUrl = 'https://codestral.mistral.ai/v1/chat/completions';
     } else if (modelID.startsWith('claude')) {
       claudeHistory.push(user_input);
       data = {
@@ -548,7 +796,7 @@ if (modelID === 'gpt-4') {
         model: modelID,
         max_tokens: 4000,
         temperature: 1,
-        system: systemMessage,
+        system: claudeInstructions,
         messages: claudeHistory,
       };
       headers = {
@@ -558,18 +806,6 @@ if (modelID === 'gpt-4') {
         // Add any Mistral-specific headers here if necessary
       };
       apiUrl = 'https://api.anthropic.com/v1/messages';
-    } else if (modelID.startsWith('llama') || modelID.startsWith('Llama')) {
-      conversationHistory.push(user_input);
-      headers = {
-        'Authorization': `Bearer ${process.env.LLAMA_API_KEY}`,
-      };
-      apiUrl = 'https://api.llama-api.com/chat/completions';
-    } else if (modelID.includes('/')) {
-      conversationHistory.push(user_input);
-      headers = {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      };
-      apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
     }
 
     // Log the data payload just before sending it to the chosen API
@@ -620,12 +856,12 @@ if (modelID === 'gpt-4') {
 
           if (modelID.startsWith('claude')) {
             claudeHistory.push({ role: "assistant", content: lastMessageContent[0].text });
-            console.log("Claude History: ", claudeHistory);
+            console.log("Claude History");
             res.json({ text: lastMessageContent[0].text });
           } else {
             // Add assistant's message to the conversation history
             conversationHistory.push({ role: "assistant", content: lastMessageContent });
-            console.log("Conversation History: ", conversationHistory);
+            console.log("Conversation History");
             // Send this back to the client
             res.json({ text: lastMessageContent });
           }
@@ -662,15 +898,16 @@ app.get('/export-chat-html', async (req, res) => {
   console.log("Export request received for type:", type);
   let htmlContent;
   if (type === 'gemini') {
-    htmlContent = exportGeminiChatToHTML();
+    htmlContent = await exportGeminiChatToHTML();
   } else if (type === 'assistants') {
     htmlContent = await exportAssistantsChat();
   } else if (type === 'conversation') {
-    htmlContent = exportChatToHTML();
+    htmlContent = await exportChatToHTML();
   }
 
   res.set('Content-Type', 'text/html');
-  res.set('Content-Disposition', 'attachment; filename="' + (type === 'gemini' ? 'gemini_chat_history.html' : 'chat_history.html') + '"');
+  res.set('Content-Disposition', 'attachment; filename="' + title + '.html"');
+  // console.log(htmlContent);
   res.send(htmlContent);
 
   // No need to call res.end() after res.send(), as send() ends the response.
@@ -684,11 +921,13 @@ app.get('/export-chat-html', async (req, res) => {
   isShuttingDown = true; // Set the shutdown flag
   // Delay before shutting down the server to allow file download
   setTimeout(() => {
+    console.log("Sending SIGTERM to self...");
+    process.kill(process.pid, 'SIGINT'); // Send SIGTERM to self
     server.close(() => {
       console.log("Server successfully shut down.");
+      process.exit(99);
     });
   }, 100); // 1-second delay
-  
 });
 
 app.get('/get-instructions', (req, res) => {
@@ -712,6 +951,45 @@ app.post('/update-instructions', (req, res) => {
   });
 });
 
+app.get('/get-my-env', (req, res) => {
+  fs.readFile('.env', 'utf8', (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error reading the file');
+    }
+    res.send(data);
+  });
+});
+
+app.post('/update-my-env', (req, res) => {
+  const newContent = req.body.content;
+  fs.writeFile('.env', newContent, 'utf8', (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send({ message: 'Error saving the file' });
+    }
+    res.send({ message: 'File updated successfully' });
+  });
+});
+
+
+app.post('/shutdown-server', (req, res) => {
+  if (isShuttingDown) {
+    return res.status(503).send('Server is already shutting down');
+  }
+
+  isShuttingDown = true;
+  res.send('Server shutdown initiated');
+
+  setTimeout(() => {
+    console.log("Sending SIGTERM to self...");
+        process.kill(process.pid, 'SIGINT'); // Send SIGTERM to self
+    server.close(() => {
+      console.log('Server successfully shut down.');
+      process.exit(99);
+    });
+  }, 1000); // 1-second delay for the response to be sent
+});
   
 
 // Start the server
@@ -764,3 +1042,29 @@ const HOST = isVercelEnvironment ? '0.0.0.0' : process.env.HOST_SERVER || 'local
 const server = app.listen(PORT, HOST, () => {
   console.log(`Server running at http://${HOST}:${PORT}`);
 });
+
+/*
+// Gracefully handle SIGINT
+process.on('SIGINT', () => {
+  console.log('Received SIGINT, shutting down gracefully...');
+  server.close(() => {
+    console.log('Server successfully shut down.');
+    process.exit(99); // Custom exit code to signal nodemon
+  });
+});
+
+
+
+// Prevent nodemon from restarting on shutdown
+if (process.env.NODE_ENV === 'development') {
+  const nodemonShutdown = () => {
+    console.log("Killing nodemon process...");
+    process.kill(process.ppid, 'SIGUSR2');
+  };
+
+  process.on('SIGTERM', nodemonShutdown);
+  process.on('SIGINT', nodemonShutdown);
+  process.on('exit', nodemonShutdown);
+}
+
+*/

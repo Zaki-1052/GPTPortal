@@ -6,7 +6,7 @@ import type { ReadableStreamAsyncIterator, ReadableStreamIteratorOptions } from 
 export * from './ponyfill';
 
 declare global {
-  interface ReadableStream<R = any> {
+  interface ReadableStream<R = any> extends AsyncIterable<R> {
     /**
      * Asynchronously iterates over the chunks in the stream's internal queue.
      *
@@ -23,7 +23,6 @@ declare global {
     /**
      * {@inheritDoc ReadableStream.values}
      */
-    [Symbol.asyncIterator]: (options?: ReadableStreamIteratorOptions) => ReadableStreamAsyncIterator<R>;
+    [Symbol.asyncIterator](options?: ReadableStreamIteratorOptions): ReadableStreamAsyncIterator<R>;
   }
 }
-
