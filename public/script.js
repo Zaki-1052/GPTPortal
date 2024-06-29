@@ -1277,15 +1277,21 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
 
       const sidebar = document.getElementById('sidebar');
       const toggleArrow = document.getElementById('toggleArrow');
+      const summariesButton = document.getElementById('summariesButton');
+      let summariesOnly = true;
 
       // Fetch the list of chats from the backend and display them in the sidebar
       async function fetchChatList() {
         try {
           const response = await fetch('/listChats');
           const data = await response.json();
-          sidebar.innerHTML = data.files.map(file => {
-            const fileNameWithoutExt = file.replace('.txt', '');
-            return `<a href="#" data-chat="${fileNameWithoutExt}">${fileNameWithoutExt}</a>`;
+          const chatList = document.getElementById('chatList');
+          chatList.innerHTML = data.files.map(file => {
+            // Remove the .txt extension
+            let fileNameWithoutExt = file.replace('.txt', '');
+            // Replace underscores with spaces
+            let displayName = fileNameWithoutExt.replace(/_/g, ' ');
+            return `<li><a href="#" data-chat="${fileNameWithoutExt}">${displayName}</a></li>`;
           }).join('');
         } catch (error) {
           console.error('Error fetching chat list:', error);
@@ -1293,26 +1299,30 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
       }
 
       // Handle chat selection
-      sidebar.addEventListener('click', async (event) => {
-        const chatName = event.target.getAttribute('data-chat');
-        if (chatName) {
-          try {
-            await fetch('/setChat', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ chosenChat: `${chatName}` })
-            });
-
-            const summaryResponse = await fetch(`/getSummary/${chatName}`);
-            const summaryData = await summaryResponse.json();
-
-            if (summaryData.summary) {
-              displayMessage(summaryData.summary, 'response', false);
-            } else {
-              console.error('Summary not found.');
+      document.getElementById('chatList').addEventListener('click', async (event) => {
+        if (event.target.tagName === 'A') {
+          event.preventDefault();
+          const chatName = event.target.getAttribute('data-chat');
+          if (chatName) {
+            try {
+              console.log("clicked");
+              await fetch('/setChat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chosenChat: `${chatName}` })
+              });
+      
+              const summaryResponse = await fetch(`/getSummary/${chatName}`);
+              const summaryData = await summaryResponse.json();
+      
+              if (summaryData.summary) {
+                displayMessage(summaryData.summary, 'response');
+              } else {
+                console.error('Summary not found.');
+              }
+            } catch (error) {
+              console.error('Error setting chat:', error);
             }
-          } catch (error) {
-            console.error('Error setting chat:', error);
           }
         }
       });
@@ -1327,6 +1337,24 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
           toggleArrow.innerHTML = '&#x25C0;';
         }
       });
+
+      // Handle summariesButton click
+      summariesButton.addEventListener('click', async () => {
+        summariesOnly = !summariesOnly;
+        summariesButton.textContent = summariesOnly ? 'Summaries Only' : 'Whole Conversations';
+
+        try {
+          await fetch('/setSummariesOnly', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ summariesOnly })
+          });
+        } catch (error) {
+          console.error('Error setting summaries only:', error);
+        }
+      });
+
+      
 
       document.addEventListener('keydown', (event) => {
 
