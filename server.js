@@ -375,16 +375,31 @@ function parsePromptMarkdown(content) {
   };
 }
 
+// Endpoint to handle copying the prompt
+app.post('/copyPrompt', async (req, res) => {
+  try {
+    customPrompt = true;
+    // call to read instructions file, inside custom prompt being true
+    // send the name of that file so that it can read it
+    // or just use the body text directlt?
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Error copying prompt' });
+  }
+});
+
 let conversationHistory = [];
+let instructions;
 
 // Function to read instructions from the file using fs promises
 async function readInstructionsFile() {
   try {
-    let instructions;
+    const promptFile = path.join(__dirname, 'public', 'uploads', 'prompts', `${chosenPrompt}.md`);
       // Adjust the path if your folder structure is different
       if (customPrompt) {
         // file path goes to the the prompt file name we get from that separate async function
         // sets instructions equal to the contents of that file
+        instructions = await fs.promises.readFile(promptFile, 'utf8');
       } else {
         instructions = await fs.promises.readFile('./public/instructions.md', 'utf8');
       }

@@ -1331,12 +1331,15 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
             button.addEventListener('click', async (event) => {
               const promptName = event.target.getAttribute('data-prompt');
               try {
-                const response = await fetch('/setPrompt', {
+                const response = await fetch('/copyPrompt', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ chosenPrompt: promptName })
                 });
-
+                copyPromptButton.textContent = 'Copied!';
+                setTimeout(() => {
+                  copyPromptButton.textContent = 'Copy Prompt';
+                }, 1000);
                 const data = await response.json();
 
                 if (data.prompt) {
@@ -1451,17 +1454,22 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
       });
 
       // Handle copy prompt button click
+      // IMPORTANT: I think this is irrelevant now???
       copyPromptButton.addEventListener('click', async () => {
         try {
-          await fetch('/copyPrompt', {
+          const response = await fetch('/copyPrompt', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ summariesOnly })
           });
-          copyPromptButton.textContent = 'Copied!';
-          setTimeout(() => {
-            copyPromptButton.textContent = 'Copy Prompt';
-          }, 1000);
+          if (response.ok) {
+            copyPromptButton.textContent = 'Copied!';
+            setTimeout(() => {
+              copyPromptButton.textContent = 'Copy Prompt';
+            }, 1000);
+          } else {
+            throw new Error('Copy failed');
+          }
         } catch (error) {
           console.error('Error copying prompt:', error);
         }
