@@ -1287,8 +1287,10 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
       // Fetch the list of chats from the backend and display them in the sidebar
       async function fetchChatList() {
         try {
+          console.log("fetching chat list");
           const response = await fetch('/listChats');
           const data = await response.json();
+          console.log("response", data);
           const chatList = document.getElementById('chatList');
           chatList.innerHTML = data.files.map(file => {
             // Remove the .txt extension

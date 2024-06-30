@@ -560,7 +560,7 @@ app.post('/setChat', async (req, res) => {
 // Endpoint to list chat files
 app.get('/listChats', (req, res) => {
   const folderPath = path.join(__dirname, 'public/uploads/chats');
-  fs.readdirSync(folderPath, (err, files) => {
+  fs.readdir(folderPath, (err, files) => {
     if (err) {
       console.error('Error reading chat files:', err);
       res.status(500).json({ message: 'Failed to list chat files', error: err.message });
@@ -772,11 +772,15 @@ async function titleChat(history, tokens, cost) {
   // Define the full file path
   const filePath = path.join(folderPath, `${title}.txt`);
   let chatText;
+  chatText = `${history}\n---\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(6)}\n\n-----\n\nCONTEXT: Above, you may be shown a conversation between the User -- a Human -- and an AI Assistant (yourself). If not, a summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
+  /*
   if (summariesOnly) {
+    console.log("summaries only ")
     chatText = `${history}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(6)}\n\n-----\n\nCONTEXT: Below is a summary of the conversation between the User -- a Human -- and an AI Assistant (yourself). INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
   } else {
-    chatText = `${history}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(6)}\n\n-----\n\nCONTEXT: Above is the conversation between the User -- a Human -- and an AI Assistant (yourself). A summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
+    chatText = `${history}\n---\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(6)}\n\n-----\n\nCONTEXT: Above, you may be shown a conversation between the User -- a Human -- and an AI Assistant (yourself). If not, summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
   }
+  */
   fs.writeFileSync(filePath, chatText);
 
 // test...
@@ -1105,6 +1109,7 @@ async function initializeClaudeInstructions() {
       systemMessage = await continueConversation(chosenChat);
     }
   }
+  return systemMessage;
 }
 
 // Call this function when the server starts
@@ -1461,11 +1466,14 @@ async function nameChat(chatHistory, tokens) {
   // Define the full file path
   const filePath = path.join(folderPath, `${title}.txt`);
   let chatText;
+  chatText = `${chatHistory}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $0.00!\n\n-----\n\nCONTEXT: Above, you may be shown a conversation between the User -- a Human -- and an AI Assistant (yourself). If not, a summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
+  /*
   if (summariesOnly) {
     chatText = `${chatHistory}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $0.00!\n\n-----\n\nCONTEXT: Below is a summary of the conversation between the User -- a Human -- and an AI Assistant (yourself). INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
   } else {
-    chatText = `${chatHistory}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $0.00!\n\n-----\n\nCONTEXT: Below is a summary of the conversation between the User -- a Human -- and an AI Assistant (yourself). A summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
+    chatText = `${chatHistory}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $0.00!\n\n-----\n\nCONTEXT: Above, you may be shown a conversation between the User -- a Human -- and an AI Assistant (yourself). If not, a summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
   }
+  */
   fs.writeFileSync(filePath, chatText);
 
 // test...
@@ -1486,6 +1494,27 @@ async function imageURLToBase64(url) {
       responseType: 'arraybuffer' // Ensure the image data is received in the correct format
     });
     return `data:image/jpeg;base64,${Buffer.from(response.data).toString('base64')}`;
+  } catch (error) {
+    console.error('Error fetching image:', error);
+    return null; // Return null if there is an error
+  }
+}
+
+// Function to convert an image URL to base64
+async function imageURLToBase64(url) {
+  try {
+    const response = await axios.get(url, {
+      responseType: 'arraybuffer' // Ensure the image data is received in the correct format
+    });
+
+    // Extract the MIME type from the response headers
+    const contentType = response.headers['content-type'];
+
+    // Convert the image data to base64
+    const base64Image = Buffer.from(response.data).toString('base64');
+
+    // Return the base64-encoded image with the appropriate MIME type
+    return `data:${contentType};base64,${base64Image}`;
   } catch (error) {
     console.error('Error fetching image:', error);
     return null; // Return null if there is an error
@@ -1722,6 +1751,7 @@ let headers;
 let apiUrl = '';
 let data;
 let claudeHistory = [];
+let epochs = 0;
 
 app.post('/message', async (req, res) => {
   console.log("req.file:", req.file); // Check if the file is received
@@ -1779,12 +1809,17 @@ if (user_message === "Bye!") {
    // Assuming modelID is declared globally and available here
 // Determine the structure of user_input.content based on modelID
 if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
-  
-  if (modelID.startsWith('gpt')) {
-    systemMessage = await initializeConversationHistory();
-  } else if (modelID.startsWith('claude')) {
-    systemMessage = await initializeClaudeInstructions();
+  if (epochs === 0) {
+    if (modelID.startsWith('gpt')) {
+      systemMessage = await initializeConversationHistory();
+      epochs = epochs + 1;
+    } else if (modelID.startsWith('claude')) {
+      systemMessage = await initializeClaudeInstructions();
+      epochs = epochs + 1;
+    }
   }
+  
+  
   // Add text content if present
   if (user_message) {
     if (modelID.startsWith('gpt')) {
@@ -1819,8 +1854,10 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
     let base64Image;
     // If req.file is defined, it means the image is uploaded as a file
     if (req.file) {
+      console.log("first if", req.file.path)
       base64Image = imageToBase64(req.file.path);
     } else {
+      console.log("second if", req.body.image)
       // If req.file is not present, fetch the image from the URL
       base64Image = await imageURLToBase64(req.body.image);
     }
