@@ -677,6 +677,8 @@ async function returnTitle(history) {
   async function generateTitle() {
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o',
+      temperature: 0.4,
+      max_tokens: 10,
       messages: [
         { role: 'system', content: 'You will be given the contents of a conversation between a Human and an AI Assistant. Please title this chat by summarizing the topic of the conversation in under 5 plaintext words. Ignore the System Message and focus solely on the User-AI interaction. This will be the name of the file saved via Node, so keep it *extremely* short and concise! Examples: "Friendly AI Assistance", "Install Plex Media Server", "App Layout Feedback", "Calculating Indefinite Integrals", or "Total Cost Calculation", etc. The title should resemble a quick and easy reference point for the User to remember the conversation, and follow smart and short naming conventions. Do NOT use any special symbols; simply return the words in plaintext without any formatting, markdown, quotes, etc. The title needs to be compatible with a Node.js filename, so it needs to be short! Output should consist of a few words only, or there will be a ENAMETOOLONG error!.' },
         { role: 'user', content: history }
@@ -685,12 +687,10 @@ async function returnTitle(history) {
     return completion.choices[0].message.content.trim().replace(/ /g, '_');
   }
 
-  // Loop until a valid title is generated
-  while (true) {
-    title = await generateTitle();
-    if (title.length <= maxLength) {
-      break;
-    }
+  title = await generateTitle();
+
+  if (title.length > maxLength) {
+    title = 'chat_history';
   }
 
   return title;
