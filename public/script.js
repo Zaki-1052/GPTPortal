@@ -1633,7 +1633,7 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
 
 // New function to reset text area height
 function resetTextAreaHeight(field) {
-  field.style.height = '45px'; // Set to your default height
+  field.style.height = '40px'; // Set to your default height
   autoExpand(field); // Call autoExpand to adjust if there's any remaining content
 }
       
