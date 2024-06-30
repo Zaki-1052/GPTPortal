@@ -772,7 +772,7 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       tooltip.style.display = 'block';
   
       // Position the tooltip to the right and slightly above the targetElement
-      tooltip.style.left = `${rect.right + 10}px`; // 10 pixels to the right of the element
+      tooltip.style.left = `${rect.left - tooltip.offsetWidth - 10}px`; // 10 pixels to the left of the element
       tooltip.style.top = `${window.scrollY + rect.top}px`; // 10 pixels above the top of the element
     }
 
@@ -1308,7 +1308,7 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
           const response = await fetch('/listPrompts');
           const data = await response.json();
           const promptList = document.getElementById('promptList');
-          // const promptDescriptions = data.descriptions;
+          const promptInfo = data.promptInfo;
 
           promptList.innerHTML = data.files.map(file => {
             let fileNameWithoutExt = file.replace('.md', '');
@@ -1323,12 +1323,15 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
           // Add event listeners for tooltip functionality
           document.querySelectorAll('#promptList li a').forEach(item => {
             item.addEventListener('mouseover', (event) => {
-              showCustomTooltip(promptDescriptions[event.currentTarget.getAttribute('data-prompt')], event.currentTarget);
+              const promptName = event.currentTarget.getAttribute('data-prompt');
+              const info = promptInfo[promptName];
+              showCustomTooltip(`${info.name}: ${info.description}`, event.currentTarget);
             });
             item.addEventListener('mouseout', () => {
-              customTooltip.style.display = 'none';
+              hideCustomTooltip();
             });
           });
+
 
           // Add event listeners for prompt selection and copy buttons
           document.querySelectorAll('#promptList li a').forEach(item => {
@@ -1547,7 +1550,37 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
   }
 
       
+// Function to show the custom tooltip
+function showCustomTooltip(text, targetElement) {
+  let tooltip = document.getElementById("custom-tooltip");
+  let rect = targetElement.getBoundingClientRect();
 
+  tooltip.textContent = text;
+  tooltip.style.display = 'block';
+
+  // Position the tooltip to the right and slightly above the targetElement
+  tooltip.style.left = `${rect.left - tooltip.offsetWidth - 10}px`; // 10 pixels to the left of the element
+  tooltip.style.top = `${window.scrollY + rect.top}px`; // 10 pixels above the top of the element
+}
+
+function toggleDropdown(event) {
+  console.log("toggleDropdown triggered", event.target); // Debugging line
+  let isClickInside = event.target.closest('.custom-select') || event.target.id === 'selected-model';
+  console.log("Is Click Inside: ", isClickInside); // Debugging line
+  if (isClickInside) {
+    let options = document.getElementById("model-options");
+    console.log("Current display: ", options.style.display); // Debugging line
+    options.style.display = options.style.display === "block" ? "none" : "block";
+    console.log("New display: ", options.style.display); // Debugging line
+  }
+}
+
+
+// Function to hide the custom tooltip
+function hideCustomTooltip() {
+  let tooltip = document.getElementById("custom-tooltip");
+  tooltip.style.display = 'none';
+}
 
       
 

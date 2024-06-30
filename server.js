@@ -335,21 +335,26 @@ let chosenPrompt = '';
 // Endpoint to list available prompts
 app.get('/listPrompts', async (req, res) => {
   try {
-      const promptDir = path.join(__dirname, 'public', 'uploads', 'prompts');
-      const files = fs.readdirSync(promptDir);
-      const markdownFiles = files.filter(file => file.endsWith('.md'));
+    const promptDir = path.join(__dirname, 'public', 'uploads', 'prompts');
+    const files = fs.readdirSync(promptDir);
+    const markdownFiles = files.filter(file => file.endsWith('.md'));
+    
+    const promptInfo = {};
+    for (const file of markdownFiles) {
+      const content = fs.readFileSync(path.join(promptDir, file), 'utf8');
+      const nameMatch = content.match(/## \*\*(.*?)\*\*/);
+      const descriptionMatch = content.match(/### Description\s*\n\s*\*(.*?)\./s);
       
-      const descriptions = {};
-      for (const file of markdownFiles) {
-          const content = fs.readFileSync(path.join(promptDir, file), 'utf8');
-          const descriptionMatch = content.match(/### Description\s*\n\s*\*(.*?)\./s);
-          descriptions[file.replace('.md', '')] = descriptionMatch ? descriptionMatch[1] : 'No description available';
-      }
-      
-      res.json({ files: markdownFiles, descriptions });
+      promptInfo[file.replace('.md', '')] = {
+        name: nameMatch ? nameMatch[1].trim() : file.replace('.md', ''),
+        description: descriptionMatch ? descriptionMatch[1].trim() : 'No description available'
+      };
+    }
+    
+    res.json({ files: markdownFiles, promptInfo });
   } catch (error) {
-      console.error('Error reading prompt directory:', error);
-      res.status(500).json({ error: 'Error reading prompt directory' });
+    console.error('Error reading prompt directory:', error);
+    res.status(500).json({ error: 'Error reading prompt directory' });
   }
 });
 
@@ -368,12 +373,14 @@ app.post('/setPrompt', async (req, res) => {
   }
 });
 
+let promptName;
 // Endpoint to handle copying the prompt
 app.post('/copyPrompt', async (req, res) => {
   try {
       const { chosenPrompt } = req.body;
       customPrompt = true;
-      instructions = await readInstructionsFile(chosenPrompt);
+      promptName = chosenPrompt;
+      instructions = await readInstructionsFile();
       // Here you can implement any additional logic to handle the copied prompt
       // For example, you might want to save it to a different file or update a database
       res.json({ success: true, instructions });
@@ -387,15 +394,16 @@ app.post('/copyPrompt', async (req, res) => {
 function parsePromptMarkdown(content) {
   console.log(content);
   const nameMatch = content.match(/## \*\*(.*?)\*\*/);
-  const descriptionMatch = content.match(/### Description\s*\n\s*\*(.*?)\./s);
+  const descriptionMatch = content.match(/### Description\s*\n\s*\*(.*?)\*/s);
   const bodyMatch = content.match(/#### Instructions\s*\n(.*?)\n##### Conversation starters/s);
   
   return {
-      name: nameMatch ? nameMatch[1] : 'No name found',
-      description: descriptionMatch ? descriptionMatch[1] : 'No description available',
-      body: bodyMatch ? bodyMatch[1].trim() : 'No instructions available'
+    name: nameMatch ? nameMatch[1].trim() : 'No name found',
+    description: descriptionMatch ? descriptionMatch[1].trim() : 'No description available',
+    body: bodyMatch ? bodyMatch[1].trim() : 'No instructions available'
   };
 }
+
 /*
 // Endpoint to handle copying the prompt
 app.post('/copyPrompt', async (req, res) => {
@@ -415,7 +423,7 @@ let conversationHistory = [];
 let instructions;
 
 // Function to read instructions from the file using fs promises
-async function readInstructionsFile(promptName) {
+async function readInstructionsFile() {
   try {
       // Adjust the path if your folder structure is different
       if (customPrompt) {
@@ -986,6 +994,7 @@ async function calculateCost(tokens, model) {
     }
   }
 
+  inputCostPerMillion = 5.00;
   let extraCost = (tokens.totalTokens / 1000000) * inputCostPerMillion;
   extraCost * 2;
 
