@@ -2158,6 +2158,10 @@ function displayMessage(message, type) {
           messageElement.appendChild(textSpan);
         }
       });
+      const copyButton = document.createElement('button');
+      copyButton.textContent = 'Copy';
+      copyButton.onclick = function() { copyToClipboard(messageElement.innerText); };
+      messageElement.appendChild(copyButton);
     } else {
       const messageText = document.createElement('span');
       // Convert markdown to HTML using marked.js and sanitize it with DOMPurify

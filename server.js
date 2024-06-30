@@ -460,6 +460,7 @@ async function initializeConversationHistory() {
     }
     
   }
+  conversationHistory.push({ role: "system", content: systemMessage });
   return systemMessage;
 }
 
@@ -1784,9 +1785,6 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
   } else if (modelID.startsWith('claude')) {
     systemMessage = await initializeClaudeInstructions();
   }
-
-  conversationHistory.push({ role: "system", content: systemMessage });
-
   // Add text content if present
   if (user_message) {
     if (modelID.startsWith('gpt')) {
