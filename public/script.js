@@ -1277,7 +1277,10 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
 
       const sidebar = document.getElementById('sidebar');
       const toggleArrow = document.getElementById('toggleArrow');
+      const promptBar = document.getElementById('promptBar');
+      const toggleRightArrow = document.getElementById('toggleRightArrow');
       const summariesButton = document.getElementById('summariesButton');
+      const copyPromptButton = document.getElementById('copyPromptButton');
       let summariesOnly = true;
 
       // Fetch the list of chats from the backend and display them in the sidebar
@@ -1295,6 +1298,61 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
           }).join('');
         } catch (error) {
           console.error('Error fetching chat list:', error);
+        }
+      }
+
+      // Fetch the list of prompts from the backend and display them in the sidebar
+      async function fetchPromptList() {
+        try {
+          const response = await fetch('/listPrompts');
+          const data = await response.json();
+          const promptList = document.getElementById('promptList');
+          const promptDescriptions = data.descriptions;
+
+          promptList.innerHTML = data.files.map(file => {
+            let fileNameWithoutExt = file.replace('.md', '');
+            let displayName = fileNameWithoutExt.charAt(0).toUpperCase() + fileNameWithoutExt.slice(1);
+            return `
+              <li>
+                <a href="#" data-prompt="${fileNameWithoutExt}">${displayName}</a>
+                <button class="copyPromptButton" data-prompt="${fileNameWithoutExt}">Copy</button>
+              </li>`;
+          }).join('');
+
+          // Add event listeners for tooltip functionality
+          document.querySelectorAll('#promptList li a').forEach(item => {
+            item.addEventListener('mouseover', (event) => {
+              showCustomTooltip(promptDescriptions[event.currentTarget.getAttribute('data-prompt')], event.currentTarget);
+            });
+          });
+
+          // Add event listeners for copy prompt buttons
+          document.querySelectorAll('.copyPromptButton').forEach(button => {
+            button.addEventListener('click', async (event) => {
+              const promptName = event.target.getAttribute('data-prompt');
+              try {
+                const response = await fetch('/setPrompt', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ chosenPrompt: promptName })
+                });
+
+                const data = await response.json();
+
+                if (data.prompt) {
+                  // Assume there is a function to set instructions from the prompt
+                  setInstructionsFromPrompt(data.prompt.body);
+                } else {
+                  console.error('Prompt not found.');
+                }
+              } catch (error) {
+                console.error('Error setting prompt:', error);
+              }
+            });
+          });
+
+        } catch (error) {
+          console.error('Error fetching prompt list:', error);
         }
       }
 
@@ -1327,6 +1385,33 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
         }
       });
 
+      // Handle prompt selection
+      document.getElementById('promptList').addEventListener('click', async (event) => {
+        if (event.target.tagName === 'A') {
+          event.preventDefault();
+          const promptName = event.target.getAttribute('data-prompt');
+          if (promptName) {
+            try {
+              const promptResponse = await fetch('/setPrompt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chosenPrompt: promptName })
+              });
+
+              const promptData = await promptResponse.json();
+
+              if (promptData.prompt) {
+                displayMessage(promptData.prompt.body, 'response', false);
+              } else {
+                console.error('Prompt not found.');
+              }
+            } catch (error) {
+              console.error('Error setting prompt:', error);
+            }
+          }
+        }
+      });
+
       // Toggle sidebar visibility
       toggleArrow.addEventListener('click', () => {
         if (sidebar.style.display === 'block') {
@@ -1335,6 +1420,17 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
         } else {
           sidebar.style.display = 'block';
           toggleArrow.innerHTML = '&#x25C0;';
+        }
+      });
+
+      // Toggle prompt bar visibility
+      toggleRightArrow.addEventListener('click', () => {
+        if (promptBar.style.display === 'block') {
+          promptBar.style.display = 'none';
+          toggleRightArrow.innerHTML = '&#x25C0;';
+        } else {
+          promptBar.style.display = 'block';
+          toggleRightArrow.innerHTML = '&#x25B6;';
         }
       });
 
@@ -1353,6 +1449,26 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
           console.error('Error setting summaries only:', error);
         }
       });
+
+      // Handle copy prompt button click
+      copyPromptButton.addEventListener('click', async () => {
+        try {
+          await fetch('/copyPrompt', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ summariesOnly })
+          });
+          copyPromptButton.textContent = 'Copied!';
+          setTimeout(() => {
+            copyPromptButton.textContent = 'Copy Prompt';
+          }, 1000);
+        } catch (error) {
+          console.error('Error copying prompt:', error);
+        }
+      });
+
+      
+
 
       
 
@@ -1968,6 +2084,7 @@ function copyToClipboard(text) {
 
 
 fetchChatList();
+fetchPromptList();
     
       
     });
@@ -2130,3 +2247,34 @@ function saveEnvChanges() {
   });
 }
 
+function setInstructionsFromPrompt(promptBody) {
+  // Implement this function to set instructions from the prompt body
+  console.log(promptBody); // Example implementation
+  // it will need to call to the backend and do something like this?
+}
+
+/*
+when someone clicks on the prompt, it displays it, when they click the copy prompt button, 
+sends the name of that file for the backend to process, read, and load that file, and 
+then use a regex to retrieve the actual contents of the prompt itself. 
+it then sets customPrompt to true. then on the backend: 
+
+// Function to read instructions from the file using fs promises
+async function readInstructionsFile() {
+  try {
+    let instructions;
+      // Adjust the path if your folder structure is different
+      if (customPrompt) {
+        // file path goes to the the prompt file name we get from that separate async function
+        // sets instructions equal to the contents of that file
+      } else {
+        instructions = await fs.promises.readFile('./public/instructions.md', 'utf8');
+      }
+      return instructions;
+  } catch (error) {
+      console.error('Error reading instructions file:', error);
+      return ''; // Return empty string or handle error as needed
+  }
+}
+
+*/

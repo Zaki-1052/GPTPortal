@@ -328,14 +328,66 @@ app.post('/generate-image', async (req, res) => {
 let continueConv = false;
 let chosenChat = '';
 let summariesOnly = true; // Default to summaries only
+let customPrompt = false;
+
+// Endpoint to list available prompts
+app.get('/listPrompts', (req, res) => {
+  const promptDir = path.join(__dirname, 'public', 'uploads', 'prompts');
+  fs.readdir(promptDir, (err, files) => {
+    if (err) {
+      return res.status(500).json({ error: 'Error reading prompt directory' });
+    }
+    const markdownFiles = files.filter(file => file.endsWith('.md'));
+    const descriptions = {};
+    markdownFiles.forEach(file => {
+      const content = fs.readFileSync(path.join(promptDir, file), 'utf8');
+      const descriptionMatch = content.match(/### Description\s*\n\s*\*(.*?)\./s);
+      descriptions[file.replace('.md', '')] = descriptionMatch ? descriptionMatch[1] : 'No description available';
+    });
+    res.json({ files: markdownFiles, descriptions });
+  });
+});
+
+// Endpoint to get a specific prompt's details
+app.post('/setPrompt', (req, res) => {
+  const { chosenPrompt } = req.body;
+  const promptFile = path.join(__dirname, 'public', 'uploads', 'prompts', `${chosenPrompt}.md`);
+  
+  fs.readFile(promptFile, 'utf8', (err, data) => {
+    if (err) {
+      return res.status(500).json({ error: 'Error reading prompt file' });
+    }
+    const promptData = parsePromptMarkdown(data);
+    res.json({ prompt: promptData });
+  });
+});
+
+// Function to parse prompt markdown file
+function parsePromptMarkdown(content) {
+  const nameMatch = content.match(/## \*\*(.*?)\*\*/);
+  const descriptionMatch = content.match(/### Description\s*\n\s*\*(.*?)\./s);
+  const bodyMatch = content.match(/#### Instructions\s*\n(.*?)\n##### Conversation starters/s);
+  
+  return {
+    name: nameMatch ? nameMatch[1] : 'No name found',
+    description: descriptionMatch ? descriptionMatch[1] : 'No description available',
+    body: bodyMatch ? bodyMatch[1] : 'No instructions available'
+  };
+}
 
 let conversationHistory = [];
 
 // Function to read instructions from the file using fs promises
 async function readInstructionsFile() {
   try {
+    let instructions;
       // Adjust the path if your folder structure is different
-      const instructions = await fs.promises.readFile('./public/instructions.md', 'utf8');
+      if (customPrompt) {
+        // file path goes to the the prompt file name we get from that separate async function
+        // sets instructions equal to the contents of that file
+      } else {
+        instructions = await fs.promises.readFile('./public/instructions.md', 'utf8');
+      }
       return instructions;
   } catch (error) {
       console.error('Error reading instructions file:', error);
