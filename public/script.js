@@ -1282,6 +1282,7 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
       const summariesButton = document.getElementById('summariesButton');
       const copyPromptButton = document.getElementById('copyPromptButton');
       let summariesOnly = true;
+      let currentSelectedPrompt = null;
 
       // Fetch the list of chats from the backend and display them in the sidebar
       async function fetchChatList() {
@@ -1307,7 +1308,7 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
           const response = await fetch('/listPrompts');
           const data = await response.json();
           const promptList = document.getElementById('promptList');
-          const promptDescriptions = data.descriptions;
+          // const promptDescriptions = data.descriptions;
 
           promptList.innerHTML = data.files.map(file => {
             let fileNameWithoutExt = file.replace('.md', '');
@@ -1324,8 +1325,19 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
             item.addEventListener('mouseover', (event) => {
               showCustomTooltip(promptDescriptions[event.currentTarget.getAttribute('data-prompt')], event.currentTarget);
             });
+            item.addEventListener('mouseout', () => {
+              customTooltip.style.display = 'none';
+            });
           });
 
+          // Add event listeners for prompt selection and copy buttons
+          document.querySelectorAll('#promptList li a').forEach(item => {
+            item.addEventListener('click', handlePromptSelection);
+        });
+        document.querySelectorAll('.copyPromptButton').forEach(button => {
+          button.addEventListener('click', handleCopyPrompt);
+      });
+          /*
           // Add event listeners for copy prompt buttons
           document.querySelectorAll('.copyPromptButton').forEach(button => {
             button.addEventListener('click', async (event) => {
@@ -1353,12 +1365,13 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
               }
             });
           });
+          */
 
         } catch (error) {
           console.error('Error fetching prompt list:', error);
         }
       }
-
+      
       // Handle chat selection
       document.getElementById('chatList').addEventListener('click', async (event) => {
         if (event.target.tagName === 'A') {
@@ -1389,6 +1402,54 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
       });
 
       // Handle prompt selection
+    async function handlePromptSelection(event) {
+      event.preventDefault();
+      const promptName = event.target.getAttribute('data-prompt');
+      currentSelectedPrompt = promptName;
+      
+      try {
+          const promptResponse = await fetch('/setPrompt', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ chosenPrompt: promptName })
+          });
+
+          const promptData = await promptResponse.json();
+
+          if (promptData.prompt) {
+              displayMessage(promptData.prompt.body, 'response', false);
+          } else {
+              console.error('Prompt not found.');
+          }
+      } catch (error) {
+          console.error('Error setting prompt:', error);
+      }
+  }
+
+  // Handle copy prompt
+  async function handleCopyPrompt(event) {
+      const promptName = event.target.getAttribute('data-prompt');
+      try {
+          const response = await fetch('/copyPrompt', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ chosenPrompt: promptName })
+          });
+          
+          if (response.ok) {
+              event.target.textContent = 'Copied!';
+              setTimeout(() => {
+                  event.target.textContent = 'Copy';
+              }, 1000);
+          } else {
+              throw new Error('Copy failed');
+          }
+      } catch (error) {
+          console.error('Error copying prompt:', error);
+      }
+  }
+      /*
+      // Handle prompt selection
       document.getElementById('promptList').addEventListener('click', async (event) => {
         if (event.target.tagName === 'A') {
           event.preventDefault();
@@ -1414,6 +1475,7 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
           }
         }
       });
+      */
 
       // Toggle sidebar visibility
       toggleArrow.addEventListener('click', () => {
@@ -1453,6 +1515,7 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
         }
       });
 
+      /*
       // Handle copy prompt button click
       // IMPORTANT: I think this is irrelevant now???
       copyPromptButton.addEventListener('click', async () => {
@@ -1474,6 +1537,14 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
           console.error('Error copying prompt:', error);
         }
       });
+      */
+
+      // Function to set instructions from prompt
+    function setInstructionsFromPrompt(promptBody) {
+      // This function will be called when a prompt is selected
+      console.log("Setting instructions:", promptBody);
+      // You can implement any additional logic here to handle the new instructions
+  }
 
       
 

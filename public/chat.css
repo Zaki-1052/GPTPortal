@@ -565,10 +565,30 @@ body {
 #promptList li {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 5px 10px; /* Add some padding to list items */
 }
 
+#promptList li a {
+  flex-grow: 1;
+  text-align: left;
+}
+
 #promptList li button.copyPromptButton {
-  margin-right: 10px;
   font-size: 12px;
+  padding: 2px 5px;
+  margin-left: 5px;
+}
+
+#custom-tooltip {
+  display: none;
+  position: absolute;
+  background-color: #333;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  z-index: 1002;
+  max-width: 200px;
+  word-wrap: break-word;
 }

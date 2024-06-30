@@ -329,52 +329,74 @@ let continueConv = false;
 let chosenChat = '';
 let summariesOnly = true; // Default to summaries only
 let customPrompt = false;
+let chosenPrompt = '';
+
 
 // Endpoint to list available prompts
-app.get('/listPrompts', (req, res) => {
-  const promptDir = path.join(__dirname, 'public', 'uploads', 'prompts');
-  fs.readdir(promptDir, (err, files) => {
-    if (err) {
-      return res.status(500).json({ error: 'Error reading prompt directory' });
-    }
-    const markdownFiles = files.filter(file => file.endsWith('.md'));
-    const descriptions = {};
-    markdownFiles.forEach(file => {
-      const content = fs.readFileSync(path.join(promptDir, file), 'utf8');
-      const descriptionMatch = content.match(/### Description\s*\n\s*\*(.*?)\./s);
-      descriptions[file.replace('.md', '')] = descriptionMatch ? descriptionMatch[1] : 'No description available';
-    });
-    res.json({ files: markdownFiles, descriptions });
-  });
+app.get('/listPrompts', async (req, res) => {
+  try {
+      const promptDir = path.join(__dirname, 'public', 'uploads', 'prompts');
+      const files = fs.readdirSync(promptDir);
+      const markdownFiles = files.filter(file => file.endsWith('.md'));
+      
+      const descriptions = {};
+      for (const file of markdownFiles) {
+          const content = fs.readFileSync(path.join(promptDir, file), 'utf8');
+          const descriptionMatch = content.match(/### Description\s*\n\s*\*(.*?)\./s);
+          descriptions[file.replace('.md', '')] = descriptionMatch ? descriptionMatch[1] : 'No description available';
+      }
+      
+      res.json({ files: markdownFiles, descriptions });
+  } catch (error) {
+      console.error('Error reading prompt directory:', error);
+      res.status(500).json({ error: 'Error reading prompt directory' });
+  }
 });
 
 // Endpoint to get a specific prompt's details
-app.post('/setPrompt', (req, res) => {
+app.post('/setPrompt', async (req, res) => {
   const { chosenPrompt } = req.body;
   const promptFile = path.join(__dirname, 'public', 'uploads', 'prompts', `${chosenPrompt}.md`);
   
-  fs.readFile(promptFile, 'utf8', (err, data) => {
-    if (err) {
-      return res.status(500).json({ error: 'Error reading prompt file' });
-    }
-    const promptData = parsePromptMarkdown(data);
-    res.json({ prompt: promptData });
-  });
+  try {
+      const data = fs.readFileSync(promptFile, 'utf8');
+      const promptData = parsePromptMarkdown(data);
+      res.json({ prompt: promptData });
+  } catch (error) {
+      console.error('Error reading prompt file:', error);
+      res.status(500).json({ error: 'Error reading prompt file' });
+  }
+});
+
+// Endpoint to handle copying the prompt
+app.post('/copyPrompt', async (req, res) => {
+  try {
+      const { chosenPrompt } = req.body;
+      customPrompt = true;
+      instructions = await readInstructionsFile(chosenPrompt);
+      // Here you can implement any additional logic to handle the copied prompt
+      // For example, you might want to save it to a different file or update a database
+      res.json({ success: true, instructions });
+  } catch (error) {
+      console.error('Error copying prompt:', error);
+      res.status(500).json({ error: 'Error copying prompt' });
+  }
 });
 
 // Function to parse prompt markdown file
 function parsePromptMarkdown(content) {
+  console.log(content);
   const nameMatch = content.match(/## \*\*(.*?)\*\*/);
   const descriptionMatch = content.match(/### Description\s*\n\s*\*(.*?)\./s);
   const bodyMatch = content.match(/#### Instructions\s*\n(.*?)\n##### Conversation starters/s);
   
   return {
-    name: nameMatch ? nameMatch[1] : 'No name found',
-    description: descriptionMatch ? descriptionMatch[1] : 'No description available',
-    body: bodyMatch ? bodyMatch[1] : 'No instructions available'
+      name: nameMatch ? nameMatch[1] : 'No name found',
+      description: descriptionMatch ? descriptionMatch[1] : 'No description available',
+      body: bodyMatch ? bodyMatch[1].trim() : 'No instructions available'
   };
 }
-
+/*
 // Endpoint to handle copying the prompt
 app.post('/copyPrompt', async (req, res) => {
   try {
@@ -387,19 +409,23 @@ app.post('/copyPrompt', async (req, res) => {
     res.status(500).json({ error: 'Error copying prompt' });
   }
 });
+*/
 
 let conversationHistory = [];
 let instructions;
 
 // Function to read instructions from the file using fs promises
-async function readInstructionsFile() {
+async function readInstructionsFile(promptName) {
   try {
-    const promptFile = path.join(__dirname, 'public', 'uploads', 'prompts', `${chosenPrompt}.md`);
       // Adjust the path if your folder structure is different
       if (customPrompt) {
         // file path goes to the the prompt file name we get from that separate async function
         // sets instructions equal to the contents of that file
-        instructions = await fs.promises.readFile(promptFile, 'utf8');
+        // instructions = await fs.promises.readFile(promptFile, 'utf8');
+        const promptFile = path.join(__dirname, 'public', 'uploads', 'prompts', `${promptName}.md`);
+        const content = fs.readFileSync(promptFile, 'utf8');
+        const parsedContent = parsePromptMarkdown(content);
+        return parsedContent.body;
       } else {
         instructions = await fs.promises.readFile('./public/instructions.md', 'utf8');
       }
@@ -525,7 +551,7 @@ app.post('/setChat', async (req, res) => {
 // Endpoint to list chat files
 app.get('/listChats', (req, res) => {
   const folderPath = path.join(__dirname, 'public/uploads/chats');
-  fs.readdir(folderPath, (err, files) => {
+  fs.readdirSync(folderPath, (err, files) => {
     if (err) {
       console.error('Error reading chat files:', err);
       res.status(500).json({ message: 'Failed to list chat files', error: err.message });
@@ -687,11 +713,16 @@ async function returnTitle(history) {
     return completion.choices[0].message.content.trim().replace(/ /g, '_');
   }
 
+  try {
   title = await generateTitle();
 
   if (title.length > maxLength) {
     title = 'chat_history';
   }
+} catch (error) {
+  console.error("Error generating title:", error);
+  title = "chat_history";
+}
 
   return title;
 }
@@ -708,15 +739,19 @@ async function titleChat(history, tokens, cost) {
   });
   */
 
-
-  summary = await openai.chat.completions.create({
+  try {
+    const summaryCompletion = await openai.chat.completions.create({
     model: 'gpt-3.5-turbo-0125',
     messages: [
       { role: 'system', content: 'You will be shown the contents of a conversation between a Human and an AI Assistant. Please summarize this chat in a brief paragraph consisting of no more than 4-6 sentences. Ignore the System Message and focus solely on the User-AI interaction. This description will be appended to the chat file for the user and AI to reference. Keep it extremely concise but thorough, shortly covering all important context necessary to retain.' },
       { role: 'user', content: history }
     ]
   });
-  summary = summary.choices[0].message.content;
+  summary = summaryCompletion.choices[0].message.content;
+  } catch (error) {
+    console.error("Error generating summary:", error);
+    summary = "No summary could be generated.";
+  }
 
   // Extract the title from the response
   title = await returnTitle(history);
@@ -1064,7 +1099,7 @@ async function initializeClaudeInstructions() {
 
 // Call this function when the server starts
 
-
+/*
 let prompt;
 
 async function loadPrompts() {
@@ -1080,6 +1115,7 @@ async function loadPrompts() {
 }
 
 loadPrompts();
+*/
 
 // file upload
 
