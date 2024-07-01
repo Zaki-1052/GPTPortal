@@ -1,0 +1,97 @@
+/* styles.css */
+
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    color: #e0e0e0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: auto; /* Prevents overflow */
+}
+
+/* Container */
+.container {
+    background-color: #1e1e1e;
+    padding: 20px 40px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    overflow-y: auto; /* Enables vertical scroll if needed */
+}
+
+/* Form */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Form Group */
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #bbbbbb;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    border-color: #007bff;
+}
+
+/* Button */
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Link */
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Completion Message */
+.completion-message {
+    margin: 20px auto;
+    max-width: 600px;
+    padding: 10px;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    color: #e0e0e0;
+}

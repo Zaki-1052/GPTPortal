@@ -97,21 +97,30 @@ app.get('/setup', (req, res) => {
 });
 
 app.post('/setup', (req, res) => {
-  const { username, password, openaiApiKey, googleApiKey, mistralApiKey, claudeApiKey } = req.body;
+  const { username, password, openaiApiKey, claudeApiKey, googleApiKey, mistralApiKey, qroqApiKey, openrouterApiKey, codestralApiKey } = req.body;
 
   let envContent = `USER_USERNAME=${username}\nUSER_PASSWORD=${password}\n`;
 
   if (openaiApiKey) {
     envContent += `OPENAI_API_KEY=${openaiApiKey}\n`;
   }
-  if (googleApiKey) {
-    envContent += `GOOGLE_API_KEY=${googleApiKey}\n`;
-  }
-  if (mistralApiKey) {
-    envContent += `MISTRAL_API_KEY=${mistralApiKey}\n`;
-  }
   if (claudeApiKey) {
     envContent += `CLAUDE_API_KEY=${claudeApiKey}\n`;
+  }
+  if (googleApiKey) {
+      envContent += `GOOGLE_API_KEY=${googleApiKey}\n`;
+  }
+  if (mistralApiKey) {
+      envContent += `MISTRAL_API_KEY=${mistralApiKey}\n`;
+  }
+  if (qroqApiKey) {
+      envContent += `QROQ_API_KEY=${qroqApiKey}\n`;
+  }
+  if (openrouterApiKey) {
+      envContent += `OPENROUTER_API_KEY=${openrouterApiKey}\n`;
+  }
+  if (codestralApiKey) {
+      envContent += `CODESTRAL_API_KEY=${codestralApiKey}\n`;
   }
 
   fs.writeFileSync('.env', envContent);
