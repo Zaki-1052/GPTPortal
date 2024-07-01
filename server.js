@@ -214,19 +214,37 @@ app.post('/transcribe', upload.single('audio'), async (req, res) => {
     // Create FormData and append the uploaded file
     const formData = new FormData();
     formData.append('file', fs.createReadStream(uploadedFilePath), req.file.filename);
-    formData.append('model', 'whisper-1');
+    let transcriptionResponse;
+    if (process.env.QROQ_API_KEY) {
+      formData.append('model', 'whisper-large-v3');
 
-    // API request
-    const transcriptionResponse = await axios.post(
-      'https://api.openai.com/v1/audio/transcriptions',
-      formData,
-      { 
-        headers: { 
-          ...formData.getHeaders(),
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` 
-        } 
-      }
-    );
+      // API request
+      transcriptionResponse = await axios.post(
+        'https://api.groq.com/openai/v1/audio/transcriptions',
+        formData,
+        { 
+          headers: { 
+            ...formData.getHeaders(),
+            'Authorization': `Bearer ${process.env.QROQ_API_KEY}` 
+          } 
+        }
+      );
+    } else {
+      formData.append('model', 'whisper-1');
+
+      // API request
+      transcriptionResponse = await axios.post(
+        'https://api.openai.com/v1/audio/transcriptions',
+        formData,
+        { 
+          headers: { 
+            ...formData.getHeaders(),
+            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` 
+          } 
+        }
+      );
+    }
+    
 
     // Cleanup: delete the temporary file
     fs.unlinkSync(uploadedFilePath);
