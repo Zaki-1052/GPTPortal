@@ -257,7 +257,13 @@
     <button id="send-button">Send</button>
     <div class="custom-select" id="mode-selector">Assistants Mode</div>
     <div id="upload-status"></div>
+  <!-- New slider HTML -->
+  <div id="temperature-slider-container">
+    <label for="temperature-slider">Adjust Temperature:</label>
+    <input type="range" id="temperature-slider" min="0" max="2" step="0.1" value="1">
+    <span id="temperature-value">1.0</span>
   </div>
+</div>
     <button id="edit-instructions-btn" class="custom-select">Edit Instructions</button>
   <div id="edit-instructions-container" style="display:none;">
     <textarea id="instructions-content" rows="10" cols="80"></textarea>

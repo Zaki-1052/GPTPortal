@@ -20,6 +20,10 @@ app.use(cors());
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 
+let temperature = process.env.TEMPERATURE ? parseFloat(process.env.TEMPERATURE) : 1;
+
+console.log(`The current temperature is: ${temperature}`);
+
 // openai
 /*
 const OpenAI = require('openai').default;
@@ -1788,6 +1792,24 @@ app.post('/message', async (req, res) => {
   const image_url = req.body.image; // This will now be an URL
   console.log("Received request with size: ", JSON.stringify(req.body).length);
   isAssistants = false;
+  temperature = req.body.temperature;
+  if (process.env.TEMPERATURE) {
+    const parsedTemp = parseFloat(process.env.TEMPERATURE);
+    if (!isNaN(parsedTemp)) {
+      temperature = parsedTemp;
+    } else {
+      console.error('Invalid TEMPERATURE value in .env file. Using default.');
+      if (req.temperature) {
+        temperature = req.body.temperature;
+      } else {
+        temperature = 1;
+      }
+    }
+  } else if (req.body.temperature) {
+    temperature = req.body.temperature;
+  } else {
+    temperature = 1;
+  }
  // Check for shutdown command
 if (user_message === "Bye!") {
   console.log("Shutdown message received. Exporting chat and closing server...");
@@ -1965,7 +1987,7 @@ if (modelID === 'gpt-4') {
 
       messages: conversationHistory, // Includes the System Prompt, previous queries and responses, and your most recently sent message.
 
-      temperature: 0.8, // Controls randomness: Lowering results in less random completions. 
+      temperature: temperature, // Controls randomness: Lowering results in less random completions. 
       // As the temperature approaches zero, the model will become deterministic and repetitive.
       
       // top_p: 1,  // Controls diversity via nucleus sampling: 0.5 means half of all likelihood-weighted options are considered.
@@ -2057,7 +2079,7 @@ if (modelID === 'gpt-4') {
         // New data structure for Claude model
         model: modelID,
         max_tokens: 4000,
-        temperature: 1,
+        temperature: temperature,
         system: claudeInstructions,
         messages: claudeHistory,
       };

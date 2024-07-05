@@ -2117,7 +2117,8 @@ async function uploadImageAndGetUrl(imageFile) {
             modelID: currentModelID,
             instructions: instructions,
             file: fileUrl, // Existing image handling for OpenAI
-            initialize: isFirstMessage
+            initialize: isFirstMessage,
+            temperature: temperature
           };
           endpoint = `${baseURL}/assistant`; // OpenAI endpoint
         } else {
@@ -2136,12 +2137,14 @@ async function uploadImageAndGetUrl(imageFile) {
             modelID: currentModelID,
             instructions: instructions,
             image: imageUrl, // Existing image handling for OpenAI
-            file: fileUrl
+            file: fileUrl,
+            temperature: temperature
           };
           endpoint = `${baseURL}/message`; // OpenAI endpoint
         }
       }
         try {
+          console.log(payload);
           const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
@@ -2168,7 +2171,7 @@ async function uploadImageAndGetUrl(imageFile) {
             // Response from GPT API, expected to have a 'text' property
             messageContent = data.text || 'No response received.';
           }
-
+          console.log()
           displayMessage(messageContent, 'response', isVoiceTranscription); // Display the response in the chat box
           isVoiceTranscription = false; // Reset the flag for the next message
         } catch (error) {
@@ -2487,3 +2490,61 @@ async function readInstructionsFile() {
 }
 
 */
+
+let temperature = 1;
+// Assuming temperature is already declared globally
+document.addEventListener('DOMContentLoaded', function() {
+  // Assuming temperature is already declared globally
+
+  const sliderContainer = document.getElementById('temperature-slider-container');
+  
+  if (!sliderContainer) {
+    // If the container doesn't exist, create it
+    const container = document.createElement('div');
+    container.id = 'temperature-slider-container';
+    document.getElementById('chat-container').appendChild(container);
+  }
+
+  // Create or select the slider
+  let slider = document.getElementById('temperature-slider');
+  if (!slider) {
+    slider = document.createElement('input');
+    slider.type = 'range';
+    slider.id = 'temperature-slider';
+    slider.min = '0';
+    slider.max = '2';
+    slider.step = '0.1';
+    slider.value = temperature;
+    sliderContainer.appendChild(slider);
+  }
+
+  // Create or select the value display
+  let valueDisplay = document.getElementById('temperature-value');
+  if (!valueDisplay) {
+    valueDisplay = document.createElement('span');
+    valueDisplay.id = 'temperature-value';
+    sliderContainer.appendChild(valueDisplay);
+  }
+
+  // Set initial value
+  valueDisplay.textContent = temperature.toFixed(1);
+
+  // Add event listener to slider
+  slider.addEventListener('input', function() {
+    temperature = parseFloat(this.value);
+    valueDisplay.textContent = temperature.toFixed(1);
+    
+    // Update slider color based on value
+    const percentage = (temperature - 0) / (2 - 0) * 100;
+    const color = percentage < 50 
+      ? `rgb(${percentage * 2.55}, ${255}, 0)` 
+      : `rgb(255, ${255 - (percentage - 50) * 5.1}, 0)`;
+    
+    this.style.backgroundColor = color;
+    valueDisplay.style.color = color;
+
+    console.log('Temperature updated:', temperature); // Debug log
+  });
+
+  console.log('Temperature slider initialized'); // Debug log
+});

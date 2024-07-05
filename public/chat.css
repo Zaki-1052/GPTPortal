@@ -592,3 +592,40 @@ body {
   max-width: 200px;
   word-wrap: break-word;
 }
+
+#temperature-slider-container {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#temperature-slider {
+  width: 200px;
+  margin: 10px 0;
+}
+
+#temperature-slider::-webkit-slider-runnable-track {
+  background: linear-gradient(to right, blue, green, red);
+  height: 5px;
+  border-radius: 2.5px;
+}
+
+#temperature-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  background-color: #4CAF50;
+  cursor: pointer;
+  border-radius: 50%;
+  margin-top: -5px;
+}
+
+#temperature-value {
+  font-weight: bold;
+  font-size: 16px;
+  color: #4CAF50;
+  transition: color 0.3s;
+}
