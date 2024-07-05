@@ -436,13 +436,15 @@ body {
   top: 0;
   left: 0;
   height: 100%;
-  background-color: #2c2c2c; /* Dark mode background */
-  color: #fff; /* Dark mode text color */
-  overflow-x: auto;
-  overflow-y: auto; /* Enable vertical scroll if content overflows */
+  background-color: #2c2c2c;
+  color: #fff;
+  overflow-x: hidden;
+  overflow-y: auto;
   padding-top: 10px;
   transition: 0.3s;
-  z-index: 1000; /* Ensure sidebar is above other elements */
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
 }
 
 #sidebar a {
@@ -478,10 +480,7 @@ body {
 }
 
 #summariesButton {
-  position: absolute;
-  bottom: 20px;
-  left: 10px;
-  width: calc(100% - 20px);
+  width: 100%;
   background-color: #4CAF50;
   color: white;
   border: none;
@@ -490,24 +489,31 @@ body {
   text-decoration: none;
   display: block;
   font-size: 16px;
-  margin: 4px 2px;
   cursor: pointer;
   border-radius: 12px;
-  }
+}
 
 #summariesButton:hover {
   background-color: #45a049;
 }
 
 #chatList {
-  list-style-type: none; /* Remove bullet points */
+  flex-grow: 1;
+  overflow-y: auto;
+  list-style-type: none;
   font-size: 9px;
+  padding: 0;
+  margin: 0;
 }
+
 
 #chatList li {
-  padding: 5px 10px; /* Add some padding to list items */
+  padding: 5px 10px;
 }
 
+#summariesButtonContainer {
+  padding: 10px;
+}
 /* Styles for the hidden sidebar */
 #promptBar {
   display: none;
@@ -589,7 +595,7 @@ body {
   border-radius: 4px;
   font-size: 14px;
   z-index: 1002;
-  max-width: 200px;
+  max-width: 1000px;
   word-wrap: break-word;
 }
 
@@ -602,7 +608,7 @@ body {
 }
 
 #temperature-slider {
-  width: 200px;
+  width: 100%;
   margin: 10px 0;
 }
 
@@ -625,7 +631,7 @@ body {
 
 #temperature-value {
   font-weight: bold;
-  font-size: 16px;
+  font-size: 18px;
   color: #4CAF50;
   transition: color 0.3s;
 }
