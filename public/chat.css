@@ -54,7 +54,7 @@ body {
 }
 
 #send-button {
-  width: 90px;
+  width: 92px;
   padding: 10px 15px;
   background-color: #1a73e8; /* Google blue for the button */
   border: none;
@@ -155,9 +155,10 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Shadow effect */
   align-content: center; /* Center align the container */
   display: block; /* Ensure it's a block-level element */
-  width: 15%; /* Or any specific width */
+  width: 14%; /* Or any specific width */
   margin-left: auto;
   margin-right: auto;
+  font-size: 15.8px;
 }
 
 #edit-instructions-btn {
@@ -605,33 +606,59 @@ body {
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  font-size: 16px;
+  outline: none;
 }
 
 #temperature-slider {
   width: 100%;
   margin: 10px 0;
+  height: 40px; /* Increase the height of the slider */
+  -webkit-appearance: none;
+  background: transparent;
 }
 
 #temperature-slider::-webkit-slider-runnable-track {
   background: linear-gradient(to right, blue, green, red);
-  height: 5px;
+  height: 22px; /* Increased from 20px */
   border-radius: 2.5px;
 }
 
 #temperature-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  appearance: none;
-  width: 15px;
-  height: 15px;
+  width: 26px;
+  height: 26px;
+  background-color: blue;
+  cursor: pointer;
+  border-radius: 25%;
+  margin-top: -2px;
+  -webkit-appearance: none;
+  background-color: var(--thumb-color, blue);
+}
+
+#temperature-slider::-moz-range-thumb {
+  width: 30px;
+  height: 30px;
   background-color: #4CAF50;
   cursor: pointer;
-  border-radius: 50%;
-  margin-top: -5px;
+  border-radius: 100%;
+}
+
+#temperature-slider::-ms-thumb {
+  width: 30px;
+  height: 30px;
+  background-color: #4CAF50;
+  cursor: pointer;
+  border-radius: 100%;
 }
 
 #temperature-value {
   font-weight: bold;
-  font-size: 18px;
+  font-size: 22px;
   color: #4CAF50;
   transition: color 0.3s;
+}
+
+#temperature-slider:focus {
+  outline: none;
 }

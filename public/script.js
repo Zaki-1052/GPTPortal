@@ -2540,8 +2540,9 @@ document.addEventListener('DOMContentLoaded', function() {
       ? `rgb(${percentage * 2.55}, ${255}, 0)` 
       : `rgb(255, ${255 - (percentage - 50) * 5.1}, 0)`;
     
-    this.style.backgroundColor = color;
+    // this.style.backgroundColor = color;
     valueDisplay.style.color = color;
+    this.style.setProperty('--thumb-color', color);
 
     console.log('Temperature updated:', temperature); // Debug log
   });
