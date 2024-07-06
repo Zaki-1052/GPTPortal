@@ -430,7 +430,6 @@ body {
 
 /* Styles for the hidden sidebar */
 #sidebar {
-  display: none;
   width: 300px;
   position: fixed;
   top: 0;
@@ -444,6 +443,7 @@ body {
   transition: 0.3s;
   z-index: 1000;
   display: flex;
+  display: none;
   flex-direction: column;
 }
 
