@@ -74,4 +74,4 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
 
 // TODO: Rewrite Documentation
 
-**IMPORTANT**: To view the old documentation (which is still applicable to v2), please see the [**Old Documentation Here**](public/oldDocs.md).
+**IMPORTANT**: To view the old documentation (which is still applicable to v2), please see the [**Old Documentation Here**](public/uploads/oldDocs.md).
