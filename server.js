@@ -742,7 +742,7 @@ async function returnTitle(history) {
   // Function to generate a title
   async function generateTitle() {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-4o-mini',
       temperature: 0.4,
       max_tokens: 10,
       messages: [
@@ -781,7 +781,7 @@ async function titleChat(history, tokens, cost) {
 
   try {
     const summaryCompletion = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo-0125',
+    model: 'gpt-4o-mini',
     messages: [
       { role: 'system', content: 'You will be shown the contents of a conversation between a Human and an AI Assistant. Please summarize this chat in a brief paragraph consisting of no more than 4-6 sentences. Ignore the System Message and focus solely on the User-AI interaction. This description will be appended to the chat file for the user and AI to reference. Keep it extremely concise but thorough, shortly covering all important context necessary to retain.' },
       { role: 'user', content: history }
