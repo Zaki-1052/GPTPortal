@@ -70,6 +70,9 @@ fetchConfig();
     "Llama 3.1 70B": "llama-3.1-70b-versatile",
     "Llama 3.1 405B": "llama-3.1-405b-reasoning",
     // Open Router Models
+    "Meta: Llama 3.1 70B Instruct": "meta-llama/llama-3.1-70b-instruct",
+    "Meta: Llama 3.1 8B Instruct": "meta-llama/llama-3.1-8b-instruct",
+    "Meta: Llama 3.1 405B Instruct": "meta-llama/llama-3.1-405b-instruct",
     "Dolphin Llama 3 70B \ud83d\udc2c": "cognitivecomputations/dolphin-llama-3-70b",
     "Mistral: Codestral Mamba": "mistralai/codestral-mamba",
     "Mistral: Mistral Nemo": "mistralai/mistral-nemo",
@@ -283,6 +286,9 @@ fetchConfig();
     "llama-3.1-70b-versatile": "Llama 3.1 70B",
     "llama-3.1-405b-reasoning": "Llama 3.1 405B",
     // Open Router Models
+    "meta-llama/llama-3.1-70b-instruct": "Meta: Llama 3.1 70B Instruct",
+    "meta-llama/llama-3.1-8b-instruct": "Meta: Llama 3.1 8B Instruct",
+    "meta-llama/llama-3.1-405b-instruct": "Meta: Llama 3.1 405B Instruct",
     "cognitivecomputations/dolphin-llama-3-70b": "Dolphin Llama 3 70B \ud83d\udc2c",
     "mistralai/codestral-mamba": "Mistral: Codestral Mamba",
     "mistralai/mistral-nemo": "Mistral: Mistral Nemo",
@@ -618,7 +624,7 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       "gpt-4o": "GPT-4o: Latest OpenAI Intelligent Model",
       "gpt-4-32k": "GPT-4-32k: Longer Context Window — Higher Price",
       "gpt-4-turbo": "GPT-4-Turbo: ChatGPT-Plus Model — 128k Tokens",
-      "gpt-3.5-turbo-0125": "GPT-3.5-Turbo: Cheapest Option Available",
+      "gpt-3.5-turbo-0125": "GPT-3.5-Turbo: Older Cheap Option",
       "claude-3-5-sonnet-20240620": "Most Advanced Anthropic Model",
       "gemini-pro": "Gemini-Pro: Google Bard Model — 3.5 Equivalent",
       "gemini-pro-vision": "Gemini-Vision: View Images — One-Time Use",
@@ -626,7 +632,7 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       "gemini-1.5-flash": "Gemini-Flash-1.5: Fastest & Cheapest Google Model",
       "gemini-1.0-ultra": "Gemini-Ultra: Largest Google Model — Unreleased",
       "claude-3-opus-20240229": "Claude-Opus: Very Powerful — GPT-4 Level",
-      "claude-3-sonnet-20240229": "Claude-Sonnet: Hard-Working — 3.5 Level",
+      "claude-3-sonnet-20240229": "Claude-Sonnet: Hard-Working — Turbo Level",
       "claude-3-haiku-20240307": "Claude-Haiku: Light, Cheap, & Fast — New",
       "claude-2.1": "Claude-2.1: Best Instant Model — 200k Tokens",
       "claude-2.0": "Claude-2.0: Average Cheap Model — 100k Tokens",
@@ -644,7 +650,12 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       "open-codestral-mamba": "Codestral Mamba: A Mamba 2 language model specialized in code generation",
       "mathstral-temp-id": "Mathstral: A math-specific 7B model designed for math reasoning and scientific tasks",
       "open-mistral-nemo": "Mistral NeMo: A 12B model built in partnership with Nvidia, easy to use and a drop-in replacement for Mistral 7B",
+      "gpt-4o-mini": "GPT-4o-Mini: Small, fast, and cheap model from OpenAI with relatively high intelligence.",
+      "mixtral-8x7b-32768": "Qroq API: Free Mixtral 8x7b",
       // open router models
+    "meta-llama/llama-3.1-70b-instruct": "Meta's latest class of model (Llama 3.1) launched with a variety of sizes & flavors. This 70B instruct-tuned version is optimized for high quality dialogue usecases.\n\nIt has demonstrated strong performance compared to leading closed-source models in human evaluations.\n\nTo read more about the model release, [click here](https://ai.meta.com/blog/meta-llama-3/). Usage of this model is subject to [Meta's Acceptable Use Policy](https://llama.meta.com/llama3/use-policy/).",
+    "meta-llama/llama-3.1-8b-instruct": "Meta's latest class of model (Llama 3.1) launched with a variety of sizes & flavors. This 8B instruct-tuned version is fast and efficient.\n\nIt has demonstrated strong performance compared to leading closed-source models in human evaluations.\n\nTo read more about the model release, [click here](https://ai.meta.com/blog/meta-llama-3/). Usage of this model is subject to [Meta's Acceptable Use Policy](https://llama.meta.com/llama3/use-policy/).",
+    "meta-llama/llama-3.1-405b-instruct": "The highly anticipated 400B class of Llama3 is here! Clocking in at 128k context with impressive eval scores, the Meta AI team continues to push the frontier of open-source LLMs.\n\nMeta's latest class of model (Llama 3.1) launched with a variety of sizes & flavors. This 405B instruct-tuned version is optimized for high quality dialogue usecases.\n\nIt has demonstrated strong performance compared to leading closed-source models in human evaluations.\n\nTo read more about the model release, [click here](https://ai.meta.com/blog/meta-llama-3/). Usage of this model is subject to [Meta's Acceptable Use Policy](https://llama.meta.com/llama3/use-policy/).",
     "cognitivecomputations/dolphin-llama-3-70b": "Dolphin 2.9 is designed for instruction following, conversational, and coding. This model is a fine-tune of [Llama 3 70B](/models/meta-llama/llama-3-70b-instruct). It demonstrates improvements in instruction, conversation, coding, and function calling abilities, when compared to the original.\n\nUncensored and is stripped of alignment and bias, it requires an external alignment layer for ethical use. Users are cautioned to use this highly compliant model responsibly, as detailed in a blog post about uncensored models at [erichartford.com/uncensored-models](https://erichartford.com/uncensored-models).\n\nUsage of this model is subject to [Meta's Acceptable Use Policy](https://llama.meta.com/llama3/use-policy/).",
     "mistralai/codestral-mamba": "A 7.3B parameter Mamba-based model designed for code and reasoning tasks.\n\n- Linear time inference, allowing for theoretically infinite sequence lengths\n- 256k token context window\n- Optimized for quick responses, especially beneficial for code productivity\n- Performs comparably to state-of-the-art transformer models in code and reasoning tasks\n- Available under the Apache 2.0 license for free use, modification, and distribution",
     "mistralai/mistral-nemo": "A 12B parameter model with a 128k token context length built by Mistral in collaboration with NVIDIA.\n\nThe model is multilingual, supporting English, French, German, Spanish, Italian, Portuguese, Chinese, Japanese, Korean, Arabic, and Hindi.\n\nIt supports function calling and is released under the Apache 2.0 license.",
@@ -999,6 +1010,9 @@ document.getElementById('model-claude-3.5-sonnet').addEventListener('mouseover',
 // select open router models lol
 
 // Event listeners for additional models
+document.getElementById('open-router-model-meta-llama-llama-3.1-70b-instruct').addEventListener('click', () => selectModel('meta-llama/llama-3.1-70b-instruct'));
+document.getElementById('open-router-model-meta-llama-llama-3.1-8b-instruct').addEventListener('click', () => selectModel('meta-llama/llama-3.1-8b-instruct'));
+document.getElementById('open-router-model-meta-llama-llama-3.1-405b-instruct').addEventListener('click', () => selectModel('meta-llama/llama-3.1-405b-instruct'));
 document.getElementById('open-router-model-cognitivecomputations-dolphin-llama-3-70b').addEventListener('click', () => selectModel('cognitivecomputations/dolphin-llama-3-70b'));
 document.getElementById('open-router-model-mistralai-codestral-mamba').addEventListener('click', () => selectModel('mistralai/codestral-mamba'));
 document.getElementById('open-router-model-mistralai-mistral-nemo').addEventListener('click', () => selectModel('mistralai/mistral-nemo'));
@@ -1175,6 +1189,9 @@ document.getElementById('open-router-model-openai-gpt-3.5-turbo-0125').addEventL
 document.getElementById('open-router-model-openai-gpt-3.5-turbo').addEventListener('click', () => selectModel('openai/gpt-3.5-turbo'));
 
 // event listeners for descrptions
+document.getElementById('open-router-model-meta-llama-llama-3.1-70b-instruct').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions['meta-llama/llama-3.1-70b-instruct'], event.currentTarget));
+document.getElementById('open-router-model-meta-llama-llama-3.1-8b-instruct').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions['meta-llama/llama-3.1-8b-instruct'], event.currentTarget));
+document.getElementById('open-router-model-meta-llama-llama-3.1-405b-instruct').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions['meta-llama/llama-3.1-405b-instruct'], event.currentTarget));
 document.getElementById('open-router-model-cognitivecomputations-dolphin-llama-3-70b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions['cognitivecomputations/dolphin-llama-3-70b'], event.currentTarget));
 document.getElementById('open-router-model-mistralai-codestral-mamba').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions['mistralai/codestral-mamba'], event.currentTarget));
 document.getElementById('open-router-model-mistralai-mistral-nemo').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions['mistralai/mistral-nemo'], event.currentTarget));
