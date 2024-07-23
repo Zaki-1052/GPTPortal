@@ -446,6 +446,7 @@ body {
   display: flex;
   display: none;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 #sidebar a {
