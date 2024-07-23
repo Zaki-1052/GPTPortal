@@ -1156,12 +1156,12 @@ async function initializeClaudeInstructions() {
   if (continueConv) {
     if (summariesOnly) {
       const contextAndSummary = await continueConversation(chosenChat);
-      systemMessage += `\n---\n${contextAndSummary}`;
+      claudeInstructions += `\n---\n${contextAndSummary}`;
     } else {
-      systemMessage = await continueConversation(chosenChat);
+      claudeInstructions = await continueConversation(chosenChat);
     }
   }
-  return systemMessage;
+  return claudeInstructions;
 }
 
 // Call this function when the server starts
