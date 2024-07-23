@@ -1407,7 +1407,7 @@ async function exportAssistantsChat() {
 
   chatType = 'assistant';
   const tokens = await tokenizeHistory(chatHistory, modelID, chatType);
-  console.log("Total Tokens: ", tokens);
+  console.log("Total Tokens: ", tokens.totalTokens);
   const cost = await calculateCost(tokens, modelID);
   console.log("Total Cost: ", cost);
   

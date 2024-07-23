@@ -75,3 +75,42 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
 // TODO: Rewrite Documentation
 
 **IMPORTANT**: To view the old documentation (which is still applicable to v2), please see the [**Old Documentation Here**](public/uploads/oldDocs.md).
+
+### Model Pricing Table
+
+| Model                 | Input Cost per Million Tokens | Output Cost per Million Tokens |
+|-----------------------|-------------------------------|--------------------------------|
+| gpt-4                 | $30.00                        | $60.00                         |
+| gpt-4-turbo           | $10.00                        | $30.00                         |
+| gpt-4o                | $5.00                         | $15.00                         |
+| gpt-4o-mini           | $0.15                         | $0.60                          |
+| gpt-3.5-turbo-0125    | $0.50                         | $1.50                          |
+| claude-3-5-sonnet-20240620 | $3.00                      | $15.00                         |
+| claude-3-sonnet-20240229 | $3.00                      | $15.00                         |
+| claude-3-opus-20240229 | $15.00                        | $75.00                         |
+| claude-3-haiku-20240307 | $0.25                         | $1.25                          |
+| claude-2.1            | $8.00                         | $24.00                         |
+| claude-2.0            | $8.00                         | $24.00                         |
+| claude-instant-1.2    | $0.80                         | $2.40                          |
+| open-mistral-7b       | $0.25                         | $0.25                          |
+| open-mixtral-8x7b     | $0.70                         | $0.70                          |
+| open-mixtral-8x22b    | $2.00                         | $6.00                          |
+| mistral-small-2402    | $1.00                         | $3.00                          |
+| codestral-2405        | $1.00                         | $3.00                          |
+| mistral-medium-2312   | $2.70                         | $8.10                          |
+| mistral-large-2402    | $4.00                         | $12.00                         |
+| open-mistral-nemo     | $0.30                         | $0.30                          |
+| open-codestral-mamba  | $0.25                         | $0.25                          |
+
+#### Free Models
+
+The following models have no cost for input or output tokens:
+
+- gemini-pro
+- gemini-pro-vision
+- gemini-1.5-pro
+- gemini-1.5-flash
+- llama3-70b-8192
+- llama3-8b-8192
+- gemma-7b-it
+- mixtral-8x7b-32768
