@@ -727,7 +727,7 @@ app.post('/setSummariesOnly', (req, res) => {
     <div class="summary">
       <h3>Summary</h3>
       <p>Total Tokens: ${tokens.totalTokens}</p>
-      <p>Total Cost: $${cost.toFixed(6)}</p>
+      <p>Total Cost: ¢${cost.toFixed(6)}</p>
       <p>Summary: ${summary}</p>
     </div>
   </body></html>`;
@@ -736,7 +736,7 @@ app.post('/setSummariesOnly', (req, res) => {
 }
 
 let summary = '';
-let maxLength = 250; // Maximum length for a filename in most filesystems
+let maxLength = 200;
 
 async function returnTitle(history) {
   // Function to generate a title
@@ -803,7 +803,7 @@ async function titleChat(history, tokens, cost) {
   // Define the full file path
   const filePath = path.join(folderPath, `${title}.txt`);
   let chatText;
-  chatText = `${history}\n---\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $${cost.toFixed(6)}\n\n-----\n\nCONTEXT: Above, you may be shown a conversation between the User -- a Human -- and an AI Assistant (yourself). If not, a summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
+  chatText = `${history}\n---\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: ¢${cost.toFixed(6)}\n\n-----\n\nCONTEXT: Above, you may be shown a conversation between the User -- a Human -- and an AI Assistant (yourself). If not, a summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
   /*
   if (summariesOnly) {
     console.log("summaries only ")
@@ -944,6 +944,9 @@ async function calculateCost(tokens, model) {
   } else if (model === 'gpt-4o') {
       inputCostPerMillion = 5.00;
       outputCostPerMillion = 15.00;
+  } else if (model === 'gpt-4o-mini') {
+    inputCostPerMillion = 0.150;
+    outputCostPerMillion = 0.600;
   } else if (model === 'gpt-3.5-turbo-0125') {
       inputCostPerMillion = 0.50;
       outputCostPerMillion = 1.50;
@@ -983,6 +986,12 @@ async function calculateCost(tokens, model) {
   } else if (model === 'mistral-large-2402') {
       inputCostPerMillion = 4.00;
       outputCostPerMillion = 12.00;
+  } else if (model === 'open-mistral-nemo') {
+    inputCostPerMillion = 0.3;
+    outputCostPerMillion = 0.3;
+  } else if (model === 'open-codestral-mamba') {
+    inputCostPerMillion = 0.25;
+    outputCostPerMillion = 0.25;
   } else if (model === 'gemini-pro') {
       inputCostPerMillion = 0;
       outputCostPerMillion = 0;
@@ -1030,12 +1039,13 @@ async function calculateCost(tokens, model) {
     }
   }
 
-  inputCostPerMillion = 5.00;
+  inputCostPerMillion = 0.600;
   let extraCost = (tokens.totalTokens / 1000000) * inputCostPerMillion;
   extraCost * 2;
 
 
   totalCost += extraCost;
+  totalCost *= 100;
 
   return totalCost;
 }
@@ -1459,7 +1469,7 @@ async function exportAssistantsChat() {
     <div class="summary">
       <h3>Summary</h3>
       <p>Total Tokens: ${tokens.totalTokens}</p>
-      <p>Total Cost: $${cost.toFixed(6)}</p>
+      <p>Total Cost: ¢${cost.toFixed(6)}</p>
       <p>Summary: ${summary}</p>
     </div>
   </body></html>`;

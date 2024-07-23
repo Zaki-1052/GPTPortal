@@ -65,7 +65,7 @@ fetchConfig();
     "GPT-4o-Mini": "gpt-4o-mini",
     "Codestral-Mamba": "open-codestral-mamba",
     "Mathstral": "mathstral-temp-id",
-    "Mistral-NeMo": "open-mistral-nemo-latest",
+    "Mistral-NeMo": "open-mistral-nemo",
     // Open Router Models
     "Auto (best for prompt)": "openrouter/auto",
     "Flavor of The Week": "openrouter/flavor-of-the-week",
@@ -280,7 +280,7 @@ fetchConfig();
     "gpt-4o-mini": "GPT-4o-Mini",
     "open-codestral-mamba": "Codestral-Mamba",
     "mathstral-temp-id": "Mathstral",
-    "open-mistral-nemo-latest": "Mistral-NeMo",
+    "open-mistral-nemo": "Mistral-NeMo",
     // Open Router Models
     "openrouter/auto": "Auto (best for prompt)",
     "openrouter/flavor-of-the-week": "Flavor of The Week",
@@ -647,7 +647,7 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       "gemma-7b-it": "Smallest Open-Source Google Model",
       "open-codestral-mamba": "Codestral Mamba: A Mamba 2 language model specialized in code generation",
       "mathstral-temp-id": "Mathstral: A math-specific 7B model designed for math reasoning and scientific tasks",
-      "open-mistral-nemo-latest": "Mistral NeMo: A 12B model built in partnership with Nvidia, easy to use and a drop-in replacement for Mistral 7B",
+      "open-mistral-nemo": "Mistral NeMo: A 12B model built in partnership with Nvidia, easy to use and a drop-in replacement for Mistral 7B",
       // open router models
     "openrouter/auto": "Depending on their size, subject, and complexity, your prompts will be sent to [Mistral Large](/models/mistralai/mistral-large), [Claude 3.5 Sonnet (self-moderated)](/models/anthropic/claude-3.5-sonnet:beta) or [GPT-4o](/models/openai/gpt-4o).  To see which model was used, visit [Activity](/activity).\n\nA major redesign of this router is coming soon. Stay tuned on [Discord](https://discord.gg/fVyRaUDgxW) for updates.",
     "openrouter/flavor-of-the-week": "This is a router model that rotates its underlying model weekly. It aims to be a simple way to explore the capabilities of new models while using the same model ID.\n\nThe current underlying model is [Llama 3 Stheno 8B v3.3 32K](/models/sao10k/l3-stheno-8b).\n\nNOTE: Pricing depends on the underlying model as well as the provider routed to. To see which model and provider were used, visit [Activity](/activity).",
@@ -954,11 +954,11 @@ document.getElementById('model-mistral-large').addEventListener('mouseover', (ev
 
 document.getElementById('model-codestral-mamba').addEventListener('click', () => selectModel('open-codestral-mamba'));
 document.getElementById('model-mathstral').addEventListener('click', () => selectModel('mathstral-temp-id'));
-document.getElementById('model-mistral-nemo').addEventListener('click', () => selectModel('open-mistral-nemo-latest'));
+document.getElementById('model-mistral-nemo').addEventListener('click', () => selectModel('open-mistral-nemo'));
 
 document.getElementById('model-codestral-mamba').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["open-codestral-mamba"], event.currentTarget));
 document.getElementById('model-mathstral').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mathstral-temp-id"], event.currentTarget));
-document.getElementById('model-mistral-nemo').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["open-mistral-nemo-latest"], event.currentTarget));
+document.getElementById('model-mistral-nemo').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["open-mistral-nemo"], event.currentTarget));
 
 // Event listeners for selecting Claude models
 document.getElementById('model-claude-opus').addEventListener('click', () => selectModel('claude-3-opus-20240229'));
