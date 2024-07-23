@@ -1016,7 +1016,18 @@ async function calculateCost(tokens, model) {
   } else if (model === 'mixtral-8x7b-32768') {
       inputCostPerMillion = 0;
       outputCostPerMillion = 0;
+  } else if (model === 'llama-3.1-405b-reasoning') {
+      inputCostPerMillion = 0;
+      outputCostPerMillion = 0;
+  } else if (model === 'llama-3.1-70b-versatile') {
+      inputCostPerMillion = 0;
+      outputCostPerMillion = 0;
+  } else if (model === 'llama-3.1-8b-instant') {
+      inputCostPerMillion = 0;
+      outputCostPerMillion = 0;
   } else {
+      inputCostPerMillion = 0;
+      outputCostPerMillion = 0;
       throw new Error(`Unknown model: ${model}.`);
   }
 
@@ -1982,6 +1993,16 @@ let tokens = 4000;
 if (modelID === 'gpt-4') {
   tokens = 6000; // If 'modelID' is 'gpt-4', set 'tokens' to 6000
 }
+
+if (modelID === 'gpt-4o-mini') {
+  tokens = 1200; // If 'modelID' is 'gpt-4', set 'tokens' to 6000
+}
+
+
+if (modelID.startsWith('llama-3.1')) {
+  tokens = 8000;
+}
+
 
 
 // Model Parameters Below!

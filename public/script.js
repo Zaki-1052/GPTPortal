@@ -66,6 +66,9 @@ fetchConfig();
     "Codestral-Mamba": "open-codestral-mamba",
     "Mathstral": "mathstral-temp-id",
     "Mistral-NeMo": "open-mistral-nemo",
+    "Llama 3.1 8B": "llama-3.1-8b-instant",
+    "Llama 3.1 70B": "llama-3.1-70b-versatile",
+    "Llama 3.1 405B": "llama-3.1-405b-reasoning",
     // Open Router Models
     "Dolphin Llama 3 70B \ud83d\udc2c": "cognitivecomputations/dolphin-llama-3-70b",
     "Mistral: Codestral Mamba": "mistralai/codestral-mamba",
@@ -276,6 +279,9 @@ fetchConfig();
     "open-codestral-mamba": "Codestral-Mamba",
     "mathstral-temp-id": "Mathstral",
     "open-mistral-nemo": "Mistral-NeMo",
+    "llama-3.1-8b-instant": "Llama 3.1 8B",
+    "llama-3.1-70b-versatile": "Llama 3.1 70B",
+    "llama-3.1-405b-reasoning": "Llama 3.1 405B",
     // Open Router Models
     "cognitivecomputations/dolphin-llama-3-70b": "Dolphin Llama 3 70B \ud83d\udc2c",
     "mistralai/codestral-mamba": "Mistral: Codestral Mamba",
@@ -965,9 +971,17 @@ document.getElementById('model-claude-1.2').addEventListener('mouseover', (event
 document.getElementById('model-llama-70b').addEventListener('click', () => selectModel('llama3-70b-8192'));
 document.getElementById('model-llama-8b').addEventListener('click', () => selectModel('llama3-8b-8192'));
 
+document.getElementById('model-llama-3.1-8b').addEventListener('click', () => selectModel('llama-3.1-8b-instant'));
+document.getElementById('model-llama-3.1-70b').addEventListener('click', () => selectModel('llama-3.1-70b-versatile'));
+document.getElementById('model-llama-3.1-405b').addEventListener('click', () => selectModel('llama-3.1-405b-reasoning'));
+
 // Event listeners for showing Llama3 model descriptions on hover
 document.getElementById('model-llama-70b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["llama3-70b-8192"], event.currentTarget));
 document.getElementById('model-llama-8b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["llama3-8b-8192"], event.currentTarget));
+
+document.getElementById('model-llama-3.1-8b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["llama-3.1-8b-instant"], event.currentTarget));
+document.getElementById('model-llama-3.1-70b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["llama-3.1-8b-instant"], event.currentTarget));
+document.getElementById('model-llama-3.1-405b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["llama-3.1-8b-instant"], event.currentTarget));
 
 // gemma it via qroq
 document.getElementById('model-gemma-it').addEventListener('click', () => selectModel('gemma-7b-it'));
