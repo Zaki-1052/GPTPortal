@@ -1417,15 +1417,7 @@ async function exportAssistantsChat() {
   const systemMessageHtml = systemMessage ? convertMarkdownToHtml(systemMessage) : '';
 
   chatType = 'assistant';
-  const tokens = await tokenizeHistory(chatHistory, modelID, chatType);
-  console.log("Total Tokens: ", tokens.totalTokens);
-  const cost = await calculateCost(tokens, modelID);
-  console.log("Total Cost: ", cost);
   
-  // Generate title and save chat history
-  const { title, summary } = await titleChat(chatHistory, tokens, cost);
-  console.log(`Title: ${title}`);
-  console.log(`Summary: ${summary}`);
 
   console.log("Assistant History: ", JSON.stringify(messages, null, 2));
 
@@ -1438,6 +1430,16 @@ async function exportAssistantsChat() {
   // Prepend assistant ID, thread ID, and run ID to the chatHistory
   let chatHistory = `ASSISTANT ID: ${assistantId}\nTHREAD ID: ${threadId}\nRUN ID: ${runId}\n\n`;
   chatHistory += systemMessage ? `SYSTEM: ${systemMessage}\n` : '';
+
+  const tokens = await tokenizeHistory(chatHistory, modelID, chatType);
+  console.log("Total Tokens: ", tokens.totalTokens);
+  const cost = await calculateCost(tokens, modelID);
+  console.log("Total Cost: ", cost);
+  
+  // Generate title and save chat history
+  const { title, summary } = await titleChat(chatHistory, tokens, cost);
+  console.log(`Title: ${title}`);
+  console.log(`Summary: ${summary}`);
 
   let htmlContent = `
   <html>
