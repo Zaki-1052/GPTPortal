@@ -2202,14 +2202,14 @@ if (modelID.startsWith('llama-3.1')) {
           console.log("Assistant Response: ", lastMessageContent)
 
           if (modelID.startsWith('claude')) {
+            conversationHistory.push({ role: "assistant", content: '<assistant_response>' });
             claudeHistory.push({ role: "assistant", content: lastMessageContent[0].text });
+            conversationHistory.push({ role: "assistant", content: '</ssistant_response>' });
             console.log("Claude History");
             res.json({ text: lastMessageContent[0].text });
           } else {
             // Add assistant's message to the conversation history
-            conversationHistory.push({ role: "assistant", content: '<assistant_response>' });
             conversationHistory.push({ role: "assistant", content: lastMessageContent });
-            conversationHistory.push({ role: "assistant", content: '</ssistant_response>' });
             console.log("Conversation History");
             // Send this back to the client
             res.json({ text: lastMessageContent });
