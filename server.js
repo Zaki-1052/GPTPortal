@@ -683,10 +683,10 @@ app.post('/setSummariesOnly', (req, res) => {
 // Convert chat history to a string for title generation
 const savedHistory = chatHistory.map(entry => {
   let formattedEntry = '';
-  
+
   if (entry.role === 'system') {
     formattedEntry = `System: ${entry.content}\n`;
-  } else if (entry.role === 'human' || entry.role === 'assistant') {
+  } else if (entry.role === 'user' || entry.role === 'assistant') {
     const role = entry.role.charAt(0).toUpperCase() + entry.role.slice(1);
     if (Array.isArray(entry.content)) {
       formattedEntry = `${role}: ${entry.content.map(item => {
@@ -701,7 +701,7 @@ const savedHistory = chatHistory.map(entry => {
       formattedEntry = `${role}: ${entry.content}\n`;
     }
   }
-  
+
   return formattedEntry;
 }).join('\n');
 
@@ -2207,7 +2207,9 @@ if (modelID.startsWith('llama-3.1')) {
             res.json({ text: lastMessageContent[0].text });
           } else {
             // Add assistant's message to the conversation history
+            conversationHistory.push({ role: "assistant", content: '<assistant_response>' });
             conversationHistory.push({ role: "assistant", content: lastMessageContent });
+            conversationHistory.push({ role: "assistant", content: '</ssistant_response>' });
             console.log("Conversation History");
             // Send this back to the client
             res.json({ text: lastMessageContent });
