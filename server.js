@@ -661,15 +661,6 @@ app.post('/setSummariesOnly', (req, res) => {
 
   console.log("Chat History: ", JSON.stringify(chatHistory, null, 2));
 
-  // Convert chat history to a string for title generation
-  const savedHistory = chatHistory.map(entry => {
-    if (Array.isArray(entry.content)) {
-      return entry.content.map(item => item.type === 'text' ? item.text : '').join(' ');
-    } else if (typeof entry.content === 'string') {
-      return entry.content;
-    }
-    return '';
-  }).join('\n');
 
   // console.log(savedHistory);
 
@@ -678,6 +669,43 @@ app.post('/setSummariesOnly', (req, res) => {
   console.log("Total Tokens: ", tokens);
   const cost = await calculateCost(tokens, modelID);
   console.log("Total Cost: ", cost);
+
+  if (isClaudeChat) {
+    console.log("Redefining the system prompt for html.");
+    chatHistory = [...claudeHistory];
+    chatHistory.unshift({
+      role: 'system',
+      content: 'Claude AI: You are a helpful and intelligent AI assistant, knowledgeable about a wide range of topics and highly capable of a great many tasks.'
+    });
+  }
+
+
+// Convert chat history to a string for title generation
+const savedHistory = chatHistory.map(entry => {
+  let formattedEntry = '';
+  
+  if (entry.role === 'system') {
+    formattedEntry = `System: ${entry.content}\n`;
+  } else if (entry.role === 'human' || entry.role === 'assistant') {
+    const role = entry.role.charAt(0).toUpperCase() + entry.role.slice(1);
+    if (Array.isArray(entry.content)) {
+      formattedEntry = `${role}: ${entry.content.map(item => {
+        if (item.type === 'text') {
+          return item.text;
+        } else if (item.type === 'image_url') {
+          return `[Image: ${item.image_url.url}]`;
+        }
+        return '';
+      }).join(' ')}\n`;
+    } else if (typeof entry.content === 'string') {
+      formattedEntry = `${role}: ${entry.content}\n`;
+    }
+  }
+  
+  return formattedEntry;
+}).join('\n');
+
+
   // Generate title and save chat history
   const { title, summary } = await titleChat(savedHistory, tokens, cost);
   console.log(`Title: ${title}`);
@@ -699,17 +727,7 @@ app.post('/setSummariesOnly', (req, res) => {
       </style>
     </head>
     <body>
-  `;
-
-  // Add this block right before the forEach loop that generates the HTML content
-  if (isClaudeChat) {
-    console.log("Redefining the system prompt for html.");
-    chatHistory = [...claudeHistory];
-    chatHistory.unshift({
-      role: 'system',
-      content: 'Claude AI'
-    });
-  }
+  `;  
 
 
   chatHistory.forEach(entry => {
@@ -1170,7 +1188,7 @@ async function initializeClaudeInstructions() {
       const contextAndSummary = await continueConversation(chosenChat);
       claudeInstructions += `\n---\n${contextAndSummary}`;
     } else {
-      claudeInstructions = await continueConversation(chosenChat);
+      claudeInstructions += await continueConversation(chosenChat);
     }
   }
   return claudeInstructions;
