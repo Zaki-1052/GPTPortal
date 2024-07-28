@@ -27,13 +27,8 @@ let currentModelID;
 async function fetchDefaultModel() {
   try {
     const response = await fetch('/model');
-    
     const data = await response.json();
-    if (data) {
-      currentModelID = data.model;
-    } else {
-      currentModelID = 'gpt-4o';
-    }
+    currentModelID = data.model;
   } catch (error) {
     console.error('Error fetching default model:', error);
   }

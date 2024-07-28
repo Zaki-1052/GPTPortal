@@ -2383,6 +2383,8 @@ app.get('/model', (req, res) => {
   
   if (defaultModel) {
     res.json({ model: defaultModel });
+  } else {
+    res.json({ model: 'gpt-4o' });
   }
 });
 
