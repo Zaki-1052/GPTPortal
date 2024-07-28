@@ -2377,6 +2377,15 @@ app.get('/config', (req, res) => {
   }
 });
 
+// Route to send the default model to the frontend
+app.get('/model', (req, res) => {
+  const defaultModel = process.env.DEFAULT_MODEL;
+  
+  if (defaultModel) {
+    res.json({ model: defaultModel });
+  }
+});
+
 app.use(cors({
   origin: '*'
 }));

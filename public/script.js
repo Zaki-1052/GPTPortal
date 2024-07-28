@@ -21,6 +21,26 @@ async function fetchConfig() {
 
 fetchConfig();
 
+let currentModelID;
+
+
+async function fetchDefaultModel() {
+  try {
+    const response = await fetch('/model');
+    
+    const data = await response.json();
+    if (data) {
+      currentModelID = data.model;
+    } else {
+      currentModelID = 'gpt-4o';
+    }
+  } catch (error) {
+    console.error('Error fetching default model:', error);
+  }
+}
+
+fetchDefaultModel();
+
 
   // detects safari browser
 
@@ -471,7 +491,7 @@ fetchConfig();
 // Default model functionality
   function setDefaultModel() {
   let selectedModelDiv = document.getElementById("selected-model");
-  let defaultModel = "gpt-4o";
+  let defaultModel = currentModelID;
 
   // Check if a model has been selected, if not, set to default model ID and update display
   if (selectedModelDiv.textContent.trim() === "Select a Model") {
@@ -479,8 +499,6 @@ fetchConfig();
     selectedModelDiv.textContent = customModelNames[defaultModel]; // Update display to show default model name
   }
 }
-
-let currentModelID = 'gpt-4o';
 
 let selectedImage = null;
 
