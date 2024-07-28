@@ -2345,7 +2345,7 @@ app.post('/shutdown-server', (req, res) => {
 app.set('trust proxy', true);
 
 app.get('*', (req, res, next) => {
-  if (req.path === '/portal' || req.path === '/config') {
+  if (req.path === '/portal' || req.path === '/config' || req.path === '/model') {
     next();
   } else {
     res.redirect('/portal');
