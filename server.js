@@ -138,7 +138,7 @@ app.get('/portal', (req, res) => {
 
 // Redirect all other routes (except for '/config' and '/setup') to '/portal'
 app.get('*', (req, res, next) => {
-  if (req.path === '/portal' || req.path === '/config') {
+  if (req.path === '/portal' || req.path === '/config' || req.path === '/model') {
     next();
   } else {
     res.redirect('/portal');
