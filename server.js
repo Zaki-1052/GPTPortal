@@ -642,6 +642,7 @@ app.post('/setSummariesOnly', (req, res) => {
   let containsAssistantMessage = conversationHistory.some(entry => entry.role === 'assistant');
 
   let chatHistory;
+  let isClaudeChat = false;
   if (containsAssistantMessage) {
       console.log("Using GPT conversation history because it's non-empty.");
       chatHistory = conversationHistory;
@@ -652,6 +653,7 @@ app.post('/setSummariesOnly', (req, res) => {
         role: 'system',
         content: claudeInstructions
       });
+      isClaudeChat = true;
   }
 
   // Log the determined chatHistory
@@ -698,6 +700,16 @@ app.post('/setSummariesOnly', (req, res) => {
     </head>
     <body>
   `;
+
+  // Add this block right before the forEach loop that generates the HTML content
+  if (isClaudeChat) {
+    console.log("Redefining the system prompt for html.");
+    chatHistory = [...claudeHistory];
+    chatHistory.unshift({
+      role: 'system',
+      content: 'Claude AI'
+    });
+  }
 
 
   chatHistory.forEach(entry => {
