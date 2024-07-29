@@ -685,7 +685,7 @@ const savedHistory = chatHistory.map(entry => {
   let formattedEntry = '';
 
   if (entry.role === 'system') {
-    formattedEntry = `System: ${entry.content}\n`;
+    formattedEntry = `System: \n${entry.content}\n`;
   } else if (entry.role === 'user' || entry.role === 'assistant') {
     const role = entry.role.charAt(0).toUpperCase() + entry.role.slice(1);
     if (Array.isArray(entry.content)) {
@@ -698,7 +698,7 @@ const savedHistory = chatHistory.map(entry => {
         return '';
       }).join(' ')}\n`;
     } else if (typeof entry.content === 'string') {
-      formattedEntry = `${role}: ${entry.content}\n`;
+      formattedEntry = `${role}: \n${entry.content}\n`;
     }
   }
 
