@@ -1,0 +1,271 @@
+System: 
+You are a helpful and intelligent AI assistant, knowledgeable about a wide range of topics and highly capable of a great many tasks.
+ Specifically:
+ # Instructions
+
+## You are **GPT-4**, an advanced *Large Language Model* trained by *OpenAI*
+
+- Knowledge cutoff: 2023-10
+- Current date: 2024-09
+  - Image input capabilities: **Enabled**
+
+Latex (inline): \( \)
+Latex (block): \[ \]
+
+The user provided the following information about themselves in a **User Profile**.
+**Only** acknowledge the *Profile* when the request is *directly related* to the information provided.
+
+## User Profile
+
+- 19M UCSD Y1 Student CA USA
+- Biology: Bioinformatics Major
+- Resourceful+Advanced Committed Learning
+- Tech-Savvy M1 Air MacOS Power-User
+- Know CLI, Homebrew, GitHub, etc.
+- Passions: BioTech Med Research, Genetics, CompSci/AI
+- Goals: Succeed+Grades
+- Classes: MATH-Calc, BILD-LabWork, MCWP-Writing, EDS-DEI/Education, CHEM, CSE
+- Progressive Utilitarian Socialist
+- Name: Zaki
+
+## Preamble
+
+- Before you begin, *take a deep breath* and **Think Carefully**.
+- Respond to *all queries* as a **helpful assistant**, using **HIGH** Stakes Processing—*I believe in you*!
+- You **MUST** be **accurate** & able to help me get *correct answers*.
+- **Motivation**: *User will tip $10k* for best possible outputs!
+- I'm disabled/don’t have fingers, so thoughtfully written, lengthy responses are required.
+- Your **systematic** *step-by-step process* and *self-correction* via *Tree of Thoughts* will...
+  - Enhance the **quality** of responses to *complex queries*.
+- All adopted **EXPERT Roles** = *Qualified Job/Subject Authorities*.
+- Take **multiple turns**—I'll prompt you to "*Continue*".
+- **ALWAYS** comply with *directions*!
+  - If you must be reminded to follow instructions, I will say "*Reminder*!".
+    - You will then reread **ALL** guidelines & *modify your behavior* as necessary.
+- *Anticipate* my needs to best *fulfill* them (e.g. provide *full* code).
+- **Optimize** Valuable Tokens Wisely/*Efficiently*!
+- Don't be lazy—**Work Hard**!
+- **MAXIMUM EFFORT** *Needed!*
+
+*The user provided additional info about how they would like you to respond:*
+
+## **Custom Instructions**
+
+- **Tone**: *Professional/Semi-Formal*
+- **Length**: *Highest Verbosity Required*
+- **Responses**: *Detailed, thorough, in-depth, complex, sophisticated, accurate, factual, thoughtful, nuanced answers with careful precise reasoning.*
+- **Personality**: *Intelligent, logical, analytical, insightful, helpful, honest, proactive, knowledgeable, meticulous, informative, competent, motivated.*
+
+## Methods
+
+- *Always*: Assume **Roles** from a **Mixture of Experts**
+  - (e.g. Expert Java programmer/developer, Chemistry Tutor, etc.)
+    - allows you to *best complete tasks*.
+- **POV** = *Advanced Virtuoso* in queried field!
+- Set a **clear objective**
+
+### Work toward goal
+
+- Apply actions in **Chain of Thoughts**…
+  - But *Backtrack* in a **Tree of Decisions** as *needed*!
+
+### Accuracy
+
+- *Reiterate* on Responses
+- *Report* & **Correct Errors** — *Enhance Quality*!
+  - State any *uncertainty*-% confidence
+  - Skip reminders about your nature & ethical warnings; I'm aware.
+  - Remain **honest** and **direct** at *all times*.
+
+#### Avoid Average Neutrality
+
+- Vary *Multiple* Strong Opinions/Views
+- Council of *Debate/Discourse*
+- Emulate *Unique+Sophisticated* Writing Style
+
+### Verbosity Adjusted with “V=#” Notation
+
+- **V1**=*Extremely Terse*
+- **V2**=*Concise*
+- *DEFAULT*: **V3**=*Detailed!*
+- **V4**=*Comprehensive*
+- **V5**=*Exhaustive+Nuanced Detail; Maximum Depth/Breadth!*
+  - If omitted, *extrapolate*-use your best **judgment**.
+
+### Writing Style
+
+- Use **clear, direct** *language* and **avoid** *complex terminology*.
+- Maintain a **natural** but *professional* **tone**.
+- Aim for a **Flesch reading score** of *80 or higher*.
+- Use the **active voice**; *Avoid adverbs*.
+- *Avoid buzzwords* — use **plain English**.
+- Use **jargon** where *relevant*.
+- **Avoid** being *salesy* or *overly enthusiastic*; instead, express **calm confidence**.
+- **Avoid** excessive *transitions* & *repetition*.
+  - No *didactic* endings.
+- Your *writing* will thus *imitate* a **human voice** and **student** *language*.
+
+### Other
+
+- Assume **all** necessary *expert subject roles* & *length*
+- **Show** set *thoughts*
+- Lower V for simple tasks-remain **coherent**
+- Prioritize *Legibility* / **Be Readable**
+- *Summarize Conclusions*
+  - Use **Markdown**!
+
+## Tools
+
+### python
+
+When you send a message containing Python code to python, it will be executed in a stateful Jupyter notebook environment. python will respond with the output of the execution or time out after 60.0 seconds. The drive at '/mnt/data' can be used to save and persist user files.
+
+This *feature* may also be referred to as "**Code Interpreter**" or "**Advanced Data Analysis**".
+You may access and read uploaded files using this tool.
+
+## **Important**: *Be*
+
+- *Organic+Concise>Expand*
+- **Direct**-*NO* generic filler/fluff.
+- **Balance** *Complexity & Clarity*
+- **ADAPT!**
+- Use **HIGH EFFORT**!
+- *Work/Reason* **Systematically**!
+- **Always** *Think Step by Step* & *Verify Processes*!
+
+### Additional Notes
+
+- When a message starts with, "**Voice Transcription:**" it means the User spoke their query via Whisper, and your response will be read aloud.
+  - Take into account when responding; this flag means you are having a Voice Conversation.
+- The following is your **Conversation History** with the User, including *Queries* and *Responses*.
+  - **Always** consider context.
+
+*The User's first message begins here:*
+
+
+User: Write a script to automate sending daily email reports in Python, and walk me through how I would set it up step-by-step.
+
+Assistant: 
+Sure, Zaki. Let's create a Python script to automate sending daily email reports. This will involve:
+
+1. **Setting Up the Python Environment**.
+2. **Writing the Email Script**.
+3. **Scheduling the Script to Run Daily**.
+
+### Step 1: Setting Up the Python Environment
+
+1. **Install Python Packages**:
+   - Ensure you have Python installed. If not, download and install it from [python.org](https://www.python.org/).
+   - We'll use `smtplib` and `email` for sending emails and `schedule` for scheduling tasks. Install these packages using `pip`:
+
+     ```sh
+     pip install schedule
+     ```
+
+### Step 2: Writing the Email Script
+
+Let's write a Python script that sends an email with your daily report.
+
+1. **Create the Script**:
+
+   Create a file called `daily_report_emailer.py`.
+
+2. **Write the Code**:
+   
+   ```python
+   import smtplib
+   from email.mime.multipart import MIMEMultipart
+   from email.mime.text import MIMEText
+   from email.mime.base import MIMEBase
+   from email import encoders
+   import schedule
+   import time
+   from datetime import datetime
+
+   # Email details
+   EMAIL_ADDRESS = 'your_email@example.com'
+   EMAIL_PASSWORD = 'your_password'
+   RECIPIENT_EMAIL = 'recipient@example.com'
+   SUBJECT = 'Daily Report'
+
+   def send_email():
+       # Create a multipart message
+       msg = MIMEMultipart()
+       msg['From'] = EMAIL_ADDRESS
+       msg['To'] = RECIPIENT_EMAIL
+       msg['Subject'] = SUBJECT
+
+       # Email body
+       body = 'This is your daily report.'
+       msg.attach(MIMEText(body, 'plain'))
+
+       # Attach a file
+       filename = 'report.txt'  # Replace this with the path to your report file
+       attachment = open(filename, 'rb')
+       part = MIMEBase('application', 'octet-stream')
+       part.set_payload((attachment).read())
+       encoders.encode_base64(part)
+       part.add_header('Content-Disposition', f"attachment; filename= {filename}")
+
+       msg.attach(part)
+
+       # Connect to the server
+       with smtplib.SMTP('smtp.gmail.com', 587) as server: 
+           server.starttls()
+           server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+           text = msg.as_string()
+           server.sendmail(EMAIL_ADDRESS, RECIPIENT_EMAIL, text)
+           print(f"Email sent to {RECIPIENT_EMAIL} at {datetime.now()}")
+
+   # Schedule the script to run daily at a specific time, e.g., 8:00 AM
+   schedule.every().day.at("08:00").do(send_email)
+
+   if __name__ == "__main__":
+       while True:
+           schedule.run_pending()
+           time.sleep(1)
+   ```
+
+### Step 3: Scheduling the Script to Run Daily
+
+1. **Using `cron` on macOS**:
+
+   To run the script daily, you can use `cron`.
+
+   - Open your `crontab` file:
+   
+     ```sh
+     crontab -e
+     ```
+
+   - Add the following line to schedule your script to run daily at 8:00 AM:
+   
+     ```sh
+     0 8 * * * /usr/bin/python3 /path/to/your/daily_report_emailer.py
+     ```
+     Ensure `/usr/bin/python3` points to your Python executable and `/path/to/your/daily_report_emailer.py` is the correct path to your script.
+
+### Additional Considerations
+
+- **Email Security**: If using Gmail, make sure to generate an app password instead of using your regular password. Follow Google's instructions for [App Passwords](https://support.google.com/accounts/answer/185833).
+- **Alternative Scheduling**: For more complex scheduling needs, you can use advanced schedulers like `Airflow`, `Celery`, or even a cloud-based solution like AWS Lambda with EventBridge.
+
+### Summary
+
+By following these steps:
+
+1. **Set up your environment and install necessary packages.**
+2. **Write the email script to send your daily report.**
+3. **Schedule the script to run daily using `cron`.**
+
+This method automates the daily reports efficiently. If you have additional requirements or need further customization, feel free to ask!
+
+---
+Total Tokens: 2407
+Total Cost: ¢2.260920
+
+-----
+
+CONTEXT: Above, you may be shown a conversation between the User -- a Human -- and an AI Assistant (yourself). If not, a summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.
+---
+Conversation Summary: In this conversation, Zaki requested a step-by-step guide for creating a Python script to automate the daily sending of email reports. The AI assistant provided a detailed procedure that included setting up the Python environment and necessary libraries, writing a script to send emails with an attachment, and scheduling the script to run daily using `cron` on macOS. It also highlighted considerations for email security, specifically for using Gmail. The assistant concluded by summarizing the steps taken to achieve the task.
