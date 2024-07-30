@@ -93,13 +93,27 @@ def process_txt_files():
             os.remove(source_file)
 
 def move_html_files():
+    # Get a list of existing files in the destination folder
+    existing_files = set(os.path.splitext(f)[0].rsplit('-', 2)[0] for f in os.listdir(original_html_path) if f.endswith('.html'))
+
     for filename in os.listdir(html_source_path):
         if filename.endswith(".html"):
             source_file = os.path.join(html_source_path, filename)
             new_filename = format_filename(filename)
-            destination = os.path.join(original_html_path, f"{new_filename}.html")
-            shutil.copy2(source_file, destination)
-            print(f"Moved: {filename} -> {new_filename}.html")
+            
+            # Get the base name without date and extension
+            base_name = os.path.splitext(new_filename)[0].rsplit('-', 2)[0]
+            
+            # Check if a file with this base name already exists in the destination
+            if base_name not in existing_files:
+                destination = os.path.join(original_html_path, f"{new_filename}.html")
+                shutil.copy2(source_file, destination)
+                print(f"Moved: {filename} -> {new_filename}.html")
+                
+                # Add the base name to the set of existing files
+                existing_files.add(base_name)
+            else:
+                print(f"Skipped: {filename} (already exists in destination)")
 
 def main():
     # Ensure all directories exist
