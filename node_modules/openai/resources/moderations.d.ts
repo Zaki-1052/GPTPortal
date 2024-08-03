@@ -134,6 +134,7 @@ export declare namespace Moderation {
         'violence/graphic': number;
     }
 }
+export type ModerationModel = 'text-moderation-latest' | 'text-moderation-stable';
 /**
  * Represents if a given text input is potentially harmful.
  */
@@ -166,10 +167,11 @@ export interface ModerationCreateParams {
      * model. Accuracy of `text-moderation-stable` may be slightly lower than for
      * `text-moderation-latest`.
      */
-    model?: (string & {}) | 'text-moderation-latest' | 'text-moderation-stable';
+    model?: (string & {}) | ModerationModel;
 }
 export declare namespace Moderations {
     export import Moderation = ModerationsAPI.Moderation;
+    export import ModerationModel = ModerationsAPI.ModerationModel;
     export import ModerationCreateResponse = ModerationsAPI.ModerationCreateResponse;
     export import ModerationCreateParams = ModerationsAPI.ModerationCreateParams;
 }

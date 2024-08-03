@@ -1,6 +1,7 @@
 import { APIResource } from "../../resource.js";
 import * as Core from "../../core.js";
 import * as TranslationsAPI from "./translations.js";
+import * as AudioAPI from "./audio.js";
 export declare class Translations extends APIResource {
     /**
      * Translates audio into English.
@@ -20,7 +21,7 @@ export interface TranslationCreateParams {
      * ID of the model to use. Only `whisper-1` (which is powered by our open source
      * Whisper V2 model) is currently available.
      */
-    model: (string & {}) | 'whisper-1';
+    model: (string & {}) | AudioAPI.AudioModel;
     /**
      * An optional text to guide the model's style or continue a previous audio
      * segment. The

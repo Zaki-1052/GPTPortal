@@ -1,6 +1,7 @@
 import { APIResource } from "../../resource.js";
 import * as Core from "../../core.js";
 import * as TranscriptionsAPI from "./transcriptions.js";
+import * as AudioAPI from "./audio.js";
 export declare class Transcriptions extends APIResource {
     /**
      * Transcribes audio into the input language.
@@ -27,7 +28,7 @@ export interface TranscriptionCreateParams {
      * ID of the model to use. Only `whisper-1` (which is powered by our open source
      * Whisper V2 model) is currently available.
      */
-    model: (string & {}) | 'whisper-1';
+    model: (string & {}) | AudioAPI.AudioModel;
     /**
      * The language of the input audio. Supplying the input language in
      * [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format will
