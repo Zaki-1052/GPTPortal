@@ -54,7 +54,9 @@ fetchDefaultModel();
     "GPT-4-32k": "gpt-4-32k",
     "GPT-4-Turbo": "gpt-4-turbo",
     "GPT-3.5-Turbo": "gpt-3.5-turbo-0125",
-    "Claude-3.5-Sonnet": "claude-3-5-sonnet-20240620",
+    "Claude-3.5-Sonnet": "claude-3-5-sonnet-latest",
+    "GPT-o1-Mini": "o1-mini",
+    "GPT-o1-Preview": "o1-preview",
     "Gemini-Pro": "gemini-pro",
     "Gemini-Pro-Vision": "gemini-pro-vision",
     "Gemini-1.5-Pro": "gemini-1.5-pro",
@@ -270,7 +272,9 @@ fetchDefaultModel();
     "gpt-4-32k": "GPT-4-32k",
     "gpt-4-turbo": "GPT-4-Turbo",
     "gpt-3.5-turbo-0125": "GPT-3.5-Turbo",
-    "claude-3-5-sonnet-20240620": "Claude-3.5-Sonnet",
+    "claude-3-5-sonnet-latest": "Claude-3.5-Sonnet",
+    "o1-mini": "GPT-o1-Mini",
+    "o1-preview": "GPT-o1-Preview",
     "gemini-pro": "Gemini-Pro",
     "gemini-pro-vision": "Gemini-Pro-Vision",
     "gemini-1.5-pro": "Gemini-1.5-Pro",
@@ -638,7 +642,7 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       "gpt-4-32k": "GPT-4-32k: Longer Context Window — Higher Price",
       "gpt-4-turbo": "GPT-4-Turbo: ChatGPT-Plus Model — 128k Tokens",
       "gpt-3.5-turbo-0125": "GPT-3.5-Turbo: Older Cheap Option",
-      "claude-3-5-sonnet-20240620": "Most Advanced Anthropic Model",
+      "claude-3-5-sonnet-latest": "Most Advanced Anthropic Model",
       "gemini-pro": "Gemini-Pro: Google Bard Model — 3.5 Equivalent",
       "gemini-pro-vision": "Gemini-Vision: View Images — One-Time Use",
       "gemini-1.5-pro": "Gemini-Pro-1.5: Best Gemini Model — 2 Million Tokens",
@@ -929,6 +933,9 @@ document.getElementById('model-gpt-4-32k').addEventListener('click', () => selec
 document.getElementById('model-gpt-4-turbo').addEventListener('click', () => selectModel('gpt-4-turbo'));
 document.getElementById('model-gpt-3.5').addEventListener('click', () => selectModel('gpt-3.5-turbo-0125'));
 document.getElementById('model-gpt-4o-mini').addEventListener('click', () => selectModel('gpt-4o-mini'));
+document.getElementById('model-gpt-o1-preview').addEventListener('click', () => selectModel('o1-preview'));
+document.getElementById('model-gpt-o1-mini').addEventListener('click', () => selectModel('o1-mini'));
+
 
 // Event listeners for showing GPT model descriptions on hover
 document.getElementById('model-gpt-4').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["gpt-4"], event.currentTarget));
@@ -1015,8 +1022,8 @@ document.getElementById('model-codestral').addEventListener('mouseover', (event)
 document.getElementById('model-qroq-mistral-8x7b').addEventListener('click', () => selectModel('mixtral-8x7b-32768'));
 document.getElementById('model-qroq-mistral-8x7b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mixtral-8x7b-32768"], event.currentTarget));
 
-document.getElementById('model-claude-3.5-sonnet').addEventListener('click', () => selectModel('claude-3-5-sonnet-20240620'));
-document.getElementById('model-claude-3.5-sonnet').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-3-5-sonnet-20240620"], event.currentTarget));
+document.getElementById('model-claude-3.5-sonnet').addEventListener('click', () => selectModel('claude-3-5-sonnet-latest'));
+document.getElementById('model-claude-3.5-sonnet').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-3-5-sonnet-latest"], event.currentTarget));
 
 
 

@@ -451,6 +451,7 @@ app.post('/copyPrompt', async (req, res) => {
 */
 
 let conversationHistory = [];
+let o1History = [];
 let instructions;
 
 // Function to read instructions from the file using fs promises
@@ -980,7 +981,7 @@ async function calculateCost(tokens, model) {
   } else if (model === 'gpt-3.5-turbo-0125') {
       inputCostPerMillion = 0.50;
       outputCostPerMillion = 1.50;
-  } else if (model === 'claude-3-5-sonnet-20240620' || model === 'claude-3-sonnet-20240229') {
+  } else if (model === 'claude-3-5-sonnet-latest') {
       inputCostPerMillion = 3.00;
       outputCostPerMillion = 15.00;
   } else if (model === 'claude-3-opus-20240229') {
@@ -1055,6 +1056,12 @@ async function calculateCost(tokens, model) {
   } else if (model === 'llama-3.1-8b-instant') {
       inputCostPerMillion = 0;
       outputCostPerMillion = 0;
+  } else if (model === 'o1-preview') {
+      inputCostPerMillion = 15.00;
+      outputCostPerMillion = 60.00;
+  } else if (model === 'o1-mini') {
+      inputCostPerMillion = 3.00;
+      outputCostPerMillion = 12.00;
   } else {
       inputCostPerMillion = 0;
       outputCostPerMillion = 0;
@@ -2027,9 +2034,12 @@ if (modelID === 'gpt-4') {
 }
 
 if (modelID === 'gpt-4o-mini') {
-  tokens = 1200; // If 'modelID' is 'gpt-4', set 'tokens' to 6000
+  tokens = 12000;
 }
 
+if (modelID === 'gpt-4o') {
+  tokens = 12000; // If 'modelID' is 'gpt-4', set 'tokens' to 6000
+}
 
 if (modelID.startsWith('llama-3.1')) {
   tokens = 8000;
@@ -2153,7 +2163,18 @@ if (modelID.startsWith('llama-3.1')) {
         // Add any Mistral-specific headers here if necessary
       };
       apiUrl = 'https://api.anthropic.com/v1/messages';
-    }
+    } else if (modelID === 'o1-preview' || modelID === 'o1-mini') {
+      o1History.push(user_input);
+      data = {
+        model: modelID, // Use the model specified by the client
+        messages: o1History,
+      }
+      headers = {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        // 'OpenAI-Organization': 'process.env.ORGANIZATION' // Uncomment if using an organization ID
+      };
+      apiUrl = 'https://api.openai.com/v1/chat/completions';
+  }
 
     // Log the data payload just before sending it to the chosen API
     console.log("API URL", apiUrl);
