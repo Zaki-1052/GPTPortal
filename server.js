@@ -644,7 +644,10 @@ app.post('/setSummariesOnly', (req, res) => {
 
   let chatHistory;
   let isClaudeChat = false;
-  if (containsAssistantMessage) {
+  if (o1History.length > 0) {
+      console.log("Using O1 conversation history because it's non-empty.");
+      chatHistory = o1History;
+  } else if (containsAssistantMessage && conversationHistory.length > 0) {
       console.log("Using GPT conversation history because it's non-empty.");
       chatHistory = conversationHistory;
   } else {
@@ -667,7 +670,7 @@ app.post('/setSummariesOnly', (req, res) => {
 
   chatType = 'chat';
   const tokens = await tokenizeHistory(chatHistory, modelID, chatType);
-  console.log("Total Tokens: ", tokens);
+  // console.log("Total Tokens: ", tokens);
   const cost = await calculateCost(tokens, modelID);
   console.log("Total Cost: ", cost);
 
@@ -2226,6 +2229,10 @@ if (modelID.startsWith('llama-3.1')) {
             claudeHistory.push({ role: "assistant", content: lastMessageContent[0].text });
             console.log("Claude History");
             res.json({ text: lastMessageContent[0].text });
+          } else if (modelID === 'o1-preview' || modelID === 'o1-mini') {
+            o1History.push({ role: "assistant", content: lastMessageContent });
+            console.log("O1 History");
+            res.json({ text: lastMessageContent });
           } else {
             // Add assistant's message to the conversation history
             conversationHistory.push({ role: "assistant", content: lastMessageContent });
