@@ -769,6 +769,22 @@ const savedHistory = chatHistory.map(entry => {
   return htmlContent;
 }
 
+// Function to get a unique file name
+function getUniqueFilePath(basePath, baseTitle) {
+  let counter = 1;
+  let fileName = `${baseTitle}.txt`;
+  let filePath = path.join(basePath, fileName);
+
+  // Keep checking until we find a filename that doesn't exist
+  while (fs.existsSync(filePath)) {
+    counter++;
+    fileName = `${baseTitle}-${counter}.txt`;
+    filePath = path.join(basePath, fileName);
+  }
+
+  return filePath;
+}
+
 let summary = '';
 let maxLength = 200;
 
@@ -834,8 +850,11 @@ async function titleChat(history, tokens, cost) {
   // Ensure the nested folder exists
   fs.mkdirSync(folderPath, { recursive: true });
 
+  // Get a unique file path
+  const filePath = getUniqueFilePath(folderPath, title);
+
   // Define the full file path
-  const filePath = path.join(folderPath, `${title}.txt`);
+  // const filePath = path.join(folderPath, `${title}.txt`);
   let chatText;
   chatText = `${history}\n---\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: ¢${cost.toFixed(6)}\n\n-----\n\nCONTEXT: Above, you may be shown a conversation between the User -- a Human -- and an AI Assistant (yourself). If not, a summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
   /*
@@ -1557,8 +1576,10 @@ async function nameChat(chatHistory, tokens) {
   // Ensure the nested folder exists
   fs.mkdirSync(folderPath, { recursive: true });
 
+  const filePath = getUniqueFilePath(folderPath, title);
+
   // Define the full file path
-  const filePath = path.join(folderPath, `${title}.txt`);
+  // const filePath = path.join(folderPath, `${title}.txt`);
   let chatText;
   chatText = `${chatHistory}\n\nTotal Tokens: ${tokens.totalTokens}\nTotal Cost: $0.00!\n\n-----\n\nCONTEXT: Above, you may be shown a conversation between the User -- a Human -- and an AI Assistant (yourself). If not, a summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.\n---\nConversation Summary: ${summary}`;
   /*
