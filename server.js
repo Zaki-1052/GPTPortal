@@ -771,18 +771,40 @@ const savedHistory = chatHistory.map(entry => {
 
 // Function to get a unique file name
 function getUniqueFilePath(basePath, baseTitle) {
-  let counter = 1;
-  let fileName = `${baseTitle}.txt`;
-  let filePath = path.join(basePath, fileName);
-
-  // Keep checking until we find a filename that doesn't exist
-  while (fs.existsSync(filePath)) {
-    counter++;
-    fileName = `${baseTitle}-${counter}.txt`;
-    filePath = path.join(basePath, fileName);
+  // Function to sanitize the title and remove invalid characters
+  function sanitizeTitle(title) {
+    // Replace invalid characters with underscores
+    // This regex removes characters that are typically problematic in filenames
+    const sanitized = title
+      .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')  // Remove invalid Windows/Unix chars
+      .replace(/[\s]+/g, '_')                   // Replace spaces with underscore
+      .replace(/[^a-zA-Z0-9._-#@]/g, '_')        // Replace any other non-alphanumeric chars
+      .trim();
+    
+    // If sanitization results in empty string or only special chars, return default
+    return sanitized && sanitized !== '_' ? sanitized : 'Conversation_History';
   }
 
-  return filePath;
+  try {
+    // Sanitize the base title
+    const safeTitle = sanitizeTitle(baseTitle);
+    let counter = 1;
+    let fileName = `${safeTitle}.txt`;
+    let filePath = path.join(basePath, fileName);
+
+    // Keep checking until we find a filename that doesn't exist
+    while (fs.existsSync(filePath)) {
+      counter++;
+      fileName = `${safeTitle}-${counter}.txt`;
+      filePath = path.join(basePath, fileName);
+    }
+
+    return filePath;
+  } catch (error) {
+    // If any error occurs, return a safe default path
+    console.error('Error generating file path:', error);
+    return path.join(basePath, 'Conversation_History.txt');
+  }
 }
 
 let summary = '';
