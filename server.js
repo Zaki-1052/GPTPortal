@@ -1199,8 +1199,20 @@ let claudeInstructions;
 async function readClaudeFile() {
   try {
       // Adjust the path if your folder structure is different
-      const claudeFile = await fs.promises.readFile('./public/claudeInstructions.xml', 'utf8');
-      return claudeFile;
+      let claudeFile = await fs.promises.readFile('./public/claudeInstructions.xml', 'utf8');
+      // Adjust the path if your folder structure is different
+      if (customPrompt) {
+        // file path goes to the the prompt file name we get from that separate async function
+        // sets instructions equal to the contents of that file
+        // instructions = await fs.promises.readFile(promptFile, 'utf8');
+        const promptFile = path.join(__dirname, 'public', 'uploads', 'prompts', `${promptName}.md`);
+        const content = fs.readFileSync(promptFile, 'utf8');
+        const parsedContent = parsePromptMarkdown(content);
+        let customPrompt = parsedContent.body;
+        claudeFile += "\n\n <prompt> \n\n" + customPrompt + "\n\n </prompt>";
+      } else {
+        return claudeFile;
+      }
   } catch (error) {
       console.error('Error reading instructions file:', error);
       return ''; // Return empty string or handle error as needed
