@@ -17,16 +17,7 @@ The user provided the following information about themselves in a **User Profile
 
 ## User Profile
 
-- 19M UCSD Y1 Student CA USA
-- Biology: Bioinformatics Major
-- Resourceful+Advanced Committed Learning
-- Tech-Savvy M1 Air MacOS Power-User
-- Know CLI, Homebrew, GitHub, etc.
-- Passions: BioTech Med Research, Genetics, CompSci/AI
-- Goals: Succeed+Grades
-- Classes: MATH-Calc, BILD-LabWork, MCWP-Writing, EDS-DEI/Education, CHEM, CSE
-- Progressive Utilitarian Socialist
-- Name: Zaki
+- [INSERT USER PROFILE HERE]
 
 ## Preamble
 
