@@ -771,40 +771,18 @@ const savedHistory = chatHistory.map(entry => {
 
 // Function to get a unique file name
 function getUniqueFilePath(basePath, baseTitle) {
-  // Function to sanitize the title and remove invalid characters
-  function sanitizeTitle(title) {
-    // Replace invalid characters with underscores
-    // This regex removes characters that are typically problematic in filenames
-    const sanitized = title
-      .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')  // Remove invalid Windows/Unix chars
-      .replace(/[\s]+/g, '_')                   // Replace spaces with underscore
-      .replace(/[^a-zA-Z0-9._-#@]/g, '_')        // Replace any other non-alphanumeric chars
-      .trim();
-    
-    // If sanitization results in empty string or only special chars, return default
-    return sanitized && sanitized !== '_' ? sanitized : 'Conversation_History';
+  let counter = 1;
+  let fileName = `${baseTitle}.txt`;
+  let filePath = path.join(basePath, fileName);
+
+  // Keep checking until we find a filename that doesn't exist
+  while (fs.existsSync(filePath)) {
+    counter++;
+    fileName = `${baseTitle}-${counter}.txt`;
+    filePath = path.join(basePath, fileName);
   }
 
-  try {
-    // Sanitize the base title
-    const safeTitle = sanitizeTitle(baseTitle);
-    let counter = 1;
-    let fileName = `${safeTitle}.txt`;
-    let filePath = path.join(basePath, fileName);
-
-    // Keep checking until we find a filename that doesn't exist
-    while (fs.existsSync(filePath)) {
-      counter++;
-      fileName = `${safeTitle}-${counter}.txt`;
-      filePath = path.join(basePath, fileName);
-    }
-
-    return filePath;
-  } catch (error) {
-    // If any error occurs, return a safe default path
-    console.error('Error generating file path:', error);
-    return path.join(basePath, 'Conversation_History.txt');
-  }
+  return filePath;
 }
 
 let summary = '';
@@ -1893,6 +1871,48 @@ console.log(googleModel);
 
 // See closed issue on this repo for more details.
 
+// formatting claude array
+
+function parseInstructionsIntoSections(instructionsText) {
+  // Find the major section boundaries
+  const roleAssignmentEnd = instructionsText.indexOf('</role_assignment>') + '</role_assignment>'.length;
+  const claudeInfoStart = instructionsText.indexOf('<claude_info>');
+  const claudeInfoEnd = instructionsText.indexOf('</claude_info>') + '</claude_info>'.length;
+  const taskInstructionsStart = instructionsText.indexOf('<task_instructions>');
+  const methodsEnd = instructionsText.indexOf('</methods>') + '</methods>'.length;
+  const finalStart = instructionsText.indexOf('<final>');
+  
+  // Create the four main sections
+  const sections = [
+    {
+      // Section 1: From <instructions> through </role_assignment>
+      content: instructionsText.substring(0, roleAssignmentEnd)
+    },
+    {
+      // Section 2: <claude_info> section
+      content: instructionsText.substring(claudeInfoStart, claudeInfoEnd)
+    },
+    {
+      // Section 3: From <task_instructions> through </methods>
+      content: instructionsText.substring(taskInstructionsStart, methodsEnd)
+    },
+    {
+      // Section 4: From <final> through </instructions>
+      content: instructionsText.substring(finalStart)
+    }
+  ];
+
+  return sections;
+}
+
+function formatSectionsIntoSystemMessage(sections) {
+  return sections.map(section => ({
+    type: "text",
+    text: section.content,
+    cache_control: { type: "ephemeral" }
+  }));
+}
+
 
 // Handle POST request to '/message'
 
@@ -1981,10 +2001,19 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
       systemMessage = await initializeConversationHistory();
       epochs = epochs + 1;
     } else if (modelID.startsWith('claude')) {
-      systemMessage = await initializeClaudeInstructions();
+      // Get the instructions text first
+      const instructionsText = await initializeClaudeInstructions();
+      
+      // Parse the instructions into sections
+      const sections = parseInstructionsIntoSections(instructionsText);
+      
+      // Format the sections into the system message array
+      systemMessage = formatSectionsIntoSystemMessage(sections);
+      
       epochs = epochs + 1;
     }
   }
+
   
   
   // Add text content if present
@@ -2211,7 +2240,7 @@ if (modelID.startsWith('llama-3.1')) {
         model: modelID,
         max_tokens: 4000,
         temperature: temperature,
-        system: claudeInstructions,
+        system: systemMessage,
         messages: claudeHistory,
       };
       headers = {
