@@ -58,6 +58,8 @@ fetchDefaultModel();
     "Claude-3.5-Haiku": "claude-3-5-haiku-latest",
     "GPT-o1-Mini": "o1-mini",
     "GPT-o1-Preview": "o1-preview",
+    "GPT-o1": "o1",
+    "GPT-o3-Mini": "o3-mini",
     "Gemini-Pro": "gemini-pro",
     "Gemini-Pro-Vision": "gemini-pro-vision",
     "Gemini-1.5-Pro": "gemini-1.5-pro",
@@ -313,6 +315,8 @@ fetchDefaultModel();
     "claude-3-5-haiku-latest": "Claude-3.5-Haiku",
     "o1-mini": "GPT-o1-Mini",
     "o1-preview": "GPT-o1-Preview",
+    "o1": "GPT-o1",
+    "o3-mini": "GPT-o3-Mini",
     "gemini-pro": "Gemini-Pro",
     "gemini-pro-vision": "Gemini-Pro-Vision",
     "gemini-1.5-pro": "Gemini-1.5-Pro",
@@ -1045,7 +1049,9 @@ document.getElementById('model-gpt-4-turbo').addEventListener('click', () => sel
 document.getElementById('model-gpt-3.5').addEventListener('click', () => selectModel('gpt-3.5-turbo-0125'));
 document.getElementById('model-gpt-4o-mini').addEventListener('click', () => selectModel('gpt-4o-mini'));
 document.getElementById('model-gpt-o1-preview').addEventListener('click', () => selectModel('o1-preview'));
+document.getElementById('model-gpt-o1').addEventListener('click', () => selectModel('o1'));
 document.getElementById('model-gpt-o1-mini').addEventListener('click', () => selectModel('o1-mini'));
+document.getElementById('model-gpt-o3-mini').addEventListener('click', () => selectModel('o3-mini'));
 
 
 // Event listeners for showing GPT model descriptions on hover
