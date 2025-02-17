@@ -726,7 +726,7 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
       "gemini-pro-vision": "Gemini-Vision: View Images — One-Time Use",
       "gemini-1.5-pro": "Gemini-Pro-1.5: Best Gemini Model — 2 Million Tokens",
       "gemini-1.5-flash": "Gemini-Flash-1.5: Fastest & Cheapest Google Model",
-      "gemini-2.0-flash": "Gemini-Flash-2.0: Newest & Best Google Model",
+      "gemini-2.0-flash-exp": "Gemini-Flash-2.0: Newest & Best Google Model",
       "gemini-1.0-ultra": "Gemini-Ultra: Largest Google Model — Unreleased",
       "claude-3-opus-20240229": "Claude-Opus: Very Powerful — GPT-4 Level",
       "claude-3-sonnet-20240229": "Claude-Sonnet: Hard-Working — Turbo Level",
