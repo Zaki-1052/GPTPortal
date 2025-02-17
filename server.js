@@ -184,6 +184,7 @@ app.get('/uploads/:filename', (req, res) => {
   res.sendFile(filename, { root: 'public/uploads' });
 });
 
+
 app.use('/uploads', express.static('public/uploads'));
 
 // image uploads
@@ -1805,6 +1806,21 @@ async function nameChat(chatHistory, tokens) {
 // Function to convert an image URL to base64
 async function imageURLToBase64(url) {
   try {
+    console.log('imageURLToBase64 1');
+    const response = await axios.get(url, {
+      responseType: 'arraybuffer' // Ensure the image data is received in the correct format
+    });
+    return `data:image/jpeg;base64,${Buffer.from(response.data).toString('base64')}`;
+  } catch (error) {
+    console.error('Error fetching image:', error);
+    //return null; // Return null if there is an error
+  }
+}
+
+// Function to convert an image URL to base64
+async function imageURLToBase64(url) {
+  try {
+    console.log('imageURLToBase64 2');
     const response = await axios.get(url, {
       responseType: 'arraybuffer' // Ensure the image data is received in the correct format
     });
@@ -1819,7 +1835,7 @@ async function imageURLToBase64(url) {
     return `data:${contentType};base64,${base64Image}`;
   } catch (error) {
     console.error('Error fetching image:', error);
-    return null; // Return null if there is an error
+    //return null; // Return null if there is an error
   }
 }
 
@@ -1838,8 +1854,8 @@ app.post('/upload-image', upload.single('image'), async (req, res) => {
   imageName = req.file.filename;
 
   // Generate URL for the uploaded image
-  const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`; 
-
+  // const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`; 
+  const imageUrl = `${req.protocol}://${req.get('host')}/uploads${req.file.path.split('public/uploads')[1]}`;
   // Send the image URL back to the client
   res.send({ imageUrl: imageUrl });
 });
@@ -2266,6 +2282,7 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
 
   // Check for image in the payload
   if (req.body.image) {
+    console.log("Image URL received:", req.body.image);
     let base64Image;
     // If req.file is defined, it means the image is uploaded as a file
     if (req.file) {
