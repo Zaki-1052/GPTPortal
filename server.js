@@ -1830,21 +1830,6 @@ async function nameChat(chatHistory, tokens) {
   return { title, summary };
 }
 
-
-
-// Function to convert an image URL to base64
-async function imageURLToBase64(url) {
-  try {
-    const response = await axios.get(url, {
-      responseType: 'arraybuffer' // Ensure the image data is received in the correct format
-    });
-    return `data:image/jpeg;base64,${Buffer.from(response.data).toString('base64')}`;
-  } catch (error) {
-    console.error('Error fetching image:', error);
-    return null; // Return null if there is an error
-  }
-}
-
 // Function to convert an image URL to base64
 async function imageURLToBase64(url) {
   try {

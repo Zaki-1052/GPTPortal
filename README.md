@@ -4,6 +4,8 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
 
 *GPTPortal* now supports the **Anthropic Claude** and **Mistral AI** models, plus **Google Gemini** via *free* API. It *also* includes a *native* **Code Environment** via **Assistants Mode** to reuse *files* and *instructions* from OpenAI's *Beta API*! **Explore** *all* the additional features added, like *customizable* **Chat History**, **Prompt Templates**, *easy* **Setup**, and *many* more **API Providers**.
 
+**IMPORTANT**: To view the old documentation (which is still applicable to v2), please see the [**Old Documentation Here**](public/uploads/oldDocs.md).
+
 ## Table of Contents
 
 - [Features](#features)
@@ -73,8 +75,6 @@ Welcome to my **Chat-Bot Portal**, a full-featured *Node.js*-based web applicati
   - **Open Router**: *ANY* Other Models you can imagine!
 
 // TODO: Rewrite Documentation
-
-**IMPORTANT**: To view the old documentation (which is still applicable to v2), please see the [**Old Documentation Here**](public/uploads/oldDocs.md).
 
 ### Model Pricing Table
 
