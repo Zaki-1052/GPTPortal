@@ -193,18 +193,10 @@ app.use('/uploads', express.static('public/uploads'));
 const multer = require('multer');
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    let uploadPath = 'public/uploads';
-    if (file.mimetype === 'application/pdf') {
-      uploadPath += '/pdfs';
-    } else if (file.mimetype.startsWith('image/')) {
-      uploadPath += '/images';
-    } else {
-      uploadPath += '/other';
-    }
-    
+    const uploadPath = 'public/uploads';
     fs.mkdirSync(uploadPath, { recursive: true });
     cb(null, uploadPath);
-  },
+},
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     const fileExt = path.extname(file.originalname);
@@ -1854,8 +1846,8 @@ app.post('/upload-image', upload.single('image'), async (req, res) => {
   imageName = req.file.filename;
 
   // Generate URL for the uploaded image
-  // const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`; 
-  const imageUrl = `${req.protocol}://${req.get('host')}/uploads${req.file.path.split('public/uploads')[1]}`;
+  const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`; 
+  //const imageUrl = `${req.protocol}://${req.get('host')}/uploads${req.file.path.split('public/uploads')[1]}`;
   // Send the image URL back to the client
   res.send({ imageUrl: imageUrl });
 });
