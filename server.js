@@ -192,7 +192,6 @@ app.use('/uploads', express.static('public/uploads'));
 const multer = require('multer');
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // Create separate folders for different file types
     let uploadPath = 'public/uploads';
     if (file.mimetype === 'application/pdf') {
       uploadPath += '/pdfs';
@@ -202,7 +201,6 @@ const storage = multer.diskStorage({
       uploadPath += '/other';
     }
     
-    // Create directory if it doesn't exist
     fs.mkdirSync(uploadPath, { recursive: true });
     cb(null, uploadPath);
   },
@@ -214,53 +212,27 @@ const storage = multer.diskStorage({
   }
 });
 
-// File filter function
-const fileFilter = (req, file, cb) => {
-  // Accept PDFs, images, and other common file types
-  const allowedTypes = [
-    'application/pdf',
-    'image/jpeg',
-    'image/png',
-    'image/gif',
-    'image/webp',
-    'text/plain',          // Add common text files
-    'application/json',    // Add JSON
-    'text/markdown',       // Add markdown
-    'application/msword',  // Add .doc
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // Add .docx
-    // Add any other types you need
-  ];
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Invalid file type'), false);
-  }
-};
-
-// Configure multer with file size limits
-// Updated Multer configuration and middleware
+// Simplified Multer configuration
 const upload = multer({
   storage: storage,
-  fileFilter: fileFilter,
   limits: {
-    fileSize: 32 * 1024 * 1024, // 32MB (Claude's limit)
-    files: 10 // Maximum number of files per request
+    fileSize: 32 * 1024 * 1024, // 32MB
+    files: 10
   }
 });
 
-// Modify uploadMiddleware to handle both single and multiple files
+// Simplified uploadMiddleware
 const uploadMiddleware = (req, res, next) => {
-  // Default to single file upload if header isn't present
   const uploadHandler = req.get('X-Upload-Mode') === 'multiple' ? 
       upload.array('file', 10) : 
       upload.single('file');
   
   uploadHandler(req, res, (err) => {
       if (err) {
-          console.error('Upload error:', err);  // Log the actual error
+          console.error('Upload error:', err);
           return res.status(400).json({ 
               error: err.message || 'Upload failed',
-              details: err  // Include error details for debugging
+              details: err
           });
       }
       next();
