@@ -1,6 +1,6 @@
 {
   "name": "follow-redirects",
-  "version": "1.15.6",
+  "version": "1.15.9",
   "description": "HTTP and HTTPS modules that follow redirects.",
   "license": "MIT",
   "main": "index.js",
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:follow-redirects/follow-redirects.git"
+    "url": "git+ssh://git@github.com/follow-redirects/follow-redirects.git"
   },
   "homepage": "https://github.com/follow-redirects/follow-redirects",
   "bugs": {

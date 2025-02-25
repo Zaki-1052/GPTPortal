@@ -8,7 +8,7 @@ export type RunnableFunctionWithParse<Args extends object> = {
      * @param runner the runner evaluating this callback.
      * @returns a string to send back to OpenAI.
      */
-    function: (args: Args, runner: ChatCompletionRunner | ChatCompletionStreamingRunner) => PromiseOrValue<unknown>;
+    function: (args: Args, runner: ChatCompletionRunner<unknown> | ChatCompletionStreamingRunner<unknown>) => PromiseOrValue<unknown>;
     /**
      * @param input the raw args from the OpenAI function call.
      * @returns the parsed arguments to pass to `function`
@@ -26,13 +26,14 @@ export type RunnableFunctionWithParse<Args extends object> = {
      * The name of the function to be called. Will default to function.name if omitted.
      */
     name?: string | undefined;
+    strict?: boolean | undefined;
 };
 export type RunnableFunctionWithoutParse = {
     /**
      * @param args the raw args from the OpenAI function call.
      * @returns a string to send back to OpenAI
      */
-    function: (args: string, runner: ChatCompletionRunner | ChatCompletionStreamingRunner) => PromiseOrValue<unknown>;
+    function: (args: string, runner: ChatCompletionRunner<unknown> | ChatCompletionStreamingRunner<unknown>) => PromiseOrValue<unknown>;
     /**
      * The parameters the function accepts, describes as a JSON Schema object.
      */
@@ -45,6 +46,7 @@ export type RunnableFunctionWithoutParse = {
      * The name of the function to be called. Will default to function.name if omitted.
      */
     name?: string | undefined;
+    strict?: boolean | undefined;
 };
 export type RunnableFunction<Args extends object | string> = Args extends string ? RunnableFunctionWithoutParse : Args extends object ? RunnableFunctionWithParse<Args> : never;
 export type RunnableToolFunction<Args extends object | string> = Args extends string ? RunnableToolFunctionWithoutParse : Args extends object ? RunnableToolFunctionWithParse<Args> : never;

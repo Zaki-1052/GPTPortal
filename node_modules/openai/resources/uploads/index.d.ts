@@ -1,3 +1,3 @@
-export { Upload, UploadCreateParams, UploadCompleteParams, Uploads } from "./uploads.js";
-export { UploadPart, PartCreateParams, Parts } from "./parts.js";
+export { Parts, type UploadPart, type PartCreateParams } from "./parts.js";
+export { Uploads, type Upload, type UploadCreateParams, type UploadCompleteParams } from "./uploads.js";
 //# sourceMappingURL=index.d.ts.map

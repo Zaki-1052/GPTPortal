@@ -1,6 +1,5 @@
 import { APIResource } from "../resource.js";
 import * as Core from "../core.js";
-import * as ImagesAPI from "./images.js";
 export declare class Images extends APIResource {
     /**
      * Creates a variation of a given image.
@@ -69,7 +68,7 @@ export interface ImageCreateVariationParams {
     /**
      * A unique identifier representing your end-user, which can help OpenAI to monitor
      * and detect abuse.
-     * [Learn more](https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids).
+     * [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#end-user-ids).
      */
     user?: string;
 }
@@ -113,7 +112,7 @@ export interface ImageEditParams {
     /**
      * A unique identifier representing your end-user, which can help OpenAI to monitor
      * and detect abuse.
-     * [Learn more](https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids).
+     * [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#end-user-ids).
      */
     user?: string;
 }
@@ -160,16 +159,11 @@ export interface ImageGenerateParams {
     /**
      * A unique identifier representing your end-user, which can help OpenAI to monitor
      * and detect abuse.
-     * [Learn more](https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids).
+     * [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#end-user-ids).
      */
     user?: string;
 }
 export declare namespace Images {
-    export import Image = ImagesAPI.Image;
-    export import ImageModel = ImagesAPI.ImageModel;
-    export import ImagesResponse = ImagesAPI.ImagesResponse;
-    export import ImageCreateVariationParams = ImagesAPI.ImageCreateVariationParams;
-    export import ImageEditParams = ImagesAPI.ImageEditParams;
-    export import ImageGenerateParams = ImagesAPI.ImageGenerateParams;
+    export { type Image as Image, type ImageModel as ImageModel, type ImagesResponse as ImagesResponse, type ImageCreateVariationParams as ImageCreateVariationParams, type ImageEditParams as ImageEditParams, type ImageGenerateParams as ImageGenerateParams, };
 }
 //# sourceMappingURL=images.d.ts.map

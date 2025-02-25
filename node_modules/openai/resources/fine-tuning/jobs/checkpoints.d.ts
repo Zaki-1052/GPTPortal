@@ -1,6 +1,5 @@
 import { APIResource } from "../../../resource.js";
 import * as Core from "../../../core.js";
-import * as CheckpointsAPI from "./checkpoints.js";
 import { CursorPage, type CursorPageParams } from "../../../pagination.js";
 export declare class Checkpoints extends APIResource {
     /**
@@ -62,8 +61,6 @@ export declare namespace FineTuningJobCheckpoint {
 export interface CheckpointListParams extends CursorPageParams {
 }
 export declare namespace Checkpoints {
-    export import FineTuningJobCheckpoint = CheckpointsAPI.FineTuningJobCheckpoint;
-    export import FineTuningJobCheckpointsPage = CheckpointsAPI.FineTuningJobCheckpointsPage;
-    export import CheckpointListParams = CheckpointsAPI.CheckpointListParams;
+    export { type FineTuningJobCheckpoint as FineTuningJobCheckpoint, FineTuningJobCheckpointsPage as FineTuningJobCheckpointsPage, type CheckpointListParams as CheckpointListParams, };
 }
 //# sourceMappingURL=checkpoints.d.ts.map

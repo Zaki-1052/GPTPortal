@@ -1,6 +1,5 @@
 import { APIResource } from "../resource.js";
 import * as Core from "../core.js";
-import * as ModelsAPI from "./models.js";
 import { Page } from "../pagination.js";
 export declare class Models extends APIResource {
     /**
@@ -51,8 +50,6 @@ export interface ModelDeleted {
     object: string;
 }
 export declare namespace Models {
-    export import Model = ModelsAPI.Model;
-    export import ModelDeleted = ModelsAPI.ModelDeleted;
-    export import ModelsPage = ModelsAPI.ModelsPage;
+    export { type Model as Model, type ModelDeleted as ModelDeleted, ModelsPage as ModelsPage };
 }
 //# sourceMappingURL=models.d.ts.map

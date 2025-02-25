@@ -1,6 +1,5 @@
 import { APIResource } from "../../resource.js";
 import * as Core from "../../core.js";
-import * as PartsAPI from "./parts.js";
 export declare class Parts extends APIResource {
     /**
      * Adds a
@@ -45,7 +44,6 @@ export interface PartCreateParams {
     data: Core.Uploadable;
 }
 export declare namespace Parts {
-    export import UploadPart = PartsAPI.UploadPart;
-    export import PartCreateParams = PartsAPI.PartCreateParams;
+    export { type UploadPart as UploadPart, type PartCreateParams as PartCreateParams };
 }
 //# sourceMappingURL=parts.d.ts.map
