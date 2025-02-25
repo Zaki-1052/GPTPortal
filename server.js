@@ -1366,57 +1366,197 @@ let embedding;
 let isAssistants = false;
 
 // Endpoint to handle image upload
-app.post('/upload-file', upload.single('file'), async (req, res) => {
-  console.log("File received in /upload-file:", req.file);
-  if (!req.file) {
-    return res.status(400).send({ error: 'No image file provided.' });
+// Combined file upload endpoint
+// Combined file upload endpoint - maintaining backwards compatibility
+app.post('/upload-file', uploadMiddleware, async (req, res) => {
+  // Handle both single file and multiple files cases
+  const files = req.files || (req.file ? [req.file] : []);
+  console.log("Files received in /upload-file:", files);
+
+  if (files.length === 0) {
+      return res.status(400).send({ error: 'No file provided.' });
   }
 
-  const tempFilePath = req.file.path;
+  // For backwards compatibility, use the first file as the primary file
+  const tempFilePath = files[0].path;
+  file_id = files[0].filename; // Maintaining original variable name
 
   try {
+      if (isAssistants === false) {
+          // Maintain original single-file behavior for backwards compatibility
+// For PDFs, use base64 encoding
+          if (files[0].mimetype === 'application/pdf') {
+            console.log("PDF file detected");
+            fileContents = await fs.promises.readFile(tempFilePath, { encoding: 'base64' });
+          } else {
+            console.log("Non-PDF file detected");
+            // For text files, use UTF-8
+            fileContents = await fs.promises.readFile(tempFilePath, 'utf8');
+          }
+          console.log("File Contents:", fileContents);
+          console.log("File ID:", file_id);
 
-    if (isAssistants === false) {
-      file_id = req.file.filename;
-      fileContents = await fs.promises.readFile(tempFilePath, 'utf8');
-      console.log("File Contents:", fileContents);
-      console.log("File ID:", file_id);
-    // embedding = send to /embeddings python backend in FlaskApp
-    } else if (isAssistants === true) {
-    // Create a file for the assistants
-    if (!assistant) {
-      const systemMessage = await initializeConversationHistory();
-      await AssistantAndThread(modelID, systemMessage);
-    }
-  const file = await openai.files.create({
-    file: fs.createReadStream(tempFilePath),
-    purpose: 'assistants'
-  });
+          // Additional processing for multiple files if present
+          if (files.length > 1) {
+              const processedFiles = [];
+              let totalPDFPages = 0;
 
-  const assistantFile = await openai.beta.assistants.files.create(
-    assistant.id,
-    {
-      file_id: file.id
-    }
-  );
+              for (const file of files) {
+                  if (file.mimetype === 'application/pdf') {
+                      const pageCount = await getPDFPageCount(file.path);
+                      totalPDFPages += pageCount;
+                      
+                      if (totalPDFPages > 100) {
+                          throw new Error('Total PDF pages exceed the limit of 100 pages');
+                      }
 
-  console.log("File attached to assistant:", assistantFile);
-  }
+                      processedFiles.push({
+                          file_id: file.filename,
+                          contents: await fileToBase64(file.path),
+                          type: 'pdf',
+                          pageCount: pageCount
+                      });
+                  } else if (file.mimetype.startsWith('image/')) {
+                      processedFiles.push({
+                          file_id: file.filename,
+                          contents: await fileToBase64(file.path),
+                          type: 'image'
+                      });
+                  } else {
+                      processedFiles.push({
+                          file_id: file.filename,
+                          contents: await fs.promises.readFile(file.path, 'utf8'),
+                          type: 'text'
+                      });
+                  }
 
-    // Optional: Clean up the uploaded file after sending to OpenAI
-    fs.unlink(tempFilePath, (err) => {
-      if (err) console.error("Error deleting temp file:", err);
-      console.log("Temp file deleted");
-    });
+                  // Clean up additional files
+                  if (file.path !== tempFilePath) { // Don't delete primary file yet
+                      fs.unlink(file.path, (err) => {
+                          if (err) console.error("Error deleting temp file:", err);
+                          console.log(`Temp file deleted: ${file.filename}`);
+                      });
+                  }
+              }
 
-    initialize = false;
-    console.log("Initialize:", initialize)
+              // Store processed files
+              if (!req.app.locals.uploadedFiles) {
+                  req.app.locals.uploadedFiles = new Map();
+              }
+              const sessionId = Date.now().toString();
+              req.app.locals.uploadedFiles.set(sessionId, processedFiles);
 
-    res.json({ success: true, fileId: file_id, initialize });
+              // Clean up primary file after processing
+              fs.unlink(tempFilePath, (err) => {
+                  if (err) console.error("Error deleting temp file:", err);
+                  console.log("Primary temp file deleted");
+              });
+
+              return res.json({
+                  success: true,
+                  fileId: file_id,
+                  sessionId: sessionId,
+                  additionalFiles: processedFiles
+              });
+          }
+
+          // Clean up primary file for single file case
+          fs.unlink(tempFilePath, (err) => {
+              if (err) console.error("Error deleting temp file:", err);
+              console.log("Temp file deleted");
+          });
+
+          // Original response structure for single file
+          return res.json({ 
+              success: true, 
+              fileId: file_id,
+              initialize: false
+          });
+
+      } else if (isAssistants === true) {
+          if (!assistant) {
+              const systemMessage = await initializeConversationHistory();
+              await AssistantAndThread(modelID, systemMessage);
+          }
+
+          const assistantFiles = [];
+          for (const file of files) {
+              const openaiFile = await openai.files.create({
+                  file: fs.createReadStream(file.path),
+                  purpose: 'assistants'
+              });
+
+              const assistantFile = await openai.beta.assistants.files.create(
+                  assistant.id,
+                  {
+                      file_id: openaiFile.id
+                  }
+              );
+
+              assistantFiles.push(assistantFile);
+              console.log("File attached to assistant:", assistantFile);
+
+              fs.unlink(file.path, (err) => {
+                  if (err) console.error("Error deleting temp file:", err);
+                  console.log("Temp file deleted");
+              });
+          }
+
+          initialize = false;
+          console.log("Initialize:", initialize);
+
+          return res.json({ 
+              success: true, 
+              fileId: file_id,
+              initialize: initialize,
+              assistantFiles: assistantFiles
+          });
+      }
+
   } catch (error) {
-    console.error('Failed to upload file to OpenAI:', error);
+      console.error('Failed to process uploaded files:', error);
+      return res.status(500).json({
+          error: error.message || 'Failed to process uploaded files'
+      });
   }
 });
+
+// Helper endpoint to check upload status (for non-assistant uploads)
+app.get('/upload-status/:sessionId', (req, res) => {
+  const { sessionId } = req.params;
+  const files = req.app.locals.uploadedFiles?.get(sessionId);
+  
+  if (!files) {
+    return res.status(404).json({ error: 'Upload session not found' });
+  }
+  
+  res.json({ 
+    sessionId,
+    files: files.map(file => ({
+      originalName: file.originalName,
+      fileName: file.fileName,
+      mimeType: file.mimeType,
+      size: file.size,
+      pageCount: file.pageCount
+    }))
+  });
+});
+
+// Store uploadedFiles in app.locals when initializing your app
+app.locals.uploadedFiles = new Map();
+
+// Cleanup old upload sessions periodically
+setInterval(() => {
+  const uploadedFiles = app.locals.uploadedFiles;
+  if (!uploadedFiles) return;
+  
+  const now = Date.now();
+  for (const [sessionId, files] of uploadedFiles.entries()) {
+    if (now - parseInt(sessionId) > 30 * 60 * 1000) { // 30 minutes
+      uploadedFiles.delete(sessionId);
+    }
+  }
+}, 5 * 60 * 1000); // Run every 5 minutes
 
 
 // Assistant Handling
@@ -1720,13 +1860,14 @@ async function nameChat(chatHistory, tokens) {
 // Function to convert an image URL to base64
 async function imageURLToBase64(url) {
   try {
+    console.log('imageURLToBase64 1');
     const response = await axios.get(url, {
       responseType: 'arraybuffer' // Ensure the image data is received in the correct format
     });
     return `data:image/jpeg;base64,${Buffer.from(response.data).toString('base64')}`;
   } catch (error) {
     console.error('Error fetching image:', error);
-    return null; // Return null if there is an error
+    //return null; // Return null if there is an error
   }
 }
   
@@ -2149,23 +2290,67 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
     }
   }
 
-  if (fileContents) {
+  if (fileContents || (req.body.sessionId && req.app.locals.uploadedFiles?.get(req.body.sessionId))) {
     console.log(fileContents);
+    
     if (modelID.startsWith('gpt')) {
+      // Maintain existing GPT behavior
       user_input.content.push({ type: "text", text: file_id });
       user_input.content.push({ type: "text", text: fileContents });
     } else if (modelID.startsWith('claude')) {
-      user_input.content.push({ type: "text", text: "<file_name>" });
-      user_input.content.push({ type: "text", text: file_id });
-      user_input.content.push({ type: "text", text: "</file_name>" });
-      user_input.content.push({ type: "text", text: "<file_contents>" });
-      user_input.content.push({ type: "text", text: fileContents });
-      user_input.content.push({ type: "text", text: "</file_contents>" });
+      // Handle single file (backwards compatibility)
+      if (fileContents) {
+        if (file_id.endsWith('.pdf')) {
+          // If it's a PDF, use Claude's PDF format
+          user_input.content.push({
+            type: "document",
+            source: {
+              type: "base64",
+              media_type: "application/pdf",
+              data: fileContents // Assuming fileContents is already base64 for PDFs
+            }
+          });
+        } else {
+          // Maintain existing Claude XML format for non-PDFs
+          user_input.content.push({ type: "text", text: "<file_name>" });
+          user_input.content.push({ type: "text", text: file_id });
+          user_input.content.push({ type: "text", text: "</file_name>" });
+          user_input.content.push({ type: "text", text: "<file_contents>" });
+          user_input.content.push({ type: "text", text: fileContents });
+          user_input.content.push({ type: "text", text: "</file_contents>" });
+        }
+      }
+      
+      // Handle multiple files if present
+      const uploadedFiles = req.body.sessionId ? req.app.locals.uploadedFiles?.get(req.body.sessionId) : null;
+      if (uploadedFiles) {
+        for (const file of uploadedFiles) {
+          if (file.type === 'pdf') {
+            user_input.content.push({
+              type: "document",
+              source: {
+                type: "base64",
+                media_type: "application/pdf",
+                data: file.contents
+              }
+            });
+          } else {
+            // Use existing XML format for non-PDFs
+            user_input.content.push({ type: "text", text: "<file_name>" });
+            user_input.content.push({ type: "text", text: file.file_id });
+            user_input.content.push({ type: "text", text: "</file_name>" });
+            user_input.content.push({ type: "text", text: "<file_contents>" });
+            user_input.content.push({ type: "text", text: file.contents });
+            user_input.content.push({ type: "text", text: "</file_contents>" });
+          }
+        }
+        // Clean up after processing
+        req.app.locals.uploadedFiles.delete(req.body.sessionId);
+      }
     }
     
-    
     fileContents = null;
-  }
+}
 
   // Check for image in the payload
   if (req.body.image) {
