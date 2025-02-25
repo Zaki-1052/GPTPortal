@@ -22,6 +22,32 @@ const { v4: uuidv4 } = require('uuid');
 
 let temperature = process.env.TEMPERATURE ? parseFloat(process.env.TEMPERATURE) : 1;
 
+let tokens = process.env.MAX_TOKENS ? parseInt(process.env.MAX_TOKENS) : 8000;
+
+// Add this function to enforce token limits
+function getMaxTokensByModel(modelID) {
+  if (modelID === 'gpt-4') {
+    return 6000;
+  } else if (modelID === 'gpt-4o-mini' || modelID === 'gpt-4o') {
+    return 16000;
+  } else if (modelID.startsWith('llama-3.1')) {
+    return 8000;
+  } else if (modelID === 'claude-3-7-sonnet-latest') {
+    return 20000;
+  } else if (modelID.startsWith('claude')) {
+    return 8000;
+  } else {
+    return 8000; // Default for other models
+  }
+}
+
+// Function to enforce token limits
+function enforceTokenLimits(requestedTokens, modelID) {
+  const maxTokens = getMaxTokensByModel(modelID);
+  const minTokens = 1000;
+  return Math.min(Math.max(parseInt(requestedTokens) || 8000, minTokens), maxTokens);
+}
+
 console.log(`The current temperature is: ${temperature}`);
 
 // openai
@@ -184,7 +210,6 @@ app.get('/uploads/:filename', (req, res) => {
   res.sendFile(filename, { root: 'public/uploads' });
 });
 
-
 app.use('/uploads', express.static('public/uploads'));
 
 // image uploads
@@ -254,6 +279,7 @@ async function getPDFPageCount(filePath) {
 }
 
 // const upload = multer({ storage: storage });
+
 
 
 const FormData = require('form-data');
@@ -771,6 +797,29 @@ const savedHistory = chatHistory.map(entry => {
         .generated-image { max-width: 100%; height: auto; }
         .summary { background-color: #f9f9f9; padding: 10px; margin: 20px 0; border-radius: 5px; }
         .summary h3 { margin-top: 0; }
+        .thinking {
+          background-color: #e8eaed;
+          padding: 10px;
+          margin-bottom: 15px;
+          border-left: 3px solid #6c757d;
+          font-family: monospace;
+        }
+
+        .thinking h4 {
+          color: #6c757d;
+          margin-top: 0;
+        }
+
+        .response h4 {
+          color: #28a745;
+          margin-top: 0;
+        }
+
+        pre {
+          white-space: pre-wrap;
+          word-wrap: break-word;
+          overflow-x: auto;
+        }
       </style>
     </head>
     <body>
@@ -779,14 +828,25 @@ const savedHistory = chatHistory.map(entry => {
 
   chatHistory.forEach(entry => {
     let formattedContent = '';
-
+  
     if (entry.role === 'system' && typeof entry.content === 'string') {
       // Format Claude's system prompt
       formattedContent = `<pre>${entry.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>`;
     } else if (Array.isArray(entry.content)) {
+      // Check if this is a Claude response with thinking/text format
+      const hasThinking = entry.content.some(item => item.type === 'thinking');
+      
       entry.content.forEach(item => {
-        if (item.type === 'text' && typeof item.text === 'string') {
-          formattedContent += marked(item.text); // Convert Markdown to HTML
+        if (item.type === 'thinking' && typeof item.thinking === 'string') {
+          // Format thinking content with a special style
+          formattedContent += `<div class="thinking"><h4>Thinking:</h4><pre>${item.thinking.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre></div>`;
+        } else if (item.type === 'text' && typeof item.text === 'string') {
+          // If it has thinking, label the text portion as "Response:"
+          if (hasThinking) {
+            formattedContent += `<div class="response"><h4>Response:</h4>${marked(item.text)}</div>`;
+          } else {
+            formattedContent += marked(item.text); // Regular text without special header
+          }
         } else if (item.type === 'image_url') {
           formattedContent += `<img src="${item.image_url.url}" alt="User Uploaded Image" class="generated-image"/>`;
         }
@@ -796,7 +856,7 @@ const savedHistory = chatHistory.map(entry => {
     } else {
       console.error('Unexpected content type in conversationHistory:', entry.content);
     }
-
+  
     htmlContent += `<div class="message ${entry.role}"><strong>${entry.role.toUpperCase()}:</strong> ${formattedContent}</div>`;
   });
 
@@ -1306,197 +1366,57 @@ let embedding;
 let isAssistants = false;
 
 // Endpoint to handle image upload
-// Combined file upload endpoint
-// Combined file upload endpoint - maintaining backwards compatibility
-app.post('/upload-file', uploadMiddleware, async (req, res) => {
-  // Handle both single file and multiple files cases
-  const files = req.files || (req.file ? [req.file] : []);
-  console.log("Files received in /upload-file:", files);
-
-  if (files.length === 0) {
-      return res.status(400).send({ error: 'No file provided.' });
+app.post('/upload-file', upload.single('file'), async (req, res) => {
+  console.log("File received in /upload-file:", req.file);
+  if (!req.file) {
+    return res.status(400).send({ error: 'No image file provided.' });
   }
 
-  // For backwards compatibility, use the first file as the primary file
-  const tempFilePath = files[0].path;
-  file_id = files[0].filename; // Maintaining original variable name
+  const tempFilePath = req.file.path;
 
   try {
-      if (isAssistants === false) {
-          // Maintain original single-file behavior for backwards compatibility
-// For PDFs, use base64 encoding
-          if (files[0].mimetype === 'application/pdf') {
-            console.log("PDF file detected");
-            fileContents = await fs.promises.readFile(tempFilePath, { encoding: 'base64' });
-          } else {
-            console.log("Non-PDF file detected");
-            // For text files, use UTF-8
-            fileContents = await fs.promises.readFile(tempFilePath, 'utf8');
-          }
-          console.log("File Contents:", fileContents);
-          console.log("File ID:", file_id);
 
-          // Additional processing for multiple files if present
-          if (files.length > 1) {
-              const processedFiles = [];
-              let totalPDFPages = 0;
-
-              for (const file of files) {
-                  if (file.mimetype === 'application/pdf') {
-                      const pageCount = await getPDFPageCount(file.path);
-                      totalPDFPages += pageCount;
-                      
-                      if (totalPDFPages > 100) {
-                          throw new Error('Total PDF pages exceed the limit of 100 pages');
-                      }
-
-                      processedFiles.push({
-                          file_id: file.filename,
-                          contents: await fileToBase64(file.path),
-                          type: 'pdf',
-                          pageCount: pageCount
-                      });
-                  } else if (file.mimetype.startsWith('image/')) {
-                      processedFiles.push({
-                          file_id: file.filename,
-                          contents: await fileToBase64(file.path),
-                          type: 'image'
-                      });
-                  } else {
-                      processedFiles.push({
-                          file_id: file.filename,
-                          contents: await fs.promises.readFile(file.path, 'utf8'),
-                          type: 'text'
-                      });
-                  }
-
-                  // Clean up additional files
-                  if (file.path !== tempFilePath) { // Don't delete primary file yet
-                      fs.unlink(file.path, (err) => {
-                          if (err) console.error("Error deleting temp file:", err);
-                          console.log(`Temp file deleted: ${file.filename}`);
-                      });
-                  }
-              }
-
-              // Store processed files
-              if (!req.app.locals.uploadedFiles) {
-                  req.app.locals.uploadedFiles = new Map();
-              }
-              const sessionId = Date.now().toString();
-              req.app.locals.uploadedFiles.set(sessionId, processedFiles);
-
-              // Clean up primary file after processing
-              fs.unlink(tempFilePath, (err) => {
-                  if (err) console.error("Error deleting temp file:", err);
-                  console.log("Primary temp file deleted");
-              });
-
-              return res.json({
-                  success: true,
-                  fileId: file_id,
-                  sessionId: sessionId,
-                  additionalFiles: processedFiles
-              });
-          }
-
-          // Clean up primary file for single file case
-          fs.unlink(tempFilePath, (err) => {
-              if (err) console.error("Error deleting temp file:", err);
-              console.log("Temp file deleted");
-          });
-
-          // Original response structure for single file
-          return res.json({ 
-              success: true, 
-              fileId: file_id,
-              initialize: false
-          });
-
-      } else if (isAssistants === true) {
-          if (!assistant) {
-              const systemMessage = await initializeConversationHistory();
-              await AssistantAndThread(modelID, systemMessage);
-          }
-
-          const assistantFiles = [];
-          for (const file of files) {
-              const openaiFile = await openai.files.create({
-                  file: fs.createReadStream(file.path),
-                  purpose: 'assistants'
-              });
-
-              const assistantFile = await openai.beta.assistants.files.create(
-                  assistant.id,
-                  {
-                      file_id: openaiFile.id
-                  }
-              );
-
-              assistantFiles.push(assistantFile);
-              console.log("File attached to assistant:", assistantFile);
-
-              fs.unlink(file.path, (err) => {
-                  if (err) console.error("Error deleting temp file:", err);
-                  console.log("Temp file deleted");
-              });
-          }
-
-          initialize = false;
-          console.log("Initialize:", initialize);
-
-          return res.json({ 
-              success: true, 
-              fileId: file_id,
-              initialize: initialize,
-              assistantFiles: assistantFiles
-          });
-      }
-
-  } catch (error) {
-      console.error('Failed to process uploaded files:', error);
-      return res.status(500).json({
-          error: error.message || 'Failed to process uploaded files'
-      });
-  }
-});
-
-// Helper endpoint to check upload status (for non-assistant uploads)
-app.get('/upload-status/:sessionId', (req, res) => {
-  const { sessionId } = req.params;
-  const files = req.app.locals.uploadedFiles?.get(sessionId);
-  
-  if (!files) {
-    return res.status(404).json({ error: 'Upload session not found' });
-  }
-  
-  res.json({ 
-    sessionId,
-    files: files.map(file => ({
-      originalName: file.originalName,
-      fileName: file.fileName,
-      mimeType: file.mimeType,
-      size: file.size,
-      pageCount: file.pageCount
-    }))
-  });
-});
-
-// Store uploadedFiles in app.locals when initializing your app
-app.locals.uploadedFiles = new Map();
-
-// Cleanup old upload sessions periodically
-setInterval(() => {
-  const uploadedFiles = app.locals.uploadedFiles;
-  if (!uploadedFiles) return;
-  
-  const now = Date.now();
-  for (const [sessionId, files] of uploadedFiles.entries()) {
-    if (now - parseInt(sessionId) > 30 * 60 * 1000) { // 30 minutes
-      uploadedFiles.delete(sessionId);
+    if (isAssistants === false) {
+      file_id = req.file.filename;
+      fileContents = await fs.promises.readFile(tempFilePath, 'utf8');
+      console.log("File Contents:", fileContents);
+      console.log("File ID:", file_id);
+    // embedding = send to /embeddings python backend in FlaskApp
+    } else if (isAssistants === true) {
+    // Create a file for the assistants
+    if (!assistant) {
+      const systemMessage = await initializeConversationHistory();
+      await AssistantAndThread(modelID, systemMessage);
     }
+  const file = await openai.files.create({
+    file: fs.createReadStream(tempFilePath),
+    purpose: 'assistants'
+  });
+
+  const assistantFile = await openai.beta.assistants.files.create(
+    assistant.id,
+    {
+      file_id: file.id
+    }
+  );
+
+  console.log("File attached to assistant:", assistantFile);
   }
-}, 5 * 60 * 1000); // Run every 5 minutes
+
+    // Optional: Clean up the uploaded file after sending to OpenAI
+    fs.unlink(tempFilePath, (err) => {
+      if (err) console.error("Error deleting temp file:", err);
+      console.log("Temp file deleted");
+    });
+
+    initialize = false;
+    console.log("Initialize:", initialize)
+
+    res.json({ success: true, fileId: file_id, initialize });
+  } catch (error) {
+    console.error('Failed to upload file to OpenAI:', error);
+  }
+});
 
 
 // Assistant Handling
@@ -1795,24 +1715,25 @@ async function nameChat(chatHistory, tokens) {
   return { title, summary };
 }
 
+
+
 // Function to convert an image URL to base64
 async function imageURLToBase64(url) {
   try {
-    console.log('imageURLToBase64 1');
     const response = await axios.get(url, {
       responseType: 'arraybuffer' // Ensure the image data is received in the correct format
     });
     return `data:image/jpeg;base64,${Buffer.from(response.data).toString('base64')}`;
   } catch (error) {
     console.error('Error fetching image:', error);
-    //return null; // Return null if there is an error
+    return null; // Return null if there is an error
   }
 }
+  
 
 // Function to convert an image URL to base64
 async function imageURLToBase64(url) {
   try {
-    console.log('imageURLToBase64 2');
     const response = await axios.get(url, {
       responseType: 'arraybuffer' // Ensure the image data is received in the correct format
     });
@@ -1847,7 +1768,7 @@ app.post('/upload-image', upload.single('image'), async (req, res) => {
 
   // Generate URL for the uploaded image
   const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`; 
-  //const imageUrl = `${req.protocol}://${req.get('host')}/uploads${req.file.path.split('public/uploads')[1]}`;
+
   // Send the image URL back to the client
   res.send({ imageUrl: imageUrl });
 });
@@ -2096,7 +2017,6 @@ function formatSectionsIntoSystemMessage(sections) {
   }));
 }
 
-
 // Handle POST request to '/message'
 
 let headers;
@@ -2109,7 +2029,7 @@ app.post('/message', async (req, res) => {
   console.log("req.file:", req.file); // Check if the file is received
   console.log("Received model ID:", req.body.modelID); // Add this line
   const user_message = req.body.message;
-  const modelID = req.body.modelID || 'gpt-4'; // Extracting model ID from the request
+  const modelID = req.body.modelID || 'gpt-4o'; // Extracting model ID from the request
   const image_url = req.body.image; // This will now be an URL
   console.log("Received request with size: ", JSON.stringify(req.body).length);
   isAssistants = false;
@@ -2131,6 +2051,25 @@ app.post('/message', async (req, res) => {
   } else {
     temperature = 1;
   }
+
+  // Handle tokens parameter
+if (process.env.MAX_TOKENS) {
+  const parsedTokens = parseInt(process.env.MAX_TOKENS);
+  if (!isNaN(parsedTokens)) {
+    tokens = parsedTokens;
+  } else {
+    console.error('Invalid MAX_TOKENS value in .env file. Using default.');
+    if (req.body.tokens) {
+      tokens = enforceTokenLimits(req.body.tokens, modelID);
+    } else {
+      tokens = 8000;
+    }
+  }
+} else if (req.body.tokens) {
+  tokens = enforceTokenLimits(req.body.tokens, modelID);
+} else {
+  tokens = 8000;
+}
  // Check for shutdown command
 if (user_message === "Bye!") {
   console.log("Shutdown message received. Exporting chat and closing server...");
@@ -2210,71 +2149,26 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
     }
   }
 
-  if (fileContents || (req.body.sessionId && req.app.locals.uploadedFiles?.get(req.body.sessionId))) {
+  if (fileContents) {
     console.log(fileContents);
-    
     if (modelID.startsWith('gpt')) {
-      // Maintain existing GPT behavior
       user_input.content.push({ type: "text", text: file_id });
       user_input.content.push({ type: "text", text: fileContents });
     } else if (modelID.startsWith('claude')) {
-      // Handle single file (backwards compatibility)
-      if (fileContents) {
-        if (file_id.endsWith('.pdf')) {
-          // If it's a PDF, use Claude's PDF format
-          user_input.content.push({
-            type: "document",
-            source: {
-              type: "base64",
-              media_type: "application/pdf",
-              data: fileContents // Assuming fileContents is already base64 for PDFs
-            }
-          });
-        } else {
-          // Maintain existing Claude XML format for non-PDFs
-          user_input.content.push({ type: "text", text: "<file_name>" });
-          user_input.content.push({ type: "text", text: file_id });
-          user_input.content.push({ type: "text", text: "</file_name>" });
-          user_input.content.push({ type: "text", text: "<file_contents>" });
-          user_input.content.push({ type: "text", text: fileContents });
-          user_input.content.push({ type: "text", text: "</file_contents>" });
-        }
-      }
-      
-      // Handle multiple files if present
-      const uploadedFiles = req.body.sessionId ? req.app.locals.uploadedFiles?.get(req.body.sessionId) : null;
-      if (uploadedFiles) {
-        for (const file of uploadedFiles) {
-          if (file.type === 'pdf') {
-            user_input.content.push({
-              type: "document",
-              source: {
-                type: "base64",
-                media_type: "application/pdf",
-                data: file.contents
-              }
-            });
-          } else {
-            // Use existing XML format for non-PDFs
-            user_input.content.push({ type: "text", text: "<file_name>" });
-            user_input.content.push({ type: "text", text: file.file_id });
-            user_input.content.push({ type: "text", text: "</file_name>" });
-            user_input.content.push({ type: "text", text: "<file_contents>" });
-            user_input.content.push({ type: "text", text: file.contents });
-            user_input.content.push({ type: "text", text: "</file_contents>" });
-          }
-        }
-        // Clean up after processing
-        req.app.locals.uploadedFiles.delete(req.body.sessionId);
-      }
+      user_input.content.push({ type: "text", text: "<file_name>" });
+      user_input.content.push({ type: "text", text: file_id });
+      user_input.content.push({ type: "text", text: "</file_name>" });
+      user_input.content.push({ type: "text", text: "<file_contents>" });
+      user_input.content.push({ type: "text", text: fileContents });
+      user_input.content.push({ type: "text", text: "</file_contents>" });
     }
     
+    
     fileContents = null;
-}
+  }
 
   // Check for image in the payload
   if (req.body.image) {
-    console.log("Image URL received:", req.body.image);
     let base64Image;
     // If req.file is defined, it means the image is uploaded as a file
     if (req.file) {
@@ -2341,7 +2235,7 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
 }
 
 
-
+/*
 let tokens = 4000;
 
 if (modelID === 'gpt-4') {
@@ -2360,6 +2254,13 @@ if (modelID.startsWith('llama-3.1')) {
   tokens = 8000;
 }
 
+
+if (modelID === 'claude-3-7-sonnet-latest') {
+  tokens = 20000;
+} else if (modelID.startsWith('claude')) {
+  tokens = 8000;
+}
+*/
 
 
 // Model Parameters Below!
@@ -2425,7 +2326,7 @@ if (modelID.startsWith('llama-3.1')) {
     };
 
     // END
-  
+  let budget = tokens - 1
     // Define the headers with the Authorization and, if needed, Organization
     // Determine the API to use based on modelID prefix
     if (modelID.includes('/')) {
@@ -2461,13 +2362,17 @@ if (modelID.startsWith('llama-3.1')) {
         // Add any Mistral-specific headers here if necessary
       };
       apiUrl = 'https://codestral.mistral.ai/v1/chat/completions';
-    } else if (modelID.startsWith('claude')) {
+    } else if (modelID === 'claude-3-7-sonnet-latest') {
       claudeHistory.push(user_input);
       data = {
         // New data structure for Claude model
         model: modelID,
-        max_tokens: 8000,
-        temperature: temperature,
+        max_tokens: tokens,
+        thinking: {
+          type: "enabled",
+          budget_tokens: budget
+        },
+        temperature: 1,
         system: systemMessage,
         messages: claudeHistory,
       };
@@ -2478,7 +2383,24 @@ if (modelID.startsWith('llama-3.1')) {
         // Add any Mistral-specific headers here if necessary
       };
       apiUrl = 'https://api.anthropic.com/v1/messages';
-    } else if (modelID === 'o1-preview' || modelID === 'o1-mini') {
+    } else if (modelID.startsWith('claude')) {
+      claudeHistory.push(user_input);
+      data = {
+      // New data structure for Claude model
+      model: modelID,
+      max_tokens: tokens,
+      temperature: temperature,
+      system: systemMessage,
+      messages: claudeHistory,
+    };
+      headers = {
+        'x-api-key': `${process.env.CLAUDE_API_KEY}`,
+        'content-type': 'application/json',
+        'anthropic-version': '2023-06-01',
+        // Add any Mistral-specific headers here if necessary
+      };
+      apiUrl = 'https://api.anthropic.com/v1/messages';
+    } else if (modelID.includes('o1') || modelID.includes('o3')) {
       o1History.push(user_input);
       data = {
         model: modelID, // Use the model specified by the client
@@ -2523,25 +2445,49 @@ if (modelID.startsWith('llama-3.1')) {
           }
         }
         */
-        let messageContent;
+       let messageContent;
+       console.log(response.data.content)
+       if (modelID === 'claude-3-7-sonnet-latest') {
+        messageContent = response.data.content;
+        // Initialize variables to hold 'thinking' and 'text' parts
+        let thinkingContent = '';
+        let textContent = '';
 
-        if (modelID.startsWith('claude')) {
-          messageContent = response.data.content;
-        } else {
-          messageContent = response.data.choices[0].message.content;
+        // Check if messageContent is an array before proceeding
+        if (Array.isArray(messageContent)) {
+          // Iterate through the response array to extract contents
+          messageContent.forEach((item) => {
+            if (item.type === 'thinking') {
+              thinkingContent += item.thinking + '\n'; // Append thinking content
+            } else if (item.type === 'text') {
+              textContent += item.text + '\n'; // Append text content
+            }
+          });
+
+          // Combine both parts into a single formatted messageContent
+          messageContent = `# Thinking:\n${thinkingContent}\n---\n# Response:\n${textContent}`;
         }
-        const lastMessageContent = messageContent;
+      } else if (modelID.startsWith('claude')) {
+        //console.log(response.data.content)
+        messageContent = response.data.content;
+      } else {
+        messageContent = response.data.choices[0].message.content;
+      }
+      const lastMessageContent = messageContent;
         
   
         if (lastMessageContent) {
 
-          console.log("Assistant Response: ", lastMessageContent)
+          console.log("Assistant Response: \n", lastMessageContent)
 
-          if (modelID.startsWith('claude')) {
-            claudeHistory.push({ role: "assistant", content: lastMessageContent[0].text });
-            console.log("Claude History");
+          if (modelID === 'claude-3-7-sonnet-latest') {
+            claudeHistory.push({ role: "assistant", content: response.data.content });
+            res.json({ text: messageContent });
+          } else if (modelID.startsWith('claude')) {
+            claudeHistory.push({ role: "assistant", content: response.data.content });
+            //console.log("Claude History");
             res.json({ text: lastMessageContent[0].text });
-        } else if (modelID === 'o1-preview' || modelID === 'o1-mini') {
+          } else if (modelID === 'o1-preview' || modelID === 'o1-mini') {
             o1History.push({ role: "assistant", content: lastMessageContent });
             console.log("O1 History");
             res.json({ text: lastMessageContent });
