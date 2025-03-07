@@ -2596,7 +2596,15 @@ if (modelID === 'claude-3-7-sonnet-latest') {
         // 'OpenAI-Organization': 'process.env.ORGANIZATION' // Uncomment if using an organization ID
       };
       apiUrl = 'https://api.openai.com/v1/chat/completions';
+  } else if (modelID.includes('deepseek')) {
+    conversationHistory.push(user_input);
+    headers = {
+      'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+      // Add any Mistral-specific headers here if necessary
+    };
+    apiUrl = 'https://api.deepseek.ai/v1/chat/completions';
   }
+
 
     // Log the data payload just before sending it to the chosen API
     console.log("API URL", apiUrl);

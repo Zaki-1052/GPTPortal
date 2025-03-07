@@ -63,6 +63,8 @@ fetchDefaultModel();
     "GPT-o3-Mini": "o3-mini",
     "GPT-o1-Preview": "o1-preview",
     "GPT-o1": "o1",
+    "DeepSeek-R1": "deepseek-reasoner",
+    "DeepSeek-Chat": "deepseek-chat",
     "Gemini-Pro": "gemini-pro",
     "Gemini-Pro-Vision": "gemini-pro-vision",
     "Gemini-1.5-Pro": "gemini-1.5-pro",
@@ -348,6 +350,8 @@ fetchDefaultModel();
     "o3-mini": "GPT-o3-Mini",
     "o1-preview": "GPT-o1-Preview",
     "o1": "GPT-o1",
+    "deepseek-reasoner": "DeepSeek-R1",
+    "deepseek-chat": "DeepSeek-Chat",
     "gemini-pro": "Gemini-Pro",
     "gemini-pro-vision": "Gemini-Pro-Vision",
     "gemini-1.5-pro": "Gemini-1.5-Pro",
@@ -1182,6 +1186,9 @@ document.getElementById('model-gpt-o1-preview').addEventListener('click', () => 
 document.getElementById('model-gpt-o1').addEventListener('click', () => selectModel('o1'));
 document.getElementById('model-gpt-o1-mini').addEventListener('click', () => selectModel('o1-mini'));
 document.getElementById('model-gpt-o3-mini').addEventListener('click', () => selectModel('o3-mini'));
+
+document.getElementById('model-deepseek-r1').addEventListener('click', () => selectModel('deepseek-reasoner'));
+document.getElementById('model-deepseek-chat').addEventListener('click', () => selectModel('deepseek-chat'));
 
 
 // Event listeners for showing GPT model descriptions on hover
