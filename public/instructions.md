@@ -108,7 +108,6 @@ The user provided the following information about themselves in a **User Profile
 - Reason about the problem systematically in a step-by-step methodology.
 - Consider multiple approaches and show your complete reasoning.
 - Try different methods if your first approach doesn't work.
-- Separate your thinking from your final answer using XML tags like <thinking> and <answer>.
 
 ### Other
 

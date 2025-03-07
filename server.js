@@ -521,6 +521,7 @@ app.post('/copyPrompt', async (req, res) => {
 
 let conversationHistory = [];
 let o1History = [];
+let deepseekHistory = []
 let instructions;
 
 // Function to read instructions from the file using fs promises
@@ -550,24 +551,6 @@ async function readInstructionsFile() {
 async function initializeConversationHistory() {
   const fileInstructions = await readInstructionsFile();
   systemMessage = `You are a helpful and intelligent AI assistant, knowledgeable about a wide range of topics and highly capable of a great many tasks.\n Specifically:\n ${fileInstructions}`;
-  if (continueConv) {
-    console.log("continue conversation", continueConv);
-    if (summariesOnly) {
-      console.log("summaries only", summariesOnly);
-      const contextAndSummary = await continueConversation(chosenChat);
-      systemMessage += `\n---\n${contextAndSummary}`;
-    } else {
-      systemMessage = await continueConversation(chosenChat);
-    }
-    
-  }
-  conversationHistory.push({ role: "system", content: systemMessage });
-  return systemMessage;
-}
-
-async function initializeSecondHistory() {
-  //const fileInstructions = await readInstructionsFile();
-  systemMessage = `You are a helpful and intelligent AI assistant, knowledgeable about a wide range of topics and highly capable of a great many tasks.`;
   if (continueConv) {
     console.log("continue conversation", continueConv);
     if (summariesOnly) {
@@ -734,6 +717,9 @@ app.post('/setSummariesOnly', (req, res) => {
   if (o1History.length > 0) {
       console.log("Using O1 conversation history because it's non-empty.");
       chatHistory = o1History;
+  } else if (deepseekHistory.length > 0) {
+      console.log("Using Deepseek conversation history because it's non-empty.");
+      chatHistory = deepseekHistory;
   } else if (containsAssistantMessage && conversationHistory.length > 0) {
       console.log("Using GPT conversation history because it's non-empty.");
       chatHistory = conversationHistory;
@@ -776,7 +762,7 @@ const savedHistory = chatHistory.map(entry => {
   let formattedEntry = '';
 
   if (entry.role === 'system') {
-    formattedEntry = `System: \n${entry.content}\n`;
+    formattedEntry = `System: **You are an advanced *Large Language Model* serving as a helpful AI assistant, highly knowledgeable across various domains, and capable of performing a wide range of tasks with precision and thoroughness.**`;
   } else if (entry.role === 'user' || entry.role === 'assistant') {
     const role = entry.role.charAt(0).toUpperCase() + entry.role.slice(1);
     if (Array.isArray(entry.content)) {
@@ -2297,8 +2283,6 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
       epochs = epochs + 1;
     }
   }
-
-  
   
   // Add text content if present
   if (user_message) {
@@ -2418,6 +2402,8 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
     }
   }
 } else {
+  systemMessage = await initializeConversationHistory();
+  epochs = epochs + 1;
   // For Mistral models, user_input.content is a string and set to user_message
   user_input = {
     role: "user",
@@ -2619,6 +2605,7 @@ if (modelID === 'claude-3-7-sonnet-latest') {
       apiUrl = 'https://api.openai.com/v1/chat/completions';
   } else if (modelID.includes('deepseek')) {
     conversationHistory.push(user_input);
+    deepseekHistory.push(user_input);
     headers = {
       'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
       // Add any Mistral-specific headers here if necessary
@@ -2713,8 +2700,9 @@ if (modelID === 'claude-3-7-sonnet-latest') {
             o1History.push({ role: "assistant", content: lastMessageContent });
             console.log("O1 History");
             res.json({ text: lastMessageContent });
-          } else if (modelID.includes('deepseek')) {
+          } else if (modelID === 'deepseek-reasoner') {
             conversationHistory.push({ role: "assistant", content: response.data.choices[0].message.content });
+            deepseekHistory.push({ role: "assistant", content: lastMessageContent });
             console.log("DeepSeek History");
             res.json({ text: lastMessageContent });
           } else {
