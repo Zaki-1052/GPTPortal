@@ -28,72 +28,83 @@
  <div id="custom-tooltip"></div>
   <div id="model-selector-container">
     <div class="custom-select" id="selected-model">Select a Model</div>
-      <div id="model-options" class="select-options">
-        <button id="model-gpt-4" data-value="gpt-4">GPT-4: Oldest</button>
-        <button id="model-claude-3.5-sonnet" data-value="claude-3-5-sonnet-latest">Claude 3.5 Sonnet</button>
-        <button id="model-gpt-4o" data-value="gpt-4o">GPT-4o: Latest</button>
-        <button id="model-gpt-4o-mini" data-value="gpt-4o-mini">GPT-4o Mini: Cheapest</button>
-        <button id="model-gpt-o1-preview" data-value="o1-preview">GPT-o1-Preview: Intelligent Reasoning</button>
-        <button id="model-gpt-o1" data-value="o1">GPT-o1: Reasoning</button>
-        <button id="model-gpt-o3-mini" data-value="o3-mini">GPT-o3 Mini: Cheap Reasoning</button>
-        <button id="model-gpt-o1-mini" data-value="o1-mini">GPT-o1 Mini: Cheap Reasoning</button>
-        <button id="model-claude-3.5-haiku" data-value="claude-3-5-haiku-latest">Claude 3.5 Haiku</button>
-        <button id="model-gemini-2.0-flash" data-value="gemini-2.0-flash-exp">Gemini-2.0 Flash</button>
-        <button id="model-llama-3.1-405b" data-value="llama-3.1-405b-reasoning">Llama3.1 405b: New</button>
-        <button id="model-gpt-4-turbo" data-value="gpt-4-turbo-">GPT-4-Turbo: Standard</button>
-        <button id="model-gpt-3.5" data-value="gpt-3.5-turbo-0125">GPT-3.5-Turbo: Old</button>
-        <button id="model-claude-haiku" data-value="claude-3-haiku-20240307">Claude Haiku: Cheap</button>
-        <button id="model-gemini-1.5-pro" data-value="gemini-1.5-pro">Gemini-1.5 Pro: Best</button>
-        <button id="model-llama-3.1-70b" data-value="llama-3.1-70b-versatile">Llama3.1 70b</button>
-        <button id="model-llama-3.1-8b" data-value="llama-3.1-8b-instant">Llama3.1 8b</button>
-        <button id="model-mistral-large" data-value="mistral-large-latest">Mistral Large</button>
-        <button id="model-codestral" data-value="codestral-latest">Codestral</button>
-        <button id="model-claude-opus" data-value="claude-3-opus-20240229">Claude Opus</button>
-        <button id="model-gemini-1.5-flash" data-value="gemini-1.5-flash">Gemini-1.5 Flash</button>
-        <button id="model-gemini-pro" data-value="gemini-pro">Gemini Pro</button>
-        <button id="model-llama-70b" data-value="llama3-70b-8192">Llama3 70b</button>
-        <button id="model-llama-8b" data-value="llama3-8b-8192">Llama3 8b</button>
-        <button id="model-gemma-it" data-value="gemma-7b-it">Gemma 7B</button>
-        <button id="model-codestral-mamba" data-value="open-codestral-mamba">Codestral Mamba</button>
-        <button id="model-mathstral" data-value="mathstral-temp-id">Mathstral</button>
-        <button id="model-mistral-nemo" data-value="open-mistral-nemo">Mistral NeMo</button>
-        <button id="model-mistral-small" data-value="mistral-small-latest">Mistral Small</button>
-        <button id="model-mistral-medium" data-value="mistral-medium-latest">Mistral Medium</button>
-        <button id="model-qroq-mistral-8x7b" data-value="mixtral-8x7b-32768">Free Mixtral 8x7b</button>
-        <button id="model-mistral-8x22b" data-value="open-mixtral-8x22b">Mixtral 8x22b</button>
-        <button id="model-mistral-tiny" data-value="open-mistral-7b">Mistral Tiny</button>
-        <button id="model-claude-1.2" data-value="claude-instant-1.2">Claude 1.2</button>
-        <button id="model-claude-2.0" data-value="claude-2.0">Claude 2.0</button>
-        <button id="model-claude-2.1" data-value="claude-2.1">Claude 2.1</button>
-        <button id="model-claude-sonnet" data-value="claude-3-sonnet-20240229">Claude Sonnet</button>
-        <button id="model-mistral-8x7b" data-value="open-mixtral-8x7b">Mixtral 8x7b</button>
-        <button id="model-gpt-4-32k" data-value="gpt-4-32k">GPT-4-32k</button>
-        <button id="model-gemini-ultra" data-value="gemini-1.0-ultra">Gemini Ultra</button>
+    <div id="model-search-container">
+      <input type="text" id="model-search" placeholder="Search models...">
+      <div class="toggle-container">
+        <label class="toggle-switch">
+          <input type="checkbox" id="show-open-router">
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="toggle-label">Show OpenRouter</span>
+      </div>
+    </div>
+    <div id="model-options" class="select-options">
+        <button id="model-gpt-4" data-value="gpt-4" class="standard-model">GPT-4: Oldest</button>
+        <button id="model-claude-3.7-sonnet" data-value="claude-3-7-sonnet-latest" class="standard-model">Claude 3.7 Sonnet</button>
+        <button id="model-claude-3.5-sonnet" data-value="claude-3-5-sonnet-latest" class="standard-model">Claude 3.5 Sonnet</button>
+        <button id="model-gpt-4o" data-value="gpt-4o" class="standard-model">GPT-4o: Latest</button>
+        <button id="model-gpt-4o-mini" data-value="gpt-4o-mini" class="standard-model">GPT-4o Mini: Cheapest</button>
+        <button id="model-gpt-o1-preview" data-value="o1-preview" class="standard-model">GPT-o1-Preview: Intelligent Reasoning</button>
+        <button id="model-gpt-o1" data-value="o1" class="standard-model">GPT-o1: Reasoning</button>
+        <button id="model-gpt-o3-mini" data-value="o3-mini" class="standard-model">GPT-o3 Mini: Cheap Reasoning</button>
+        <button id="model-gpt-o1-mini" data-value="o1-mini" class="standard-model">GPT-o1 Mini: Cheap Reasoning</button>
+        <button id="model-claude-3.5-haiku" data-value="claude-3-5-haiku-latest" class="standard-model">Claude 3.5 Haiku</button>
+        <button id="model-gemini-2.0-flash" data-value="gemini-2.0-flash-exp" class="standard-model">Gemini-2.0 Flash</button>
+        <button id="model-llama-3.1-405b" data-value="llama-3.1-405b-reasoning" class="standard-model">Llama3.1 405b: New</button>
+        <button id="model-gpt-4-turbo" data-value="gpt-4-turbo-" class="standard-model">GPT-4-Turbo: Standard</button>
+        <button id="model-gpt-3.5" data-value="gpt-3.5-turbo-0125" class="standard-model">GPT-3.5-Turbo: Old</button>
+        <button id="model-claude-haiku" data-value="claude-3-haiku-20240307" class="standard-model">Claude Haiku: Cheap</button>
+        <button id="model-gemini-1.5-pro" data-value="gemini-1.5-pro" class="standard-model">Gemini-1.5 Pro: Best</button>
+        <button id="model-llama-3.1-70b" data-value="llama-3.1-70b-versatile" class="standard-model">Llama3.1 70b</button>
+        <button id="model-llama-3.1-8b" data-value="llama-3.1-8b-instant" class="standard-model">Llama3.1 8b</button>
+        <button id="model-mistral-large" data-value="mistral-large-latest" class="standard-model">Mistral Large</button>
+        <button id="model-codestral" data-value="codestral-latest" class="standard-model">Codestral</button>
+        <button id="model-claude-opus" data-value="claude-3-opus-20240229" class="standard-model">Claude Opus</button>
+        <button id="model-gemini-1.5-flash" data-value="gemini-1.5-flash" class="standard-model">Gemini-1.5 Flash</button>
+        <button id="model-gemini-pro" data-value="gemini-pro" class="standard-model">Gemini Pro</button>
+        <button id="model-llama-70b" data-value="llama3-70b-8192" class="standard-model">Llama3 70b</button>
+        <button id="model-llama-8b" data-value="llama3-8b-8192" class="standard-model">Llama3 8b</button>
+        <button id="model-gemma-it" data-value="gemma-7b-it" class="standard-model">Gemma 7B</button>
+        <button id="model-codestral-mamba" data-value="open-codestral-mamba" class="standard-model">Codestral Mamba</button>
+        <button id="model-mathstral" data-value="mathstral-temp-id" class="standard-model">Mathstral</button>
+        <button id="model-mistral-nemo" data-value="open-mistral-nemo" class="standard-model">Mistral NeMo</button>
+        <button id="model-mistral-small" data-value="mistral-small-latest" class="standard-model">Mistral Small</button>
+        <button id="model-mistral-medium" data-value="mistral-medium-latest" class="standard-model">Mistral Medium</button>
+        <button id="model-qroq-mistral-8x7b" data-value="mixtral-8x7b-32768" class="standard-model">Free Mixtral 8x7b</button>
+        <button id="model-mistral-8x22b" data-value="open-mixtral-8x22b" class="standard-model">Mixtral 8x22b</button>
+        <button id="model-mistral-tiny" data-value="open-mistral-7b" class="standard-model">Mistral Tiny</button>
+        <button id="model-claude-1.2" data-value="claude-instant-1.2" class="standard-model">Claude 1.2</button>
+        <button id="model-claude-2.0" data-value="claude-2.0" class="standard-model">Claude 2.0</button>
+        <button id="model-claude-2.1" data-value="claude-2.1" class="standard-model">Claude 2.1</button>
+        <button id="model-claude-sonnet" data-value="claude-3-sonnet-20240229" class="standard-model">Claude Sonnet</button>
+        <button id="model-mistral-8x7b" data-value="open-mixtral-8x7b" class="standard-model">Mixtral 8x7b</button>
+        <button id="model-gpt-4-32k" data-value="gpt-4-32k" class="standard-model">GPT-4-32k</button>
+        <button id="model-gemini-ultra" data-value="gemini-1.0-ultra" class="standard-model">Gemini Ultra</button>
         <!-- Add other models as options -->
-        <!-- Text Models: Show Tokens per $ -->
-        <button id="open-router-model-eva-unit-01-eva-llama-3.33-70b" data-value="eva-unit-01/eva-llama-3.33-70b">Eva Llama 3.33 70b</button>
-        <button id="open-router-model-x-ai-grok-2-vision-1212" data-value="x-ai/grok-2-vision-1212">xAI: Grok 2 Vision 1212</button>
-        <button id="open-router-model-x-ai-grok-2-1212" data-value="x-ai/grok-2-1212">xAI: Grok 2 1212</button>
-        <button id="open-router-model-cohere-command-r7b-12-2024" data-value="cohere/command-r7b-12-2024">Cohere: Command R7B (12-2024)</button>
-        <button id="open-router-model-google-gemini-2.0-flash-exp-free" data-value="google/gemini-2.0-flash-exp:free">Google: Gemini Flash 2.0 Experimental (free)</button>
-        <button id="open-router-model-google-gemini-exp-1206-free" data-value="google/gemini-exp-1206:free">Google: Gemini Experimental 1206 (free)</button>
-        <button id="open-router-model-meta-llama-llama-3.3-70b-instruct" data-value="meta-llama/llama-3.3-70b-instruct">Meta: Llama 3.3 70B Instruct</button>
-        <button id="open-router-model-amazon-nova-lite-v1" data-value="amazon/nova-lite-v1">Amazon: Nova Lite 1.0</button>
-        <button id="open-router-model-amazon-nova-micro-v1" data-value="amazon/nova-micro-v1">Amazon: Nova Micro 1.0</button>
-        <button id="open-router-model-amazon-nova-pro-v1" data-value="amazon/nova-pro-v1">Amazon: Nova Pro 1.0</button>
-        <button id="open-router-model-qwen-qwq-32b-preview" data-value="qwen/qwq-32b-preview">Qwen: QwQ 32B Preview</button>
-        <button id="open-router-model-google-gemini-exp-1121-free" data-value="google/gemini-exp-1121:free">Google: Gemini Experimental 1121 (free)</button>
-        <button id="open-router-model-google-learnlm-1.5-pro-experimental-free" data-value="google/learnlm-1.5-pro-experimental:free">Google: LearnLM 1.5 Pro Experimental (free)</button>
-        <button id="open-router-model-eva-unit-01-eva-qwen-2.5-72b" data-value="eva-unit-01/eva-qwen-2.5-72b">EVA Qwen2.5 72B</button>
-        <button id="open-router-model-openai-gpt-4o-2024-11-20" data-value="openai/gpt-4o-2024-11-20">OpenAI: GPT-4o (2024-11-20)</button>
-        <button id="open-router-model-mistralai-mistral-large-2411" data-value="mistralai/mistral-large-2411">Mistral Large 2411</button>
-        <button id="open-router-model-mistralai-mistral-large-2407" data-value="mistralai/mistral-large-2407">Mistral Large 2407</button>
-        <button id="open-router-model-mistralai-pixtral-large-2411" data-value="mistralai/pixtral-large-2411">Mistral: Pixtral Large 2411</button>
-        <button id="open-router-model-x-ai-grok-vision-beta" data-value="x-ai/grok-vision-beta">xAI: Grok Vision Beta</button>
-        <button id="open-router-model-google-gemini-exp-1114-free" data-value="google/gemini-exp-1114:free">Google: Gemini Experimental 1114 (free)</button>
-        <button id="open-router-model-infermatic-mn-inferor-12b" data-value="infermatic/mn-inferor-12b">Mistral Nemo Inferor 12B</button>
-        <button id="open-router-model-qwen-qwen-2.5-coder-32b-instruct" data-value="qwen/qwen-2.5-coder-32b-instruct">Qwen2.5 Coder 32B Instruct</button>
-        <button id="open-router-model-raifle-sorcererlm-8x22b" data-value="raifle/sorcererlm-8x22b">SorcererLM 8x22B</button>
+        <!-- OpenRouter Models -->
+        <button id="open-router-model-eva-unit-01-eva-llama-3.33-70b" data-value="eva-unit-01/eva-llama-3.33-70b" class="openrouter-model">Eva Llama 3.33 70b</button>
+        <button id="open-router-model-x-ai-grok-2-vision-1212" data-value="x-ai/grok-2-vision-1212" class="openrouter-model">xAI: Grok 2 Vision 1212</button>
+        <button id="open-router-model-x-ai-grok-2-1212" data-value="x-ai/grok-2-1212" class="openrouter-model">xAI: Grok 2 1212</button>
+        <button id="open-router-model-cohere-command-r7b-12-2024" data-value="cohere/command-r7b-12-2024" class="openrouter-model">Cohere: Command R7B (12-2024)</button>
+        <button id="open-router-model-google-gemini-2.0-flash-exp-free" data-value="google/gemini-2.0-flash-exp:free" class="openrouter-model">Google: Gemini Flash 2.0 Experimental (free)</button>
+        <button id="open-router-model-google-gemini-exp-1206-free" data-value="google/gemini-exp-1206:free" class="openrouter-model">Google: Gemini Experimental 1206 (free)</button>
+        <button id="open-router-model-meta-llama-llama-3.3-70b-instruct" data-value="meta-llama/llama-3.3-70b-instruct" class="openrouter-model">Meta: Llama 3.3 70B Instruct</button>
+        <button id="open-router-model-amazon-nova-lite-v1" data-value="amazon/nova-lite-v1" class="openrouter-model">Amazon: Nova Lite 1.0</button>
+        <button id="open-router-model-amazon-nova-micro-v1" data-value="amazon/nova-micro-v1" class="openrouter-model">Amazon: Nova Micro 1.0</button>
+        <button id="open-router-model-amazon-nova-pro-v1" data-value="amazon/nova-pro-v1" class="openrouter-model">Amazon: Nova Pro 1.0</button>
+        <button id="open-router-model-qwen-qwq-32b-preview" data-value="qwen/qwq-32b-preview" class="openrouter-model">Qwen: QwQ 32B Preview</button>
+        <button id="open-router-model-google-gemini-exp-1121-free" data-value="google/gemini-exp-1121:free" class="openrouter-model">Google: Gemini Experimental 1121 (free)</button>
+        <button id="open-router-model-google-learnlm-1.5-pro-experimental-free" data-value="google/learnlm-1.5-pro-experimental:free" class="openrouter-model">Google: LearnLM 1.5 Pro Experimental (free)</button>
+        <button id="open-router-model-eva-unit-01-eva-qwen-2.5-72b" data-value="eva-unit-01/eva-qwen-2.5-72b" class="openrouter-model">EVA Qwen2.5 72B</button>
+        <button id="open-router-model-openai-gpt-4o-2024-11-20" data-value="openai/gpt-4o-2024-11-20" class="openrouter-model">OpenAI: GPT-4o (2024-11-20)</button>
+        <button id="open-router-model-mistralai-mistral-large-2411" data-value="mistralai/mistral-large-2411" class="openrouter-model">Mistral Large 2411</button>
+        <button id="open-router-model-mistralai-mistral-large-2407" data-value="mistralai/mistral-large-2407" class="openrouter-model">Mistral Large 2407</button>
+        <button id="open-router-model-mistralai-pixtral-large-2411" data-value="mistralai/pixtral-large-2411" class="openrouter-model">Mistral: Pixtral Large 2411</button>
+        <button id="open-router-model-x-ai-grok-vision-beta" data-value="x-ai/grok-vision-beta" class="openrouter-model">xAI: Grok Vision Beta</button>
+        <button id="open-router-model-google-gemini-exp-1114-free" data-value="google/gemini-exp-1114:free" class="openrouter-model">Google: Gemini Experimental 1114 (free)</button>
+        <button id="open-router-model-infermatic-mn-inferor-12b" data-value="infermatic/mn-inferor-12b" class="openrouter-model">Mistral Nemo Inferor 12B</button>
+        <button id="open-router-model-qwen-qwen-2.5-coder-32b-instruct" data-value="qwen/qwen-2.5-coder-32b-instruct" class="openrouter-model">Qwen2.5 Coder 32B Instruct</button>
+        <button id="open-router-model-raifle-sorcererlm-8x22b" data-value="raifle/sorcererlm-8x22b" class="openrouter-model">SorcererLM 8x22B</button>
         <button id="open-router-model-eva-unit-01-eva-qwen-2.5-32b" data-value="eva-unit-01/eva-qwen-2.5-32b">EVA Qwen2.5 32B</button>
         <button id="open-router-model-thedrummer-unslopnemo-12b" data-value="thedrummer/unslopnemo-12b">Unslopnemo 12b</button>
         <button id="open-router-model-anthropic-claude-3.5-haiku-20241022-beta" data-value="anthropic/claude-3.5-haiku-20241022:beta">Anthropic: Claude 3.5 Haiku (2024-10-22) (self-moderated)</button>

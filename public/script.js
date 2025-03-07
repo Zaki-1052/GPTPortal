@@ -1061,19 +1061,64 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
     }
 
     function toggleDropdown(event) {
-      console.log("toggleDropdown triggered", event.target); // Debugging line
       let isClickInside = event.target.closest('.custom-select') || event.target.id === 'selected-model';
-      console.log("Is Click Inside: ", isClickInside); // Debugging line
       if (isClickInside) {
         let options = document.getElementById("model-options");
-        console.log("Current display: ", options.style.display); // Debugging line
         options.style.display = options.style.display === "block" ? "none" : "block";
-        console.log("New display: ", options.style.display); // Debugging line
+        
+        // If opening the dropdown, reset the search and focus the search input
+        if (options.style.display === "block") {
+          document.getElementById("model-search").value = "";
+          filterModels("");
+          document.getElementById("model-search").focus();
+        }
       }
+    }
+    
+    // Function to filter models based on search input
+    function filterModels(searchText) {
+      const showOpenRouter = document.getElementById("show-open-router").checked;
+      const modelButtons = document.querySelectorAll("#model-options button");
+      const searchTerms = searchText.toLowerCase().split(" ");
+      
+      modelButtons.forEach(button => {
+        const modelName = button.textContent.toLowerCase();
+        const isOpenRouterModel = button.classList.contains("openrouter-model");
+        const isStandardModel = button.classList.contains("standard-model");
+        
+        // Check if model name matches all search terms (AND logic)
+        const matchesSearch = searchTerms.every(term => modelName.includes(term));
+        
+        // Show/hide based on search and toggle state
+        if (matchesSearch && (isStandardModel || (isOpenRouterModel && showOpenRouter))) {
+          button.style.display = "block";
+        } else {
+          button.style.display = "none";
+        }
+      });
     }
   
 // Toggle dropdown on clicking the custom-select div
 document.querySelector('.custom-select').addEventListener('click', toggleDropdown);
+
+// Add event listener for search input
+document.getElementById('model-search').addEventListener('input', (e) => {
+  filterModels(e.target.value);
+});
+
+// Add event listener for OpenRouter toggle
+document.getElementById('show-open-router').addEventListener('change', () => {
+  filterModels(document.getElementById('model-search').value);
+});
+
+// Initialize model filtering on page load
+window.addEventListener('DOMContentLoaded', () => {
+  // Hide OpenRouter models by default
+  const modelButtons = document.querySelectorAll('.openrouter-model');
+  modelButtons.forEach(button => {
+    button.style.display = 'none';
+  });
+});
 
     // Function to hide the custom tooltip
     function hideCustomTooltip() {
@@ -2029,15 +2074,41 @@ function showCustomTooltip(text, targetElement) {
 }
 
 function toggleDropdown(event) {
-  console.log("toggleDropdown triggered", event.target); // Debugging line
   let isClickInside = event.target.closest('.custom-select') || event.target.id === 'selected-model';
-  console.log("Is Click Inside: ", isClickInside); // Debugging line
   if (isClickInside) {
     let options = document.getElementById("model-options");
-    console.log("Current display: ", options.style.display); // Debugging line
     options.style.display = options.style.display === "block" ? "none" : "block";
-    console.log("New display: ", options.style.display); // Debugging line
+    
+    // If opening the dropdown, reset the search and focus the search input
+    if (options.style.display === "block") {
+      document.getElementById("model-search").value = "";
+      filterModels("");
+      document.getElementById("model-search").focus();
+    }
   }
+}
+
+// Function to filter models based on search input
+function filterModels(searchText) {
+  const showOpenRouter = document.getElementById("show-open-router").checked;
+  const modelButtons = document.querySelectorAll("#model-options button");
+  const searchTerms = searchText.toLowerCase().split(" ");
+  
+  modelButtons.forEach(button => {
+    const modelName = button.textContent.toLowerCase();
+    const isOpenRouterModel = button.classList.contains("openrouter-model");
+    const isStandardModel = button.classList.contains("standard-model");
+    
+    // Check if model name matches all search terms (AND logic)
+    const matchesSearch = searchTerms.every(term => modelName.includes(term));
+    
+    // Show/hide based on search and toggle state
+    if (matchesSearch && (isStandardModel || (isOpenRouterModel && showOpenRouter))) {
+      button.style.display = "block";
+    } else {
+      button.style.display = "none";
+    }
+  });
 }
 
 
