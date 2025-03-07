@@ -51,6 +51,7 @@ fetchDefaultModel();
 
   const modelID = {
     "GPT-4": "gpt-4",
+    "GPT-4.5": "gpt-4.5-preview",
     "GPT-4o": "gpt-4o",
     "GPT-4-32k": "gpt-4-32k",
     "GPT-4-Turbo": "gpt-4-turbo",
@@ -335,6 +336,7 @@ fetchDefaultModel();
   
   const customModelNames = {
     "gpt-4": "GPT-4",
+    "gpt-4.5-preview": "GPT-4.5",
     "gpt-4o": "GPT-4o",
     "gpt-4-32k": "GPT-4-32k",
     "gpt-4-turbo": "GPT-4-Turbo",
@@ -1170,6 +1172,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // Event listeners for selecting GPT models
 document.getElementById('model-gpt-4').addEventListener('click', () => selectModel('gpt-4'));
+document.getElementById('model-gpt-4.5').addEventListener('click', () => selectModel('gpt-4.5-preview'));
 document.getElementById('model-gpt-4o').addEventListener('click', () => selectModel('gpt-4o'));
 document.getElementById('model-gpt-4-32k').addEventListener('click', () => selectModel('gpt-4-32k'));
 document.getElementById('model-gpt-4-turbo').addEventListener('click', () => selectModel('gpt-4-turbo'));
