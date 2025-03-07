@@ -565,6 +565,24 @@ async function initializeConversationHistory() {
   return systemMessage;
 }
 
+async function initializeSecondHistory() {
+  //const fileInstructions = await readInstructionsFile();
+  systemMessage = `You are a helpful and intelligent AI assistant, knowledgeable about a wide range of topics and highly capable of a great many tasks.`;
+  if (continueConv) {
+    console.log("continue conversation", continueConv);
+    if (summariesOnly) {
+      console.log("summaries only", summariesOnly);
+      const contextAndSummary = await continueConversation(chosenChat);
+      systemMessage += `\n---\n${contextAndSummary}`;
+    } else {
+      systemMessage = await continueConversation(chosenChat);
+    }
+    
+  }
+  conversationHistory.push({ role: "system", content: systemMessage });
+  return systemMessage;
+}
+
 // Call this function when the server starts
 
 async function initializeSystem() {
@@ -2274,6 +2292,9 @@ if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
       systemMessage = formatSectionsIntoSystemMessage(sections);
       
       epochs = epochs + 1;
+    } else {
+      systemMessage = await initializeConversationHistory();
+      epochs = epochs + 1;
     }
   }
 
@@ -2666,11 +2687,11 @@ if (modelID === 'claude-3-7-sonnet-latest') {
         messageContent = response.data.content;
       } else if (modelID.includes('deepseek')) {
         // Extract both reasoning content and message content from DeepSeek response
-        const reasoningContent = response.data.choices[0].message.reasoning_content || '';
-        const textContent = response.data.choices[0].message.content || '';
+        let reasoningContent = response.data.choices[0].message.reasoning_content || '';
+        let textContent = response.data.choices[0].message.content || '';
         
         // Combine both parts into a single formatted messageContent with clear headings
-        messageContent = `# Thinking:\n${reasoningContent}\nEnd Reasoning\n---\n# Response:\n${textContent}`;
+        messageContent = `# Thinking:\n${reasoningContent}\n\n\n---\n# Response:\n${textContent}`;
       } else {
         messageContent = response.data.choices[0].message.content;
       }
