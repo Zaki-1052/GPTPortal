@@ -2602,7 +2602,7 @@ if (modelID === 'claude-3-7-sonnet-latest') {
       'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
       // Add any Mistral-specific headers here if necessary
     };
-    apiUrl = 'https://api.deepseek.ai/v1/chat/completions';
+    apiUrl = 'https://api.deepseek.com/v1/chat/completions';
   }
 
 
@@ -2613,6 +2613,7 @@ if (modelID === 'claude-3-7-sonnet-latest') {
     try {
       // const response = await axios.post(apiUrl, data, { headers, responseType: 'stream' });
       const response = await axios.post(apiUrl, data, { headers });
+      //console.log(response)
       // Process the response as needed
         // optional streaming implentation (currently disabled)
 
@@ -2663,6 +2664,13 @@ if (modelID === 'claude-3-7-sonnet-latest') {
       } else if (modelID.startsWith('claude')) {
         //console.log(response.data.content)
         messageContent = response.data.content;
+      } else if (modelID.includes('deepseek')) {
+        // Extract both reasoning content and message content from DeepSeek response
+        const reasoningContent = response.data.choices[0].message.reasoning_content || '';
+        const textContent = response.data.choices[0].message.content || '';
+        
+        // Combine both parts into a single formatted messageContent with clear headings
+        messageContent = `# Thinking:\n${reasoningContent}\nEnd Reasoning\n---\n# Response:\n${textContent}`;
       } else {
         messageContent = response.data.choices[0].message.content;
       }
@@ -2683,6 +2691,10 @@ if (modelID === 'claude-3-7-sonnet-latest') {
           } else if (modelID === 'o1-preview' || modelID === 'o1-mini') {
             o1History.push({ role: "assistant", content: lastMessageContent });
             console.log("O1 History");
+            res.json({ text: lastMessageContent });
+          } else if (modelID.includes('deepseek')) {
+            conversationHistory.push({ role: "assistant", content: response.data.choices[0].message.content });
+            console.log("DeepSeek History");
             res.json({ text: lastMessageContent });
           } else {
             // Add assistant's message to the conversation history
