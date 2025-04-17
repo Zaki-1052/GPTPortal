@@ -683,7 +683,11 @@ function selectModel(modelID) {
   determineEndpoint(modelID);
   console.log(modelID);
   console.log(isGemini);
-  toggleDropdown(); // Close the dropdown
+  // Close the dropdown
+  const options = document.getElementById('model-options');
+  if (options) {
+    options.style.display = 'none';
+  }
 }
 
 
@@ -1112,6 +1116,14 @@ const selectedModelDisplayName = document.getElementById('selected-model').textC
   
 // Toggle dropdown on clicking the custom-select div
 document.querySelector('.custom-select').addEventListener('click', toggleDropdown);
+// Collapse dropdown when clicking outside the model selector
+document.addEventListener('click', function(event) {
+  const container = document.getElementById('model-selector-container');
+  const options = document.getElementById('model-options');
+  if (options && options.style.display === 'block' && !container.contains(event.target)) {
+    options.style.display = 'none';
+  }
+});
 
 // Add event listener for search input
 document.getElementById('model-search').addEventListener('input', (e) => {
@@ -1137,6 +1149,10 @@ window.addEventListener('DOMContentLoaded', () => {
       let tooltip = document.getElementById("custom-tooltip");
       tooltip.style.display = 'none';
     }
+    // Hide tooltip on model button mouseout
+    document.querySelectorAll('#model-options button').forEach(button => {
+      button.addEventListener('mouseout', hideCustomTooltip);
+    });
     
     document.getElementById('selected-model').addEventListener('click', toggleDropdown);
 
