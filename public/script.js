@@ -52,6 +52,7 @@ fetchDefaultModel();
   const modelID = {
     "GPT-4": "gpt-4",
     "GPT-4.5": "gpt-4.5-preview",
+    "GPT-4.1": "gpt-4.1",
     "GPT-4o": "gpt-4o",
     "GPT-4-32k": "gpt-4-32k",
     "GPT-4-Turbo": "gpt-4-turbo",
@@ -61,8 +62,10 @@ fetchDefaultModel();
     "Claude-3.5-Haiku": "claude-3-5-haiku-latest",
     "GPT-o1-Mini": "o1-mini",
     "GPT-o3-Mini": "o3-mini",
+    "GPT-o4-Mini": "o4-mini",
     "GPT-o1-Preview": "o1-preview",
     "GPT-o1": "o1",
+    "GPT-o1": "o4",
     "DeepSeek-R1": "deepseek-reasoner",
     "DeepSeek-Chat": "deepseek-chat",
     "Gemini-Pro": "gemini-pro",
@@ -339,6 +342,7 @@ fetchDefaultModel();
   const customModelNames = {
     "gpt-4": "GPT-4",
     "gpt-4.5-preview": "GPT-4.5",
+    "gpt-4.1": "GPT-4.1",
     "gpt-4o": "GPT-4o",
     "gpt-4-32k": "GPT-4-32k",
     "gpt-4-turbo": "GPT-4-Turbo",
@@ -348,8 +352,10 @@ fetchDefaultModel();
     "claude-3-5-haiku-latest": "Claude-3.5-Haiku",
     "o1-mini": "GPT-o1-Mini",
     "o3-mini": "GPT-o3-Mini",
+    "o4-mini": "GPT-o4-Mini",
     "o1-preview": "GPT-o1-Preview",
     "o1": "GPT-o1",
+    "o4": "GPT-o4",
     "deepseek-reasoner": "DeepSeek-R1",
     "deepseek-chat": "DeepSeek-Chat",
     "gemini-pro": "Gemini-Pro",
@@ -1177,6 +1183,7 @@ window.addEventListener('DOMContentLoaded', () => {
 // Event listeners for selecting GPT models
 document.getElementById('model-gpt-4').addEventListener('click', () => selectModel('gpt-4'));
 document.getElementById('model-gpt-4.5').addEventListener('click', () => selectModel('gpt-4.5-preview'));
+document.getElementById('model-gpt-4.1').addEventListener('click', () => selectModel('gpt-4.1'));
 document.getElementById('model-gpt-4o').addEventListener('click', () => selectModel('gpt-4o'));
 document.getElementById('model-gpt-4-32k').addEventListener('click', () => selectModel('gpt-4-32k'));
 document.getElementById('model-gpt-4-turbo').addEventListener('click', () => selectModel('gpt-4-turbo'));
@@ -1184,8 +1191,10 @@ document.getElementById('model-gpt-3.5').addEventListener('click', () => selectM
 document.getElementById('model-gpt-4o-mini').addEventListener('click', () => selectModel('gpt-4o-mini'));
 document.getElementById('model-gpt-o1-preview').addEventListener('click', () => selectModel('o1-preview'));
 document.getElementById('model-gpt-o1').addEventListener('click', () => selectModel('o1'));
+document.getElementById('model-gpt-o4').addEventListener('click', () => selectModel('o4'));
 document.getElementById('model-gpt-o1-mini').addEventListener('click', () => selectModel('o1-mini'));
 document.getElementById('model-gpt-o3-mini').addEventListener('click', () => selectModel('o3-mini'));
+document.getElementById('model-gpt-o4-mini').addEventListener('click', () => selectModel('o4-mini'));
 
 document.getElementById('model-deepseek-r1').addEventListener('click', () => selectModel('deepseek-reasoner'));
 document.getElementById('model-deepseek-chat').addEventListener('click', () => selectModel('deepseek-chat'));
@@ -2960,7 +2969,7 @@ function getMaxTokensByModel(modelID) {
   } else if (modelID.startsWith('llama-3.1')) {
     return 8000;
   } else if (modelID === 'claude-3-7-sonnet-latest') {
-    return 20000;
+    return 100000;
   } else if (modelID.startsWith('claude')) {
     return 8000;
   } else {
@@ -3049,7 +3058,7 @@ document.addEventListener('DOMContentLoaded', function() {
   tokensSlider.type = 'range';
   tokensSlider.id = 'tokens-slider';
   tokensSlider.min = '1000';
-  tokensSlider.max = '20000';
+  tokensSlider.max = '100000';
   tokensSlider.step = '500';
   tokensSlider.value = tokens;
   tokensSliderContainer.appendChild(tokensSlider);

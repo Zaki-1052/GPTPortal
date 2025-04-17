@@ -33,7 +33,7 @@ function getMaxTokensByModel(modelID) {
   } else if (modelID.startsWith('llama-3.1')) {
     return 8000;
   } else if (modelID === 'claude-3-7-sonnet-latest') {
-    return 20000;
+    return 100000;
   } else if (modelID.startsWith('claude')) {
     return 8000;
   } else {
@@ -2572,6 +2572,7 @@ if (modelID === 'claude-3-7-sonnet-latest') {
         'x-api-key': `${process.env.CLAUDE_API_KEY}`,
         'content-type': 'application/json',
         'anthropic-version': '2023-06-01',
+        'anthropic-beta': 'output-128k-2025-02-19',
         // Add any Mistral-specific headers here if necessary
       };
       apiUrl = 'https://api.anthropic.com/v1/messages';
@@ -2592,10 +2593,11 @@ if (modelID === 'claude-3-7-sonnet-latest') {
         // Add any Mistral-specific headers here if necessary
       };
       apiUrl = 'https://api.anthropic.com/v1/messages';
-    } else if (modelID.includes('o1') || modelID.includes('o3')) {
+    } else if (modelID.includes('o1') || modelID.includes('o3') || modelID.includes('o4')) {
       o1History.push(user_input);
       data = {
         model: modelID, // Use the model specified by the client
+        reasoning_effort: "high",
         messages: o1History,
       }
       headers = {
