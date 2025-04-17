@@ -2169,8 +2169,9 @@ let apiUrl = '';
 let data;
 let claudeHistory = [];
 let epochs = 0;
-
+let ocount = 0;
 app.post('/message', async (req, res) => {
+  let response;
   console.log("req.file:", req.file); // Check if the file is received
   console.log("Received model ID:", req.body.modelID); // Add this line
   const user_message = req.body.message;
@@ -2518,7 +2519,8 @@ if (modelID === 'claude-3-7-sonnet-latest') {
     };
 
     // END
-  let budget = tokens - 1
+  let budget = tokens - 100;
+  let ID;
     // Define the headers with the Authorization and, if needed, Organization
     // Determine the API to use based on modelID prefix
     if (modelID.includes('/')) {
@@ -2594,17 +2596,29 @@ if (modelID === 'claude-3-7-sonnet-latest') {
       };
       apiUrl = 'https://api.anthropic.com/v1/messages';
     } else if (modelID.includes('o1') || modelID.includes('o3') || modelID.includes('o4')) {
+      console.log("ocount", ocount);
       o1History.push(user_input);
+      if (ocount > 0) {
       data = {
         model: modelID, // Use the model specified by the client
-        reasoning_effort: "high",
-        messages: o1History,
+        previous_response_id: ID,
+        reasoning: { effort: "high", summary: "auto" },
+        input: user_input.content,
+        store: true,
       }
+    } else {
+      data = {
+        model: modelID, // Use the model specified by the client
+        reasoning: { effort: "high", summary: "auto" },
+        input: user_input.content,
+        store: true,
+      }
+    }
       headers = {
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
         // 'OpenAI-Organization': 'process.env.ORGANIZATION' // Uncomment if using an organization ID
       };
-      apiUrl = 'https://api.openai.com/v1/chat/completions';
+      apiUrl = 'https://api.openai.com/v1/responses';
   } else if (modelID.includes('deepseek')) {
     conversationHistory.push(user_input);
     deepseekHistory.push(user_input);
@@ -2622,7 +2636,13 @@ if (modelID === 'claude-3-7-sonnet-latest') {
 
     try {
       // const response = await axios.post(apiUrl, data, { headers, responseType: 'stream' });
-      const response = await axios.post(apiUrl, data, { headers });
+      response = await axios.post(apiUrl, data, { headers });
+      console.log(response.data.id);
+      ocount = ocount+1;
+      console.log(ocount);
+      ID = response.data.id;
+      console.log("ID", ID);
+      console.log(response.data);
       //console.log(response)
       // Process the response as needed
         // optional streaming implentation (currently disabled)
@@ -2674,7 +2694,68 @@ if (modelID === 'claude-3-7-sonnet-latest') {
       } else if (modelID.startsWith('claude')) {
         //console.log(response.data.content)
         messageContent = response.data.content;
-      } else if (modelID.includes('deepseek')) {
+  } else if (modelID.includes('o1') || modelID.includes('o3') || modelID.includes('o4')) {
+    // New handling for o1/o3/o4 models
+    const outputArray = response.data.output;
+    let reasoningContent = '';
+    let assistantContent = '';
+    
+    // Loop through output items to find reasoning and message
+    outputArray.forEach(item => {
+      if (item.type === 'reasoning' && item.summary) {
+        // Extract text from summary items
+        if (Array.isArray(item.summary)) {
+          // Handle array of summaries
+          item.summary.forEach(summaryItem => {
+            if (typeof summaryItem === 'object' && summaryItem.text) {
+              reasoningContent += summaryItem.text + '\n\n';
+            } else if (typeof summaryItem === 'string') {
+              reasoningContent += summaryItem + '\n\n';
+            }
+          });
+        } else if (typeof item.summary === 'object') {
+          // Handle single summary object
+          if (item.summary.text) {
+            reasoningContent += item.summary.text;
+          } else {
+            reasoningContent += JSON.stringify(item.summary);
+          }
+        } else {
+          // Handle plain string summary
+          reasoningContent += item.summary;
+        }
+      }
+      
+      if (item.type === 'message' && item.role === 'assistant') {
+        // Extract text from content
+        if (typeof item.content === 'object') {
+          if (Array.isArray(item.content)) {
+            // Handle array of content objects
+            item.content.forEach(contentItem => {
+              if (typeof contentItem === 'object' && contentItem.text) {
+                assistantContent += contentItem.text;
+              } else if (typeof contentItem === 'string') {
+                assistantContent += contentItem;
+              }
+            });
+          } else if (item.content.text) {
+            // Handle single content object with text property
+            assistantContent += item.content.text;
+          } else {
+            assistantContent += JSON.stringify(item.content);
+          }
+        } else {
+          // Handle plain string content
+          assistantContent += item.content;
+        }
+      }
+    });
+    
+    // Format the complete message with reasoning if available
+    messageContent = reasoningContent ? 
+      `# Thinking:\n${reasoningContent.trim()}\n\n---\n# Response:\n${assistantContent.trim()}` : 
+      assistantContent.trim();
+  } else if (modelID.includes('deepseek')) {
         // Extract both reasoning content and message content from DeepSeek response
         let reasoningContent = response.data.choices[0].message.reasoning_content || '';
         let textContent = response.data.choices[0].message.content || '';
@@ -2698,7 +2779,12 @@ if (modelID === 'claude-3-7-sonnet-latest') {
             claudeHistory.push({ role: "assistant", content: response.data.content });
             //console.log("Claude History");
             res.json({ text: lastMessageContent[0].text });
-          } else if (modelID === 'o1-preview' || modelID === 'o1-mini') {
+          } else if (modelID.includes('o1') || modelID.includes('o3') || modelID.includes('o4')) {
+            // Find the assistant message content in the output array
+            const assistantMessageItem = response.data.output.find(item => 
+              item.type === 'message' && item.role === 'assistant');
+            // Push to history - make sure to store the full content for future context
+            //o1History.push({ role: "assistant", content: assistantMessageItem.content });
             o1History.push({ role: "assistant", content: lastMessageContent });
             console.log("O1 History");
             res.json({ text: lastMessageContent });
