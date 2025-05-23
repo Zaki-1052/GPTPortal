@@ -669,14 +669,46 @@ class DynamicModelManager {
       categoryDiv.className = 'model-category';
       
       const categoryHeader = document.createElement('h4');
-      categoryHeader.textContent = category.name;
-      categoryHeader.style.cssText = 'margin: 10px 0 5px 0; padding: 5px; background-color: #404245; border-radius: 3px; font-size: 14px;';
+      categoryHeader.className = 'category-header';
+      categoryHeader.innerHTML = `<span class="category-arrow" style="transition: transform 0.2s ease; margin-right: 8px; font-size: 12px;">▼</span> ${category.name}`;
+      categoryHeader.style.cssText = 'margin: 10px 0 5px 0; padding: 5px; background-color: #404245; border-radius: 3px; font-size: 14px; cursor: pointer; user-select: none; display: flex; align-items: center; transition: background-color 0.2s ease;';
+      
+      // Add hover effect
+      categoryHeader.addEventListener('mouseenter', () => {
+        categoryHeader.style.backgroundColor = '#505355';
+      });
+      categoryHeader.addEventListener('mouseleave', () => {
+        categoryHeader.style.backgroundColor = '#404245';
+      });
       categoryDiv.appendChild(categoryHeader);
 
-      // Add models to category
+      // Create collapsible models container
+      const modelsContainer = document.createElement('div');
+      modelsContainer.className = 'models-container';
+      modelsContainer.style.cssText = 'overflow: hidden; transition: max-height 0.3s ease-out; max-height: 1000px;';
+      
+      // Add models to container
       category.models.forEach(model => {
         const button = this.createModelButton(model);
-        categoryDiv.appendChild(button);
+        modelsContainer.appendChild(button);
+      });
+      
+      categoryDiv.appendChild(modelsContainer);
+      
+      // Add click handler for collapse/expand
+      categoryHeader.addEventListener('click', () => {
+        const arrow = categoryHeader.querySelector('.category-arrow');
+        const isCollapsed = modelsContainer.style.maxHeight === '0px';
+        
+        if (isCollapsed) {
+          // Expand
+          modelsContainer.style.maxHeight = '1000px';
+          arrow.style.transform = 'rotate(0deg)';
+        } else {
+          // Collapse
+          modelsContainer.style.maxHeight = '0px';
+          arrow.style.transform = 'rotate(-90deg)';
+        }
       });
 
       // Hide OpenRouter categories if toggle is off

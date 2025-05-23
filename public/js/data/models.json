@@ -106,63 +106,6 @@
       "supportsFunction": true
     },
 
-    "gpt-image-1": {
-      "id": "gpt-image-1",
-      "name": "GPT Image 1: Advanced",
-      "provider": "openai",
-      "category": "image",
-      "source": "core",
-      "description": "Advanced multimodal image generation model",
-      "pricing": { "input": 2.50, "output": 10.00 },
-      "contextWindow": 128000,
-      "maxTokens": 16000,
-      "supportsVision": true,
-      "supportsFunction": true,
-      "supportsImageGeneration": true,
-      "imageTokens": {
-        "low": { "1024x1024": 272, "1024x1536": 408, "1536x1024": 400 },
-        "medium": { "1024x1024": 1056, "1024x1536": 1584, "1536x1024": 1568 },
-        "high": { "1024x1024": 4160, "1024x1536": 6240, "1536x1024": 6208 }
-      }
-    },
-    "dall-e-3": {
-      "id": "dall-e-3",
-      "name": "DALL-E 3: Specialized",
-      "provider": "openai",
-      "category": "image",
-      "source": "core",
-      "description": "Specialized image generation model",
-      "pricing": { "input": 0, "output": 0.04 },
-      "contextWindow": 4000,
-      "maxTokens": 1000,
-      "supportsVision": false,
-      "supportsFunction": false,
-      "supportsImageGeneration": true,
-      "imageConfig": {
-        "quality": ["standard", "hd"],
-        "size": ["1024x1024", "1024x1792", "1792x1024"],
-        "style": ["vivid", "natural"]
-      }
-    },
-    "dall-e-2": {
-      "id": "dall-e-2",
-      "name": "DALL-E 2: Fast",
-      "provider": "openai",
-      "category": "image",
-      "source": "core",
-      "description": "Fast image generation model",
-      "pricing": { "input": 0, "output": 0.02 },
-      "contextWindow": 1000,
-      "maxTokens": 1000,
-      "supportsVision": false,
-      "supportsFunction": false,
-      "supportsImageGeneration": true,
-      "imageConfig": {
-        "quality": ["standard"],
-        "size": ["256x256", "512x512", "1024x1024"],
-        "style": ["vivid", "natural"]
-      }
-    },
 
     "o1-preview": {
       "id": "o1-preview",
@@ -362,6 +305,59 @@
       "supportsFunction": true
     },
 
+    "gemini-2.5-flash-preview-05-20": {
+      "id": "gemini-2.5-flash-preview-05-20",
+      "name": "Gemini 2.5 Flash Preview",
+      "provider": "google",
+      "category": "gemini",
+      "source": "core",
+      "description": "Latest Gemini 2.5 with adaptive thinking and cost efficiency",
+      "pricing": { "input": 0, "output": 0 },
+      "contextWindow": 1000000,
+      "maxTokens": 8000,
+      "supportsVision": true,
+      "supportsFunction": true
+    },
+    "gemini-2.5-pro-preview-05-06": {
+      "id": "gemini-2.5-pro-preview-05-06",
+      "name": "Gemini 2.5 Pro Preview",
+      "provider": "google",
+      "category": "gemini",
+      "source": "core",
+      "description": "Enhanced thinking and reasoning, multimodal understanding, advanced coding",
+      "pricing": { "input": 0, "output": 0 },
+      "contextWindow": 2000000,
+      "maxTokens": 8000,
+      "supportsVision": true,
+      "supportsFunction": true
+    },
+    "gemini-2.0-flash-lite": {
+      "id": "gemini-2.0-flash-lite",
+      "name": "Gemini 2.0 Flash Lite",
+      "provider": "google",
+      "category": "gemini",
+      "source": "core",
+      "description": "Cost efficient and low latency version of Gemini 2.0",
+      "pricing": { "input": 0, "output": 0 },
+      "contextWindow": 1000000,
+      "maxTokens": 8000,
+      "supportsVision": true,
+      "supportsFunction": true
+    },
+    "gemini-1.5-flash-8b": {
+      "id": "gemini-1.5-flash-8b",
+      "name": "Gemini 1.5 Flash 8B",
+      "provider": "google",
+      "category": "gemini",
+      "source": "core",
+      "description": "High volume and lower intelligence tasks",
+      "pricing": { "input": 0, "output": 0 },
+      "contextWindow": 1000000,
+      "maxTokens": 8000,
+      "supportsVision": true,
+      "supportsFunction": true
+    },
+
     "deepseek-reasoner": {
       "id": "deepseek-reasoner",
       "name": "DeepSeek-R1",
@@ -451,6 +447,124 @@
       "description": "Mistral coding model",
       "pricing": { "input": 1.00, "output": 3.00 },
       "contextWindow": 32000,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true
+    },
+    "open-mixtral-8x22b": {
+      "id": "open-mixtral-8x22b",
+      "name": "Mixtral 8x22B",
+      "provider": "mistral",
+      "category": "mistral",
+      "source": "core",
+      "description": "Large mixture of experts model",
+      "pricing": { "input": 1.2, "output": 1.2 },
+      "contextWindow": 65536,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true
+    },
+    "mistral-small-latest": {
+      "id": "mistral-small-latest",
+      "name": "Mistral Small",
+      "provider": "mistral",
+      "category": "mistral",
+      "source": "core",
+      "description": "Latest small model with vision support",
+      "pricing": { "input": 0.2, "output": 0.6 },
+      "contextWindow": 131072,
+      "maxTokens": 8000,
+      "supportsVision": true,
+      "supportsFunction": true
+    },
+    "mistral-medium-latest": {
+      "id": "mistral-medium-latest",
+      "name": "Mistral Medium",
+      "provider": "mistral",
+      "category": "mistral",
+      "source": "core",
+      "description": "Latest medium model with vision support",
+      "pricing": { "input": 1.0, "output": 3.0 },
+      "contextWindow": 131072,
+      "maxTokens": 8000,
+      "supportsVision": true,
+      "supportsFunction": true
+    },
+    "pixtral-large-latest": {
+      "id": "pixtral-large-latest",
+      "name": "Pixtral Large",
+      "provider": "mistral",
+      "category": "mistral",
+      "source": "core",
+      "description": "Large multimodal model with advanced vision",
+      "pricing": { "input": 2.0, "output": 6.0 },
+      "contextWindow": 131072,
+      "maxTokens": 8000,
+      "supportsVision": true,
+      "supportsFunction": true
+    },
+    "pixtral-12b-latest": {
+      "id": "pixtral-12b-latest",
+      "name": "Pixtral 12B",
+      "provider": "mistral",
+      "category": "mistral",
+      "source": "core",
+      "description": "Compact multimodal model",
+      "pricing": { "input": 0.15, "output": 0.15 },
+      "contextWindow": 131072,
+      "maxTokens": 8000,
+      "supportsVision": true,
+      "supportsFunction": true
+    },
+    "open-mistral-nemo": {
+      "id": "open-mistral-nemo",
+      "name": "Mistral Nemo",
+      "provider": "mistral",
+      "category": "mistral",
+      "source": "core",
+      "description": "Advanced open source model with large context",
+      "pricing": { "input": 0.15, "output": 0.15 },
+      "contextWindow": 131072,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true
+    },
+
+    "llama-3.1-405b-reasoning": {
+      "id": "llama-3.1-405b-reasoning",
+      "name": "Llama 3.1 405B",
+      "provider": "groq",
+      "category": "llama",
+      "source": "core",
+      "description": "Largest open source model with strong reasoning",
+      "pricing": { "input": 0, "output": 0 },
+      "contextWindow": 131072,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true
+    },
+    "llama-3.1-70b-versatile": {
+      "id": "llama-3.1-70b-versatile",
+      "name": "Llama 3.1 70B",
+      "provider": "groq",
+      "category": "llama",
+      "source": "core",
+      "description": "Versatile model for various tasks",
+      "pricing": { "input": 0, "output": 0 },
+      "contextWindow": 131072,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true
+    },
+    "llama-3.1-8b-instant": {
+      "id": "llama-3.1-8b-instant",
+      "name": "Llama 3.1 8B",
+      "provider": "groq",
+      "category": "llama",
+      "source": "core",
+      "description": "Fast and efficient model",
+      "pricing": { "input": 0, "output": 0 },
+      "contextWindow": 131072,
       "maxTokens": 8000,
       "supportsVision": false,
       "supportsFunction": true
@@ -556,13 +670,71 @@
       "audioFormats": ["mp3", "mp4", "mpeg", "mpga", "m4a", "wav", "webm"],
       "features": ["timestamps", "translations", "verbose_json", "srt", "vtt"],
       "maxFileSize": "25MB"
+    },
+
+    "gpt-image-1": {
+      "id": "gpt-image-1",
+      "name": "GPT Image 1: Advanced",
+      "provider": "openai",
+      "category": "image",
+      "source": "core",
+      "description": "Advanced multimodal image generation model",
+      "pricing": { "input": 2.50, "output": 10.00 },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsImageGeneration": true,
+      "imageTokens": {
+        "low": { "1024x1024": 272, "1024x1536": 408, "1536x1024": 400 },
+        "medium": { "1024x1024": 1056, "1024x1536": 1584, "1536x1024": 1568 },
+        "high": { "1024x1024": 4160, "1024x1536": 6240, "1536x1024": 6208 }
+      }
+    },
+    "dall-e-3": {
+      "id": "dall-e-3",
+      "name": "DALL-E 3: Specialized",
+      "provider": "openai",
+      "category": "image",
+      "source": "core",
+      "description": "Specialized image generation model",
+      "pricing": { "input": 0, "output": 0.04 },
+      "contextWindow": 4000,
+      "maxTokens": 1000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "supportsImageGeneration": true,
+      "imageConfig": {
+        "quality": ["standard", "hd"],
+        "size": ["1024x1024", "1024x1792", "1792x1024"],
+        "style": ["vivid", "natural"]
+      }
+    },
+    "dall-e-2": {
+      "id": "dall-e-2",
+      "name": "DALL-E 2: Fast",
+      "provider": "openai",
+      "category": "image",
+      "source": "core",
+      "description": "Fast image generation model",
+      "pricing": { "input": 0, "output": 0.02 },
+      "contextWindow": 1000,
+      "maxTokens": 1000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "supportsImageGeneration": true,
+      "imageConfig": {
+        "quality": ["standard"],
+        "size": ["256x256", "512x512", "1024x1024"],
+        "style": ["vivid", "natural"]
+      }
     }
   },
   
   "categories": {
     "gpt": {
       "name": "GPT Models",
-      "models": ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "gpt-4", "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano", "gpt-3.5-turbo-0125"]
+      "models": ["gpt-4", "gpt-4-turbo", "gpt-4o", "gpt-4.1", "gpt-4o-mini", "gpt-4.1-mini", "gpt-4.1-nano", "gpt-3.5-turbo-0125"]
     },
     "claude": {
       "name": "Claude Models",
@@ -570,7 +742,7 @@
     },
     "gemini": {
       "name": "Gemini Models",
-      "models": ["gemini-2.0-flash-exp", "gemini-1.5-pro", "gemini-1.5-flash", "gemini-pro"]
+      "models": ["gemini-2.5-pro-preview-05-06", "gemini-2.5-flash-preview-05-20", "gemini-2.0-flash-exp", "gemini-2.0-flash-lite", "gemini-1.5-pro", "gemini-1.5-flash", "gemini-1.5-flash-8b", "gemini-pro"]
     },
     "deepseek": {
       "name": "DeepSeek Models",
@@ -578,19 +750,23 @@
     },
     "reasoning": {
       "name": "Reasoning Models",
-      "models": ["o1-preview", "o1-mini", "o3-mini", "o3", "o4-mini"]
+      "models": ["o4-mini", "o3", "o3-mini", "o1-preview", "o1-mini"]
     },
     "mistral": {
       "name": "Mistral Models",
-      "models": ["mistral-large-latest", "codestral-latest"]
+      "models": ["mistral-large-latest", "mistral-medium-latest", "mistral-small-latest", "pixtral-large-latest", "pixtral-12b-latest", "open-mixtral-8x22b", "open-mistral-nemo", "codestral-latest"]
     },
-    "image": {
-      "name": "Image Models",
-      "models": ["gpt-image-1", "dall-e-3", "dall-e-2"]
+    "llama": {
+      "name": "LLaMA Models",
+      "models": ["llama-3.1-405b-reasoning", "llama-3.1-70b-versatile", "llama-3.1-8b-instant"]
     },
     "voice": {
       "name": "Voice Models",
       "models": ["gpt-4o-mini-tts", "tts-1-hd", "tts-1", "gpt-4o-transcribe", "gpt-4o-mini-transcribe", "whisper-1"]
+    },
+    "image": {
+      "name": "Image Models",
+      "models": ["gpt-image-1", "dall-e-3", "dall-e-2"]
     }
   }
 }
