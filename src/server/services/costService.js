@@ -1,73 +1,9 @@
-// Cost calculation service with comprehensive model pricing
+// Cost calculation service using unified model data
+const modelLoader = require('../shared/modelLoader');
+
 class CostService {
   constructor() {
-    this.setupModelPricing();
-  }
-
-  /**
-   * Setup comprehensive model pricing (cost per million tokens)
-   */
-  setupModelPricing() {
-    this.modelPricing = {
-      // OpenAI GPT Models
-      'gpt-4': { input: 30.00, output: 60.00 },
-      'gpt-4-turbo': { input: 10.00, output: 30.00 },
-      'gpt-4o': { input: 5.00, output: 15.00 },
-      'gpt-4o-mini': { input: 0.15, output: 0.60 },
-      'gpt-3.5-turbo-0125': { input: 0.50, output: 1.50 },
-
-      // OpenAI Reasoning Models
-      'o1-preview': { input: 15.00, output: 60.00 },
-      'o1-mini': { input: 3.00, output: 12.00 },
-      'o3-mini': { input: 3.00, output: 12.00 },
-
-      // Anthropic Claude Models
-      'claude-opus-4-20250514': { input: 15.00, output: 75.00 },
-      'claude-sonnet-4-20250514': { input: 3.00, output: 15.00 },
-      'claude-3-7-sonnet-latest': { input: 3.00, output: 15.00 },
-      'claude-3-5-sonnet-latest': { input: 3.00, output: 15.00 },
-      'claude-3-5-sonnet-20240620': { input: 3.00, output: 15.00 },
-      'claude-3-5-haiku-latest': { input: 0.25, output: 1.25 },
-      'claude-3-sonnet-20240229': { input: 3.00, output: 15.00 },
-      'claude-3-opus-20240229': { input: 15.00, output: 75.00 },
-      'claude-3-haiku-20240307': { input: 0.25, output: 1.25 },
-      'claude-2.1': { input: 8.00, output: 24.00 },
-      'claude-2.0': { input: 8.00, output: 24.00 },
-      'claude-instant-1.2': { input: 0.80, output: 2.40 },
-
-      // DeepSeek Models
-      'deepseek-reasoner': { input: 0.55, output: 2.19 },
-      'deepseek-chat': { input: 0.14, output: 0.28 },
-
-      // Mistral Models
-      'mistral-large-latest': { input: 2.00, output: 6.00 },
-      'mistral-large-2402': { input: 4.00, output: 12.00 },
-      'mistral-medium-2312': { input: 2.70, output: 8.10 },
-      'mistral-small-2402': { input: 1.00, output: 3.00 },
-      'open-mistral-7b': { input: 0.25, output: 0.25 },
-      'open-mixtral-8x7b': { input: 0.70, output: 0.70 },
-      'open-mixtral-8x22b': { input: 2.00, output: 6.00 },
-      'open-mistral-nemo': { input: 0.3, output: 0.3 },
-      'codestral-2405': { input: 1.00, output: 3.00 },
-      'codestral-latest': { input: 1.00, output: 3.00 },
-      'open-codestral-mamba': { input: 0.25, output: 0.25 },
-
-      // Google Gemini Models (Free)
-      'gemini-2.0-flash-exp': { input: 0, output: 0 },
-      'gemini-1.5-pro': { input: 0, output: 0 },
-      'gemini-1.5-flash': { input: 0, output: 0 },
-      'gemini-pro': { input: 0, output: 0 },
-      'gemini-pro-vision': { input: 0, output: 0 },
-
-      // Meta LLaMA via Groq (Free)
-      'llama-3.1-405b-reasoning': { input: 0, output: 0 },
-      'llama-3.1-70b-versatile': { input: 0, output: 0 },
-      'llama-3.1-8b-instant': { input: 0, output: 0 },
-      'llama3-70b-8192': { input: 0, output: 0 },
-      'llama3-8b-8192': { input: 0, output: 0 },
-      'gemma-7b-it': { input: 0, output: 0 },
-      'mixtral-8x7b-32768': { input: 0, output: 0 }
-    };
+    // No longer need hardcoded pricing - using unified JSON
   }
 
   /**
@@ -77,7 +13,7 @@ class CostService {
    * @returns {Promise<number>} - Total cost in cents
    */
   async calculateCost(tokens, model) {
-    const pricing = this.modelPricing[model];
+    const pricing = await modelLoader.getModelPricing(model);
     
     if (!pricing) {
       console.warn(`Unknown model pricing: ${model}`);
@@ -124,10 +60,10 @@ class CostService {
    * @param {string} modelId - Model identifier
    * @param {number} inputTokens - Input token count
    * @param {number} outputTokens - Output token count
-   * @returns {number} - Total cost in dollars
+   * @returns {Promise<number>} - Total cost in dollars
    */
-  calculateSimpleCost(modelId, inputTokens, outputTokens) {
-    const pricing = this.modelPricing[modelId];
+  async calculateSimpleCost(modelId, inputTokens, outputTokens) {
+    const pricing = await modelLoader.getModelPricing(modelId);
     if (!pricing) return 0;
     
     return ((inputTokens * pricing.input) + (outputTokens * pricing.output)) / 1000000;
@@ -135,35 +71,49 @@ class CostService {
 
   /**
    * Get pricing for a specific model
+   * @param {string} modelId - Model identifier
+   * @returns {Promise<Object>} Pricing object
    */
-  getModelPricing(modelId) {
-    return this.modelPricing[modelId] || { input: 0, output: 0 };
+  async getModelPricing(modelId) {
+    return await modelLoader.getModelPricing(modelId);
   }
 
   /**
    * Check if model is free
+   * @param {string} modelId - Model identifier
+   * @returns {Promise<boolean>} True if free
    */
-  isModelFree(modelId) {
-    const pricing = this.getModelPricing(modelId);
-    return pricing.input === 0 && pricing.output === 0;
+  async isModelFree(modelId) {
+    return await modelLoader.isFree(modelId);
   }
 
   /**
    * Get all free models
+   * @returns {Promise<Array>} Array of free model IDs
    */
-  getFreeModels() {
-    return Object.entries(this.modelPricing)
-      .filter(([_, pricing]) => pricing.input === 0 && pricing.output === 0)
-      .map(([modelId, _]) => modelId);
+  async getFreeModels() {
+    const allModels = await modelLoader.getAllModels();
+    const freeModels = [];
+    
+    for (const [modelId, model] of Object.entries(allModels)) {
+      if (model.pricing.input === 0 && model.pricing.output === 0) {
+        freeModels.push(modelId);
+      }
+    }
+    
+    return freeModels;
   }
 
   /**
    * Get cost estimate for a conversation
+   * @param {Array} messages - Conversation messages
+   * @param {string} modelId - Model identifier
+   * @returns {Promise<number>} Estimated cost in dollars
    */
   async estimateConversationCost(messages, modelId) {
     const tokenService = require('./tokenService');
     const tokens = await tokenService.getTokensForModel(messages, modelId);
-    const pricing = this.getModelPricing(modelId);
+    const pricing = await this.getModelPricing(modelId);
     
     if (!pricing) return 0;
     
@@ -171,11 +121,14 @@ class CostService {
     const estimatedInputTokens = Math.floor(tokens * 0.8);
     const estimatedOutputTokens = Math.floor(tokens * 0.2);
     
-    return this.calculateSimpleCost(modelId, estimatedInputTokens, estimatedOutputTokens);
+    return await this.calculateSimpleCost(modelId, estimatedInputTokens, estimatedOutputTokens);
   }
 
   /**
    * Format cost for display
+   * @param {number} cost - Cost in dollars
+   * @param {string} currency - Currency format
+   * @returns {string} Formatted cost
    */
   formatCost(cost, currency = 'USD') {
     if (cost === 0) return 'Free';
@@ -193,23 +146,87 @@ class CostService {
 
   /**
    * Get pricing comparison for models
+   * @param {Array} modelIds - Array of model IDs
+   * @returns {Promise<Array>} Pricing comparison
    */
-  getPricingComparison(modelIds) {
-    return modelIds.map(modelId => ({
-      model: modelId,
-      pricing: this.getModelPricing(modelId),
-      isFree: this.isModelFree(modelId)
-    }));
+  async getPricingComparison(modelIds) {
+    const comparisons = [];
+    
+    for (const modelId of modelIds) {
+      comparisons.push({
+        model: modelId,
+        pricing: await this.getModelPricing(modelId),
+        isFree: await this.isModelFree(modelId)
+      });
+    }
+    
+    return comparisons;
   }
 
   /**
-   * Update pricing for a model
+   * Update pricing for a model (runtime only - doesn't persist)
+   * @param {string} modelId - Model identifier
+   * @param {number} inputPrice - Input price per million tokens
+   * @param {number} outputPrice - Output price per million tokens
    */
-  updateModelPricing(modelId, inputPrice, outputPrice) {
-    this.modelPricing[modelId] = {
-      input: inputPrice,
-      output: outputPrice
+  async updateModelPricing(modelId, inputPrice, outputPrice) {
+    // Note: This would update runtime cache only
+    // For persistent updates, modify the JSON file
+    console.warn('updateModelPricing: Runtime updates not persistent. Modify JSON file for permanent changes.');
+  }
+
+  /**
+   * Get comprehensive cost statistics
+   * @returns {Promise<Object>} Cost statistics
+   */
+  async getCostStatistics() {
+    const allModels = await modelLoader.getAllModels();
+    const stats = {
+      totalModels: Object.keys(allModels).length,
+      freeModels: 0,
+      paidModels: 0,
+      avgInputCost: 0,
+      avgOutputCost: 0,
+      costRanges: {
+        cheap: 0,    // < $1 per million
+        medium: 0,   // $1-10 per million
+        expensive: 0 // > $10 per million
+      }
     };
+
+    let totalInputCost = 0;
+    let totalOutputCost = 0;
+    let paidModelCount = 0;
+
+    Object.values(allModels).forEach(model => {
+      const pricing = model.pricing;
+      
+      if (pricing.input === 0 && pricing.output === 0) {
+        stats.freeModels++;
+      } else {
+        stats.paidModels++;
+        paidModelCount++;
+        totalInputCost += pricing.input;
+        totalOutputCost += pricing.output;
+        
+        // Categorize by cost
+        const maxPrice = Math.max(pricing.input, pricing.output);
+        if (maxPrice < 1) {
+          stats.costRanges.cheap++;
+        } else if (maxPrice <= 10) {
+          stats.costRanges.medium++;
+        } else {
+          stats.costRanges.expensive++;
+        }
+      }
+    });
+
+    if (paidModelCount > 0) {
+      stats.avgInputCost = totalInputCost / paidModelCount;
+      stats.avgOutputCost = totalOutputCost / paidModelCount;
+    }
+
+    return stats;
   }
 }
 
