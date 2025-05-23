@@ -4,81 +4,67 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-GPTPortal is a Node.js-based multi-modal chat application that provides a unified interface for multiple LLM APIs including OpenAI GPT-4, Anthropic Claude, Google Gemini, Mistral AI, and others. It features a web-based chat interface with support for voice, images, file uploads, and custom prompt templates.
-
-## Architecture
-
-- **Backend**: Express.js server (`server.js`) handling API routing and LLM integrations
-- **Frontend**: Static HTML/CSS/JS served from `public/` directory
-  - `portal.html` - Main chat interface
-  - `script.js` - Frontend logic and API communication
-  - `chat.css` - Styling
-- **File Structure**:
-  - `public/uploads/` - User uploaded files and chat backups
-  - `public/uploads/prompts/` - Custom prompt templates
-  - `public/uploads/chats/` - Chat history storage
+GPTPortal is a multi-LLM chat interface that provides a unified frontend for interacting with various AI providers including OpenAI, Claude, Gemini, Groq, Mistral, OpenRouter, and DeepSeek. The application features a web-based chat interface with conversation history, prompt templates, and comprehensive AI model management.
 
 ## Development Commands
 
-- **Start development server**: `npm start` (uses nodemon for auto-reload)
-- **Default port**: 3000 (configurable via `PORT_SERVER` env var)
-- **Docker**: Use `docker-compose up` with provided docker-compose.yml
+- `npm start` - Start the development server with nodemon (watches for changes)
+- `node server.js` - Start the production server
 
-## Key Configuration
+## Architecture
 
-- Environment variables in `.env` file control:
-  - API keys for various LLM providers (OPENAI_API_KEY, GOOGLE_API_KEY, etc.)
-  - Authentication (USER_USERNAME, USER_PASSWORD)
-  - Model parameters (TEMPERATURE, MAX_TOKENS)
-- Authentication uses express-basic-auth when credentials are provided
-- File uploads handled via multer with 50MB limit
+### Backend Structure
+- **Entry Point**: `server.js` - Main Express server with middleware and route initialization
+- **Configuration**: `src/server/config/environment.js` - Environment variables and API key management
+- **Routes**: `src/server/routes/` - Modular route handlers for different functionalities
+  - `chat.js` - Main chat API endpoints with provider integration
+  - `assistant.js` - Assistant-specific functionality  
+  - `gemini.js` - Google Gemini integration
+  - `setup.js` - Initial configuration setup
+  - `config.js` - Configuration management
+  - `models.js` - Model metadata and availability
 
-## API Integration Points
+### Provider System
+- **Provider Factory**: `src/server/services/providers/providerFactory.js` - Central factory for AI provider handlers
+- **Individual Handlers**: `src/server/services/providers/` - Dedicated handlers for each AI provider:
+  - `openaiHandler.js`, `claudeHandler.js`, `geminiHandler.js`, `groqHandler.js`, `mistralHandler.js`, `openrouterHandler.js`, `deepseekHandler.js`
+- **Model Management**: `src/server/services/modelProviders/` - Model registry and provider-specific model handling
 
-The server integrates with multiple LLM providers through dedicated endpoints:
-- OpenAI GPT models (including Assistants API)
-- Anthropic Claude models 
-- Google Gemini models
-- Mistral AI models
-- Meta LLaMA via Groq
-- OpenRouter for additional models
+### Core Services
+- **Token Management**: `tokenService.js`, `tokenCountService.js` - Token counting and limits
+- **Cost Tracking**: `costService.js` - API usage cost calculation
+- **Export**: `exportService.js` - Chat export functionality
+- **Title Generation**: `titleService.js` - Automatic conversation titles
+- **Model Sync**: `modelSyncService.js` - Synchronizes available models from providers
 
-Each provider has specific token limits and pricing models enforced in `enforceTokenLimits()` and `getMaxTokensByModel()` functions.
+### Frontend Structure
+- **Main Interface**: `public/portal.html` - Chat interface with sidebar and prompt templates
+- **Application Logic**: `public/js/app.js` - Main application class coordinating all frontend modules
+- **Modular Components**: `public/js/modules/`
+  - `chatManager.js` - Chat functionality and message handling
+  - `uiManager.js` - UI state and interaction management
+  - `modelConfig.js` - Model configuration and selection
+  - `dynamicModelManager.js` - Dynamic model loading and management
 
-## Frontend Architecture
+### Configuration
+- **Environment Variables**: Required API keys for various providers (OPENAI_API_KEY, CLAUDE_API_KEY, GOOGLE_API_KEY, etc.)
+- **Authentication**: Basic HTTP auth via USER_USERNAME and USER_PASSWORD
+- **Model Cache**: `src/cache/` - Caches model metadata from providers like OpenRouter
 
-- Model selection dropdown with search and OpenRouter toggle
-- Chat history sidebar with conversation management
-- Prompt templates sidebar for reusable system instructions
-- Voice recording, image upload, and file upload capabilities
-- Real-time token cost calculations and conversation export
+### Key Features
+- **Multi-Provider Support**: Unified interface for multiple AI providers
+- **Conversation Management**: Persistent chat history with export capabilities
+- **Prompt Templates**: Pre-defined prompts stored in `public/uploads/prompts/`
+- **File Upload**: Support for image and document uploads
+- **Token Tracking**: Real-time token usage and cost estimation
+- **Model Selection**: Dynamic model availability based on configured API keys
 
-## Important Implementation Notes
+### Data Flow
+1. Frontend sends chat requests to `/api/chat` endpoint
+2. Chat router determines appropriate provider based on selected model
+3. Provider factory creates/retrieves the appropriate handler
+4. Handler processes the request and interfaces with the AI provider
+5. Response is processed through token counting, cost tracking, and title generation services
+6. Result is returned to frontend and conversation history is updated
 
-- Token limits are model-specific and enforced server-side
-- File concatenation system for handling large text uploads
-- Chat history stored as JSON files in `public/uploads/chats/`
-- Graceful shutdown on "Bye!" command
-- Image generation triggered by "Generate:" prefix
-- Markdown rendering with DOMPurify sanitization
-
-## Refactored Architecture (Available)
-
-The codebase has been refactored into a modular structure while maintaining full backward compatibility:
-
-**Server Modules** (in `src/server/`):
-- `config/environment.js` - Configuration management
-- `middleware/auth.js` - Authentication handling
-- `middleware/upload.js` - File upload processing
-- `services/aiProviders.js` - AI provider initialization
-- `services/modelService.js` - Model utilities and token management
-- `routes/setup.js` - Setup and configuration endpoints
-- `routes/config.js` - Basic API routes
-
-**Frontend Modules** (in `public/js/modules/`):
-- `modelConfig.js` - Model selection and configuration
-- `chatManager.js` - Chat functionality and conversation handling
-- `uiManager.js` - UI controls and interface management
-- `app.js` - Main application coordinator
-
-**Usage**: Both original (`server.js`, `script.js`) and refactored (`server-new.js`, modular JS) versions available. See `REFACTORING_GUIDE.md` for detailed migration information.
+The application maintains separate conversation histories for different providers and supports both streaming and non-streaming responses depending on the provider capabilities.

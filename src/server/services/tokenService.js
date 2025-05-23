@@ -1,9 +1,17 @@
-// Token counting service using tiktoken for accurate token calculation
+// Enhanced Token counting service with caching and performance optimizations
 const { get_encoding, encoding_for_model } = require("tiktoken");
+const Logger = require('../utils/Logger');
 
 class TokenService {
   constructor() {
     this.encoderCache = new Map();
+    this.tokenCache = new Map();
+    this.logger = new Logger('TokenService');
+    this.cacheHits = 0;
+    this.cacheMisses = 0;
+    
+    // Periodic cache cleanup
+    this.setupCacheCleanup();
   }
 
   /**
@@ -223,6 +231,100 @@ class TokenService {
   }
 
   /**
+   * Setup periodic cache cleanup
+   */
+  setupCacheCleanup() {
+    // Clean token cache every 30 minutes
+    setInterval(() => {
+      this.cleanupTokenCache();
+    }, 30 * 60 * 1000);
+  }
+
+  /**
+   * Clean up token cache to prevent memory leaks
+   */
+  cleanupTokenCache() {
+    const maxAge = 60 * 60 * 1000; // 1 hour
+    const now = Date.now();
+    let cleaned = 0;
+
+    for (const [key, entry] of this.tokenCache.entries()) {
+      if (now - entry.timestamp > maxAge) {
+        this.tokenCache.delete(key);
+        cleaned++;
+      }
+    }
+
+    if (cleaned > 0) {
+      this.logger.debug(`Cleaned ${cleaned} expired token cache entries`);
+    }
+  }
+
+  /**
+   * Get cache key for token counting
+   */
+  getCacheKey(text, model, type) {
+    const textHash = this.simpleHash(text);
+    return `${model}:${type}:${textHash}`;
+  }
+
+  /**
+   * Simple hash function for cache keys
+   */
+  simpleHash(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return hash.toString(36);
+  }
+
+  /**
+   * Count tokens with caching
+   */
+  countTokensWithCache(text, model = 'gpt-4o') {
+    const cacheKey = this.getCacheKey(text, model, 'simple');
+    
+    // Check cache first
+    const cached = this.tokenCache.get(cacheKey);
+    if (cached) {
+      this.cacheHits++;
+      return cached.tokens;
+    }
+
+    this.cacheMisses++;
+    
+    // Calculate tokens
+    const encoder = this.getEncoder(model);
+    const tokens = encoder.encode(text);
+    const tokenCount = tokens.length;
+
+    // Cache result
+    this.tokenCache.set(cacheKey, {
+      tokens: tokenCount,
+      timestamp: Date.now()
+    });
+
+    return tokenCount;
+  }
+
+  /**
+   * Get cache statistics
+   */
+  getCacheStats() {
+    return {
+      encoderCacheSize: this.encoderCache.size,
+      tokenCacheSize: this.tokenCache.size,
+      cacheHits: this.cacheHits,
+      cacheMisses: this.cacheMisses,
+      hitRate: this.cacheHits + this.cacheMisses > 0 ? 
+        (this.cacheHits / (this.cacheHits + this.cacheMisses)) * 100 : 0
+    };
+  }
+
+  /**
    * Cleanup cached encoders
    */
   cleanup() {
@@ -230,10 +332,24 @@ class TokenService {
       try {
         encoder.free();
       } catch (error) {
-        console.warn('Error freeing encoder:', error.message);
+        this.logger.warn('Error freeing encoder:', error.message);
       }
     }
     this.encoderCache.clear();
+    this.tokenCache.clear();
+    this.logger.info('Token service cleanup completed');
+  }
+
+  /**
+   * Health check for token service
+   */
+  healthCheck() {
+    const stats = this.getCacheStats();
+    return {
+      status: 'healthy',
+      cacheStats: stats,
+      timestamp: new Date().toISOString()
+    };
   }
 }
 
