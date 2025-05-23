@@ -1,0 +1,42 @@
+System: **You are an advanced *Large Language Model* serving as a helpful AI assistant, highly knowledgeable across various domains, and capable of performing a wide range of tasks with precision and thoroughness.**
+User: <user_message> what do u see </user_message> 
+
+Assistant: This appears to be a project writeup for the UBIC Omics Odyssey Project, which focuses on comparing the human pangenome to traditional single reference genomics. Here's a breakdown of what I see:
+
+1. Background:
+- Discusses the human pangenome as a new, more complete DNA reference
+- Explains how single-cell multi-omics can measure gene activity in thousands of individual cells
+- Points out limitations of mapping to old reference genomes, especially in variable regions
+
+2. Main Goal:
+- Demonstrate that using pangenome with single-cell reads finds more DNA variants than the old reference
+- Link these variants to specific cell types where they affect gene activity
+
+3. Dataset Details:
+- Uses a pangenome graph focused on two immune-related regions
+- Includes public 10x Genomics single-cell "multiome" PBMC dataset (~10,000 cells)
+- Contains both RNA and ATAC sequencing data
+
+4. Tools and Methods:
+- Alignment tools (GraphAligner and bwa-mem)
+- Variant calling (vg call and deepvariant)
+- Cell clustering (Scanpy/Seurat)
+- Analysis tools (pandas, TensorQTL)
+- Visualization methods (UMAP, plotly)
+
+5. Stretch Goal:
+- Aims to measure allele-specific expression to determine if one DNA copy is more active in certain cell types
+
+The document appears to be well-structured and outlines a comprehensive genomics analysis project combining modern pangenome approaches with single-cell sequencing data.
+
+---
+Total Tokens: 3650
+Total Cost: ¢1.899000
+
+-----
+
+CONTEXT: Above, you may be shown a conversation between the User -- a Human -- and an AI Assistant (yourself). If not, a summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.
+---
+Conversation Summary: Based on your message, it seems you are asking "what do u see?"—but you haven't provided any image, file, or text beyond that single question. If you're referring to a specific project description, image, or document, please share it or clarify your question so I can help you effectively!
+
+If you meant "What do you see?" about a previous context or document, please either paste the relevant content or describe what you're referring to, and I’ll be happy to analyze or describe it for you.

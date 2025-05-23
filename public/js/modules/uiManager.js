@@ -161,8 +161,9 @@ class UIManager {
     formData.append('file', file);
 
     try {
-      const response = await fetch('/upload', {
+      const response = await fetch('/upload-file', {
         method: 'POST',
+        credentials: 'include',
         body: formData
       });
 

@@ -274,8 +274,21 @@ app.post('/upload-file', uploadMiddleware, async (req, res) => {
     if (files[0].mimetype === 'application/pdf') {
       console.log("PDF file detected");
       fileContents = await fs.promises.readFile(tempFilePath, { encoding: 'base64' });
+    } else if (files[0].mimetype.startsWith('image/')) {
+      console.log("Image file detected via file upload - redirecting to image processing");
+      // Store image info like /upload-image does
+      req.app.locals.currentImageName = files[0].filename;
+      req.app.locals.currentImagePath = files[0].path;
+      
+      const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${files[0].filename}`;
+      return res.json({ 
+        success: true, 
+        fileId: file_id,
+        imageUrl: imageUrl,
+        isImage: true
+      });
     } else {
-      console.log("Non-PDF file detected");
+      console.log("Non-PDF, non-image file detected");
       fileContents = await fs.promises.readFile(tempFilePath, 'utf8');
     }
 
@@ -356,6 +369,12 @@ app.post('/upload-image', uploadMiddleware, async (req, res) => {
   // Store in global state (matching original behavior)
   req.app.locals.currentImageName = imageName;
   req.app.locals.currentImagePath = req.file.path;
+  
+  console.log("Stored image state:", {
+    imageName: req.app.locals.currentImageName,
+    imagePath: req.app.locals.currentImagePath,
+    imageUrl: imageUrl
+  });
 
   res.send({ imageUrl: imageUrl });
 });

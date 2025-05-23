@@ -378,10 +378,12 @@ class ChatManager {
         messageContent = data.text || 'No response received.';
       }
 
-      const shouldReadAloud = this.isVoiceTranscription || window.isVoiceTranscription;
+      const shouldReadAloud = this.isVoiceTranscription || (window.isVoiceTranscription || false);
       this.displayMessage(messageContent, 'response', shouldReadAloud);
       this.isVoiceTranscription = false;
-      window.isVoiceTranscription = false;
+      if (window.isVoiceTranscription !== undefined) {
+        window.isVoiceTranscription = false;
+      }
       
     } catch (error) {
       console.error('Error sending message to server:', error);
@@ -453,7 +455,7 @@ class ChatManager {
             // Handle code blocks
             const codeContent = part.substring(3, part.length - 3);
             const languageMatch = codeContent.match(/^[^\n]+/);
-            const language = languageMatch ? languageMatch[0].trim() : '';
+            //const language = languageMatch ? languageMatch[0].trim() : '';
             const actualCode = codeContent.replace(/^[^\n]+/, '').trim();
 
             const pre = document.createElement('pre');

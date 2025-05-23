@@ -162,6 +162,18 @@ async function continueConversation(chosenChat) {
  */
 async function imageURLToBase64(url) {
   try {
+    console.log('imageURLToBase64 called with URL:', url);
+    
+    // Check if it's a local path starting with /uploads/
+    if (url.startsWith('/uploads/')) {
+      const localPath = path.join(__dirname, '../../..', 'public', url);
+      console.log('Local path resolved to:', localPath);
+      console.log('Path exists:', fs.existsSync(localPath));
+      return imageToBase64(localPath);
+    }
+    
+    // Handle external URLs
+    console.log('Fetching external URL:', url);
     const axios = require('axios');
     const response = await axios.get(url, {
       responseType: 'arraybuffer'
@@ -180,8 +192,20 @@ async function imageURLToBase64(url) {
  * Convert an image file to base64
  */
 function imageToBase64(filePath) {
-  const image = fs.readFileSync(filePath);
-  return `data:image/jpeg;base64,${image.toString('base64')}`;
+  try {
+    const image = fs.readFileSync(filePath);
+    // Detect MIME type from file extension
+    const ext = path.extname(filePath).toLowerCase();
+    let mimeType = 'image/jpeg'; // default
+    if (ext === '.png') mimeType = 'image/png';
+    else if (ext === '.gif') mimeType = 'image/gif';
+    else if (ext === '.webp') mimeType = 'image/webp';
+    
+    return `data:${mimeType};base64,${image.toString('base64')}`;
+  } catch (error) {
+    console.error('Error converting image to base64:', error);
+    return null;
+  }
 }
 
 /**
@@ -279,30 +303,43 @@ router.post('/message', async (req, res) => {
       req.app.locals.currentFileId = null;
     }
 
-    // Handle image processing
-    let base64Image = null;
-    if (req.body.image) {
-      if (req.file) {
-        base64Image = imageToBase64(req.file.path);
-      } else {
-        base64Image = await imageURLToBase64(req.body.image);
-      }
-      
-      // Clean up uploaded image
-      if (uploadedImagePath) {
-        fs.unlink(uploadedImagePath, (err) => {
-          if (err) console.error("Error deleting temp file:", err);
-        });
-      }
-    }
-    
-    // Handle image from upload route
+    // Handle image from upload route first
     if (req.app.locals.currentImageName) {
       imageName = req.app.locals.currentImageName;
       uploadedImagePath = req.app.locals.currentImagePath;
+      console.log('Found uploaded image:', imageName, 'at path:', uploadedImagePath);
       // Clear after use
       req.app.locals.currentImageName = null;
       req.app.locals.currentImagePath = null;
+    }
+
+    // Handle image processing
+    let base64Image = null;
+    if (req.body.image) {
+      console.log('Processing image:', req.body.image);
+      if (req.file) {
+        console.log('Using req.file.path:', req.file.path);
+        base64Image = imageToBase64(req.file.path);
+      } else {
+        console.log('Using imageURLToBase64 for:', req.body.image);
+        base64Image = await imageURLToBase64(req.body.image);
+      }
+      console.log('base64Image result:', base64Image ? 'SUCCESS (length: ' + base64Image.length + ')' : 'FAILED');
+    }
+    
+    // Also check if we have an uploaded image path but no base64Image yet
+    if (!base64Image && uploadedImagePath) {
+      console.log('Converting uploaded image to base64:', uploadedImagePath);
+      base64Image = imageToBase64(uploadedImagePath);
+      console.log('base64Image from upload result:', base64Image ? 'SUCCESS (length: ' + base64Image.length + ')' : 'FAILED');
+    }
+    
+    // Clean up uploaded image after processing
+    if (uploadedImagePath) {
+      fs.unlink(uploadedImagePath, (err) => {
+        if (err) console.error("Error deleting temp file:", err);
+        else console.log("Temp file deleted:", uploadedImagePath);
+      });
     }
 
     // Format user input using provider factory
