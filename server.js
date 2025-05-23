@@ -1110,6 +1110,12 @@ async function calculateCost(tokens, model) {
   } else if (model === 'gpt-3.5-turbo-0125') {
       inputCostPerMillion = 0.50;
       outputCostPerMillion = 1.50;
+  } else if (model === 'claude-opus-4-20250514') {
+      inputCostPerMillion = 15.00;
+      outputCostPerMillion = 75.00;
+  } else if (model === 'claude-sonnet-4-20250514') {
+      inputCostPerMillion = 3.00;
+      outputCostPerMillion = 15.00;
   } else if (model === 'claude-3-5-sonnet-latest') {
       inputCostPerMillion = 3.00;
       outputCostPerMillion = 15.00;
@@ -2556,7 +2562,7 @@ if (modelID === 'claude-3-7-sonnet-latest') {
         // Add any Mistral-specific headers here if necessary
       };
       apiUrl = 'https://codestral.mistral.ai/v1/chat/completions';
-    } else if (modelID === 'claude-3-7-sonnet-latest') {
+    } else if (modelID === 'claude-3-7-sonnet-latest' || modelID === 'claude-opus-4-20250514' || modelID === 'claude-sonnet-4-20250514') {
       claudeHistory.push(user_input);
       data = {
         // New data structure for Claude model
@@ -2671,7 +2677,7 @@ if (modelID === 'claude-3-7-sonnet-latest') {
         */
        let messageContent;
        console.log(response.data.content)
-       if (modelID === 'claude-3-7-sonnet-latest') {
+       if (modelID === 'claude-3-7-sonnet-latest' || modelID === 'claude-opus-4-20250514' || modelID === 'claude-sonnet-4-20250514') {
         messageContent = response.data.content;
         // Initialize variables to hold 'thinking' and 'text' parts
         let thinkingContent = '';
@@ -2772,7 +2778,7 @@ if (modelID === 'claude-3-7-sonnet-latest') {
 
           console.log("Assistant Response: \n", lastMessageContent)
 
-          if (modelID === 'claude-3-7-sonnet-latest') {
+          if (modelID === 'claude-3-7-sonnet-latest' || modelID === 'claude-opus-4-20250514' || modelID === 'claude-sonnet-4-20250514') {
             claudeHistory.push({ role: "assistant", content: response.data.content });
             res.json({ text: messageContent });
           } else if (modelID.startsWith('claude')) {

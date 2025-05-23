@@ -57,6 +57,8 @@ fetchDefaultModel();
     "GPT-4-32k": "gpt-4-32k",
     "GPT-4-Turbo": "gpt-4-turbo",
     "GPT-3.5-Turbo": "gpt-3.5-turbo-0125",
+    "Claude-4-Opus": "claude-opus-4-20250514",
+    "Claude-4-Sonnet": "claude-sonnet-4-20250514",
     "Claude-3.7-Sonnet": "claude-3-7-sonnet-latest",
     "Claude-3.5-Sonnet": "claude-3-5-sonnet-latest",
     "Claude-3.5-Haiku": "claude-3-5-haiku-latest",
@@ -347,6 +349,8 @@ fetchDefaultModel();
     "gpt-4-32k": "GPT-4-32k",
     "gpt-4-turbo": "GPT-4-Turbo",
     "gpt-3.5-turbo-0125": "GPT-3.5-Turbo",
+    "claude-opus-4-20250514": "Claude-4-Opus",
+    "claude-sonnet-4-20250514": "Claude-4-Sonnet",
     "claude-3-7-sonnet-latest": "Claude-3.7-Sonnet",
     "claude-3-5-sonnet-latest": "Claude-3.5-Sonnet",
     "claude-3-5-haiku-latest": "Claude-3.5-Haiku",
@@ -1304,6 +1308,10 @@ document.getElementById('model-codestral').addEventListener('mouseover', (event)
 document.getElementById('model-qroq-mistral-8x7b').addEventListener('click', () => selectModel('mixtral-8x7b-32768'));
 document.getElementById('model-qroq-mistral-8x7b').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["mixtral-8x7b-32768"], event.currentTarget));
 
+document.getElementById('model-claude-4-opus').addEventListener('click', () => selectModel('claude-opus-4-20250514'));
+document.getElementById('model-claude-4-opus').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-opus-4-20250514"], event.currentTarget));
+document.getElementById('model-claude-4-sonnet').addEventListener('click', () => selectModel('claude-sonnet-4-20250514'));
+document.getElementById('model-claude-4-sonnet').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-sonnet-4-20250514"], event.currentTarget));
 document.getElementById('model-claude-3.5-sonnet').addEventListener('click', () => selectModel('claude-3-5-sonnet-latest'));
 document.getElementById('model-claude-3.5-sonnet').addEventListener('mouseover', (event) => showCustomTooltip(modelDescriptions["claude-3-5-sonnet-latest"], event.currentTarget));
 document.getElementById('model-claude-3.7-sonnet').addEventListener('click', () => selectModel('claude-3-7-sonnet-latest'));
@@ -2985,6 +2993,8 @@ function getMaxTokensByModel(modelID) {
   } else if (modelID.startsWith('llama-3.1')) {
     return 8000;
   } else if (modelID === 'claude-3-7-sonnet-latest') {
+    return 100000;
+  } else if (modelID === 'claude-opus-4-20250514' || modelID === 'claude-sonnet-4-20250514') {
     return 100000;
   } else if (modelID.startsWith('claude')) {
     return 8000;
