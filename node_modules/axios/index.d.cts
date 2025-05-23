@@ -359,7 +359,7 @@ declare namespace axios {
 
   type Milliseconds = number;
 
-  type AxiosAdapterName = 'fetch' | 'xhr' | 'http' | string;
+  type AxiosAdapterName = 'fetch' | 'xhr' | 'http' | (string & {});
 
   type AxiosAdapterConfig = AxiosAdapter | AxiosAdapterName;
 
@@ -376,6 +376,7 @@ declare namespace axios {
     url?: string;
     method?: Method | string;
     baseURL?: string;
+    allowAbsoluteUrls?: boolean;
     transformRequest?: AxiosRequestTransformer | AxiosRequestTransformer[];
     transformResponse?: AxiosResponseTransformer | AxiosResponseTransformer[];
     headers?: (RawAxiosRequestHeaders & MethodsHeaders) | AxiosHeaders;
@@ -507,6 +508,7 @@ declare namespace axios {
     <T = any, R = AxiosResponse<T>, D = any>(config: AxiosRequestConfig<D>): Promise<R>;
     <T = any, R = AxiosResponse<T>, D = any>(url: string, config?: AxiosRequestConfig<D>): Promise<R>;
 
+    create(config?: CreateAxiosDefaults): AxiosInstance;
     defaults: Omit<AxiosDefaults, 'headers'> & {
       headers: HeadersDefaults & {
         [key: string]: AxiosHeaderValue
@@ -525,7 +527,6 @@ declare namespace axios {
   }
 
   interface AxiosStatic extends AxiosInstance {
-    create(config?: CreateAxiosDefaults): AxiosInstance;
     Cancel: CancelStatic;
     CancelToken: CancelTokenStatic;
     Axios: typeof Axios;

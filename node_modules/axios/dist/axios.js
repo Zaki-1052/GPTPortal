@@ -1,4 +1,4 @@
-// Axios v1.7.9 Copyright (c) 2024 Matt Zabriskie and contributors
+/*! Axios v1.9.0 Copyright (c) 2025 Matt Zabriskie and contributors */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
@@ -681,6 +681,8 @@
 
   var toString = Object.prototype.toString;
   var getPrototypeOf = Object.getPrototypeOf;
+  var iterator = Symbol.iterator,
+    toStringTag = Symbol.toStringTag;
   var kindOf = function (cache) {
     return function (thing) {
       var str = toString.call(thing);
@@ -813,7 +815,7 @@
       return false;
     }
     var prototype = getPrototypeOf(val);
-    return (prototype === null || prototype === Object.prototype || Object.getPrototypeOf(prototype) === null) && !(Symbol.toStringTag in val) && !(Symbol.iterator in val);
+    return (prototype === null || prototype === Object.prototype || Object.getPrototypeOf(prototype) === null) && !(toStringTag in val) && !(iterator in val);
   };
 
   /**
@@ -1165,10 +1167,10 @@
    * @returns {void}
    */
   var forEachEntry = function forEachEntry(obj, fn) {
-    var generator = obj && obj[Symbol.iterator];
-    var iterator = generator.call(obj);
+    var generator = obj && obj[iterator];
+    var _iterator = generator.call(obj);
     var result;
-    while ((result = iterator.next()) && !result.done) {
+    while ((result = _iterator.next()) && !result.done) {
       var pair = result.value;
       fn.call(obj, pair[0], pair[1]);
     }
@@ -1266,23 +1268,6 @@
   var toFiniteNumber = function toFiniteNumber(value, defaultValue) {
     return value != null && Number.isFinite(value = +value) ? value : defaultValue;
   };
-  var ALPHA = 'abcdefghijklmnopqrstuvwxyz';
-  var DIGIT = '0123456789';
-  var ALPHABET = {
-    DIGIT: DIGIT,
-    ALPHA: ALPHA,
-    ALPHA_DIGIT: ALPHA + ALPHA.toUpperCase() + DIGIT
-  };
-  var generateString = function generateString() {
-    var size = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 16;
-    var alphabet = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ALPHABET.ALPHA_DIGIT;
-    var str = '';
-    var length = alphabet.length;
-    while (size--) {
-      str += alphabet[Math.random() * length | 0];
-    }
-    return str;
-  };
 
   /**
    * If the thing is a FormData object, return true, otherwise return false.
@@ -1292,7 +1277,7 @@
    * @returns {boolean}
    */
   function isSpecCompliantForm(thing) {
-    return !!(thing && isFunction(thing.append) && thing[Symbol.toStringTag] === 'FormData' && thing[Symbol.iterator]);
+    return !!(thing && isFunction(thing.append) && thing[toStringTag] === 'FormData' && thing[iterator]);
   }
   var toJSONObject = function toJSONObject(obj) {
     var stack = new Array(10);
@@ -1348,6 +1333,9 @@
 
   // *********************
 
+  var isIterable = function isIterable(thing) {
+    return thing != null && isFunction(thing[iterator]);
+  };
   var utils$1 = {
     isArray: isArray,
     isArrayBuffer: isArrayBuffer,
@@ -1399,14 +1387,13 @@
     findKey: findKey,
     global: _global,
     isContextDefined: isContextDefined,
-    ALPHABET: ALPHABET,
-    generateString: generateString,
     isSpecCompliantForm: isSpecCompliantForm,
     toJSONObject: toJSONObject,
     isAsyncFn: isAsyncFn,
     isThenable: isThenable,
     setImmediate: _setImmediate,
-    asap: asap
+    asap: asap,
+    isIterable: isIterable
   };
 
   /**
@@ -2246,21 +2233,26 @@
           setHeaders(header, valueOrRewrite);
         } else if (utils$1.isString(header) && (header = header.trim()) && !isValidHeaderName(header)) {
           setHeaders(parseHeaders(header), valueOrRewrite);
-        } else if (utils$1.isHeaders(header)) {
-          var _iterator = _createForOfIteratorHelper(header.entries()),
+        } else if (utils$1.isObject(header) && utils$1.isIterable(header)) {
+          var obj = {},
+            dest,
+            key;
+          var _iterator = _createForOfIteratorHelper(header),
             _step;
           try {
             for (_iterator.s(); !(_step = _iterator.n()).done;) {
-              var _step$value = _slicedToArray(_step.value, 2),
-                key = _step$value[0],
-                value = _step$value[1];
-              setHeader(value, key, rewrite);
+              var entry = _step.value;
+              if (!utils$1.isArray(entry)) {
+                throw TypeError('Object iterator must return a key-value pair');
+              }
+              obj[key = entry[0]] = (dest = obj[key]) ? utils$1.isArray(dest) ? [].concat(_toConsumableArray(dest), [entry[1]]) : [dest, entry[1]] : entry[1];
             }
           } catch (err) {
             _iterator.e(err);
           } finally {
             _iterator.f();
           }
+          setHeaders(obj, valueOrRewrite);
         } else {
           header != null && setHeader(valueOrRewrite, header, rewrite);
         }
@@ -2390,6 +2382,11 @@
             value = _ref2[1];
           return header + ': ' + value;
         }).join('\n');
+      }
+    }, {
+      key: "getSetCookie",
+      value: function getSetCookie() {
+        return this.get("set-cookie") || [];
       }
     }, {
       key: _Symbol$toStringTag,
@@ -2720,8 +2717,9 @@
    *
    * @returns {string} The combined full path
    */
-  function buildFullPath(baseURL, requestedURL) {
-    if (baseURL && !isAbsoluteURL(requestedURL)) {
+  function buildFullPath(baseURL, requestedURL, allowAbsoluteUrls) {
+    var isRelativeUrl = !isAbsoluteURL(requestedURL);
+    if (baseURL && (isRelativeUrl || allowAbsoluteUrls == false)) {
       return combineURLs(baseURL, requestedURL);
     }
     return requestedURL;
@@ -2840,7 +2838,7 @@
       headers = newConfig.headers,
       auth = newConfig.auth;
     newConfig.headers = headers = AxiosHeaders$1.from(headers);
-    newConfig.url = buildURL(buildFullPath(newConfig.baseURL, newConfig.url), config.params, config.paramsSerializer);
+    newConfig.url = buildURL(buildFullPath(newConfig.baseURL, newConfig.url, newConfig.allowAbsoluteUrls), config.params, config.paramsSerializer);
 
     // HTTP basic authentication
     if (auth) {
@@ -3539,7 +3537,7 @@
             _context4.prev = 33;
             _context4.t2 = _context4["catch"](4);
             unsubscribe && unsubscribe();
-            if (!(_context4.t2 && _context4.t2.name === 'TypeError' && /fetch/i.test(_context4.t2.message))) {
+            if (!(_context4.t2 && _context4.t2.name === 'TypeError' && /Load failed|fetch/i.test(_context4.t2.message))) {
               _context4.next = 38;
               break;
             }
@@ -3676,7 +3674,7 @@
     });
   }
 
-  var VERSION = "1.7.9";
+  var VERSION = "1.9.0";
 
   var validators$1 = {};
 
@@ -3772,7 +3770,7 @@
   var Axios = /*#__PURE__*/function () {
     function Axios(instanceConfig) {
       _classCallCheck(this, Axios);
-      this.defaults = instanceConfig;
+      this.defaults = instanceConfig || {};
       this.interceptors = {
         request: new InterceptorManager$1(),
         response: new InterceptorManager$1()
@@ -3867,6 +3865,13 @@
             }, true);
           }
         }
+
+        // Set config.allowAbsoluteUrls
+        if (config.allowAbsoluteUrls !== undefined) ; else if (this.defaults.allowAbsoluteUrls !== undefined) {
+          config.allowAbsoluteUrls = this.defaults.allowAbsoluteUrls;
+        } else {
+          config.allowAbsoluteUrls = true;
+        }
         validator.assertOptions(config, {
           baseUrl: validators.spelling('baseURL'),
           withXsrfToken: validators.spelling('withXSRFToken')
@@ -3939,7 +3944,7 @@
       key: "getUri",
       value: function getUri(config) {
         config = mergeConfig(this.defaults, config);
-        var fullPath = buildFullPath(config.baseURL, config.url);
+        var fullPath = buildFullPath(config.baseURL, config.url, config.allowAbsoluteUrls);
         return buildURL(fullPath, config.params, config.paramsSerializer);
       }
     }]);

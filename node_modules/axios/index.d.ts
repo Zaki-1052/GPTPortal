@@ -74,6 +74,8 @@ export class AxiosHeaders {
   getAuthorization(matcher?: AxiosHeaderMatcher): AxiosHeaderValue;
   hasAuthorization(matcher?: AxiosHeaderMatcher): boolean;
 
+  getSetCookie(): string[];
+
   [Symbol.iterator](): IterableIterator<[string, AxiosHeaderValue]>;
 }
 
@@ -300,7 +302,7 @@ export interface AxiosProgressEvent {
 
 type Milliseconds = number;
 
-type AxiosAdapterName = 'fetch' | 'xhr' | 'http' | string;
+type AxiosAdapterName = 'fetch' | 'xhr' | 'http' | (string & {});
 
 type AxiosAdapterConfig = AxiosAdapter | AxiosAdapterName;
 
@@ -317,6 +319,7 @@ export interface AxiosRequestConfig<D = any> {
   url?: string;
   method?: Method | string;
   baseURL?: string;
+  allowAbsoluteUrls?: boolean;
   transformRequest?: AxiosRequestTransformer | AxiosRequestTransformer[];
   transformResponse?: AxiosResponseTransformer | AxiosResponseTransformer[];
   headers?: (RawAxiosRequestHeaders & MethodsHeaders) | AxiosHeaders;
@@ -511,6 +514,7 @@ export interface AxiosInstance extends Axios {
   <T = any, R = AxiosResponse<T>, D = any>(config: AxiosRequestConfig<D>): Promise<R>;
   <T = any, R = AxiosResponse<T>, D = any>(url: string, config?: AxiosRequestConfig<D>): Promise<R>;
 
+  create(config?: CreateAxiosDefaults): AxiosInstance;
   defaults: Omit<AxiosDefaults, 'headers'> & {
     headers: HeadersDefaults & {
       [key: string]: AxiosHeaderValue
@@ -545,7 +549,6 @@ export function all<T>(values: Array<T | Promise<T>>): Promise<T[]>;
 export function mergeConfig<D = any>(config1: AxiosRequestConfig<D>, config2: AxiosRequestConfig<D>): AxiosRequestConfig<D>;
 
 export interface AxiosStatic extends AxiosInstance {
-  create(config?: CreateAxiosDefaults): AxiosInstance;
   Cancel: CancelStatic;
   CancelToken: CancelTokenStatic;
   Axios: typeof Axios;

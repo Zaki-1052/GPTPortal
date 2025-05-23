@@ -1,5 +1,129 @@
 # Changelog
 
+# [1.9.0](https://github.com/axios/axios/compare/v1.8.4...v1.9.0) (2025-04-24)
+
+
+### Bug Fixes
+
+* **core:** fix the Axios constructor implementation to treat the config argument as optional; ([#6881](https://github.com/axios/axios/issues/6881)) ([6c5d4cd](https://github.com/axios/axios/commit/6c5d4cd69286868059c5e52d45085cb9a894a983))
+* **fetch:** fixed ERR_NETWORK mapping for Safari browsers; ([#6767](https://github.com/axios/axios/issues/6767)) ([dfe8411](https://github.com/axios/axios/commit/dfe8411c9a082c3d068bdd1f8d6e73054f387f45))
+* **headers:** allow iterable objects to be a data source for the set method; ([#6873](https://github.com/axios/axios/issues/6873)) ([1b1f9cc](https://github.com/axios/axios/commit/1b1f9ccdc15f1ea745160ec9a5223de9db4673bc))
+* **headers:** fix `getSetCookie` by using 'get' method for caseless access; ([#6874](https://github.com/axios/axios/issues/6874)) ([d4f7df4](https://github.com/axios/axios/commit/d4f7df4b304af8b373488fdf8e830793ff843eb9))
+* **headers:** fixed support for setting multiple header values from an iterated source; ([#6885](https://github.com/axios/axios/issues/6885)) ([f7a3b5e](https://github.com/axios/axios/commit/f7a3b5e0f7e5e127b97defa92a132fbf1b55cf15))
+* **http:** send minimal end multipart boundary ([#6661](https://github.com/axios/axios/issues/6661)) ([987d2e2](https://github.com/axios/axios/commit/987d2e2dd3b362757550f36eab875e60640b6ddc))
+* **types:** fix autocomplete for adapter config ([#6855](https://github.com/axios/axios/issues/6855)) ([e61a893](https://github.com/axios/axios/commit/e61a8934d8f94dd429a2f309b48c67307c700df0))
+
+
+### Features
+
+* **AxiosHeaders:** add getSetCookie method to retrieve set-cookie headers values ([#5707](https://github.com/axios/axios/issues/5707)) ([80ea756](https://github.com/axios/axios/commit/80ea756e72bcf53110fa792f5d7ab76e8b11c996))
+
+### Contributors to this release
+
+- <img src="https://avatars.githubusercontent.com/u/12586868?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Dmitriy Mozgovoy](https://github.com/DigitalBrainJS "+200/-34 (#6890 #6889 #6888 #6885 #6881 #6767 #6874 #6873 )")
+- <img src="https://avatars.githubusercontent.com/u/4814473?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Jay](https://github.com/jasonsaayman "+26/-1 ()")
+- <img src="https://avatars.githubusercontent.com/u/22686401?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Willian Agostini](https://github.com/WillianAgostini "+21/-0 (#5707 )")
+- <img src="https://avatars.githubusercontent.com/u/2500247?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [George Cheng](https://github.com/Gerhut "+3/-3 (#5096 )")
+- <img src="https://avatars.githubusercontent.com/u/30260221?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [FatahChan](https://github.com/FatahChan "+2/-2 (#6855 )")
+- <img src="https://avatars.githubusercontent.com/u/49002?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Ionuț G. Stan](https://github.com/igstan "+1/-1 (#6661 )")
+
+## [1.8.4](https://github.com/axios/axios/compare/v1.8.3...v1.8.4) (2025-03-19)
+
+
+### Bug Fixes
+
+* **buildFullPath:** handle `allowAbsoluteUrls: false` without `baseURL` ([#6833](https://github.com/axios/axios/issues/6833)) ([f10c2e0](https://github.com/axios/axios/commit/f10c2e0de7fde0051f848609a29c2906d0caa1d9))
+
+### Contributors to this release
+
+- <img src="https://avatars.githubusercontent.com/u/8029107?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Marc Hassan](https://github.com/mhassan1 "+5/-1 (#6833 )")
+
+## [1.8.3](https://github.com/axios/axios/compare/v1.8.2...v1.8.3) (2025-03-10)
+
+
+### Bug Fixes
+
+* add missing type for allowAbsoluteUrls ([#6818](https://github.com/axios/axios/issues/6818)) ([10fa70e](https://github.com/axios/axios/commit/10fa70ef14fe39558b15a179f0e82f5f5e5d11b2))
+* **xhr/fetch:** pass `allowAbsoluteUrls` to `buildFullPath` in `xhr` and `fetch` adapters ([#6814](https://github.com/axios/axios/issues/6814)) ([ec159e5](https://github.com/axios/axios/commit/ec159e507bdf08c04ba1a10fe7710094e9e50ec9))
+
+### Contributors to this release
+
+- <img src="https://avatars.githubusercontent.com/u/3238291?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Ashcon Partovi](https://github.com/Electroid "+6/-0 (#6811 )")
+- <img src="https://avatars.githubusercontent.com/u/28559054?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [StefanBRas](https://github.com/StefanBRas "+4/-0 (#6818 )")
+- <img src="https://avatars.githubusercontent.com/u/8029107?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Marc Hassan](https://github.com/mhassan1 "+2/-2 (#6814 )")
+
+## [1.8.2](https://github.com/axios/axios/compare/v1.8.1...v1.8.2) (2025-03-07)
+
+
+### Bug Fixes
+
+* **http-adapter:** add allowAbsoluteUrls to path building ([#6810](https://github.com/axios/axios/issues/6810)) ([fb8eec2](https://github.com/axios/axios/commit/fb8eec214ce7744b5ca787f2c3b8339b2f54b00f))
+
+### Contributors to this release
+
+- <img src="https://avatars.githubusercontent.com/u/14166260?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Fasoro-Joseph Alexander](https://github.com/lexcorp16 "+1/-1 (#6810 )")
+
+## [1.8.1](https://github.com/axios/axios/compare/v1.8.0...v1.8.1) (2025-02-26)
+
+
+### Bug Fixes
+
+* **utils:** move `generateString` to platform utils to avoid importing crypto module into client builds; ([#6789](https://github.com/axios/axios/issues/6789)) ([36a5a62](https://github.com/axios/axios/commit/36a5a620bec0b181451927f13ac85b9888b86cec))
+
+### Contributors to this release
+
+- <img src="https://avatars.githubusercontent.com/u/12586868?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Dmitriy Mozgovoy](https://github.com/DigitalBrainJS "+51/-47 (#6789 )")
+
+# [1.8.0](https://github.com/axios/axios/compare/v1.7.9...v1.8.0) (2025-02-25)
+
+
+### Bug Fixes
+
+* **examples:** application crashed when navigating examples in browser ([#5938](https://github.com/axios/axios/issues/5938)) ([1260ded](https://github.com/axios/axios/commit/1260ded634ec101dd5ed05d3b70f8e8f899dba6c))
+* missing word in SUPPORT_QUESTION.yml ([#6757](https://github.com/axios/axios/issues/6757)) ([1f890b1](https://github.com/axios/axios/commit/1f890b13f2c25a016f3c84ae78efb769f244133e))
+* **utils:** replace getRandomValues with crypto module ([#6788](https://github.com/axios/axios/issues/6788)) ([23a25af](https://github.com/axios/axios/commit/23a25af0688d1db2c396deb09229d2271cc24f6c))
+
+
+### Features
+
+* Add config for ignoring absolute URLs ([#5902](https://github.com/axios/axios/issues/5902)) ([#6192](https://github.com/axios/axios/issues/6192)) ([32c7bcc](https://github.com/axios/axios/commit/32c7bcc0f233285ba27dec73a4b1e81fb7a219b3))
+
+
+### Reverts
+
+* Revert "chore: expose fromDataToStream to be consumable (#6731)" (#6732) ([1317261](https://github.com/axios/axios/commit/1317261125e9c419fe9f126867f64d28f9c1efda)), closes [#6731](https://github.com/axios/axios/issues/6731) [#6732](https://github.com/axios/axios/issues/6732)
+
+
+### BREAKING CHANGES
+
+* code relying on the above will now combine the URLs instead of prefer request URL
+
+* feat: add config option for allowing absolute URLs
+
+* fix: add default value for allowAbsoluteUrls in buildFullPath
+
+* fix: typo in flow control when setting allowAbsoluteUrls
+
+### Contributors to this release
+
+- <img src="https://avatars.githubusercontent.com/u/7661715?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Michael Toscano](https://github.com/GethosTheWalrus "+42/-8 (#6192 )")
+- <img src="https://avatars.githubusercontent.com/u/22686401?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Willian Agostini](https://github.com/WillianAgostini "+26/-3 (#6788 #6777 )")
+- <img src="https://avatars.githubusercontent.com/u/72578270?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Naron](https://github.com/naronchen "+27/-0 (#5901 )")
+- <img src="https://avatars.githubusercontent.com/u/47430686?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [shravan || श्रvan](https://github.com/shravan20 "+7/-3 (#6116 )")
+- <img src="https://avatars.githubusercontent.com/u/145078271?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Justin Dhillon](https://github.com/justindhillon "+0/-7 (#6312 )")
+- <img src="https://avatars.githubusercontent.com/u/30925732?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [yionr](https://github.com/yionr "+5/-1 (#6129 )")
+- <img src="https://avatars.githubusercontent.com/u/534166?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Shin&#x27;ya Ueoka](https://github.com/ueokande "+3/-3 (#5935 )")
+- <img src="https://avatars.githubusercontent.com/u/33569?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Dan Dascalescu](https://github.com/dandv "+3/-3 (#5908 #6757 )")
+- <img src="https://avatars.githubusercontent.com/u/16476523?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Nitin Ramnani](https://github.com/NitinRamnani "+2/-2 (#5938 )")
+- <img src="https://avatars.githubusercontent.com/u/152275799?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Shay Molcho](https://github.com/shaymolcho "+2/-2 (#6770 )")
+- <img src="https://avatars.githubusercontent.com/u/4814473?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Jay](https://github.com/jasonsaayman "+0/-3 (#6732 )")
+- fancy45daddy
+- <img src="https://avatars.githubusercontent.com/u/127725897?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Habip Akyol](https://github.com/habipakyol "+1/-1 (#6030 )")
+- <img src="https://avatars.githubusercontent.com/u/54869395?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Bailey Lissington](https://github.com/llamington "+1/-1 (#6771 )")
+- <img src="https://avatars.githubusercontent.com/u/14969290?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Bernardo da Eira Duarte](https://github.com/bernardoduarte "+1/-1 (#6480 )")
+- <img src="https://avatars.githubusercontent.com/u/117800149?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Shivam Batham](https://github.com/Shivam-Batham "+1/-1 (#5949 )")
+- <img src="https://avatars.githubusercontent.com/u/67861627?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Lipin Kariappa](https://github.com/lipinnnnn "+1/-1 (#5936 )")
+
 ## [1.7.9](https://github.com/axios/axios/compare/v1.7.8...v1.7.9) (2024-12-04)
 
 

@@ -4,6 +4,8 @@ var test = require('tape');
 
 var callBound = require('../');
 
+/** @template {true} T @template U @typedef {T extends U ? T : never} AssertType */
+
 test('callBound', function (t) {
 	// static primitive
 	t.equal(callBound('Array.length'), Array.length, 'Array.length yields itself');
@@ -23,18 +25,23 @@ test('callBound', function (t) {
 	t.equal(callBound('Error.prototype.message'), Error.prototype.message, 'Error.prototype.message yields itself');
 	t.equal(callBound('%Error.prototype.message%'), Error.prototype.message, '%Error.prototype.message% yields itself');
 
+	var x = callBound('Object.prototype.toString');
+	var y = callBound('%Object.prototype.toString%');
+
 	// prototype function
-	t.notEqual(callBound('Object.prototype.toString'), Object.prototype.toString, 'Object.prototype.toString does not yield itself');
-	t.notEqual(callBound('%Object.prototype.toString%'), Object.prototype.toString, '%Object.prototype.toString% does not yield itself');
-	t.equal(callBound('Object.prototype.toString')(true), Object.prototype.toString.call(true), 'call-bound Object.prototype.toString calls into the original');
-	t.equal(callBound('%Object.prototype.toString%')(true), Object.prototype.toString.call(true), 'call-bound %Object.prototype.toString% calls into the original');
+	t.notEqual(x, Object.prototype.toString, 'Object.prototype.toString does not yield itself');
+	t.notEqual(y, Object.prototype.toString, '%Object.prototype.toString% does not yield itself');
+	t.equal(x(true), Object.prototype.toString.call(true), 'call-bound Object.prototype.toString calls into the original');
+	t.equal(y(true), Object.prototype.toString.call(true), 'call-bound %Object.prototype.toString% calls into the original');
 
 	t['throws'](
+		// @ts-expect-error
 		function () { callBound('does not exist'); },
 		SyntaxError,
 		'nonexistent intrinsic throws'
 	);
 	t['throws'](
+		// @ts-expect-error
 		function () { callBound('does not exist', true); },
 		SyntaxError,
 		'allowMissing arg still throws for unknown intrinsic'
