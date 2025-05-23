@@ -495,35 +495,25 @@ app.get('/export-chat-html', async (req, res) => {
   try {
     const exportService = require('./src/server/services/exportService');
     
-    // Prepare export data based on type with actual conversation state
-    let exportData = {};
-    
-    if (type === 'conversation') {
-      // Use actual conversation state from app.locals or provide defaults
-      exportData = {
-        conversationHistory: app.locals.conversationHistory || [],
-        claudeHistory: app.locals.claudeHistory || [],
-        o1History: app.locals.o1History || [],
-        deepseekHistory: app.locals.deepseekHistory || [],
-        claudeInstructions: app.locals.claudeInstructions || '',
-        modelID: app.locals.currentModelID || 'gpt-4o'
-      };
-      htmlContent = await exportService.exportChat('conversation', exportData, providerFactory);
-    } else if (type === 'gemini') {
-      exportData = {
+    if (type === 'gemini') {
+      // Export Gemini chat
+      const exportData = {
         geminiHistory: app.locals.geminiHistory || '',
         modelID: app.locals.currentModelID || 'gemini-1.5-pro'
       };
       htmlContent = await exportService.exportChat('gemini', exportData, providerFactory);
+      title = 'gemini_history';
     } else if (type === 'assistants') {
-      exportData = {
+      // Export assistants chat
+      const exportData = {
         systemMessage: app.locals.systemMessage || '',
         modelID: app.locals.currentModelID || 'gpt-4o'
       };
       htmlContent = await exportService.exportChat('assistants', exportData, providerFactory);
+      title = 'assistant_history';
     } else {
-      // Default to conversation export
-      exportData = {
+      // Export conversation (default)
+      const exportData = {
         conversationHistory: app.locals.conversationHistory || [],
         claudeHistory: app.locals.claudeHistory || [],
         o1History: app.locals.o1History || [],
@@ -532,31 +522,14 @@ app.get('/export-chat-html', async (req, res) => {
         modelID: app.locals.currentModelID || 'gpt-4o'
       };
       htmlContent = await exportService.exportChat('conversation', exportData, providerFactory);
+      title = 'chat_history';
     }
     
     res.set('Content-Type', 'text/html');
     res.set('Content-Disposition', `attachment; filename="${title}.html"`);
-    // console.log(htmlContent);
     res.send(htmlContent);
 
-    // No need to call res.end() after res.send(), as send() ends the response.
     console.log("Chat history sent to client, initiating shutdown...");
-      
-    // This part might need to be moved or adjusted depending on your shutdown logic
-    if (isShuttingDown) {
-      return res.status(503).send('Server is shutting down');
-    }
-    
-    isShuttingDown = true; // Set the shutdown flag
-    // Delay before shutting down the server to allow file download
-    setTimeout(() => {
-      console.log("Sending SIGTERM to self...");
-      process.kill(process.pid, 'SIGINT'); // Send SIGTERM to self
-      server.close(() => {
-        console.log("Server successfully shut down.");
-        process.exit(99);
-      });
-    }, 100); // 1-second delay
   } catch (error) {
     console.error('Export error:', error);
     res.status(500).json({ error: 'Export failed', details: error.message });

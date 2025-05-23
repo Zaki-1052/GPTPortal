@@ -56,7 +56,7 @@ class GPTPortalApp {
     } else {
       console.warn('ModelConfig not available, using basic configuration');
       this.modelConfig = {
-        currentModelID: 'gpt-4o',
+        currentModelID: 'gpt-4.1',
         isGemini: false,
         isAssistants: false,
         baseURL: window.location.origin
@@ -253,8 +253,8 @@ class GPTPortalApp {
     // Fix model selector dropdown
     this.fixModelSelector();
     
-    // Ensure model selector is populated
-    if (this.dynamicModelManager) {
+    // Ensure model selector is populated (only if models are already loaded)
+    if (this.dynamicModelManager && this.dynamicModelManager.models && Object.keys(this.dynamicModelManager.models).length > 0) {
       this.dynamicModelManager.populateModelSelector();
     }
   }
@@ -725,40 +725,21 @@ class GPTPortalApp {
   }
 
   fixModelSelector() {
+    console.log('🔧 fixModelSelector() called');
     const selectedModel = document.getElementById('selected-model');
     const modelOptions = document.getElementById('model-options');
     const modelSelector = document.getElementById('model-selector-container');
     
     if (selectedModel && modelOptions && modelSelector) {
+      console.log('🔧 Before fixModelSelector - display:', window.getComputedStyle(modelOptions).display);
       // Make sure container has proper positioning
       modelSelector.style.position = 'relative';
       
       // Ensure the dropdown toggle works
       selectedModel.style.cursor = 'pointer';
       
-      // Remove existing event listeners to avoid duplicates
-      const newSelectedModel = selectedModel.cloneNode(true);
-      selectedModel.parentNode.replaceChild(newSelectedModel, selectedModel);
-      
-      newSelectedModel.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isVisible = modelOptions.style.display === 'block';
-        modelOptions.style.display = isVisible ? 'none' : 'block';
-        
-        if (!isVisible) {
-          // Reset search when opening
-          const searchInput = document.getElementById('model-search');
-          if (searchInput) {
-            searchInput.value = '';
-            // Don't auto-focus to avoid keyboard issues
-          }
-          
-          // Trigger model population if dynamic manager exists
-          if (this.dynamicModelManager) {
-            this.dynamicModelManager.populateModelSelector();
-          }
-        }
-      });
+      // Don't add any click handlers here - let dynamicModelManager handle all click events
+      // This prevents duplicate event handlers
       
       // Ensure dropdown styling - let CSS handle positioning, just ensure basic properties
       modelOptions.style.backgroundColor = '#2a2a2a';
@@ -769,6 +750,9 @@ class GPTPortalApp {
       modelOptions.style.overflowY = 'auto';
       modelOptions.style.padding = '10px';
       modelOptions.style.display = 'none'; // Initially hidden
+      
+      console.log('🔧 After fixModelSelector - display set to none');
+      console.log('🔧 After fixModelSelector - computed display:', window.getComputedStyle(modelOptions).display);
     }
   }
 }

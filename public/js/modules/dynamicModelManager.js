@@ -1,6 +1,12 @@
 // Enhanced Dynamic Model Manager with full original functionality
 class DynamicModelManager {
   constructor() {
+    // Prevent multiple instances
+    if (window.dynamicModelManagerInstance) {
+      console.log('DynamicModelManager instance already exists, returning existing instance');
+      return window.dynamicModelManagerInstance;
+    }
+    window.dynamicModelManagerInstance = this;
     this.models = null;
     this.categories = null;
     this.loading = false;
@@ -8,6 +14,7 @@ class DynamicModelManager {
     this.cacheTTL = 5 * 60 * 1000; // 5 minutes
     this.showOpenRouter = false;
     this.searchQuery = '';
+    this.eventsBound = false;
     
     // Model descriptions from original script.js
     this.modelDescriptions = {
@@ -76,16 +83,36 @@ class DynamicModelManager {
       
       // Use comprehensive static model list (now from JSON file)
       await this.loadCompleteModelList();
-      this.bindEvents();
-      this.populateModelSelector();
-      console.log('Enhanced Dynamic Model Manager initialized successfully with complete model list');
+      
+      // Only populate after models are loaded
+      if (this.models && Object.keys(this.models).length > 0) {
+        this.bindEvents();
+        
+        // Debug: Check initial state before populating
+        const modelOptions = document.getElementById('model-options');
+        if (modelOptions) {
+          console.log('INIT - Before populate - Current display:', window.getComputedStyle(modelOptions).display);
+          console.log('INIT - Before populate - Inline style:', modelOptions.style.display);
+        }
+        
+        this.populateModelSelector();
+        console.log('Enhanced Dynamic Model Manager initialized successfully with complete model list');
+      } else {
+        console.error('No models loaded, cannot populate selector');
+      }
     } catch (error) {
       console.error('Failed to initialize Dynamic Model Manager:', error);
-      await this.loadCompleteModelList();
-      this.bindEvents();
-      this.populateModelSelector();
-      // Ensure proper state after fallback
-      this.setInitialState();
+      try {
+        await this.loadCompleteModelList();
+        if (this.models && Object.keys(this.models).length > 0) {
+          this.bindEvents();
+          this.populateModelSelector();
+        }
+        // Ensure proper state after fallback
+        this.setInitialState();
+      } catch (fallbackError) {
+        console.error('Fallback initialization also failed:', fallbackError);
+      }
     }
   }
 
@@ -238,7 +265,21 @@ class DynamicModelManager {
       this.models = {};
       this.categories = {};
       
-      Object.entries(modelData).forEach(([categoryKey, categoryModels]) => {
+      // Handle the actual JSON structure with nested models object
+      const modelsData = modelData.models || modelData;
+      
+      // Group models by category
+      const categorizedModels = {};
+      Object.values(modelsData).forEach(model => {
+        const category = model.category || 'other';
+        if (!categorizedModels[category]) {
+          categorizedModels[category] = [];
+        }
+        categorizedModels[category].push(model);
+      });
+      
+      // Process categorized models
+      Object.entries(categorizedModels).forEach(([categoryKey, categoryModels]) => {
         // Build category info
         this.categories[categoryKey] = {
           name: this.getCategoryDisplayName(categoryKey),
@@ -256,6 +297,8 @@ class DynamicModelManager {
       });
       
       console.log(`Loaded ${Object.keys(this.models).length} models from JSON file`);
+      console.log('Models loaded:', Object.keys(this.models));
+      console.log('Categories created:', Object.keys(this.categories));
       
     } catch (error) {
       console.error('Error loading model data from JSON:', error);
@@ -264,6 +307,8 @@ class DynamicModelManager {
       // Fallback to hardcoded models
       this.models = this.getOriginalModelList();
       this.categories = this.getOriginalCategories();
+      console.log(`Fallback loaded ${Object.keys(this.models).length} models`);
+      console.log('Fallback models:', Object.keys(this.models));
     }
   }
 
@@ -498,39 +543,74 @@ class DynamicModelManager {
    * Bind event handlers
    */
   bindEvents() {
+    console.log('Binding events for dynamic model manager...');
+    
+    // Prevent multiple event bindings
+    if (this.eventsBound) {
+      console.log('Events already bound, skipping...');
+      return;
+    }
+    this.eventsBound = true;
+    
     // Model search
     const searchInput = document.getElementById('model-search');
     if (searchInput) {
+      console.log('Found model-search element');
       searchInput.addEventListener('input', (e) => {
         this.searchQuery = e.target.value.toLowerCase();
         this.filterModels();
       });
+    } else {
+      console.warn('model-search element not found');
     }
 
     // OpenRouter toggle
     const openRouterToggle = document.getElementById('show-open-router');
     if (openRouterToggle) {
+      console.log('Found show-open-router element');
       openRouterToggle.addEventListener('change', (e) => {
         this.showOpenRouter = e.target.checked;
         this.filterModels();
       });
+    } else {
+      console.warn('show-open-router element not found');
     }
 
     // Refresh button
     const refreshButton = document.getElementById('refresh-models');
     if (refreshButton) {
+      console.log('Found refresh-models element');
       refreshButton.addEventListener('click', () => {
         this.refreshModels();
       });
+    } else {
+      console.warn('refresh-models element not found');
     }
 
     // Model dropdown toggle
     const selectedModel = document.getElementById('selected-model');
     const modelOptions = document.getElementById('model-options');
+    
+    console.log('selectedModel found:', !!selectedModel);
+    console.log('modelOptions found:', !!modelOptions);
+    
     if (selectedModel && modelOptions) {
-      selectedModel.addEventListener('click', () => {
-        const isVisible = modelOptions.style.display === 'block';
+      console.log('Adding click event to selected-model');
+      selectedModel.addEventListener('click', (e) => {
+        console.log('Selected model clicked!');
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Check computed style, not just inline style
+        const computedStyle = window.getComputedStyle(modelOptions);
+        const currentDisplay = computedStyle.display;
+        const isVisible = currentDisplay === 'block';
+        
+        console.log('Current computed display:', currentDisplay);
+        console.log('Current visibility:', isVisible);
+        
         modelOptions.style.display = isVisible ? 'none' : 'block';
+        console.log('New display style:', modelOptions.style.display);
         
         if (!isVisible) {
           // Reset search when opening
@@ -559,10 +639,20 @@ class DynamicModelManager {
    */
   populateModelSelector() {
     const modelOptions = document.getElementById('model-options');
-    if (!modelOptions || !this.models) {
-      console.warn('Model options container not found or no models available');
+    if (!modelOptions) {
+      console.warn('Model options container not found - element with ID "model-options" does not exist');
       return;
     }
+    
+    if (!this.models || Object.keys(this.models).length === 0) {
+      console.warn('No models available - this.models is empty or undefined');
+      console.log('Current models object:', this.models);
+      return;
+    }
+    
+    console.log(`Populating model selector with ${Object.keys(this.models).length} models`);
+    console.log('BEFORE populate - Current display:', window.getComputedStyle(modelOptions).display);
+    console.log('BEFORE populate - Inline style:', modelOptions.style.display);
 
     // Clear existing content
     modelOptions.innerHTML = '';
@@ -607,6 +697,8 @@ class DynamicModelManager {
     }
 
     console.log(`Populated ${modelOptions.children.length} model categories`);
+    console.log('AFTER populate - Current display:', window.getComputedStyle(modelOptions).display);
+    console.log('AFTER populate - Inline style:', modelOptions.style.display);
   }
 
   /**

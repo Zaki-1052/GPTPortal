@@ -54,7 +54,7 @@ class ChatManager {
     
     if (messageInput) {
       messageInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
+        if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
           e.preventDefault();
           this.sendMessage();
           this.resetTextAreaHeight(messageInput);
@@ -261,7 +261,7 @@ class ChatManager {
         
         this.displayMessage(infoMessage, 'system');
         this.displayGeneratedImage(result.imageUrl, result);
-        this.sendMessageToServer("Generated image", result.imageUrl);
+        //this.sendMessageToServer("Generated image", result.imageUrl);
       } else {
         this.displayMessage('❌ Image generation failed, please try again.', 'error');
       }
@@ -312,7 +312,7 @@ class ChatManager {
     // Prepare payload based on endpoint
     let payload, endpoint;
     const instructions = await this.fetchInstructions();
-    const currentModelID = this.modelConfig ? this.modelConfig.currentModelID : 'gpt-4o';
+    const currentModelID = this.modelConfig ? this.modelConfig.currentModelID : 'gpt-4.1';
     
     if (this.modelConfig && this.modelConfig.isAssistants) {
       if (this.messageCounter === 0) {
@@ -583,6 +583,11 @@ class ChatManager {
         window.URL.revokeObjectURL(url);
       })
       .catch(err => console.error('Error exporting chat history:', err));
+  }
+
+  // Alias for compatibility with frontend calls
+  exportChat() {
+    return this.exportChatHistory();
   }
 
   exportChatOnShutdown() {

@@ -194,7 +194,7 @@ async function exportChatToHTML() {
     o1History,
     deepseekHistory,
     claudeInstructions,
-    modelID: 'gpt-4o' // Default, should be passed from request context
+    modelID: 'gpt-4.1' // Default, should be passed from request context
   };
   
   return await exportService.exportChat('conversation', exportData, providerFactory);
@@ -229,7 +229,7 @@ router.post('/message', async (req, res) => {
       tokens = parsedTokens;
     }
   }
-  tokens = enforceTokenLimits(tokens, modelID);
+  tokens = await enforceTokenLimits(tokens, modelID);
 
   // Check for shutdown command
   if (user_message === "Bye!") {

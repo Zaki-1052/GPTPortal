@@ -1,5 +1,5 @@
 // Cost calculation service using unified model data
-const modelLoader = require('../shared/modelLoader');
+const modelLoader = require('../../shared/modelLoader');
 
 class CostService {
   constructor() {

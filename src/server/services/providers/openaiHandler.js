@@ -171,7 +171,7 @@ class OpenAIHandler {
 4. Color palette and mood
 5. Fine details and textures
 
-Keep the enhanced prompt under 200 words. Make it vivid and specific.
+Keep the enhanced prompt under 50 words. Make it vivid and specific.
 
 User request: "${userPrompt}"
 
@@ -179,10 +179,10 @@ Enhanced prompt:`;
 
     try {
       const response = await axios.post(`${this.baseURL}/chat/completions`, {
-        model: "gpt-4o-mini",
+        model: "gpt-4.1",
         messages: [{ role: "user", content: enhancementPrompt }],
         temperature: 0.7,
-        max_tokens: 300
+        max_tokens: 100
       }, {
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -198,13 +198,12 @@ Enhanced prompt:`;
   }
 
   /**
-   * Generate image using GPT Image 1 with Responses API
+   * Generate image using GPT Image 1 with Images API
    */
   async generateImageWithGPTImage(prompt, options = {}) {
     const {
-      quality = 'auto',
-      size = 'auto',
-      background = 'auto',
+      quality = 'standard',
+      size = '1024x1024',
       enhancePrompt = true
     } = options;
 
@@ -212,43 +211,22 @@ Enhanced prompt:`;
       // Enhance prompt for better results
       const enhancedPrompt = enhancePrompt ? await this.enhanceImagePrompt(prompt) : prompt;
       
-      const requestData = {
-        model: "gpt-4o-mini",
-        input: enhancedPrompt,
-        tools: [{
-          type: "image_generation",
-          quality: quality,
-          size: size,
-          background: background,
-          response_format: 'b64_json'
-        }]
-      };
+      const response = await this.openai.images.generate({
+        model: "gpt-image-1",
+        prompt: enhancedPrompt
+      });
 
-      const headers = {
-        'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json'
-      };
-
-      const response = await axios.post(`${this.baseURL}/responses`, requestData, { headers });
-      
-      // Extract image data from responses API output
-      const imageGenerationCalls = response.data.output?.filter(
-        output => output.type === "image_generation_call"
-      );
-
-      if (imageGenerationCalls && imageGenerationCalls.length > 0) {
-        const imageCall = imageGenerationCalls[0];
-        
+      if (response.data && response.data[0] && response.data[0].b64_json) {
         return {
           success: true,
-          imageData: imageCall.result, // Base64 image data
+          imageData: response.data[0].b64_json,
           enhancedPrompt: enhancedPrompt,
           originalPrompt: prompt,
           model: 'gpt-image-1',
-          revisedPrompt: imageCall.revised_prompt || enhancedPrompt
+          revisedPrompt: response.data[0].revised_prompt || enhancedPrompt
         };
       } else {
-        throw new Error('No image generation output found in response');
+        throw new Error('No image data found in response');
       }
     } catch (error) {
       console.error('GPT Image 1 API Error:', error.message);
@@ -756,6 +734,11 @@ Enhanced prompt:`;
     // Route to reasoning models
     if (modelID.includes('o1') || modelID.includes('o3') || modelID.includes('o4')) {
       return await this.handleReasoningCompletion(payload);
+    }
+
+    // Route to image generation models
+    if (modelID.includes('image') || modelID.includes('dall-e')) {
+      throw new Error('Image models should use generateImage method, not handleRequest');
     }
 
     // Route to standard chat models

@@ -49,7 +49,7 @@ class ModelConfig {
       this.currentModelID = data.model;
     } catch (error) {
       console.error('Error fetching default model:', error);
-      this.currentModelID = 'gpt-4o'; // Fallback
+      this.currentModelID = 'gpt-4.1'; // Fallback
     }
   }
 

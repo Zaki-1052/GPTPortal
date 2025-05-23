@@ -24,9 +24,10 @@ class UIManager {
     const showOpenRouter = document.getElementById('show-open-router');
 
     if (selectedModel && modelOptions) {
-      selectedModel.addEventListener('click', () => {
-        modelOptions.style.display = modelOptions.style.display === 'block' ? 'none' : 'block';
-      });
+      // Click handler moved to dynamicModelManager.js to avoid conflicts
+      // selectedModel.addEventListener('click', () => {
+      //   modelOptions.style.display = modelOptions.style.display === 'block' ? 'none' : 'block';
+      // });
 
       // Model option selection
       modelOptions.addEventListener('click', (e) => {

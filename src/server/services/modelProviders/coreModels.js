@@ -1,5 +1,5 @@
 // Core model definitions using unified JSON data source
-const modelLoader = require('../../shared/modelLoader');
+const modelLoader = require('../../../shared/modelLoader');
 
 /**
  * Get all core models from unified JSON

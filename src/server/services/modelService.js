@@ -1,5 +1,5 @@
 // Model-related utilities using unified model data
-const modelLoader = require('../shared/modelLoader');
+const modelLoader = require('../../shared/modelLoader');
 
 /**
  * Get maximum tokens allowed for a specific model
