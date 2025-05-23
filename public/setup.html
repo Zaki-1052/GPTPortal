@@ -121,11 +121,19 @@
                         <div class="completion-message">
                             <h2>✅ Setup Complete!</h2>
                             <p>Your GPT Portal has been configured successfully.</p>
-                            <p>Please restart the server and access the web app at <a href="http://localhost:3000">localhost:3000</a></p>
+                            <p>Please restart the server and access the web app at <a href="/portal" id="portalLink">the portal</a></p>
                             <p><strong>Command copied to clipboard:</strong> <code>node server.js</code></p>
                             <p><em>Redirecting to portal in 10 seconds...</em></p>
                         </div>
                     `;
+                    
+                    // Set the correct portal URL with current port
+                    const portalLink = document.getElementById('portalLink');
+                    const currentPort = window.location.port;
+                    const currentHost = window.location.hostname;
+                    const portalUrl = `http://${currentHost}:${currentPort}/portal`;
+                    portalLink.href = portalUrl;
+                    portalLink.textContent = `${currentHost}:${currentPort}/portal`;
                     
                     // Redirect to /portal after 10 seconds
                     setTimeout(() => {

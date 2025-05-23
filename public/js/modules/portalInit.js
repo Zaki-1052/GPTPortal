@@ -723,4 +723,7 @@ if (document.readyState === 'loading') {
   }
 }
 
+// Export for use in other modules
+window.PortalInitializer = PortalInitializer;
+
 console.log('GPTPortal Enhanced Frontend initialized');

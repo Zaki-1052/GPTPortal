@@ -344,14 +344,40 @@ class RouteManager {
       const fs = require('fs');
       const folderPath = path.join(__dirname, '../../../public/uploads/chats');
       
-      const files = await fs.promises.readdir(folderPath);
-      const sortedFiles = files.sort((a, b) => {
-        const statA = fs.statSync(path.join(folderPath, a));
-        const statB = fs.statSync(path.join(folderPath, b));
-        return statB.mtime - statA.mtime;
-      });
+      try {
+        const files = await fs.promises.readdir(folderPath);
+        const sortedFiles = files.sort((a, b) => {
+          const statA = fs.statSync(path.join(folderPath, a));
+          const statB = fs.statSync(path.join(folderPath, b));
+          return statB.mtime - statA.mtime;
+        });
+        
+        res.json({ success: true, files: sortedFiles });
+      } catch (error) {
+        // If directory doesn't exist, return empty array
+        res.json({ success: true, files: [] });
+      }
+    }));
+
+    // Prompt templates management
+    app.get('/listPrompts', ErrorHandler.asyncHandler(async (req, res) => {
+      const fs = require('fs');
+      const folderPath = path.join(__dirname, '../../../public/uploads/prompts');
       
-      res.json({ success: true, files: sortedFiles });
+      try {
+        const files = await fs.promises.readdir(folderPath);
+        const mdFiles = files.filter(file => file.endsWith('.md'));
+        const sortedFiles = mdFiles.sort((a, b) => {
+          const statA = fs.statSync(path.join(folderPath, a));
+          const statB = fs.statSync(path.join(folderPath, b));
+          return statB.mtime - statA.mtime;
+        });
+        
+        res.json({ success: true, files: sortedFiles });
+      } catch (error) {
+        // If directory doesn't exist, return empty array
+        res.json({ success: true, files: [] });
+      }
     }));
 
     // Chat summary retrieval

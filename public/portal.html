@@ -9,7 +9,8 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 <div>
@@ -34,22 +35,34 @@
   
   <!-- Enhanced Model Selector with Dynamic Loading -->
   <div id="model-selector-container">
-    <div class="custom-select" id="selected-model">Select a Model</div>
+    <div class="custom-select" id="selected-model">
+      <span class="model-icon">🤖</span>
+      <span class="model-text">Select a Model</span>
+      <span class="dropdown-arrow">▼</span>
+    </div>
     <div id="model-search-container">
-      <input type="text" id="model-search" placeholder="Search models...">
-      <div class="toggle-container">
-        <label class="toggle-switch">
-          <input type="checkbox" id="show-open-router">
-          <span class="toggle-slider"></span>
-        </label>
-        <span class="toggle-label">Show OpenRouter</span>
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="model-search" placeholder="Search models...">
       </div>
-      <button id="refresh-models" style="margin-left: 10px;">🔄</button>
+      <div class="controls-row">
+        <div class="toggle-container">
+          <label class="toggle-switch">
+            <input type="checkbox" id="show-open-router">
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label">Show OpenRouter</span>
+        </div>
+        <button id="refresh-models" class="refresh-btn" title="Refresh models">
+          <span class="refresh-icon">🔄</span>
+        </button>
+      </div>
     </div>
     <div id="model-options" class="select-options">
       <!-- Models will be populated dynamically -->
-      <div id="loading-models" style="text-align: center; padding: 20px;">
-        Loading models...
+      <div id="loading-models" class="loading-indicator">
+        <div class="loading-spinner"></div>
+        <span>Loading models...</span>
       </div>
     </div>
   </div>
@@ -57,9 +70,20 @@
   <!-- Main Chat Interface -->
   <div id="chat-container">
     <div id="chat-box">
-      <div class="message response">
-        Welcome to GPTPortal! Select a model above to start chatting.
-        <button onclick="copyToClipboard(this.previousSibling.textContent)">Copy</button>
+      <div class="message response welcome-message">
+        <div class="welcome-content">
+          <h3>Welcome to GPT Portal! 🚀</h3>
+          <p>Select a model above to start chatting with your preferred AI assistant.</p>
+          <div class="welcome-features">
+            <span class="feature-badge">Multi-LLM Support</span>
+            <span class="feature-badge">Voice Input</span>
+            <span class="feature-badge">File Upload</span>
+            <span class="feature-badge">Export Chats</span>
+            <span class="feature-badge">Web Search</span>
+            <span class="feature-badge">Python</span>
+          </div>
+        </div>
+        <button class="copy-btn" onclick="copyToClipboard(this.parentElement.textContent)">📋</button>
       </div>
     </div>
     
@@ -67,12 +91,17 @@
     <textarea id="message-input" placeholder="Type your message here... (Ctrl+Enter to send)"></textarea>
     
     <!-- Control Buttons -->
-    <button type="button" id="clipboard-button">📋</button>
-    <input type="file" id="file-input" accept="*/*"/>
-    <button type="button" id="export-button">📤</button>
-    <button type="button" id="voice-button">🎤</button>
-    <div id="voice-indicator">Voice Mode ON</div>
-    <button id="send-button">Send</button>
+    <div class="input-controls">
+      <button type="button" id="clipboard-button" title="Upload file">📎</button>
+      <input type="file" id="file-input" accept="*/*"/>
+      <button type="button" id="export-button" title="Export chat">📤</button>
+      <button type="button" id="voice-button" title="Voice input">🎤</button>
+      <div id="voice-indicator" class="voice-indicator">🎙️ Voice Mode ON</div>
+      <button id="send-button">
+        <span class="send-icon">📤</span>
+        <span class="send-text">Send</span>
+      </button>
+    </div>
     
     <!-- Mode Selector -->
     <div class="custom-select" id="mode-selector">Assistants Mode</div>
@@ -188,7 +217,7 @@
 <script src="js/modules/modelSearch.js"></script>
 <script src="js/modules/modelUI.js"></script>
 <script src="js/modules/messageHandler.js"></script>
-<script src="js/modules/dynamicModelManager-refactored.js"></script>
+<script src="js/modules/dynamicModelManager.js"></script>
 
 <!-- Legacy Modules (for compatibility) -->
 <script src="js/modules/modelConfig.js"></script>
