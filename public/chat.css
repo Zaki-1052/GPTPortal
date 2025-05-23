@@ -92,7 +92,7 @@ body::before {
 }
 
 #message-input {
-  width: calc(100% - 100px);
+  width: 100%;
   padding: 16px 20px;
   line-height: 1.5;
   margin: 0 16px 20px 0;
