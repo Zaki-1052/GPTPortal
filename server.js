@@ -492,6 +492,11 @@ app.get('/export-chat-html', async (req, res) => {
   let htmlContent;
   let title = 'chat_export'; // Default title
   
+  // Check if already shutting down
+  if (isShuttingDown) {
+    return res.status(503).send('Server is shutting down');
+  }
+  
   try {
     const exportService = require('./src/server/services/exportService');
     
@@ -501,16 +506,18 @@ app.get('/export-chat-html', async (req, res) => {
         geminiHistory: app.locals.geminiHistory || '',
         modelID: app.locals.currentModelID || 'gemini-1.5-pro'
       };
-      htmlContent = await exportService.exportChat('gemini', exportData, providerFactory);
-      title = 'gemini_history';
+      const result = await exportService.exportChat('gemini', exportData, providerFactory);
+      htmlContent = result.htmlContent;
+      title = result.title;
     } else if (type === 'assistants') {
       // Export assistants chat
       const exportData = {
         systemMessage: app.locals.systemMessage || '',
         modelID: app.locals.currentModelID || 'gpt-4o'
       };
-      htmlContent = await exportService.exportChat('assistants', exportData, providerFactory);
-      title = 'assistant_history';
+      const result = await exportService.exportChat('assistants', exportData, providerFactory);
+      htmlContent = result.htmlContent;
+      title = result.title;
     } else {
       // Export conversation (default)
       const exportData = {
@@ -521,8 +528,9 @@ app.get('/export-chat-html', async (req, res) => {
         claudeInstructions: app.locals.claudeInstructions || '',
         modelID: app.locals.currentModelID || 'gpt-4o'
       };
-      htmlContent = await exportService.exportChat('conversation', exportData, providerFactory);
-      title = 'chat_history';
+      const result = await exportService.exportChat('conversation', exportData, providerFactory);
+      htmlContent = result.htmlContent;
+      title = result.title;
     }
     
     res.set('Content-Type', 'text/html');
@@ -530,6 +538,17 @@ app.get('/export-chat-html', async (req, res) => {
     res.send(htmlContent);
 
     console.log("Chat history sent to client, initiating shutdown...");
+    
+    isShuttingDown = true; // Set the shutdown flag
+    // Delay before shutting down the server to allow file download
+    setTimeout(() => {
+      console.log("Sending SIGTERM to self...");
+      process.kill(process.pid, 'SIGINT'); // Send SIGTERM to self
+      server.close(() => {
+        console.log("Server successfully shut down.");
+        process.exit(99);
+      });
+    }, 100); // 1-second delay
   } catch (error) {
     console.error('Export error:', error);
     res.status(500).json({ error: 'Export failed', details: error.message });

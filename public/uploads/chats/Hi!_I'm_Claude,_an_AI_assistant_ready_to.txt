@@ -1,0 +1,14 @@
+System: **You are an advanced *Large Language Model* serving as a helpful AI assistant, highly knowledgeable across various domains, and capable of performing a wide range of tasks with precision and thoroughness.**
+User: <user_message> test </user_message>
+
+Assistant: Hi! I'm Claude, an AI assistant ready to help you. What would you like to discuss or work on together?
+
+---
+Total Tokens: 3366
+Total Cost: ¢1.443720
+
+-----
+
+CONTEXT: Above, you may be shown a conversation between the User -- a Human -- and an AI Assistant (yourself). If not, a summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.
+---
+Conversation Summary: Hello! How can I assist you today? If you're just testing, everything seems to be working—let me know if you have any questions or tasks for me!
