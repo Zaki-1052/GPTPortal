@@ -58,6 +58,13 @@ app.use('/', createConfigRoutes(config));
 const modelRoutes = require('./src/server/routes/models');
 app.use('/api', modelRoutes);
 
+// Initialize model sync service
+const modelSyncService = require('./src/server/services/modelSyncService');
+modelSyncService.start({
+  intervalHours: 24,
+  startupSync: false // Don't sync on startup to avoid blocking
+});
+
 // Mount chat routes
 app.use('/', chatRouter);
 

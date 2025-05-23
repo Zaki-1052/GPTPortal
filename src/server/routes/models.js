@@ -1,6 +1,8 @@
 // API routes for dynamic model management
 const express = require('express');
 const modelRegistry = require('../services/modelProviders/modelRegistry');
+const modelLoader = require('../../shared/modelLoader');
+const modelSyncService = require('../services/modelSyncService');
 
 const router = express.Router();
 
@@ -302,6 +304,81 @@ router.get('/models/provider/:modelId', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to fetch model provider',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/models/sync - Sync models with provider APIs
+ */
+router.post('/models/sync', async (req, res) => {
+  try {
+    const { forceSync = false } = req.body;
+    const result = await modelSyncService.syncModels({ forceSync });
+    
+    res.json({
+      success: true,
+      data: result,
+      meta: {
+        timestamp: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('Error syncing models:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to sync models',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/models/sync/status - Get model sync status
+ */
+router.get('/models/sync/status', async (req, res) => {
+  try {
+    const status = modelSyncService.getStatus();
+    
+    res.json({
+      success: true,
+      data: status,
+      meta: {
+        timestamp: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching sync status:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch sync status',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/models/recommend - Get model recommendations
+ */
+router.post('/models/recommend', async (req, res) => {
+  try {
+    const requirements = req.body;
+    const recommendations = await modelLoader.getModelRecommendations(requirements);
+    
+    res.json({
+      success: true,
+      data: recommendations,
+      meta: {
+        timestamp: new Date().toISOString(),
+        requirements: requirements
+      }
+    });
+  } catch (error) {
+    console.error('Error getting recommendations:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get model recommendations',
       details: error.message
     });
   }
