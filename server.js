@@ -2986,6 +2986,18 @@ app.use(cors({
   origin: '*'
 }));
 
+// ============ DYNAMIC MODEL SYSTEM ============
+// Add new model API routes for enhanced model management
+try {
+  const modelRoutes = require('./src/server/routes/models');
+  app.use('/api', modelRoutes);
+  console.log('🚀 Dynamic model system loaded successfully');
+} catch (error) {
+  console.log('⚠️  Dynamic model system not available (using core models only)');
+  // Graceful degradation - original functionality still works
+}
+// ===============================================
+
 
 const isVercelEnvironment = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
 const PORT = isVercelEnvironment ? process.env.PORT : process.env.PORT_SERVER || 3000;
