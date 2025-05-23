@@ -534,19 +534,41 @@ class ModelLoader {
   }
 
   inferPricing(modelId, provider) {
-    // Return conservative default pricing for new models
+    // Updated pricing based on latest OpenAI/Anthropic data (Jan 2025)
     if (provider === 'openai') {
-      if (modelId.includes('gpt-4o-mini')) return { input: 0.15, output: 0.60 };
-      if (modelId.includes('gpt-4o')) return { input: 5.00, output: 15.00 };
+      // Latest GPT-4 models
+      if (modelId.includes('gpt-4.1-nano')) return { input: 0.10, output: 0.40, cached: 0.025 };
+      if (modelId.includes('gpt-4.1-mini')) return { input: 0.40, output: 1.60, cached: 0.10 };
+      if (modelId.includes('gpt-4.1')) return { input: 2.00, output: 8.00, cached: 0.50 };
+      if (modelId.includes('gpt-4.5-preview')) return { input: 75.00, output: 150.00, cached: 37.50 };
+      
+      // Current GPT-4o models (updated pricing)
+      if (modelId.includes('gpt-4o-mini')) return { input: 0.15, output: 0.60, cached: 0.075 };
+      if (modelId.includes('gpt-4o')) return { input: 2.50, output: 10.00, cached: 1.25 };
+      
+      // Reasoning models
+      if (modelId.includes('o4-mini')) return { input: 1.10, output: 4.40, cached: 0.275 };
+      if (modelId.includes('o3-mini')) return { input: 1.10, output: 4.40, cached: 0.55 };
+      if (modelId.includes('o3')) return { input: 10.00, output: 40.00, cached: 2.50 };
+      if (modelId.includes('o1-pro')) return { input: 150.00, output: 600.00 };
+      if (modelId.includes('o1-mini')) return { input: 1.10, output: 4.40, cached: 0.55 };
+      if (modelId.includes('o1')) return { input: 15.00, output: 60.00, cached: 7.50 };
+      
+      // Legacy models
+      if (modelId.includes('gpt-4-turbo')) return { input: 10.00, output: 30.00 };
+      if (modelId.includes('gpt-4-32k')) return { input: 60.00, output: 120.00 };
       if (modelId.includes('gpt-4')) return { input: 30.00, output: 60.00 };
-      if (modelId.includes('gpt-3.5')) return { input: 0.50, output: 1.50 };
+      if (modelId.includes('gpt-3.5-turbo')) return { input: 0.50, output: 1.50 };
     }
+    
     if (provider === 'anthropic') {
+      // Anthropic pricing (no major changes reported)
       if (modelId.includes('haiku')) return { input: 0.25, output: 1.25 };
       if (modelId.includes('sonnet')) return { input: 3.00, output: 15.00 };
       if (modelId.includes('opus')) return { input: 15.00, output: 75.00 };
     }
-    return { input: 1.00, output: 2.00 }; // Default
+    
+    return { input: 1.00, output: 2.00 }; // Conservative default
   }
 
   inferContextWindow(modelId) {
