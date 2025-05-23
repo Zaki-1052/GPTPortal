@@ -134,6 +134,10 @@ public/
 - ✅ **Chat History Loading**: Fixed JSON parsing error by using correct `/listChats` endpoint
 - ✅ **selectionStart TypeError**: Resolved cursor positioning errors
 - ✅ **Visual Parity**: Achieved exact match with original slider appearance
+- ✅ **Dropdown Positioning**: Fixed CSS positioning conflict causing dropdown to appear far left
+- ✅ **JavaScript Syntax Error**: Removed stray character causing "w is not defined" error
+- ✅ **Token Slider Initial Color**: Changed from red to blue on page load
+- ✅ **Model Selector UX**: Now shows "Select a Model" until first message is sent
 
 ### **Feature Audit Results**
 - **Features Preserved**: 100% ✅
@@ -256,6 +260,9 @@ cp public/script-original.js public/script.js
 4. **Error Handling**: Added graceful fallbacks for all API calls
 5. **Model Selector**: Enhanced dropdown functionality and styling
 6. **Slider Initialization**: Proper initialization with color updates on startup
+7. **Dropdown Positioning**: Fixed CSS conflicts between JavaScript and CSS positioning
+8. **Syntax Errors**: Resolved JavaScript parsing errors preventing initialization
+9. **UX Improvements**: Better initial states for sliders and model selector
 
 ---
 

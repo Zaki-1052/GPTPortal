@@ -114,7 +114,7 @@ testRefactor().then(success => {
   if (success) {
     console.log('\n🚀 Refactoring Complete and Functional!');
     console.log('\nNext steps:');
-    console.log('1. Start server with: node server-complete.js');
+    console.log('1. Start server with: node server.js');
     console.log('2. Test frontend integration at http://localhost:3018/portal');
     console.log('3. Verify all AI providers work end-to-end');
   } else {
