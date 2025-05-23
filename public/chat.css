@@ -283,27 +283,29 @@ body {
   border-radius: 5px;
   padding: 5px;
   z-index: 600;
-  width: 150px; /* Make the dropdown wider than the button */
+  width: 400px; /* Make the dropdown wider for better model names display */
   align-self: center;
-  width: 12%; /* Adjusted to match the width of the parent */
   left: 50%; /* Center horizontally */
   transform: translateX(-50%); /* Shift to the left by half of its own width */
   font-size: 16px;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .select-options button {
   background-color: #303134;
-  display: inline;
+  display: block;
   position: relative;
   color: white;
   padding: 10px;
   border: none;
   border-radius: 5px;
-  text-align: center;
+  text-align: left;
   cursor: pointer;
   transition: background-color 0.2s;
   width: 100%;
   margin-bottom: 2px; /* Adjusted for spacing */
+  box-sizing: border-box;
 }
 
 .select-options button:hover {
@@ -661,5 +663,74 @@ body {
 }
 
 #temperature-slider:focus {
+  outline: none;
+}
+
+#tokens-slider-container {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  font-size: 16px;
+  outline: none;
+  gap: 10px;
+}
+
+#tokens-slider {
+  width: 100%;
+  margin: 0 10px;
+  -webkit-appearance: none;
+  background: transparent;
+}
+
+#tokens-slider::-webkit-slider-runnable-track {
+  background: #5f6368;
+  height: 8px;
+  border-radius: 4px;
+}
+
+#tokens-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background-color: #1a73e8;
+  cursor: pointer;
+  border-radius: 50%;
+  margin-top: -6px;
+}
+
+#tokens-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background-color: #1a73e8;
+  cursor: pointer;
+  border-radius: 50%;
+  border: none;
+}
+
+#tokens-slider::-ms-thumb {
+  width: 20px;
+  height: 20px;
+  background-color: #1a73e8;
+  cursor: pointer;
+  border-radius: 50%;
+  border: none;
+}
+
+#tokens-value {
+  font-weight: normal;
+  font-size: 16px;
+  color: white;
+  min-width: 50px;
+}
+
+#tokens-limit {
+  font-size: 14px;
+  color: #888;
+  white-space: nowrap;
+}
+
+#tokens-slider:focus {
   outline: none;
 }

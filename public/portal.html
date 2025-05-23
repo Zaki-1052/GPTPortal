@@ -2,16 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Chat with GPT-4</title>
+  <title>GPTPortal - Multi-LLM Chat Interface</title>
   <meta name="author" content="Zakir Alibhai">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="chat.css">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
 </head>
 <body>
 <div>
+  <!-- Sidebar for Chat History -->
   <div id="toggleArrow">&#x25B6;</div>
   <div id="sidebar">
     <div id="chatList"></div>
@@ -19,13 +21,18 @@
       <button id="summariesButton">Summaries Only</button>
     </div>
   </div>
+
+  <!-- Prompt Templates Sidebar -->
   <div id="promptBar">
-    <!-- Chat list will be dynamically populated here -->
     <div id="promptList"></div>
     <button id="copyPromptButton"></button>
- </div>
- <div id="toggleRightArrow">&#x25C0;</div>
- <div id="custom-tooltip"></div>
+  </div>
+  <div id="toggleRightArrow">&#x25C0;</div>
+  
+  <!-- Custom Tooltip -->
+  <div id="custom-tooltip"></div>
+  
+  <!-- Model Selector with Enhanced Dynamic Loading -->
   <div id="model-selector-container">
     <div class="custom-select" id="selected-model">Select a Model</div>
     <div id="model-search-container">
@@ -37,309 +44,505 @@
         </label>
         <span class="toggle-label">Show OpenRouter</span>
       </div>
+      <button id="refresh-models" style="margin-left: 10px;">🔄</button>
     </div>
     <div id="model-options" class="select-options">
-        <button id="model-gpt-4" data-value="gpt-4" class="standard-model">GPT-4: Oldest</button>
-        <button id="model-gpt-4.5" data-value="gpt-4.5-preview" class="standard-model">GPT-4.5</button>
-        <button id="model-gpt-4.1" data-value="gpt-4.1" class="standard-model">GPT-4.1</button>
-        <button id="model-gpt-4o" data-value="gpt-4o" class="standard-model">GPT-4o: Latest</button>
-        <button id="model-claude-4-opus" data-value="claude-opus-4-20250514" class="standard-model">Claude 4 Opus</button>
-        <button id="model-claude-4-sonnet" data-value="claude-sonnet-4-20250514" class="standard-model">Claude 4 Sonnet</button>
-        <button id="model-claude-3.7-sonnet" data-value="claude-3-7-sonnet-latest" class="standard-model">Claude 3.7 Sonnet</button>
-        <button id="model-claude-3.5-sonnet" data-value="claude-3-5-sonnet-latest" class="standard-model">Claude 3.5 Sonnet</button>
-        <button id="model-gpt-4o-mini" data-value="gpt-4o-mini" class="standard-model">GPT-4o Mini: Cheapest</button>
-        <button id="model-deepseek-r1" data-value="deepseek-reasoner" class="standard-model">DeepSeek-R1</button>
-        <button id="model-gpt-o1-preview" data-value="o1-preview" class="standard-model">GPT-o1-Preview: Intelligent Reasoning</button>
-        <button id="model-gpt-o1" data-value="o1" class="standard-model">GPT-o1: Strong Reasoning</button>
-        <button id="model-gpt-o3" data-value="o1" class="standard-model">GPT-o3: High Reasoning</button>
-        <button id="model-gpt-o3-mini" data-value="o3-mini" class="standard-model">GPT-o3 Mini: Cheap Reasoning</button>
-        <button id="model-gpt-o4-mini" data-value="o3-mini" class="standard-model">GPT-o4 Mini: Cheaper Reasoning</button>
-        <button id="model-gpt-o1-mini" data-value="o1-mini" class="standard-model">GPT-o1 Mini: Cheapest Reasoning</button>
-        <button id="model-claude-3.5-haiku" data-value="claude-3-5-haiku-latest" class="standard-model">Claude 3.5 Haiku</button>
-        <button id="model-gemini-2.0-flash" data-value="gemini-2.0-flash-exp" class="standard-model">Gemini-2.0 Flash</button>
-        <button id="model-llama-3.1-405b" data-value="llama-3.1-405b-reasoning" class="standard-model">Llama3.1 405b: New</button>
-        <button id="model-gpt-4-turbo" data-value="gpt-4-turbo-" class="standard-model">GPT-4-Turbo: Standard</button>
-        <button id="model-gpt-3.5" data-value="gpt-3.5-turbo-0125" class="standard-model">GPT-3.5-Turbo: Old</button>
-        <button id="model-claude-haiku" data-value="claude-3-haiku-20240307" class="standard-model">Claude Haiku: Cheap</button>
-        <button id="model-gemini-1.5-pro" data-value="gemini-1.5-pro" class="standard-model">Gemini-1.5 Pro: Best</button>
-        <button id="model-deepseek-chat" data-value="deepseek-chat" class="standard-model">DeepSeek-Chat</button>
-        <button id="model-llama-3.1-70b" data-value="llama-3.1-70b-versatile" class="standard-model">Llama3.1 70b</button>
-        <button id="model-llama-3.1-8b" data-value="llama-3.1-8b-instant" class="standard-model">Llama3.1 8b</button>
-        <button id="model-mistral-large" data-value="mistral-large-latest" class="standard-model">Mistral Large</button>
-        <button id="model-codestral" data-value="codestral-latest" class="standard-model">Codestral</button>
-        <button id="model-claude-opus" data-value="claude-3-opus-20240229" class="standard-model">Claude Opus</button>
-        <button id="model-gemini-1.5-flash" data-value="gemini-1.5-flash" class="standard-model">Gemini-1.5 Flash</button>
-        <button id="model-gemini-pro" data-value="gemini-pro" class="standard-model">Gemini Pro</button>
-        <button id="model-llama-70b" data-value="llama3-70b-8192" class="standard-model">Llama3 70b</button>
-        <button id="model-llama-8b" data-value="llama3-8b-8192" class="standard-model">Llama3 8b</button>
-        <button id="model-gemma-it" data-value="gemma-7b-it" class="standard-model">Gemma 7B</button>
-        <button id="model-codestral-mamba" data-value="open-codestral-mamba" class="standard-model">Codestral Mamba</button>
-        <button id="model-mathstral" data-value="mathstral-temp-id" class="standard-model">Mathstral</button>
-        <button id="model-mistral-nemo" data-value="open-mistral-nemo" class="standard-model">Mistral NeMo</button>
-        <button id="model-mistral-small" data-value="mistral-small-latest" class="standard-model">Mistral Small</button>
-        <button id="model-mistral-medium" data-value="mistral-medium-latest" class="standard-model">Mistral Medium</button>
-        <button id="model-qroq-mistral-8x7b" data-value="mixtral-8x7b-32768" class="standard-model">Free Mixtral 8x7b</button>
-        <button id="model-mistral-8x22b" data-value="open-mixtral-8x22b" class="standard-model">Mixtral 8x22b</button>
-        <button id="model-mistral-tiny" data-value="open-mistral-7b" class="standard-model">Mistral Tiny</button>
-        <button id="model-claude-1.2" data-value="claude-instant-1.2" class="standard-model">Claude 1.2</button>
-        <button id="model-claude-2.0" data-value="claude-2.0" class="standard-model">Claude 2.0</button>
-        <button id="model-claude-2.1" data-value="claude-2.1" class="standard-model">Claude 2.1</button>
-        <button id="model-claude-sonnet" data-value="claude-3-sonnet-20240229" class="standard-model">Claude Sonnet</button>
-        <button id="model-mistral-8x7b" data-value="open-mixtral-8x7b" class="standard-model">Mixtral 8x7b</button>
-        <button id="model-gpt-4-32k" data-value="gpt-4-32k" class="standard-model">GPT-4-32k</button>
-        <button id="model-gemini-ultra" data-value="gemini-1.0-ultra" class="standard-model">Gemini Ultra</button>
-        <!-- Add other models as options -->
-        <!-- OpenRouter Models -->
-        <button id="open-router-model-eva-unit-01-eva-llama-3.33-70b" data-value="eva-unit-01/eva-llama-3.33-70b" class="openrouter-model">Eva Llama 3.33 70b</button>
-        <button id="open-router-model-x-ai-grok-2-vision-1212" data-value="x-ai/grok-2-vision-1212" class="openrouter-model">xAI: Grok 2 Vision 1212</button>
-        <button id="open-router-model-x-ai-grok-2-1212" data-value="x-ai/grok-2-1212" class="openrouter-model">xAI: Grok 2 1212</button>
-        <button id="open-router-model-cohere-command-r7b-12-2024" data-value="cohere/command-r7b-12-2024" class="openrouter-model">Cohere: Command R7B (12-2024)</button>
-        <button id="open-router-model-google-gemini-2.0-flash-exp-free" data-value="google/gemini-2.0-flash-exp:free" class="openrouter-model">Google: Gemini Flash 2.0 Experimental (free)</button>
-        <button id="open-router-model-google-gemini-exp-1206-free" data-value="google/gemini-exp-1206:free" class="openrouter-model">Google: Gemini Experimental 1206 (free)</button>
-        <button id="open-router-model-meta-llama-llama-3.3-70b-instruct" data-value="meta-llama/llama-3.3-70b-instruct" class="openrouter-model">Meta: Llama 3.3 70B Instruct</button>
-        <button id="open-router-model-amazon-nova-lite-v1" data-value="amazon/nova-lite-v1" class="openrouter-model">Amazon: Nova Lite 1.0</button>
-        <button id="open-router-model-amazon-nova-micro-v1" data-value="amazon/nova-micro-v1" class="openrouter-model">Amazon: Nova Micro 1.0</button>
-        <button id="open-router-model-amazon-nova-pro-v1" data-value="amazon/nova-pro-v1" class="openrouter-model">Amazon: Nova Pro 1.0</button>
-        <button id="open-router-model-qwen-qwq-32b-preview" data-value="qwen/qwq-32b-preview" class="openrouter-model">Qwen: QwQ 32B Preview</button>
-        <button id="open-router-model-google-gemini-exp-1121-free" data-value="google/gemini-exp-1121:free" class="openrouter-model">Google: Gemini Experimental 1121 (free)</button>
-        <button id="open-router-model-google-learnlm-1.5-pro-experimental-free" data-value="google/learnlm-1.5-pro-experimental:free" class="openrouter-model">Google: LearnLM 1.5 Pro Experimental (free)</button>
-        <button id="open-router-model-eva-unit-01-eva-qwen-2.5-72b" data-value="eva-unit-01/eva-qwen-2.5-72b" class="openrouter-model">EVA Qwen2.5 72B</button>
-        <button id="open-router-model-openai-gpt-4o-2024-11-20" data-value="openai/gpt-4o-2024-11-20" class="openrouter-model">OpenAI: GPT-4o (2024-11-20)</button>
-        <button id="open-router-model-mistralai-mistral-large-2411" data-value="mistralai/mistral-large-2411" class="openrouter-model">Mistral Large 2411</button>
-        <button id="open-router-model-mistralai-mistral-large-2407" data-value="mistralai/mistral-large-2407" class="openrouter-model">Mistral Large 2407</button>
-        <button id="open-router-model-mistralai-pixtral-large-2411" data-value="mistralai/pixtral-large-2411" class="openrouter-model">Mistral: Pixtral Large 2411</button>
-        <button id="open-router-model-x-ai-grok-vision-beta" data-value="x-ai/grok-vision-beta" class="openrouter-model">xAI: Grok Vision Beta</button>
-        <button id="open-router-model-google-gemini-exp-1114-free" data-value="google/gemini-exp-1114:free" class="openrouter-model">Google: Gemini Experimental 1114 (free)</button>
-        <button id="open-router-model-infermatic-mn-inferor-12b" data-value="infermatic/mn-inferor-12b" class="openrouter-model">Mistral Nemo Inferor 12B</button>
-        <button id="open-router-model-qwen-qwen-2.5-coder-32b-instruct" data-value="qwen/qwen-2.5-coder-32b-instruct" class="openrouter-model">Qwen2.5 Coder 32B Instruct</button>
-        <button id="open-router-model-raifle-sorcererlm-8x22b" data-value="raifle/sorcererlm-8x22b" class="openrouter-model">SorcererLM 8x22B</button>
-        <button id="open-router-model-eva-unit-01-eva-qwen-2.5-32b" data-value="eva-unit-01/eva-qwen-2.5-32b">EVA Qwen2.5 32B</button>
-        <button id="open-router-model-thedrummer-unslopnemo-12b" data-value="thedrummer/unslopnemo-12b">Unslopnemo 12b</button>
-        <button id="open-router-model-anthropic-claude-3.5-haiku-20241022-beta" data-value="anthropic/claude-3.5-haiku-20241022:beta">Anthropic: Claude 3.5 Haiku (2024-10-22) (self-moderated)</button>
-        <button id="open-router-model-anthropic-claude-3.5-haiku-20241022" data-value="anthropic/claude-3.5-haiku-20241022">Anthropic: Claude 3.5 Haiku (2024-10-22)</button>
-        <button id="open-router-model-anthropic-claude-3.5-haiku-beta" data-value="anthropic/claude-3.5-haiku:beta">Anthropic: Claude 3.5 Haiku (self-moderated)</button>
-        <button id="open-router-model-anthropic-claude-3.5-haiku" data-value="anthropic/claude-3.5-haiku">Anthropic: Claude 3.5 Haiku</button>
-        <button id="open-router-model-neversleep-llama-3.1-lumimaid-70b" data-value="neversleep/llama-3.1-lumimaid-70b">Lumimaid v0.2 70B</button>
-        <button id="open-router-model-anthracite-org-magnum-v4-72b" data-value="anthracite-org/magnum-v4-72b">Magnum v4 72B</button>
-        <button id="open-router-model-anthropic-claude-3.5-sonnet-beta" data-value="anthropic/claude-3.5-sonnet:beta">Anthropic: Claude 3.5 Sonnet (self-moderated)</button>
-        <button id="open-router-model-anthropic-claude-3.5-sonnet" data-value="anthropic/claude-3.5-sonnet">Anthropic: Claude 3.5 Sonnet</button>
-        <button id="open-router-model-x-ai-grok-beta" data-value="x-ai/grok-beta">xAI: Grok Beta</button>
-        <button id="open-router-model-mistralai-ministral-8b" data-value="mistralai/ministral-8b">Ministral 8B</button>
-        <button id="open-router-model-mistralai-ministral-3b" data-value="mistralai/ministral-3b">Ministral 3B</button>
-        <button id="open-router-model-qwen-qwen-2.5-7b-instruct" data-value="qwen/qwen-2.5-7b-instruct">Qwen2.5 7B Instruct</button>
-        <button id="open-router-model-nvidia-llama-3.1-nemotron-70b-instruct" data-value="nvidia/llama-3.1-nemotron-70b-instruct">NVIDIA: Llama 3.1 Nemotron 70B Instruct</button>
-        <button id="open-router-model-inflection-inflection-3-pi" data-value="inflection/inflection-3-pi">Inflection: Inflection 3 Pi</button>
-        <button id="open-router-model-inflection-inflection-3-productivity" data-value="inflection/inflection-3-productivity">Inflection: Inflection 3 Productivity</button>
-        <button id="open-router-model-google-gemini-flash-1.5-8b" data-value="google/gemini-flash-1.5-8b">Google: Gemini Flash 1.5 8B</button>
-        <button id="open-router-model-anthracite-org-magnum-v2-72b" data-value="anthracite-org/magnum-v2-72b">Magnum v2 72B</button>
-        <button id="open-router-model-liquid-lfm-40b" data-value="liquid/lfm-40b">Liquid: LFM 40B MoE</button>
-        <button id="open-router-model-thedrummer-rocinante-12b" data-value="thedrummer/rocinante-12b">Rocinante 12B</button>
-        <button id="open-router-model-meta-llama-llama-3.2-3b-instruct-free" data-value="meta-llama/llama-3.2-3b-instruct:free">Meta: Llama 3.2 3B Instruct (free)</button>
-        <button id="open-router-model-meta-llama-llama-3.2-3b-instruct" data-value="meta-llama/llama-3.2-3b-instruct">Meta: Llama 3.2 3B Instruct</button>
-        <button id="open-router-model-meta-llama-llama-3.2-1b-instruct-free" data-value="meta-llama/llama-3.2-1b-instruct:free">Meta: Llama 3.2 1B Instruct (free)</button>
-        <button id="open-router-model-meta-llama-llama-3.2-1b-instruct" data-value="meta-llama/llama-3.2-1b-instruct">Meta: Llama 3.2 1B Instruct</button>
-        <button id="open-router-model-meta-llama-llama-3.2-90b-vision-instruct-free" data-value="meta-llama/llama-3.2-90b-vision-instruct:free">Meta: Llama 3.2 90B Vision Instruct (free)</button>
-        <button id="open-router-model-meta-llama-llama-3.2-90b-vision-instruct" data-value="meta-llama/llama-3.2-90b-vision-instruct">Meta: Llama 3.2 90B Vision Instruct</button>
-        <button id="open-router-model-meta-llama-llama-3.2-11b-vision-instruct-free" data-value="meta-llama/llama-3.2-11b-vision-instruct:free">Meta: Llama 3.2 11B Vision Instruct (free)</button>
-        <button id="open-router-model-meta-llama-llama-3.2-11b-vision-instruct" data-value="meta-llama/llama-3.2-11b-vision-instruct">Meta: Llama 3.2 11B Vision Instruct</button>
-        <button id="open-router-model-qwen-qwen-2.5-72b-instruct" data-value="qwen/qwen-2.5-72b-instruct">Qwen2.5 72B Instruct</button>
-        <button id="open-router-model-qwen-qwen-2-vl-72b-instruct" data-value="qwen/qwen-2-vl-72b-instruct">Qwen2-VL 72B Instruct</button>
-        <button id="open-router-model-neversleep-llama-3.1-lumimaid-8b" data-value="neversleep/llama-3.1-lumimaid-8b">Lumimaid v0.2 8B</button>
-        <button id="open-router-model-openai-o1-mini-2024-09-12" data-value="openai/o1-mini-2024-09-12">OpenAI: o1-mini (2024-09-12)</button>
-        <button id="open-router-model-openai-o1-preview" data-value="openai/o1-preview">OpenAI: o1-preview</button>
-        <button id="open-router-model-openai-o1-preview-2024-09-12" data-value="openai/o1-preview-2024-09-12">OpenAI: o1-preview (2024-09-12)</button>
-        <button id="open-router-model-openai-o1-mini" data-value="openai/o1-mini">OpenAI: o1-mini</button>
-        <button id="open-router-model-mistralai-pixtral-12b" data-value="mistralai/pixtral-12b">Mistral: Pixtral 12B</button>
-        <button id="open-router-model-cohere-command-r-08-2024" data-value="cohere/command-r-08-2024">Cohere: Command R (08-2024)</button>
-        <button id="open-router-model-cohere-command-r-plus-08-2024" data-value="cohere/command-r-plus-08-2024">Cohere: Command R+ (08-2024)</button>
-        <button id="open-router-model-qwen-qwen-2-vl-7b-instruct" data-value="qwen/qwen-2-vl-7b-instruct">Qwen2-VL 7B Instruct</button>
-        <button id="open-router-model-google-gemini-flash-1.5-exp" data-value="google/gemini-flash-1.5-exp">Google: Gemini Flash 1.5 Experimental</button>
-        <button id="open-router-model-sao10k-l3.1-euryale-70b" data-value="sao10k/l3.1-euryale-70b">Llama 3.1 Euryale 70B v2.2</button>
-        <button id="open-router-model-google-gemini-flash-1.5-8b-exp" data-value="google/gemini-flash-1.5-8b-exp">Google: Gemini Flash 1.5 8B Experimental</button>
-        <button id="open-router-model-ai21-jamba-1-5-large" data-value="ai21/jamba-1-5-large">AI21: Jamba 1.5 Large</button>
-        <button id="open-router-model-ai21-jamba-1-5-mini" data-value="ai21/jamba-1-5-mini">AI21: Jamba 1.5 Mini</button>
-        <button id="open-router-model-microsoft-phi-3.5-mini-128k-instruct" data-value="microsoft/phi-3.5-mini-128k-instruct">Phi-3.5 Mini 128K Instruct</button>
-        <button id="open-router-model-nousresearch-hermes-3-llama-3.1-70b" data-value="nousresearch/hermes-3-llama-3.1-70b">Nous: Hermes 3 70B Instruct</button>
-        <button id="open-router-model-nousresearch-hermes-3-llama-3.1-405b" data-value="nousresearch/hermes-3-llama-3.1-405b">Nous: Hermes 3 405B Instruct</button>
-        <button id="open-router-model-perplexity-llama-3.1-sonar-huge-128k-online" data-value="perplexity/llama-3.1-sonar-huge-128k-online">Perplexity: Llama 3.1 Sonar 405B Online</button>
-        <button id="open-router-model-openai-chatgpt-4o-latest" data-value="openai/chatgpt-4o-latest">OpenAI: ChatGPT-4o</button>
-        <button id="open-router-model-sao10k-l3-lunaris-8b" data-value="sao10k/l3-lunaris-8b">Llama 3 8B Lunaris</button>
-        <button id="open-router-model-aetherwiing-mn-starcannon-12b" data-value="aetherwiing/mn-starcannon-12b">Mistral Nemo 12B Starcannon</button>
-        <button id="open-router-model-openai-gpt-4o-2024-08-06" data-value="openai/gpt-4o-2024-08-06">OpenAI: GPT-4o (2024-08-06)</button>
-        <button id="open-router-model-meta-llama-llama-3.1-405b" data-value="meta-llama/llama-3.1-405b">Meta: Llama 3.1 405B (base)</button>
-        <button id="open-router-model-nothingiisreal-mn-celeste-12b" data-value="nothingiisreal/mn-celeste-12b">Mistral Nemo 12B Celeste</button>
-        <button id="open-router-model-perplexity-llama-3.1-sonar-small-128k-chat" data-value="perplexity/llama-3.1-sonar-small-128k-chat">Perplexity: Llama 3.1 Sonar 8B</button>
-        <button id="open-router-model-google-gemini-pro-1.5-exp" data-value="google/gemini-pro-1.5-exp">Google: Gemini Pro 1.5 Experimental</button>
-        <button id="open-router-model-perplexity-llama-3.1-sonar-large-128k-chat" data-value="perplexity/llama-3.1-sonar-large-128k-chat">Perplexity: Llama 3.1 Sonar 70B</button>
-        <button id="open-router-model-perplexity-llama-3.1-sonar-large-128k-online" data-value="perplexity/llama-3.1-sonar-large-128k-online">Perplexity: Llama 3.1 Sonar 70B Online</button>
-        <button id="open-router-model-perplexity-llama-3.1-sonar-small-128k-online" data-value="perplexity/llama-3.1-sonar-small-128k-online">Perplexity: Llama 3.1 Sonar 8B Online</button>
-        <button id="open-router-model-meta-llama-llama-3.1-405b-instruct-free" data-value="meta-llama/llama-3.1-405b-instruct:free">Meta: Llama 3.1 405B Instruct (free)</button>
-        <button id="open-router-model-meta-llama-llama-3.1-405b-instruct" data-value="meta-llama/llama-3.1-405b-instruct">Meta: Llama 3.1 405B Instruct</button>
-        <button id="open-router-model-meta-llama-llama-3.1-405b-instruct-nitro" data-value="meta-llama/llama-3.1-405b-instruct:nitro">Meta: Llama 3.1 405B Instruct (nitro)</button>
-        <button id="open-router-model-meta-llama-llama-3.1-8b-instruct-free" data-value="meta-llama/llama-3.1-8b-instruct:free">Meta: Llama 3.1 8B Instruct (free)</button>
-        <button id="open-router-model-meta-llama-llama-3.1-8b-instruct" data-value="meta-llama/llama-3.1-8b-instruct">Meta: Llama 3.1 8B Instruct</button>
-        <button id="open-router-model-meta-llama-llama-3.1-70b-instruct-free" data-value="meta-llama/llama-3.1-70b-instruct:free">Meta: Llama 3.1 70B Instruct (free)</button>
-        <button id="open-router-model-meta-llama-llama-3.1-70b-instruct" data-value="meta-llama/llama-3.1-70b-instruct">Meta: Llama 3.1 70B Instruct</button>
-        <button id="open-router-model-meta-llama-llama-3.1-70b-instruct-nitro" data-value="meta-llama/llama-3.1-70b-instruct:nitro">Meta: Llama 3.1 70B Instruct (nitro)</button>
-        <button id="open-router-model-mistralai-mistral-nemo" data-value="mistralai/mistral-nemo">Mistral: Mistral Nemo</button>
-        <button id="open-router-model-mistralai-codestral-mamba" data-value="mistralai/codestral-mamba">Mistral: Codestral Mamba</button>
-        <button id="open-router-model-openai-gpt-4o-mini" data-value="openai/gpt-4o-mini">OpenAI: GPT-4o-mini</button>
-        <button id="open-router-model-openai-gpt-4o-mini-2024-07-18" data-value="openai/gpt-4o-mini-2024-07-18">OpenAI: GPT-4o-mini (2024-07-18)</button>
-        <button id="open-router-model-qwen-qwen-2-7b-instruct-free" data-value="qwen/qwen-2-7b-instruct:free">Qwen 2 7B Instruct (free)</button>
-        <button id="open-router-model-qwen-qwen-2-7b-instruct" data-value="qwen/qwen-2-7b-instruct">Qwen 2 7B Instruct</button>
-        <button id="open-router-model-google-gemma-2-27b-it" data-value="google/gemma-2-27b-it">Google: Gemma 2 27B</button>
-        <button id="open-router-model-alpindale-magnum-72b" data-value="alpindale/magnum-72b">Magnum 72B</button>
-        <button id="open-router-model-google-gemma-2-9b-it-free" data-value="google/gemma-2-9b-it:free">Google: Gemma 2 9B (free)</button>
-        <button id="open-router-model-google-gemma-2-9b-it" data-value="google/gemma-2-9b-it">Google: Gemma 2 9B</button>
-        <button id="open-router-model-01-ai-yi-large" data-value="01-ai/yi-large">01.AI: Yi Large</button>
-        <button id="open-router-model-ai21-jamba-instruct" data-value="ai21/jamba-instruct">AI21: Jamba Instruct</button>
-        <button id="open-router-model-anthropic-claude-3.5-sonnet-20240620-beta" data-value="anthropic/claude-3.5-sonnet-20240620:beta">Anthropic: Claude 3.5 Sonnet (2024-06-20) (self-moderated)</button>
-        <button id="open-router-model-anthropic-claude-3.5-sonnet-20240620" data-value="anthropic/claude-3.5-sonnet-20240620">Anthropic: Claude 3.5 Sonnet (2024-06-20)</button>
-        <button id="open-router-model-sao10k-l3-euryale-70b" data-value="sao10k/l3-euryale-70b">Llama 3 Euryale 70B v2.1</button>
-        <button id="open-router-model-cognitivecomputations-dolphin-mixtral-8x22b" data-value="cognitivecomputations/dolphin-mixtral-8x22b">Dolphin 2.9.2 Mixtral 8x22B 🐬</button>
-        <button id="open-router-model-qwen-qwen-2-72b-instruct" data-value="qwen/qwen-2-72b-instruct">Qwen 2 72B Instruct</button>
-        <button id="open-router-model-mistralai-mistral-7b-instruct-free" data-value="mistralai/mistral-7b-instruct:free">Mistral: Mistral 7B Instruct (free)</button>
-        <button id="open-router-model-mistralai-mistral-7b-instruct" data-value="mistralai/mistral-7b-instruct">Mistral: Mistral 7B Instruct</button>
-        <button id="open-router-model-mistralai-mistral-7b-instruct-nitro" data-value="mistralai/mistral-7b-instruct:nitro">Mistral: Mistral 7B Instruct (nitro)</button>
-        <button id="open-router-model-mistralai-mistral-7b-instruct-v0.3" data-value="mistralai/mistral-7b-instruct-v0.3">Mistral: Mistral 7B Instruct v0.3</button>
-        <button id="open-router-model-nousresearch-hermes-2-pro-llama-3-8b" data-value="nousresearch/hermes-2-pro-llama-3-8b">NousResearch: Hermes 2 Pro - Llama-3 8B</button>
-        <button id="open-router-model-microsoft-phi-3-mini-128k-instruct-free" data-value="microsoft/phi-3-mini-128k-instruct:free">Phi-3 Mini 128K Instruct (free)</button>
-        <button id="open-router-model-microsoft-phi-3-mini-128k-instruct" data-value="microsoft/phi-3-mini-128k-instruct">Phi-3 Mini 128K Instruct</button>
-        <button id="open-router-model-microsoft-phi-3-medium-128k-instruct-free" data-value="microsoft/phi-3-medium-128k-instruct:free">Phi-3 Medium 128K Instruct (free)</button>
-        <button id="open-router-model-microsoft-phi-3-medium-128k-instruct" data-value="microsoft/phi-3-medium-128k-instruct">Phi-3 Medium 128K Instruct</button>
-        <button id="open-router-model-neversleep-llama-3-lumimaid-70b" data-value="neversleep/llama-3-lumimaid-70b">Llama 3 Lumimaid 70B</button>
-        <button id="open-router-model-google-gemini-flash-1.5" data-value="google/gemini-flash-1.5">Google: Gemini Flash 1.5</button>
-        <button id="open-router-model-perplexity-llama-3-sonar-large-32k-online" data-value="perplexity/llama-3-sonar-large-32k-online">Perplexity: Llama3 Sonar 70B Online</button>
-        <button id="open-router-model-deepseek-deepseek-chat" data-value="deepseek/deepseek-chat">DeepSeek V2.5</button>
-        <button id="open-router-model-perplexity-llama-3-sonar-small-32k-chat" data-value="perplexity/llama-3-sonar-small-32k-chat">Perplexity: Llama3 Sonar 8B</button>
-        <button id="open-router-model-perplexity-llama-3-sonar-large-32k-chat" data-value="perplexity/llama-3-sonar-large-32k-chat">Perplexity: Llama3 Sonar 70B</button>
-        <button id="open-router-model-openai-gpt-4o-2024-05-13" data-value="openai/gpt-4o-2024-05-13">OpenAI: GPT-4o (2024-05-13)</button>
-        <button id="open-router-model-meta-llama-llama-guard-2-8b" data-value="meta-llama/llama-guard-2-8b">Meta: LlamaGuard 2 8B</button>
-        <button id="open-router-model-openai-gpt-4o" data-value="openai/gpt-4o">OpenAI: GPT-4o</button>
-        <button id="open-router-model-openai-gpt-4o-extended" data-value="openai/gpt-4o:extended">OpenAI: GPT-4o (extended)</button>
-        <button id="open-router-model-neversleep-llama-3-lumimaid-8b-extended" data-value="neversleep/llama-3-lumimaid-8b:extended">Llama 3 Lumimaid 8B (extended)</button>
-        <button id="open-router-model-neversleep-llama-3-lumimaid-8b" data-value="neversleep/llama-3-lumimaid-8b">Llama 3 Lumimaid 8B</button>
-        <button id="open-router-model-meta-llama-llama-3-8b-instruct-free" data-value="meta-llama/llama-3-8b-instruct:free">Meta: Llama 3 8B Instruct (free)</button>
-        <button id="open-router-model-meta-llama-llama-3-8b-instruct" data-value="meta-llama/llama-3-8b-instruct">Meta: Llama 3 8B Instruct</button>
-        <button id="open-router-model-meta-llama-llama-3-8b-instruct-extended" data-value="meta-llama/llama-3-8b-instruct:extended">Meta: Llama 3 8B Instruct (extended)</button>
-        <button id="open-router-model-meta-llama-llama-3-8b-instruct-nitro" data-value="meta-llama/llama-3-8b-instruct:nitro">Meta: Llama 3 8B Instruct (nitro)</button>
-        <button id="open-router-model-meta-llama-llama-3-70b-instruct" data-value="meta-llama/llama-3-70b-instruct">Meta: Llama 3 70B Instruct</button>
-        <button id="open-router-model-meta-llama-llama-3-70b-instruct-nitro" data-value="meta-llama/llama-3-70b-instruct:nitro">Meta: Llama 3 70B Instruct (nitro)</button>
-        <button id="open-router-model-mistralai-mixtral-8x22b-instruct" data-value="mistralai/mixtral-8x22b-instruct">Mistral: Mixtral 8x22B Instruct</button>
-        <button id="open-router-model-microsoft-wizardlm-2-8x22b" data-value="microsoft/wizardlm-2-8x22b">WizardLM-2 8x22B</button>
-        <button id="open-router-model-microsoft-wizardlm-2-7b" data-value="microsoft/wizardlm-2-7b">WizardLM-2 7B</button>
-        <button id="open-router-model-google-gemini-pro-1.5" data-value="google/gemini-pro-1.5">Google: Gemini Pro 1.5</button>
-        <button id="open-router-model-openai-gpt-4-turbo" data-value="openai/gpt-4-turbo">OpenAI: GPT-4 Turbo</button>
-        <button id="open-router-model-cohere-command-r-plus" data-value="cohere/command-r-plus">Cohere: Command R+</button>
-        <button id="open-router-model-cohere-command-r-plus-04-2024" data-value="cohere/command-r-plus-04-2024">Cohere: Command R+ (04-2024)</button>
-        <button id="open-router-model-databricks-dbrx-instruct" data-value="databricks/dbrx-instruct">Databricks: DBRX 132B Instruct</button>
-        <button id="open-router-model-sophosympatheia-midnight-rose-70b" data-value="sophosympatheia/midnight-rose-70b">Midnight Rose 70B</button>
-        <button id="open-router-model-cohere-command" data-value="cohere/command">Cohere: Command</button>
-        <button id="open-router-model-cohere-command-r" data-value="cohere/command-r">Cohere: Command R</button>
-        <button id="open-router-model-anthropic-claude-3-haiku-beta" data-value="anthropic/claude-3-haiku:beta">Anthropic: Claude 3 Haiku (self-moderated)</button>
-        <button id="open-router-model-anthropic-claude-3-haiku" data-value="anthropic/claude-3-haiku">Anthropic: Claude 3 Haiku</button>
-        <button id="open-router-model-anthropic-claude-3-opus-beta" data-value="anthropic/claude-3-opus:beta">Anthropic: Claude 3 Opus (self-moderated)</button>
-        <button id="open-router-model-anthropic-claude-3-opus" data-value="anthropic/claude-3-opus">Anthropic: Claude 3 Opus</button>
-        <button id="open-router-model-anthropic-claude-3-sonnet-beta" data-value="anthropic/claude-3-sonnet:beta">Anthropic: Claude 3 Sonnet (self-moderated)</button>
-        <button id="open-router-model-anthropic-claude-3-sonnet" data-value="anthropic/claude-3-sonnet">Anthropic: Claude 3 Sonnet</button>
-        <button id="open-router-model-cohere-command-r-03-2024" data-value="cohere/command-r-03-2024">Cohere: Command R (03-2024)</button>
-        <button id="open-router-model-mistralai-mistral-large" data-value="mistralai/mistral-large">Mistral Large</button>
-        <button id="open-router-model-openai-gpt-3.5-turbo-0613" data-value="openai/gpt-3.5-turbo-0613">OpenAI: GPT-3.5 Turbo (older v0613)</button>
-        <button id="open-router-model-openai-gpt-4-turbo-preview" data-value="openai/gpt-4-turbo-preview">OpenAI: GPT-4 Turbo Preview</button>
-        <button id="open-router-model-nousresearch-nous-hermes-2-mixtral-8x7b-dpo" data-value="nousresearch/nous-hermes-2-mixtral-8x7b-dpo">Nous: Hermes 2 Mixtral 8x7B DPO</button>
-        <button id="open-router-model-mistralai-mistral-small" data-value="mistralai/mistral-small">Mistral Small</button>
-        <button id="open-router-model-mistralai-mistral-tiny" data-value="mistralai/mistral-tiny">Mistral Tiny</button>
-        <button id="open-router-model-mistralai-mistral-medium" data-value="mistralai/mistral-medium">Mistral Medium</button>
-        <button id="open-router-model-mistralai-mistral-7b-instruct-v0.2" data-value="mistralai/mistral-7b-instruct-v0.2">Mistral: Mistral 7B Instruct v0.2</button>
-        <button id="open-router-model-cognitivecomputations-dolphin-mixtral-8x7b" data-value="cognitivecomputations/dolphin-mixtral-8x7b">Dolphin 2.6 Mixtral 8x7B 🐬</button>
-        <button id="open-router-model-google-gemini-pro-vision" data-value="google/gemini-pro-vision">Google: Gemini Pro Vision 1.0</button>
-        <button id="open-router-model-google-gemini-pro" data-value="google/gemini-pro">Google: Gemini Pro 1.0</button>
-        <button id="open-router-model-mistralai-mixtral-8x7b" data-value="mistralai/mixtral-8x7b">Mixtral 8x7B (base)</button>
-        <button id="open-router-model-mistralai-mixtral-8x7b-instruct" data-value="mistralai/mixtral-8x7b-instruct">Mixtral 8x7B Instruct</button>
-        <button id="open-router-model-mistralai-mixtral-8x7b-instruct-nitro" data-value="mistralai/mixtral-8x7b-instruct:nitro">Mixtral 8x7B Instruct (nitro)</button>
-        <button id="open-router-model-openchat-openchat-7b-free" data-value="openchat/openchat-7b:free">OpenChat 3.5 7B (free)</button>
-        <button id="open-router-model-openchat-openchat-7b" data-value="openchat/openchat-7b">OpenChat 3.5 7B</button>
-        <button id="open-router-model-neversleep-noromaid-20b" data-value="neversleep/noromaid-20b">Noromaid 20B</button>
-        <button id="open-router-model-anthropic-claude-2-beta" data-value="anthropic/claude-2:beta">Anthropic: Claude v2 (self-moderated)</button>
-        <button id="open-router-model-anthropic-claude-2" data-value="anthropic/claude-2">Anthropic: Claude v2</button>
-        <button id="open-router-model-anthropic-claude-2.1-beta" data-value="anthropic/claude-2.1:beta">Anthropic: Claude v2.1 (self-moderated)</button>
-        <button id="open-router-model-anthropic-claude-2.1" data-value="anthropic/claude-2.1">Anthropic: Claude v2.1</button>
-        <button id="open-router-model-teknium-openhermes-2.5-mistral-7b" data-value="teknium/openhermes-2.5-mistral-7b">OpenHermes 2.5 Mistral 7B</button>
-        <button id="open-router-model-openai-gpt-4-vision-preview" data-value="openai/gpt-4-vision-preview">OpenAI: GPT-4 Vision</button>
-        <button id="open-router-model-lizpreciatior-lzlv-70b-fp16-hf" data-value="lizpreciatior/lzlv-70b-fp16-hf">lzlv 70B</button>
-        <button id="open-router-model-undi95-toppy-m-7b-free" data-value="undi95/toppy-m-7b:free">Toppy M 7B (free)</button>
-        <button id="open-router-model-undi95-toppy-m-7b-nitro" data-value="undi95/toppy-m-7b:nitro">Toppy M 7B (nitro)</button>
-        <button id="open-router-model-undi95-toppy-m-7b" data-value="undi95/toppy-m-7b">Toppy M 7B</button>
-        <button id="open-router-model-alpindale-goliath-120b" data-value="alpindale/goliath-120b">Goliath 120B</button>
-        <button id="open-router-model-openrouter-auto" data-value="openrouter/auto">Auto (best for prompt)</button>
-        <button id="open-router-model-openai-gpt-3.5-turbo-1106" data-value="openai/gpt-3.5-turbo-1106">OpenAI: GPT-3.5 Turbo 16k (older v1106)</button>
-        <button id="open-router-model-openai-gpt-4-1106-preview" data-value="openai/gpt-4-1106-preview">OpenAI: GPT-4 Turbo (older v1106)</button>
-        <button id="open-router-model-google-palm-2-chat-bison-32k" data-value="google/palm-2-chat-bison-32k">Google: PaLM 2 Chat 32k</button>
-        <button id="open-router-model-google-palm-2-codechat-bison-32k" data-value="google/palm-2-codechat-bison-32k">Google: PaLM 2 Code Chat 32k</button>
-        <button id="open-router-model-jondurbin-airoboros-l2-70b" data-value="jondurbin/airoboros-l2-70b">Airoboros 70B</button>
-        <button id="open-router-model-xwin-lm-xwin-lm-70b" data-value="xwin-lm/xwin-lm-70b">Xwin 70B</button>
-        <button id="open-router-model-openai-gpt-3.5-turbo-instruct" data-value="openai/gpt-3.5-turbo-instruct">OpenAI: GPT-3.5 Turbo Instruct</button>
-        <button id="open-router-model-mistralai-mistral-7b-instruct-v0.1" data-value="mistralai/mistral-7b-instruct-v0.1">Mistral: Mistral 7B Instruct v0.1</button>
-        <button id="open-router-model-pygmalionai-mythalion-13b" data-value="pygmalionai/mythalion-13b">Pygmalion: Mythalion 13B</button>
-        <button id="open-router-model-openai-gpt-3.5-turbo-16k" data-value="openai/gpt-3.5-turbo-16k">OpenAI: GPT-3.5 Turbo 16k</button>
-        <button id="open-router-model-openai-gpt-4-32k" data-value="openai/gpt-4-32k">OpenAI: GPT-4 32k</button>
-        <button id="open-router-model-openai-gpt-4-32k-0314" data-value="openai/gpt-4-32k-0314">OpenAI: GPT-4 32k (older v0314)</button>
-        <button id="open-router-model-nousresearch-nous-hermes-llama2-13b" data-value="nousresearch/nous-hermes-llama2-13b">Nous: Hermes 13B</button>
-        <button id="open-router-model-mancer-weaver" data-value="mancer/weaver">Mancer: Weaver (alpha)</button>
-        <button id="open-router-model-huggingfaceh4-zephyr-7b-beta-free" data-value="huggingfaceh4/zephyr-7b-beta:free">Hugging Face: Zephyr 7B (free)</button>
-        <button id="open-router-model-anthropic-claude-2.0-beta" data-value="anthropic/claude-2.0:beta">Anthropic: Claude v2.0 (self-moderated)</button>
-        <button id="open-router-model-anthropic-claude-2.0" data-value="anthropic/claude-2.0">Anthropic: Claude v2.0</button>
-        <button id="open-router-model-undi95-remm-slerp-l2-13b" data-value="undi95/remm-slerp-l2-13b">ReMM SLERP 13B</button>
-        <button id="open-router-model-undi95-remm-slerp-l2-13b-extended" data-value="undi95/remm-slerp-l2-13b:extended">ReMM SLERP 13B (extended)</button>
-        <button id="open-router-model-google-palm-2-chat-bison" data-value="google/palm-2-chat-bison">Google: PaLM 2 Chat</button>
-        <button id="open-router-model-google-palm-2-codechat-bison" data-value="google/palm-2-codechat-bison">Google: PaLM 2 Code Chat</button>
-        <button id="open-router-model-gryphe-mythomax-l2-13b-free" data-value="gryphe/mythomax-l2-13b:free">MythoMax 13B (free)</button>
-        <button id="open-router-model-gryphe-mythomax-l2-13b" data-value="gryphe/mythomax-l2-13b">MythoMax 13B</button>
-        <button id="open-router-model-gryphe-mythomax-l2-13b-nitro" data-value="gryphe/mythomax-l2-13b:nitro">MythoMax 13B (nitro)</button>
-        <button id="open-router-model-gryphe-mythomax-l2-13b-extended" data-value="gryphe/mythomax-l2-13b:extended">MythoMax 13B (extended)</button>
-        <button id="open-router-model-meta-llama-llama-2-13b-chat" data-value="meta-llama/llama-2-13b-chat">Meta: Llama v2 13B Chat</button>
-        <button id="open-router-model-openai-gpt-3.5-turbo" data-value="openai/gpt-3.5-turbo">OpenAI: GPT-3.5 Turbo</button>
-        <button id="open-router-model-openai-gpt-3.5-turbo-0125" data-value="openai/gpt-3.5-turbo-0125">OpenAI: GPT-3.5 Turbo 16k</button>
-        <button id="open-router-model-openai-gpt-4" data-value="openai/gpt-4">OpenAI: GPT-4</button>
-        <button id="open-router-model-openai-gpt-4-0314" data-value="openai/gpt-4-0314">OpenAI: GPT-4 (older v0314)</button>
+      <!-- Models will be populated dynamically -->
+      <div id="loading-models" style="text-align: center; padding: 20px;">
+        Loading models...
       </div>
     </div>
-    <div id="custom-tooltip" class="tooltip"></div>
-  </div>  
+  </div>
+
+  <!-- Main Chat Interface -->
   <div id="chat-container">
     <div id="chat-box">
-      <!-- Chat messages will be appended here -->
       <div class="message response">
-        Talk to GPT-4!
-        <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        Welcome to GPTPortal! Select a model above to start chatting.
+        <button onclick="copyToClipboard(this.previousSibling.textContent)">Copy</button>
       </div>
     </div>
-    <textarea id="message-input" placeholder="Type your message here..."></textarea>
+    
+    <!-- Input Area -->
+    <textarea id="message-input" placeholder="Type your message here... (Ctrl+Enter to send)"></textarea>
+    
+    <!-- Control Buttons -->
     <button type="button" id="clipboard-button">📋</button>
     <input type="file" id="file-input" accept="*/*"/>
     <button type="button" id="export-button">📤</button>
     <button type="button" id="voice-button">🎤</button>
     <div id="voice-indicator">Voice Mode ON</div>
     <button id="send-button">Send</button>
+    
+    <!-- Mode Selector -->
     <div class="custom-select" id="mode-selector">Assistants Mode</div>
     <div id="upload-status"></div>
-  <!-- New slider HTML -->
-  <div id="temperature-slider-container">
-    <label for="temperature-slider">Adjust Temperature:</label>
-    <input type="range" id="temperature-slider" min="0" max="2" step="0.1" value="1">
-    <span id="temperature-value">1.0</span>
+    
+    <!-- Temperature and Token Sliders -->
+    <div id="temperature-slider-container">
+      <label for="temperature-slider">Temperature:</label>
+      <input type="range" id="temperature-slider" min="0" max="2" step="0.1" value="1">
+      <span id="temperature-value">1.0</span>
+    </div>
+    
+    <div id="tokens-slider-container">
+      <label for="tokens-slider">Max Tokens:</label>
+      <input type="range" id="tokens-slider" min="1000" max="100000" step="500" value="8000">
+      <span id="tokens-value">8000</span>
+      <span id="tokens-limit">(Model limit: <span id="model-token-limit">8000</span>)</span>
+    </div>
   </div>
-</div>
-    <button id="edit-instructions-btn" class="custom-select">Edit Instructions</button>
+
+  <!-- Setup Controls -->
+  <button id="edit-instructions-btn" class="custom-select">Edit Instructions</button>
   <div id="edit-instructions-container" style="display:none;">
     <textarea id="instructions-content" rows="10" cols="80"></textarea>
     <button onclick="saveChanges()">Save Changes</button>
   </div>
+  
   <button id="edit-env-btn" class="custom-select">Edit Env Variables</button>
   <div id="edit-env-container" style="display:none;">
     <textarea id="env-content" rows="10" cols="80"></textarea>
     <button onclick="saveEnvChanges()">Save Changes</button>
   </div>
-  <script src="script.js"></script>
+</div>
+
+<!-- Load Enhanced Modular System -->
+<script src="js/modules/dynamicModelManager.js"></script>
+<script src="js/modules/modelConfig.js"></script>
+<script src="js/modules/chatManager.js"></script>
+<script src="js/modules/uiManager.js"></script>
+<script src="js/app.js"></script>
+
+<!-- Enhanced Initialization Script -->
+<script>
+// Enhanced initialization that ensures everything works together
+document.addEventListener('DOMContentLoaded', async function() {
+  console.log('Initializing GPTPortal Enhanced System...');
+  
+  try {
+    // Initialize core system
+    if (window.gptPortalApp) {
+      console.log('Modular system loaded successfully');
+      
+      // Wait for dynamic models to load
+      if (window.gptPortalApp.modelConfig && window.gptPortalApp.modelConfig.dynamicModelManager) {
+        await window.gptPortalApp.modelConfig.dynamicModelManager.loadModels();
+        console.log('Dynamic models loaded');
+      }
+      
+      // Initialize legacy functions for backward compatibility
+      initializeLegacyFunctions();
+      
+      // Setup additional event handlers
+      setupEnhancedFeatures();
+      
+    } else {
+      console.warn('Modular system not available, initializing basic functionality');
+      initializeBasicFunctionality();
+    }
+    
+  } catch (error) {
+    console.error('Error during initialization:', error);
+    // Fallback to basic functionality
+    initializeBasicFunctionality();
+  }
+});
+
+function initializeLegacyFunctions() {
+  // Ensure all original script.js functions are available
+  
+  // Global variables for backward compatibility
+  window.selectedImage = null;
+  window.voiceMode = false;
+  window.mediaRecorder = null;
+  window.audioChunks = [];
+  window.isVoiceTranscription = false;
+  window.temperature = 1;
+  window.tokens = 8000;
+  
+  // Copy functions from original script.js
+  window.copyToClipboard = function(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      console.log('Text copied to clipboard!');
+    }).catch(err => {
+      console.error('Error copying text: ', err);
+    });
+  };
+  
+  // File upload handling
+  window.uploadFile = async function(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+      const response = await fetch('/upload-file', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      return data.fileId;
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
+  
+  // Voice functionality
+  window.voice = function() {
+    console.log("Voice button clicked. Current mode:", window.voiceMode);
+    
+    if (isSafariBrowser()) {
+      displayErrorMessage('Safari browser detected. Please use a Chromium browser for voice functionality.');
+      return;
+    }
+  
+    if (window.voiceMode) {
+      stopRecordingAndTranscribe();
+    } else {
+      startRecording();
+    }
+    toggleVoiceMode();
+  };
+  
+  window.isSafariBrowser = function() {
+    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  };
+  
+  window.displayErrorMessage = function(message) {
+    const errorMessage = document.createElement('div');
+    errorMessage.className = 'message error';
+    errorMessage.textContent = message;
+    const chatBox = document.getElementById('chat-box');
+    chatBox.appendChild(errorMessage);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  };
+  
+  window.startRecording = function() {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        window.mediaRecorder = new MediaRecorder(stream);
+        window.mediaRecorder.ondataavailable = e => {
+          window.audioChunks.push(e.data);
+        };
+        window.mediaRecorder.onstop = sendAudioToServer;
+        window.mediaRecorder.start();
+        console.log("Recording started");
+      })
+      .catch(error => {
+        console.error("Error accessing media devices:", error);
+      });
+  };
+  
+  window.stopRecordingAndTranscribe = function() {
+    if (window.mediaRecorder && window.mediaRecorder.state === "recording") {
+      window.mediaRecorder.stop();
+      console.log("Recording stopped");
+    }
+  };
+  
+  window.toggleVoiceMode = function() {
+    window.voiceMode = !window.voiceMode;
+    const voiceIndicator = document.getElementById('voice-indicator');
+    if (window.voiceMode) {
+      voiceIndicator.textContent = 'Voice Mode ON';
+      voiceIndicator.style.display = 'block';
+    } else {
+      voiceIndicator.style.display = 'none';
+    }
+  };
+  
+  window.sendAudioToServer = function() {
+    const audioBlob = new Blob(window.audioChunks, { type: 'audio/mpeg' });
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'recording.mp3');
+    window.audioChunks = [];
+    
+    setTimeout(() => {
+      fetch('/transcribe', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        const messageInput = document.getElementById('message-input');
+        messageInput.value = data.text;
+        window.isVoiceTranscription = data.text.startsWith("Voice Transcription: ");
+        window.copyToClipboard(data.text);
+        window.voiceMode = false;
+      })
+      .catch(console.error);
+    }, 100);
+  };
+  
+  // Setup/config functions
+  window.saveChanges = function() {
+    const content = document.getElementById('instructions-content').value;
+    
+    navigator.clipboard.writeText('node server.js').then(() => {
+      console.log('Text copied to clipboard');
+    }).catch(err => {
+      console.error('Could not copy text: ', err);
+    });
+
+    fetch('/update-instructions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content: content })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Success:', data);
+      alert('Changes saved successfully');
+      document.getElementById('edit-instructions-container').style.display = 'none';
+      document.body.innerHTML = '<h2>Complete. Please restart the server and access the web app at <a href="http://localhost:3000">localhost:3000</a>. Simply paste `node server.js` into your Terminal to start again, reloading the page.</h2>';
+      
+      fetch('/shutdown-server', {
+        method: 'POST'
+      }).then(restartResponse => {
+        if (restartResponse.ok) {
+          console.log('Server shutdown initiated');
+        } else {
+          console.error('Failed to initiate server shutdown');
+        }
+      }).catch(err => {
+        console.error('Error:', err);
+      });
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred during setup. Please try again.');
+    });
+  };
+  
+  window.saveEnvChanges = function() {
+    const content = document.getElementById('env-content').value;
+    
+    navigator.clipboard.writeText('node server.js').then(() => {
+      console.log('Text copied to clipboard');
+    }).catch(err => {
+      console.error('Could not copy text: ', err);
+    });
+
+    fetch('/update-my-env', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content: content })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Success:', data);
+      alert('Changes saved successfully');
+      document.getElementById('edit-env-container').style.display = 'none';
+      document.body.innerHTML = '<h2>Setup is complete. Please restart the server and access the web app at <a href="http://localhost:3000">localhost:3000</a>. Simply paste `node server.js` into your Terminal to start again, reloading the page.</h2>';
+      
+      fetch('/shutdown-server', {
+        method: 'POST'
+      }).then(restartResponse => {
+        if (restartResponse.ok) {
+          console.log('Server shutdown initiated');
+        } else {
+          console.error('Failed to initiate server shutdown');
+        }
+      }).catch(err => {
+        console.error('Error:', err);
+      });
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred during setup. Please try again.');
+    });
+  };
+}
+
+function setupEnhancedFeatures() {
+  // Setup advanced features that weren't in the basic modules
+  
+  // Voice button
+  const voiceButton = document.getElementById('voice-button');
+  if (voiceButton) {
+    voiceButton.addEventListener('click', window.voice);
+  }
+  
+  // Export button
+  const exportButton = document.getElementById('export-button');
+  if (exportButton) {
+    exportButton.addEventListener('click', () => {
+      if (window.gptPortalApp && window.gptPortalApp.chatManager) {
+        window.gptPortalApp.chatManager.exportChat();
+      }
+    });
+  }
+  
+  // Setup/config buttons
+  const editInstructionsBtn = document.getElementById('edit-instructions-btn');
+  if (editInstructionsBtn) {
+    editInstructionsBtn.addEventListener('click', function() {
+      const container = document.getElementById('edit-instructions-container');
+      const isHidden = container.style.display === 'none';
+      container.style.display = isHidden ? 'block' : 'none';
+      
+      if (isHidden) {
+        fetch('/get-instructions')
+          .then(response => response.text())
+          .then(data => {
+            document.getElementById('instructions-content').value = data;
+            container.scrollIntoView({ behavior: 'smooth' });
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+      }
+    });
+  }
+  
+  const editEnvBtn = document.getElementById('edit-env-btn');
+  if (editEnvBtn) {
+    editEnvBtn.addEventListener('click', function() {
+      const container = document.getElementById('edit-env-container');
+      const isHidden = container.style.display === 'none';
+      container.style.display = isHidden ? 'block' : 'none';
+      
+      if (isHidden) {
+        fetch('/get-my-env')
+          .then(response => response.text())
+          .then(data => {
+            document.getElementById('env-content').value = data;
+            container.scrollIntoView({ behavior: 'smooth' });
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+      }
+    });
+  }
+  
+  // Enhanced keyboard shortcuts
+  document.addEventListener('keydown', (event) => {
+    // SHIFT+ESC for focusing the chat input
+    if (event.shiftKey && event.key === 'Escape') {
+      event.preventDefault();
+      const messageInput = document.getElementById('message-input');
+      if (messageInput) messageInput.focus();
+    }
+
+    // CMD+SHIFT+X for exporting chat history
+    if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'X') {
+      console.log("exporting");
+      event.preventDefault();
+      if (window.gptPortalApp && window.gptPortalApp.chatManager) {
+        window.gptPortalApp.chatManager.exportChat();
+      }
+    }
+
+    // CMD+SHIFT+V for toggling voice mode
+    if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'V') {
+      event.preventDefault();
+      window.voice();
+    }
+
+    // CMD+SHIFT+C for copying the latest chat message
+    if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'C') {
+      event.preventDefault();
+      const copyButtons = document.querySelectorAll('.message button');
+      const latestCopyButton = Array.from(copyButtons).reverse().find(btn => btn.textContent.includes('Copy') && !btn.textContent.includes('Copy Code'));
+      if (latestCopyButton) {
+        latestCopyButton.click();
+      }
+    }
+
+    // CMD+SHIFT+; for copying the latest code block
+    if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === ';') {
+      event.preventDefault();
+      const copyCodeButtons = document.querySelectorAll('.message button');
+      const latestCopyCodeButton = Array.from(copyCodeButtons).reverse().find(btn => btn.textContent.includes('Copy Code'));
+      if (latestCopyCodeButton) {
+        latestCopyCodeButton.click();
+      }
+    }
+
+    // CMD+SHIFT+F for focusing the file input
+    if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'F') {
+      event.preventDefault();
+      const fileInput = document.getElementById('file-input');
+      if (fileInput) {
+        fileInput.click();
+      }
+    }
+
+    // CMD+SHIFT+A for toggling Assistant Mode
+    if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'A') {
+      event.preventDefault();
+      const modeSelector = document.getElementById('mode-selector');
+      if (modeSelector) {
+        modeSelector.click();
+      }
+    }
+  });
+  
+  // Auto-expand textarea
+  const messageInput = document.getElementById('message-input');
+  if (messageInput) {
+    messageInput.addEventListener('input', function() {
+      autoExpand(this);
+    });
+  }
+  
+  function autoExpand(field) {
+    field.style.height = 'inherit';
+    const computed = window.getComputedStyle(field);
+    const borderTop = parseInt(computed.getPropertyValue('border-top-width'), 10);
+    const borderBottom = parseInt(computed.getPropertyValue('border-bottom-width'), 10);
+    const paddingTop = parseInt(computed.getPropertyValue('padding-top'), 10);
+    const paddingBottom = parseInt(computed.getPropertyValue('padding-bottom'), 10);
+    const heightNeeded = field.scrollHeight + borderTop + borderBottom;
+    
+    if (field.scrollHeight > field.clientHeight - paddingTop - paddingBottom - borderTop - borderBottom) {
+      field.style.height = `${heightNeeded}px`;
+    }
+  }
+  
+  window.resetTextAreaHeight = function(field) {
+    field.style.height = '40px';
+    autoExpand(field);
+  };
+}
+
+function initializeBasicFunctionality() {
+  // Fallback initialization if modular system fails
+  console.log('Initializing basic functionality...');
+  
+  // Basic model selector
+  const selectedModel = document.getElementById('selected-model');
+  const modelOptions = document.getElementById('model-options');
+  
+  if (selectedModel && modelOptions) {
+    selectedModel.addEventListener('click', () => {
+      modelOptions.style.display = modelOptions.style.display === 'block' ? 'none' : 'block';
+    });
+  }
+  
+  // Basic send button
+  const sendButton = document.getElementById('send-button');
+  const messageInput = document.getElementById('message-input');
+  
+  if (sendButton && messageInput) {
+    sendButton.addEventListener('click', () => {
+      const message = messageInput.value.trim();
+      if (message) {
+        console.log('Sending message:', message);
+        // Basic message sending would go here
+        messageInput.value = '';
+      }
+    });
+  }
+}
+
+console.log('GPTPortal Enhanced Frontend initialized');
+</script>
+
 </body>
 </html>

@@ -1,4 +1,4 @@
-// Model configuration and management
+// Enhanced Model Configuration with Dynamic Model Support
 class ModelConfig {
   constructor() {
     this.currentModelID = null;
@@ -6,77 +6,25 @@ class ModelConfig {
     this.assistantsMode = false;
     this.isAssistants = false;
     this.baseURL = window.location.origin;
+    this.dynamicModelManager = null;
+    this.usesDynamicModels = true; // Flag to enable new dynamic system
     
     this.init();
   }
 
-  // Model ID mappings
-  modelID = {
-    "GPT-4": "gpt-4",
-    "GPT-4.5": "gpt-4.5-preview",
-    "GPT-4.1": "gpt-4.1",
-    "GPT-4o": "gpt-4o",
-    "GPT-4-32k": "gpt-4-32k",
-    "GPT-4-Turbo": "gpt-4-turbo",
-    "GPT-3.5-Turbo": "gpt-3.5-turbo-0125",
-    "Claude-4-Opus": "claude-opus-4-20250514",
-    "Claude-4-Sonnet": "claude-sonnet-4-20250514",
-    "Claude-3.7-Sonnet": "claude-3-7-sonnet-latest",
-    "Claude-3.5-Sonnet": "claude-3-5-sonnet-latest",
-    "Claude-3.5-Haiku": "claude-3-5-haiku-latest",
-    "GPT-o1-Mini": "o1-mini",
-    "GPT-o3-Mini": "o3-mini",
-    "GPT-o4-Mini": "o4-mini",
-    "GPT-o1-Preview": "o1-preview",
-    "GPT-o1": "o1",
-    "GPT-o4": "o4",
-    "DeepSeek-R1": "deepseek-reasoner",
-    "DeepSeek-Chat": "deepseek-chat",
-    "Gemini-Pro": "gemini-pro",
-    "Gemini-Pro-Vision": "gemini-pro-vision",
-    "Gemini-1.5-Pro": "gemini-1.5-pro",
-    "Gemini-1.5-Flash": "gemini-1.5-flash",
-    "Gemini-2.0-Flash": "gemini-2.0-flash-exp",
-    "Gemini-Ultra": "gemini-1.0-ultra",
-    "Claude-Opus": "claude-3-opus-20240229",
-    "Claude-Sonnet": "claude-3-sonnet-20240229",
-    "Claude-Haiku": "claude-3-haiku-20240307",
-    "Claude-2.1": "claude-2.1",
-    "Claude-2.0": "claude-2.0",
-    "Claude-1.2": "claude-instant-1.2",
-    "Mistral-Tiny": "open-mistral-7b",
-    "Mistral-8x7b": "open-mixtral-8x7b",
-    "Mistral-8x-22b": "open-mixtral-8x22b",
-    "Mistral-Small": "mistral-small-latest",
-    "Mistral-Medium": "mistral-medium-latest",
-    "Mistral-Large": "mistral-large-latest",
-    "Llama3-70b": "llama3-70b-8192",
-    "Llama3-8b": "llama3-8b-8192",
-    "Gemma-7b": "gemma-7b-it",
-    "Codestral": "codestral-latest",
-    "Free Mixtral 8x7b": "mixtral-8x7b-32768",
-    "GPT-4o-Mini": "gpt-4o-mini",
-    "Codestral-Mamba": "open-codestral-mamba",
-    "Mathstral": "mathstral-temp-id",
-    "Mistral-NeMo": "open-mistral-nemo",
-    "Llama 3.1 8B": "llama-3.1-8b-instant",
-    "Llama 3.1 70B": "llama-3.1-70b-versatile",
-    "Llama 3.1 405B": "llama-3.1-405b-reasoning"
-  };
-
-  // Custom model display names (extensive mapping from original)
-  customModelNames = {
-    "anthropic/claude-3.7-sonnet:beta": "Anthropic: Claude 3.7 Sonnet (self-moderated)",
-    "anthropic/claude-3.7-sonnet": "Anthropic: Claude 3.7 Sonnet",
-    "perplexity/r1-1776": "Perplexity: R1 1776",
-    "mistralai/mistral-saba": "Mistral: Saba",
-    // ... (hundreds more mappings from original code)
-    // For brevity, including key ones. Full mapping would be restored from original
-  };
-
   async init() {
     await this.fetchConfig();
     await this.fetchDefaultModel();
+    
+    // Initialize dynamic model manager
+    if (window.DynamicModelManager) {
+      this.dynamicModelManager = new window.DynamicModelManager();
+      console.log('Dynamic model system enabled');
+    } else {
+      console.warn('DynamicModelManager not available, using static models');
+      this.usesDynamicModels = false;
+    }
+    
     this.setDefaultModel();
   }
 
@@ -100,25 +48,47 @@ class ModelConfig {
       this.currentModelID = data.model;
     } catch (error) {
       console.error('Error fetching default model:', error);
+      this.currentModelID = 'gpt-4o'; // Fallback
     }
   }
 
   setDefaultModel() {
     const selectedModelDiv = document.getElementById("selected-model");
-    const defaultModel = this.currentModelID;
-
-    if (selectedModelDiv.textContent.trim() === "Select a Model") {
-      this.currentModelID = defaultModel;
-      selectedModelDiv.textContent = this.customModelNames[defaultModel] || defaultModel;
+    
+    if (selectedModelDiv && selectedModelDiv.textContent.trim() === "Select a Model") {
+      if (this.usesDynamicModels && this.dynamicModelManager) {
+        // Use dynamic model data
+        const model = this.dynamicModelManager.getModel(this.currentModelID);
+        if (model) {
+          selectedModelDiv.textContent = model.name;
+        } else {
+          selectedModelDiv.textContent = this.currentModelID;
+        }
+      } else {
+        // Fallback to legacy model names
+        selectedModelDiv.textContent = this.getLegacyModelName(this.currentModelID);
+      }
     }
   }
 
   selectModel(modelID) {
-    const displayName = this.customModelNames[modelID] || modelID;
+    let displayName = modelID;
+    
+    // Get display name from dynamic model manager
+    if (this.usesDynamicModels && this.dynamicModelManager) {
+      const model = this.dynamicModelManager.getModel(modelID);
+      if (model) {
+        displayName = model.name;
+      }
+    } else {
+      displayName = this.getLegacyModelName(modelID);
+    }
     
     // Update display
     const selectedModelDiv = document.getElementById("selected-model");
-    selectedModelDiv.textContent = displayName;
+    if (selectedModelDiv) {
+      selectedModelDiv.textContent = displayName;
+    }
     
     // Update current model
     this.currentModelID = modelID;
@@ -146,8 +116,108 @@ class ModelConfig {
     }
   }
 
+  // Legacy model name mapping for backward compatibility
+  getLegacyModelName(modelID) {
+    const legacyNames = {
+      "gpt-4": "GPT-4: Original",
+      "gpt-4o": "GPT-4o: Latest", 
+      "gpt-4o-mini": "GPT-4o Mini: Cheapest",
+      "gpt-4-turbo": "GPT-4 Turbo: Standard",
+      "gpt-3.5-turbo-0125": "GPT-3.5 Turbo: Legacy",
+      "claude-opus-4-20250514": "Claude 4 Opus",
+      "claude-sonnet-4-20250514": "Claude 4 Sonnet",
+      "claude-3-7-sonnet-latest": "Claude 3.7 Sonnet",
+      "claude-3-5-sonnet-latest": "Claude 3.5 Sonnet",
+      "claude-3-5-haiku-latest": "Claude 3.5 Haiku",
+      "claude-3-haiku-20240307": "Claude Haiku: Cheap",
+      "o1-preview": "GPT-o1 Preview: Reasoning",
+      "o1-mini": "GPT-o1 Mini: Cheap Reasoning",
+      "o3-mini": "GPT-o3 Mini: Cheap Reasoning",
+      "deepseek-reasoner": "DeepSeek-R1",
+      "deepseek-chat": "DeepSeek-Chat",
+      "gemini-pro": "Gemini Pro",
+      "gemini-1.5-pro": "Gemini 1.5 Pro: Best",
+      "gemini-1.5-flash": "Gemini 1.5 Flash",
+      "gemini-2.0-flash-exp": "Gemini 2.0 Flash",
+      "llama-3.1-405b-reasoning": "Llama 3.1 405B",
+      "llama-3.1-70b-versatile": "Llama 3.1 70B",
+      "llama-3.1-8b-instant": "Llama 3.1 8B",
+      "mistral-large-latest": "Mistral Large",
+      "codestral-latest": "Codestral"
+    };
+    
+    return legacyNames[modelID] || modelID;
+  }
+
+  updateCurrentModelID(modelID) {
+    this.currentModelID = modelID;
+    this.determineEndpoint(modelID);
+  }
+
   isSafariBrowser() {
     return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  }
+
+  // Get model information for API calls
+  async getModelInfo(modelID) {
+    if (this.usesDynamicModels && this.dynamicModelManager) {
+      return this.dynamicModelManager.getModel(modelID);
+    }
+    
+    // Fallback for legacy system
+    return {
+      id: modelID,
+      name: this.getLegacyModelName(modelID),
+      provider: this.inferProvider(modelID)
+    };
+  }
+
+  // Infer provider from model ID (for legacy support)
+  inferProvider(modelID) {
+    if (modelID.startsWith('gpt') || modelID.startsWith('o1') || modelID.startsWith('o3')) return 'openai';
+    if (modelID.includes('claude')) return 'anthropic';
+    if (modelID.includes('gemini')) return 'google';
+    if (modelID.includes('llama')) return 'groq';
+    if (modelID.includes('mistral') || modelID.includes('codestral')) return 'mistral';
+    if (modelID.includes('deepseek')) return 'deepseek';
+    return 'openrouter';
+  }
+
+  // Search models (delegates to dynamic manager)
+  async searchModels(query) {
+    if (this.usesDynamicModels && this.dynamicModelManager) {
+      return this.dynamicModelManager.searchModels(query);
+    }
+    return {};
+  }
+
+  // Get models by category (delegates to dynamic manager)
+  async getModelsByCategory(category) {
+    if (this.usesDynamicModels && this.dynamicModelManager) {
+      return this.dynamicModelManager.getModelsByCategory(category);
+    }
+    return {};
+  }
+
+  // Refresh models (delegates to dynamic manager)
+  async refreshModels() {
+    if (this.usesDynamicModels && this.dynamicModelManager) {
+      return await this.dynamicModelManager.refreshModels();
+    }
+    return false;
+  }
+
+  // Get current model details
+  getCurrentModel() {
+    if (this.usesDynamicModels && this.dynamicModelManager) {
+      return this.dynamicModelManager.getModel(this.currentModelID);
+    }
+    
+    return {
+      id: this.currentModelID,
+      name: this.getLegacyModelName(this.currentModelID),
+      provider: this.inferProvider(this.currentModelID)
+    };
   }
 }
 
