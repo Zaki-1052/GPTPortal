@@ -1,76 +1,235 @@
-// Chat endpoints - extracted from original server.js for modularity
+// Enhanced Chat Routes - Complete implementation using provider handlers
 const express = require('express');
-const axios = require('axios');
 const fs = require('fs');
+const path = require('path');
+const ProviderFactory = require('../services/providers/providerFactory');
+const { enforceTokenLimits } = require('../services/modelService');
+const tokenService = require('../services/tokenService');
+const costService = require('../services/costService');
+const titleService = require('../services/titleService');
+const exportService = require('../services/exportService');
 
 const router = express.Router();
 
-// Global variables for chat state (preserving original behavior)
-let systemMessage = [];
+// Initialize provider factory (will be set by main server)
+let providerFactory = null;
+
+// Global state variables (preserving original behavior)
+let conversationHistory = [];
+let claudeHistory = [];
+let o1History = [];
+let deepseekHistory = [];
+let geminiHistory = '';
+let systemMessage = '';
+let claudeInstructions = '';
 let epochs = 0;
-let isAssistants = false;
-let temperature = 1;
-let tokens = 8000;
 let fileContents = null;
 let file_id = "";
 let imageName = "";
 let uploadedImagePath = "";
 let isShuttingDown = false;
+let customPrompt = false;
+let promptName = '';
+let continueConv = false;
+let chosenChat = '';
+let summariesOnly = true;
+
+/**
+ * Initialize the chat routes with provider factory
+ */
+function initializeChatRoutes(factory) {
+  providerFactory = factory;
+  console.log('✅ Chat routes initialized with provider factory');
+}
+
+/**
+ * Function to read instructions from the file
+ */
+async function readInstructionsFile() {
+  try {
+    if (customPrompt) {
+      const promptFile = path.join(__dirname, '../../../public/uploads/prompts', `${promptName}.md`);
+      const content = fs.readFileSync(promptFile, 'utf8');
+      const parsedContent = parsePromptMarkdown(content);
+      return parsedContent.body;
+    } else {
+      const instructions = await fs.promises.readFile('./public/instructions.md', 'utf8');
+      return instructions;
+    }
+  } catch (error) {
+    console.error('Error reading instructions file:', error);
+    return '';
+  }
+}
+
+/**
+ * Function to parse prompt markdown file
+ */
+function parsePromptMarkdown(content) {
+  const nameMatch = content.match(/## \*\*(.*?)\*\*/);
+  const descriptionMatch = content.match(/### Description\s*\n\s*\*(.*?)\*/s);
+  const bodyMatch = content.match(/#### Instructions\s*\n(.*?)\n##### Conversation starters/s);
+  
+  return {
+    name: nameMatch ? nameMatch[1].trim() : 'No name found',
+    description: descriptionMatch ? descriptionMatch[1].trim() : 'No description available',
+    body: bodyMatch ? bodyMatch[1].trim() : 'No instructions available'
+  };
+}
+
+/**
+ * Initialize conversation history with instructions
+ */
+async function initializeConversationHistory() {
+  const fileInstructions = await readInstructionsFile();
+  let message = `You are a helpful and intelligent AI assistant, knowledgeable about a wide range of topics and highly capable of a great many tasks.\n Specifically:\n ${fileInstructions}`;
+  
+  if (continueConv) {
+    console.log("continue conversation", continueConv);
+    if (summariesOnly) {
+      console.log("summaries only", summariesOnly);
+      const contextAndSummary = await continueConversation(chosenChat);
+      message += `\n---\n${contextAndSummary}`;
+    } else {
+      message = await continueConversation(chosenChat);
+    }
+  }
+  
+  conversationHistory.push({ role: "system", content: message });
+  return message;
+}
+
+/**
+ * Initialize Claude instructions
+ */
+async function initializeClaudeInstructions() {
+  try {
+    let claudeFile = await fs.promises.readFile('./public/claudeInstructions.xml', 'utf8');
+    
+    if (customPrompt) {
+      const promptFile = path.join(__dirname, '../../../public/uploads/prompts', `${promptName}.md`);
+      const content = fs.readFileSync(promptFile, 'utf8');
+      const parsedContent = parsePromptMarkdown(content);
+      let customPromptText = parsedContent.body;
+      claudeFile += "\n\n <prompt> \n\n" + customPromptText + "\n\n </prompt>";
+    }
+    
+    claudeInstructions = claudeFile;
+    if (continueConv) {
+      if (summariesOnly) {
+        const contextAndSummary = await continueConversation(chosenChat);
+        claudeInstructions += `\n---\n${contextAndSummary}`;
+      } else {
+        claudeInstructions += await continueConversation(chosenChat);
+      }
+    }
+    return claudeInstructions;
+  } catch (error) {
+    console.error('Error reading Claude instructions file:', error);
+    return '';
+  }
+}
+
+/**
+ * Continue conversation by loading chat context
+ */
+async function continueConversation(chosenChat) {
+  try {
+    const conversationFile = await fs.promises.readFile(
+      path.join(__dirname, '../../../public/uploads/chats', `${chosenChat}.txt`), 
+      'utf8'
+    );
+    
+    if (summariesOnly) {
+      const regex = /\n\n-----\n\n(.+)/s;
+      const match = conversationFile.match(regex);
+      if (match && match[1]) {
+        return match[1];
+      } else {
+        throw new Error('Context and summary not found in the conversation file.');
+      }
+    } else {
+      return conversationFile;
+    }
+  } catch (error) {
+    console.error('Error in continueConversation:', error);
+    throw error;
+  }
+}
+
+/**
+ * Convert an image URL to base64
+ */
+async function imageURLToBase64(url) {
+  try {
+    const axios = require('axios');
+    const response = await axios.get(url, {
+      responseType: 'arraybuffer'
+    });
+
+    const contentType = response.headers['content-type'];
+    const base64Image = Buffer.from(response.data).toString('base64');
+    return `data:${contentType};base64,${base64Image}`;
+  } catch (error) {
+    console.error('Error fetching image:', error);
+    throw error;
+  }
+}
+
+/**
+ * Convert an image file to base64
+ */
+function imageToBase64(filePath) {
+  const image = fs.readFileSync(filePath);
+  return `data:image/jpeg;base64,${image.toString('base64')}`;
+}
+
+/**
+ * Export chat to HTML using the export service
+ */
+async function exportChatToHTML() {
+  const exportData = {
+    conversationHistory,
+    claudeHistory,
+    o1History,
+    deepseekHistory,
+    claudeInstructions,
+    modelID: 'gpt-4o' // Default, should be passed from request context
+  };
+  
+  return await exportService.exportChat('conversation', exportData, providerFactory);
+}
 
 /**
  * Main chat endpoint - handles all AI model conversations
- * Preserves exact original functionality
  */
 router.post('/message', async (req, res) => {
-  let response;
-  console.log("req.file:", req.file);
   console.log("Received model ID:", req.body.modelID);
   
   const user_message = req.body.message;
   const modelID = req.body.modelID || 'gpt-4o';
   const image_url = req.body.image;
   
-  console.log("Received request with size: ", JSON.stringify(req.body).length);
-  isAssistants = false;
-  
+  console.log("Received request with size:", JSON.stringify(req.body).length);
+
   // Handle temperature parameter
-  temperature = req.body.temperature;
+  let temperature = req.body.temperature || 1;
   if (process.env.TEMPERATURE) {
     const parsedTemp = parseFloat(process.env.TEMPERATURE);
     if (!isNaN(parsedTemp)) {
       temperature = parsedTemp;
-    } else {
-      console.error('Invalid TEMPERATURE value in .env file. Using default.');
-      if (req.body.temperature) {
-        temperature = req.body.temperature;
-      } else {
-        temperature = 1;
-      }
     }
-  } else if (req.body.temperature) {
-    temperature = req.body.temperature;
-  } else {
-    temperature = 1;
   }
 
   // Handle tokens parameter
+  let tokens = req.body.tokens || 8000;
   if (process.env.MAX_TOKENS) {
     const parsedTokens = parseInt(process.env.MAX_TOKENS);
     if (!isNaN(parsedTokens)) {
       tokens = parsedTokens;
-    } else {
-      console.error('Invalid MAX_TOKENS value in .env file. Using default.');
-      if (req.body.tokens) {
-        tokens = enforceTokenLimits(req.body.tokens, modelID);
-      } else {
-        tokens = 8000;
-      }
     }
-  } else if (req.body.tokens) {
-    tokens = enforceTokenLimits(req.body.tokens, modelID);
-  } else {
-    tokens = 8000;
   }
+  tokens = enforceTokenLimits(tokens, modelID);
 
   // Check for shutdown command
   if (user_message === "Bye!") {
@@ -82,202 +241,123 @@ router.post('/message', async (req, res) => {
     res.set('Content-Disposition', 'attachment; filename="chat_history.html"');
     res.send(htmlContent);
     
-    res.end(() => {
-      console.log("Chat history sent to client, initiating shutdown...");
-      
-      if (isShuttingDown) {
-        return res.status(503).send('Server is shutting down');
-      }
-      isShuttingDown = true;
-      
-      setTimeout(() => {
-        console.log("Sending SIGTERM to self...");
-        process.kill(process.pid, 'SIGINT');
-        server.close(() => {
-          console.log("Server successfully shut down.");
-          process.exit(99);
-        });
-      }, 1000);
-    });
-    
     return;
   }
 
-  let user_input = {
-    role: "user",
-    content: []
-  };
-
-  // Determine the structure of user_input.content based on modelID
-  if (modelID.startsWith('gpt') || modelID.startsWith('claude')) {
+  try {
+    // Initialize system message if first request
     if (epochs === 0) {
-      if (modelID.startsWith('gpt')) {
+      if (modelID.startsWith('gpt') || modelID.includes('o1') || modelID.includes('o3')) {
         systemMessage = await initializeConversationHistory();
-        epochs = epochs + 1;
       } else if (modelID.startsWith('claude')) {
         const instructionsText = await initializeClaudeInstructions();
-        const sections = parseInstructionsIntoSections(instructionsText);
-        systemMessage = formatSectionsIntoSystemMessage(sections);
-        epochs = epochs + 1;
+        if (providerFactory.isProviderAvailable('claude')) {
+          const claudeHandler = providerFactory.getHandler('claude');
+          const sections = claudeHandler.parseInstructionsIntoSections(instructionsText);
+          systemMessage = claudeHandler.formatSectionsIntoSystemMessage(sections);
+        }
       } else {
         systemMessage = await initializeConversationHistory();
-        epochs = epochs + 1;
       }
+      epochs++;
+    }
+
+    // Handle file contents from upload
+    let uploadedFiles = null;
+    if (req.body.sessionId && req.app.locals.uploadedFiles?.get(req.body.sessionId)) {
+      uploadedFiles = req.app.locals.uploadedFiles.get(req.body.sessionId);
+      // Clean up after processing
+      req.app.locals.uploadedFiles.delete(req.body.sessionId);
     }
     
-    // Add text content if present
-    if (user_message) {
-      if (modelID.startsWith('gpt')) {
-        user_input.content.push({ type: "text", text: user_message });
-      } else if (modelID.startsWith('claude')) {
-        user_input.content.push({ type: "text", text: "<user_message>" });
-        user_input.content.push({ type: "text", text: user_message });
-        user_input.content.push({ type: "text", text: "</user_message>" });
-      }
+    // Handle single file upload (backward compatibility)
+    if (req.app.locals.currentFileContents) {
+      fileContents = req.app.locals.currentFileContents;
+      file_id = req.app.locals.currentFileId;
+      // Clear after use
+      req.app.locals.currentFileContents = null;
+      req.app.locals.currentFileId = null;
     }
 
-    // Handle file contents
-    if (fileContents || (req.body.sessionId && req.app.locals.uploadedFiles?.get(req.body.sessionId))) {
-      console.log(fileContents);
-      
-      if (modelID.startsWith('gpt')) {
-        user_input.content.push({ type: "text", text: file_id });
-        user_input.content.push({ type: "text", text: fileContents });
-      } else if (modelID.startsWith('claude')) {
-        if (fileContents) {
-          if (file_id.endsWith('.pdf')) {
-            user_input.content.push({
-              type: "document",
-              source: {
-                type: "base64",
-                media_type: "application/pdf",
-                data: fileContents
-              }
-            });
-          } else {
-            user_input.content.push({ type: "text", text: "<file_name>" });
-            user_input.content.push({ type: "text", text: file_id });
-            user_input.content.push({ type: "text", text: "</file_name>" });
-            user_input.content.push({ type: "text", text: "<file_contents>" });
-            user_input.content.push({ type: "text", text: fileContents });
-            user_input.content.push({ type: "text", text: "</file_contents>" });
-          }
-        }
-        
-        const uploadedFiles = req.body.sessionId ? req.app.locals.uploadedFiles?.get(req.body.sessionId) : null;
-        if (uploadedFiles) {
-          for (const file of uploadedFiles) {
-            if (file.type === 'pdf') {
-              user_input.content.push({
-                type: "document",
-                source: {
-                  type: "base64",
-                  media_type: "application/pdf",
-                  data: file.contents
-                }
-              });
-            } else {
-              user_input.content.push({ type: "text", text: "<file_name>" });
-              user_input.content.push({ type: "text", text: file.file_id });
-              user_input.content.push({ type: "text", text: "</file_name>" });
-              user_input.content.push({ type: "text", text: "<file_contents>" });
-              user_input.content.push({ type: "text", text: file.contents });
-              user_input.content.push({ type: "text", text: "</file_contents>" });
-            }
-          }
-          req.app.locals.uploadedFiles.delete(req.body.sessionId);
-        }
-      }
-      
-      fileContents = null;
-    }
-
-    // Handle images
+    // Handle image processing
+    let base64Image = null;
     if (req.body.image) {
-      let base64Image;
       if (req.file) {
-        console.log("first if", req.file.path);
         base64Image = imageToBase64(req.file.path);
       } else {
-        console.log("second if", req.body.image);
         base64Image = await imageURLToBase64(req.body.image);
       }
       
-      if (base64Image) {
-        if (modelID.startsWith('gpt')) {
-          user_input.content.push({ type: "text", text: imageName });
-        }
-        if (modelID.startsWith('claude')) {
-          const [mediaPart, base64Data] = base64Image.split(';base64,');
-          const mediaType = mediaPart.split(':')[1];
-          user_input.content.push({ type: "text", text: "<image_name>" });
-          user_input.content.push({ type: "text", text: imageName });
-          user_input.content.push({ type: "text", text: "</image_name>" });
-          user_input.content.push({ type: "text", text: "<image_content>" });
-          user_input.content.push({
-            type: "image",
-            source: {
-              type: "base64",
-              media_type: mediaType,
-              data: base64Data
-            }
-          });
-          user_input.content.push({ type: "text", text: "</image_content>" });
-        } else {
-          user_input.content.push({ type: "image_url", image_url: { url: base64Image } });
-        }
-        
+      // Clean up uploaded image
+      if (uploadedImagePath) {
         fs.unlink(uploadedImagePath, (err) => {
           if (err) console.error("Error deleting temp file:", err);
-          console.log("Temp file deleted");
         });
       }
     }
-  } else {
-    // Handle other models (Mistral, etc.)
-    systemMessage = await initializeConversationHistory();
-    epochs = epochs + 1;
     
-    user_input = {
-      role: "user",
-      content: ''
+    // Handle image from upload route
+    if (req.app.locals.currentImageName) {
+      imageName = req.app.locals.currentImageName;
+      uploadedImagePath = req.app.locals.currentImagePath;
+      // Clear after use
+      req.app.locals.currentImageName = null;
+      req.app.locals.currentImagePath = null;
+    }
+
+    // Format user input using provider factory
+    const user_input = providerFactory.formatUserInput(
+      modelID,
+      user_message,
+      fileContents,
+      file_id,
+      imageName,
+      base64Image,
+      uploadedFiles
+    );
+
+    // Prepare payload for provider
+    const payload = {
+      user_input,
+      modelID,
+      systemMessage,
+      conversationHistory,
+      claudeHistory,
+      o1History,
+      deepseekHistory,
+      temperature,
+      tokens
     };
-    
-    if (user_message) {
-      user_input.content = user_message;
-    }
 
-    if (fileContents) {
-      console.log(fileContents);
-      user_input.content += "\n";
-      user_input.content += file_id;
-      user_input.content += "\n";
-      user_input.content += fileContents;
+    // Route to appropriate provider
+    const result = await providerFactory.handleRequest(modelID, payload);
+
+    if (result.success) {
+      // Store conversation state in app.locals for export functionality
+      req.app.locals.conversationHistory = conversationHistory;
+      req.app.locals.claudeHistory = claudeHistory;
+      req.app.locals.o1History = o1History;
+      req.app.locals.deepseekHistory = deepseekHistory;
+      req.app.locals.claudeInstructions = claudeInstructions;
+      req.app.locals.currentModelID = modelID;
+      req.app.locals.systemMessage = systemMessage;
+      
+      // Clean up file contents
       fileContents = null;
-    }
-  }
-
-  // Route to appropriate AI provider based on model
-  try {
-    if (modelID.startsWith('gpt') || modelID.startsWith('o1') || modelID.startsWith('o3')) {
-      response = await handleOpenAIRequest(user_input, modelID, systemMessage, temperature, tokens);
-    } else if (modelID.startsWith('claude')) {
-      response = await handleClaudeRequest(user_input, modelID, systemMessage, temperature, tokens);
-    } else if (modelID.startsWith('gemini')) {
-      response = await handleGeminiRequest(user_input, modelID, systemMessage, temperature, tokens);
-    } else if (modelID.startsWith('llama') || modelID.includes('groq')) {
-      response = await handleGroqRequest(user_input, modelID, systemMessage, temperature, tokens);
-    } else if (modelID.startsWith('mistral') || modelID.includes('codestral')) {
-      response = await handleMistralRequest(user_input, modelID, systemMessage, temperature, tokens);
-    } else if (modelID.startsWith('deepseek')) {
-      response = await handleDeepSeekRequest(user_input, modelID, systemMessage, temperature, tokens);
+      file_id = "";
+      imageName = "";
+      
+      res.json({ 
+        text: result.content,
+        usage: result.usage 
+      });
     } else {
-      // Default to OpenRouter for unknown models
-      response = await handleOpenRouterRequest(user_input, modelID, systemMessage, temperature, tokens);
+      res.status(500).json({ 
+        error: "Failed to process message",
+        details: result.error 
+      });
     }
-    
-    res.json({ response: response });
-    
+
   } catch (error) {
     console.error('Error in chat endpoint:', error);
     res.status(500).json({ 
@@ -287,100 +367,81 @@ router.post('/message', async (req, res) => {
   }
 });
 
-// Helper functions (placeholders - these would need to be implemented)
-async function initializeConversationHistory() {
-  // Implementation from original server
-  return [];
-}
-
-async function initializeClaudeInstructions() {
-  // Implementation from original server
-  return "";
-}
-
-function parseInstructionsIntoSections(text) {
-  // Implementation from original server
-  return [];
-}
-
-function formatSectionsIntoSystemMessage(sections) {
-  // Implementation from original server
-  return [];
-}
-
-function enforceTokenLimits(requestedTokens, modelID) {
-  // Implementation from original server
-  const maxTokens = getMaxTokensByModel(modelID);
-  const minTokens = 1000;
-  return Math.min(Math.max(parseInt(requestedTokens) || 8000, minTokens), maxTokens);
-}
-
-function getMaxTokensByModel(modelID) {
-  // Implementation from original server
-  if (modelID === 'gpt-4') {
-    return 6000;
-  } else if (modelID === 'gpt-4o-mini' || modelID === 'gpt-4o') {
-    return 16000;
-  } else if (modelID.startsWith('llama-3.1')) {
-    return 8000;
-  } else if (modelID === 'claude-3-7-sonnet-latest') {
-    return 100000;
-  } else if (modelID.startsWith('claude')) {
-    return 8000;
-  } else {
-    return 8000;
+/**
+ * Reset conversation state
+ */
+router.post('/reset', (req, res) => {
+  conversationHistory = [];
+  claudeHistory = [];
+  o1History = [];
+  deepseekHistory = [];
+  geminiHistory = '';
+  epochs = 0;
+  fileContents = null;
+  file_id = "";
+  imageName = "";
+  customPrompt = false;
+  continueConv = false;
+  
+  // Reset provider factory state
+  if (providerFactory && providerFactory.handlers.openai) {
+    providerFactory.handlers.openai.resetState();
   }
-}
+  
+  res.json({ success: true, message: 'Conversation state reset' });
+});
 
-async function exportChatToHTML() {
-  // Implementation from original server
-  return "<html><body>Chat history</body></html>";
-}
+/**
+ * Set chat continuation
+ */
+router.post('/setChat', async (req, res) => {
+  try {
+    chosenChat = req.body.chosenChat;
+    continueConv = true;
 
-function imageToBase64(filePath) {
-  // Implementation from original server
-  return "";
-}
+    const contextAndSummary = await continueConversation(chosenChat);
+    console.log('Context and Summary loaded');
 
-async function imageURLToBase64(url) {
-  // Implementation from original server
-  return "";
-}
+    res.status(200).json({ message: 'Chat set successfully', chosenChat });
+  } catch (error) {
+    console.error('Error in /setChat endpoint:', error);
+    res.status(500).json({ message: 'Failed to set chat', error: error.message });
+  }
+});
 
-// AI Provider handlers (these would contain the actual API calls)
-async function handleOpenAIRequest(userInput, modelID, systemMessage, temperature, tokens) {
-  // OpenAI API implementation
-  throw new Error("OpenAI handler not implemented yet");
-}
+/**
+ * Set custom prompt
+ */
+router.post('/copyPrompt', async (req, res) => {
+  try {
+    const { chosenPrompt } = req.body;
+    customPrompt = true;
+    promptName = chosenPrompt;
+    const instructions = await readInstructionsFile();
+    
+    res.json({ success: true, instructions });
+  } catch (error) {
+    console.error('Error copying prompt:', error);
+    res.status(500).json({ error: 'Error copying prompt' });
+  }
+});
 
-async function handleClaudeRequest(userInput, modelID, systemMessage, temperature, tokens) {
-  // Claude API implementation
-  throw new Error("Claude handler not implemented yet");
-}
+/**
+ * Set summaries only mode
+ */
+router.post('/setSummariesOnly', (req, res) => {
+  try {
+    summariesOnly = req.body.summariesOnly;
+    console.log('Summaries only mode:', summariesOnly);
+    res.status(200).json({ message: 'Summaries only setting updated successfully', summariesOnly });
+  } catch (error) {
+    console.error('Error in /setSummariesOnly endpoint:', error);
+    res.status(500).json({ message: 'Failed to update summaries only setting', error: error.message });
+  }
+});
 
-async function handleGeminiRequest(userInput, modelID, systemMessage, temperature, tokens) {
-  // Gemini API implementation
-  throw new Error("Gemini handler not implemented yet");
-}
-
-async function handleGroqRequest(userInput, modelID, systemMessage, temperature, tokens) {
-  // Groq API implementation
-  throw new Error("Groq handler not implemented yet");
-}
-
-async function handleMistralRequest(userInput, modelID, systemMessage, temperature, tokens) {
-  // Mistral API implementation
-  throw new Error("Mistral handler not implemented yet");
-}
-
-async function handleDeepSeekRequest(userInput, modelID, systemMessage, temperature, tokens) {
-  // DeepSeek API implementation
-  throw new Error("DeepSeek handler not implemented yet");
-}
-
-async function handleOpenRouterRequest(userInput, modelID, systemMessage, temperature, tokens) {
-  // OpenRouter API implementation
-  throw new Error("OpenRouter handler not implemented yet");
-}
-
-module.exports = router;
+// Export both the router and initialization function
+module.exports = {
+  router,
+  initializeChatRoutes
+};

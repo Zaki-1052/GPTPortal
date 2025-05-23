@@ -10,17 +10,34 @@ const router = express.Router();
 function createConfigRoutes(config) {
   // Configuration endpoint
   router.get('/config', (req, res) => {
-    res.json({
-      host: config.host,
-      port: config.port
-    });
+    // Check if running on Vercel
+    const isVercelEnvironment = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+
+    // If it's Vercel, we don't need to specify host and port
+    if (isVercelEnvironment) {
+      res.json({
+        // We could omit host and port entirely or set them to null/undefined
+        host: undefined,
+        port: undefined
+      });
+    } else {
+      // For non-Vercel environments, return the necessary configuration
+      res.json({
+        host: process.env.HOST_CLIENT || 'localhost',
+        port: process.env.PORT_CLIENT || 3000
+      });
+    }
   });
 
   // Default model endpoint
   router.get('/model', (req, res) => {
-    res.json({
-      model: 'gpt-4o' // Default model
-    });
+    const defaultModel = process.env.DEFAULT_MODEL;
+    
+    if (defaultModel) {
+      res.json({ model: defaultModel });
+    } else {
+      res.json({ model: 'gpt-4o' });
+    }
   });
 
   // Portal route (when authenticated)

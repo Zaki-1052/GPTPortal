@@ -21,7 +21,8 @@ const config = {
     mistral: process.env.MISTRAL_API_KEY,
     qroq: process.env.QROQ_API_KEY,
     openrouter: process.env.OPENROUTER_API_KEY,
-    codestral: process.env.CODESTRAL_API_KEY
+    codestral: process.env.CODESTRAL_API_KEY,
+    deepseek: process.env.DEEPSEEK_API_KEY
   },
   
   // Model parameters
