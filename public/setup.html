@@ -8,110 +8,157 @@
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to GPTPortal</h1>
-        <p>Please fill in the form below to set up your account. Refer to the <a href="https://github.com/Zaki-1052/GPTPortal" target="_blank" rel="noopener noreferrer"><b>GPT Portal Documentation</b></a> for information on how to obtain the required <b>API keys.</b></p>
-        <p>This information is <i>purely</i> stored <b>locally</b> to your computer, and <u>cannot</u> be transmitted over the internet!</p>
+        <h1>Welcome to GPT Portal</h1>
+        <p>Please fill in the form below to set up your account. Refer to the <a href="https://github.com/Zaki-1052/GPTPortal" target="_blank" rel="noopener noreferrer">GPT Portal Documentation</a> for information on how to obtain the required API keys.</p>
+        
+        <div class="security-notice">
+            This information is purely stored locally to your computer, and cannot be transmitted over the internet!
+        </div>
+
         <form id="setupForm">
-            <div class="form-group">
-                <label for="username">Username (required):</label>
-                <input type="text" id="username" name="username" required>
+            <div class="section-header">
+                <h3>Authentication</h3>
+                <p>Set up your login credentials for accessing GPT Portal</p>
             </div>
-            <div class="form-group">
-                <label for="password">Password (required):</label>
-                <input type="password" id="password" name="password" required>
+            
+            <div class="form-group required">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
             </div>
-            <div class="form-group">
-                <label for="openaiApiKey">OpenAI API Key (recommended):</label>
-                <input type="text" id="openaiApiKey" name="openaiApiKey">
+            
+            <div class="form-group required">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
             </div>
-            <div class="form-group">
-                <label for="claudeApiKey">Claude API Key (encouraged):</label>
-                <input type="text" id="claudeApiKey" name="claudeApiKey">
+
+            <div class="section-header">
+                <h3>API Keys</h3>
+                <p>Provide API keys for the services you wish to use</p>
             </div>
-            <div class="form-group">
-                <label for="googleApiKey">Google API Key (optional):</label>
-                <input type="text" id="googleApiKey" name="googleApiKey">
+            
+            <div class="form-group recommended">
+                <label for="openaiApiKey">OpenAI API Key</label>
+                <input type="text" id="openaiApiKey" name="openaiApiKey" placeholder="sk-...">
             </div>
-            <div class="form-group">
-                <label for="mistralApiKey">Mistral API Key (optional):</label>
-                <input type="text" id="mistralApiKey" name="mistralApiKey">
+            
+            <div class="form-group encouraged">
+                <label for="claudeApiKey">Claude API Key</label>
+                <input type="text" id="claudeApiKey" name="claudeApiKey" placeholder="sk-ant-...">
             </div>
-            <div class="form-group">
-                <label for="qroqApiKey">QROQ API Key (optional):</label>
-                <input type="text" id="qroqApiKey" name="qroqApiKey">
+            
+            <div class="form-group optional">
+                <label for="googleApiKey">Google API Key</label>
+                <input type="text" id="googleApiKey" name="googleApiKey" placeholder="AIza...">
             </div>
-            <div class="form-group">
-                <label for="openrouterApiKey">OpenRouter API Key (optional):</label>
-                <input type="text" id="openrouterApiKey" name="openrouterApiKey">
+            
+            <div class="form-group optional">
+                <label for="mistralApiKey">Mistral API Key</label>
+                <input type="text" id="mistralApiKey" name="mistralApiKey" placeholder="API key">
             </div>
-            <div class="form-group">
-                <label for="codestralApiKey">Codestral API Key (optional):</label>
-                <input type="text" id="codestralApiKey" name="codestralApiKey">
+            
+            <div class="form-group optional">
+                <label for="qroqApiKey">GROQ API Key</label>
+                <input type="text" id="qroqApiKey" name="qroqApiKey" placeholder="gsk_...">
             </div>
-            <button type="submit">Submit</button>
+            
+            <div class="form-group optional">
+                <label for="openrouterApiKey">OpenRouter API Key</label>
+                <input type="text" id="openrouterApiKey" name="openrouterApiKey" placeholder="sk-or-v1-...">
+            </div>
+            
+            <div class="form-group optional">
+                <label for="codestralApiKey">Codestral API Key</label>
+                <input type="text" id="codestralApiKey" name="codestralApiKey" placeholder="API key">
+            </div>
+            
+            <button type="submit" id="submitBtn">
+                <span>🚀 Submit</span>
+            </button>
         </form>
     </div>
     <script src="script.js"></script>
     
     <script>
         document.getElementById('setupForm').addEventListener('submit', function (event) {
-  event.preventDefault();
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerHTML;
+            
+            // Add loading state
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
 
-  const formData = {
-        username: document.getElementById('username').value,
-        password: document.getElementById('password').value,
-        openaiApiKey: document.getElementById('openaiApiKey').value,
-        claudeApiKey: document.getElementById('claudeApiKey').value,
-        googleApiKey: document.getElementById('googleApiKey').value,
-        mistralApiKey: document.getElementById('mistralApiKey').value,
-        qroqApiKey: document.getElementById('qroqApiKey').value,
-        openrouterApiKey: document.getElementById('openrouterApiKey').value,
-        codestralApiKey: document.getElementById('codestralApiKey').value
-    };
+            const formData = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                openaiApiKey: document.getElementById('openaiApiKey').value,
+                claudeApiKey: document.getElementById('claudeApiKey').value,
+                googleApiKey: document.getElementById('googleApiKey').value,
+                mistralApiKey: document.getElementById('mistralApiKey').value,
+                qroqApiKey: document.getElementById('qroqApiKey').value,
+                openrouterApiKey: document.getElementById('openrouterApiKey').value,
+                codestralApiKey: document.getElementById('codestralApiKey').value
+            };
 
-  fetch('/setup', {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(formData)
-  }).then(response => {
-      if (response.ok) {
-          alert('Changes saved successfully');
+            fetch('/setup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            }).then(response => {
+                if (response.ok) {
+                    // Copy 'node server.js' to clipboard
+                    navigator.clipboard.writeText('node server.js').then(() => {
+                        console.log('Text copied to clipboard');
+                    }).catch(err => {
+                        console.error('Could not copy text: ', err);
+                    });
 
-          // Copy 'node server.js' to clipboard
-          navigator.clipboard.writeText('node server.js').then(() => {
-              console.log('Text copied to clipboard');
-          }).catch(err => {
-              console.error('Could not copy text: ', err);
-          });
+                    // Show success message with modern styling
+                    document.body.innerHTML = `
+                        <div class="completion-message">
+                            <h2>✅ Setup Complete!</h2>
+                            <p>Your GPT Portal has been configured successfully.</p>
+                            <p>Please restart the server and access the web app at <a href="http://localhost:3000">localhost:3000</a></p>
+                            <p><strong>Command copied to clipboard:</strong> <code>node server.js</code></p>
+                            <p><em>Redirecting to portal in 10 seconds...</em></p>
+                        </div>
+                    `;
+                    
+                    // Redirect to /portal after 10 seconds
+                    setTimeout(() => {
+                        window.location.href = '/portal';
+                    }, 10000);
 
-          // Inform the user to restart the server manually
-          document.body.innerHTML = '<h2 class="completion-message">Setup is now complete. Please restart the server and access the web app at <a href="http://localhost:3000">localhost:3000</a>. Please: Reload the page now .... You can simply paste this command: `node server.js` into your Terminal to start it again. It is already copied to your clipboard.</h2>';
-          // Redirect to /portal after 3 seconds
-          setTimeout(() => {
-              window.location.href = `${baseURL}/portal`;
-          }, 10000);
-
-          // Call the endpoint to restart the server
-          fetch('/restart-server', {
-              method: 'POST'
-          }).then(restartResponse => {
-              if (restartResponse.ok) {
-                  console.log('Server restart initiated');
-              } else {
-                  console.error('Failed to initiate server restart');
-              }
-          }).catch(err => {
-              console.error('Error:', err);
-          });
-      } else {
-          alert('An error occurred during setup. Please try again.');
-      }
-  }).catch(err => {
-      alert('Error: ' + err.message);
-  });
-});
+                    // Call the endpoint to restart the server
+                    fetch('/restart-server', {
+                        method: 'POST'
+                    }).then(restartResponse => {
+                        if (restartResponse.ok) {
+                            console.log('Server restart initiated');
+                        } else {
+                            console.error('Failed to initiate server restart');
+                        }
+                    }).catch(err => {
+                        console.error('Error:', err);
+                    });
+                } else {
+                    // Remove loading state and show error
+                    submitBtn.classList.remove('loading');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                    alert('An error occurred during setup. Please try again.');
+                }
+            }).catch(err => {
+                // Remove loading state and show error
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                alert('Error: ' + err.message);
+            });
+        });
     </script>
     
 </body>
