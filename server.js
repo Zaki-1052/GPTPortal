@@ -85,7 +85,7 @@ app.use('/uploads', express.static('public/uploads'));
 
 // Additional routes from original server that need to be extracted
 
-// Transcription route
+// Enhanced transcription route
 app.post('/transcribe', uploadMiddleware, async (req, res) => {
   try {
     if (!req.file) {
@@ -95,28 +95,62 @@ app.post('/transcribe', uploadMiddleware, async (req, res) => {
     const uploadedFilePath = req.file.path;
     const filename = req.file.filename;
     
-    // Use Groq if available, otherwise OpenAI
-    const useGroq = process.env.QROQ_API_KEY && providerFactory.isProviderAvailable('groq');
-    const result = await providerFactory.transcribeAudio(uploadedFilePath, filename, useGroq);
+    // Enhanced transcription with options
+    const options = {
+      // Use Groq if available and requested, otherwise use enhanced OpenAI
+      preferGroq: process.env.QROQ_API_KEY && providerFactory.isProviderAvailable('groq'),
+      preferredModel: 'gpt-4o-transcribe', // Default to best model
+      usePrompting: true // Enable intelligent prompting
+    };
+    
+    const result = await providerFactory.transcribeAudio(uploadedFilePath, filename, options);
     
     // Cleanup temp file
     const fs = require('fs');
     fs.unlinkSync(uploadedFilePath);
     
-    res.json({ text: result.text });
+    // Return enhanced response with model information
+    res.json({ 
+      text: result.text,
+      model: result.model,
+      duration: result.duration,
+      usedFallback: result.usedFallback || false,
+      fallbackReason: result.fallbackReason || null
+    });
   } catch (error) {
     console.error('Error transcribing audio:', error.message);
     res.status(500).json({ error: "Error transcribing audio", details: error.message });
   }
 });
 
-// Text-to-speech route
+// Enhanced text-to-speech route
 app.post('/tts', async (req, res) => {
   try {
-    const { text } = req.body;
-    const result = await providerFactory.textToSpeech(text);
+    const { text, voice = 'coral', format = 'mp3', instructions = null } = req.body;
     
+    // Enhanced TTS with options
+    const options = {
+      preferredModel: 'gpt-4o-mini-tts', // Default to best model
+      voice: voice,
+      responseFormat: format,
+      instructions: instructions,
+      useIntelligentInstructions: true // Enable intelligent instruction generation
+    };
+    
+    const result = await providerFactory.textToSpeech(text, options);
+    
+    // Set response headers with model information
     res.set('Content-Type', result.contentType);
+    res.set('X-TTS-Model', result.model);
+    res.set('X-TTS-Voice', result.voice);
+    if (result.usedFallback) {
+      res.set('X-TTS-Fallback', 'true');
+      res.set('X-TTS-Fallback-Reason', result.fallbackReason);
+    }
+    if (result.instructions) {
+      res.set('X-TTS-Instructions', encodeURIComponent(result.instructions));
+    }
+    
     res.send(result.audioData);
   } catch (error) {
     console.error('Error generating speech:', error.message);

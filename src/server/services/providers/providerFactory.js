@@ -136,12 +136,21 @@ class ProviderFactory {
   /**
    * Handle audio transcription (OpenAI or Groq)
    */
-  async transcribeAudio(audioFilePath, filename, preferGroq = false) {
-    // Prefer Groq if available and requested, otherwise use OpenAI
+  async transcribeAudio(audioFilePath, filename, options = {}) {
+    const { 
+      preferGroq = false,
+      preferredModel = 'gpt-4o-transcribe',
+      usePrompting = true
+    } = options;
+
+    // Prefer Groq if available and requested, otherwise use enhanced OpenAI
     if (preferGroq && this.handlers.groq) {
       return await this.handlers.groq.transcribeAudio(audioFilePath, filename);
     } else if (this.handlers.openai) {
-      return await this.handlers.openai.transcribeAudio(audioFilePath, filename);
+      return await this.handlers.openai.transcribeAudio(audioFilePath, filename, {
+        preferredModel,
+        usePrompting
+      });
     } else if (this.handlers.groq) {
       return await this.handlers.groq.transcribeAudio(audioFilePath, filename);
     } else {
@@ -152,11 +161,26 @@ class ProviderFactory {
   /**
    * Handle text-to-speech (OpenAI only)
    */
-  async textToSpeech(text) {
+  async textToSpeech(text, options = {}) {
     if (!this.handlers.openai) {
       throw new Error('OpenAI API key required for text-to-speech');
     }
-    return await this.handlers.openai.textToSpeech(text);
+    
+    const {
+      preferredModel = 'gpt-4o-mini-tts',
+      voice = 'coral',
+      responseFormat = 'mp3',
+      instructions = null,
+      useIntelligentInstructions = true
+    } = options;
+
+    return await this.handlers.openai.textToSpeech(text, {
+      preferredModel,
+      voice,
+      responseFormat,
+      instructions,
+      useIntelligentInstructions
+    });
   }
 
   /**

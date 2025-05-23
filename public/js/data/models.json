@@ -388,6 +388,108 @@
       "maxTokens": 8000,
       "supportsVision": false,
       "supportsFunction": true
+    },
+
+    "gpt-4o-mini-tts": {
+      "id": "gpt-4o-mini-tts",
+      "name": "GPT-4o Mini TTS: Advanced",
+      "provider": "openai",
+      "category": "voice",
+      "source": "core",
+      "description": "Most reliable text-to-speech model with intelligent controls",
+      "pricing": { "input": 0.15, "output": 0.60 },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "supportsTextToSpeech": true,
+      "voiceOptions": ["alloy", "ash", "ballad", "coral", "echo", "fable", "nova", "onyx", "sage", "shimmer"],
+      "audioFormats": ["mp3", "opus", "aac", "flac", "wav", "pcm"],
+      "features": ["streaming", "instructions", "emotion_control", "speed_control", "accent_control"]
+    },
+    "tts-1-hd": {
+      "id": "tts-1-hd",
+      "name": "TTS-1 HD: High Quality",
+      "provider": "openai",
+      "category": "voice",
+      "source": "core",
+      "description": "High-definition text-to-speech model",
+      "pricing": { "input": 0, "output": 0.015 },
+      "contextWindow": 4000,
+      "maxTokens": 1000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "supportsTextToSpeech": true,
+      "voiceOptions": ["alloy", "echo", "fable", "onyx", "nova", "shimmer"],
+      "audioFormats": ["mp3", "opus", "aac", "flac"]
+    },
+    "tts-1": {
+      "id": "tts-1",
+      "name": "TTS-1: Standard",
+      "provider": "openai",
+      "category": "voice",
+      "source": "core",
+      "description": "Standard text-to-speech model with lower latency",
+      "pricing": { "input": 0, "output": 0.015 },
+      "contextWindow": 4000,
+      "maxTokens": 1000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "supportsTextToSpeech": true,
+      "voiceOptions": ["alloy", "echo", "fable", "onyx", "nova", "shimmer"],
+      "audioFormats": ["mp3", "opus", "aac", "flac"]
+    },
+
+    "gpt-4o-transcribe": {
+      "id": "gpt-4o-transcribe",
+      "name": "GPT-4o Transcribe: Best",
+      "provider": "openai",
+      "category": "voice",
+      "source": "core",
+      "description": "Highest quality speech-to-text model with intelligent prompting",
+      "pricing": { "input": 2.50, "output": 10.00 },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "supportsSpeechToText": true,
+      "audioFormats": ["mp3", "mp4", "mpeg", "mpga", "m4a", "wav", "webm"],
+      "features": ["streaming", "prompting", "json_output", "text_output"],
+      "maxFileSize": "25MB"
+    },
+    "gpt-4o-mini-transcribe": {
+      "id": "gpt-4o-mini-transcribe",
+      "name": "GPT-4o Mini Transcribe: Fast",
+      "provider": "openai",
+      "category": "voice",
+      "source": "core",
+      "description": "Fast and affordable speech-to-text model",
+      "pricing": { "input": 0.15, "output": 0.60 },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "supportsSpeechToText": true,
+      "audioFormats": ["mp3", "mp4", "mpeg", "mpga", "m4a", "wav", "webm"],
+      "features": ["streaming", "prompting", "json_output", "text_output"],
+      "maxFileSize": "25MB"
+    },
+    "whisper-1": {
+      "id": "whisper-1",
+      "name": "Whisper-1: Legacy",
+      "provider": "openai",
+      "category": "voice",
+      "source": "core",
+      "description": "Original Whisper speech-to-text model",
+      "pricing": { "input": 0, "output": 0.006 },
+      "contextWindow": 25000,
+      "maxTokens": 1000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "supportsSpeechToText": true,
+      "audioFormats": ["mp3", "mp4", "mpeg", "mpga", "m4a", "wav", "webm"],
+      "features": ["timestamps", "translations", "verbose_json", "srt", "vtt"],
+      "maxFileSize": "25MB"
     }
   },
   
@@ -423,6 +525,10 @@
     "deepseek": {
       "name": "DeepSeek Models",
       "models": ["deepseek-reasoner", "deepseek-chat"]
+    },
+    "voice": {
+      "name": "Voice Models",
+      "models": ["gpt-4o-mini-tts", "tts-1-hd", "tts-1", "gpt-4o-transcribe", "gpt-4o-mini-transcribe", "whisper-1"]
     }
   }
 }

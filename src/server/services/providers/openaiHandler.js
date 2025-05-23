@@ -347,12 +347,40 @@ Enhanced prompt:`;
   }
 
   /**
-   * Handle audio transcription with Whisper
+   * Generate intelligent transcription prompt based on context
    */
-  async transcribeAudio(audioFilePath, filename) {
+  generateTranscriptionPrompt(filename) {
+    const context = [];
+    
+    // Add context based on filename or common patterns
+    if (filename && filename.toLowerCase().includes('meeting')) {
+      context.push('This is a meeting recording with multiple speakers.');
+    } else if (filename && filename.toLowerCase().includes('call')) {
+      context.push('This is a phone call recording.');
+    } else if (filename && filename.toLowerCase().includes('interview')) {
+      context.push('This is an interview recording.');
+    } else {
+      context.push('This is a voice recording that may contain technical terms, proper nouns, or specific terminology.');
+    }
+    
+    context.push('Please transcribe accurately, maintaining proper punctuation and capitalization.');
+    context.push('Include filler words like "um", "uh", "like" if they are present.');
+    
+    return context.join(' ');
+  }
+
+  /**
+   * Enhanced transcription with GPT-4o models
+   */
+  async transcribeWithGPTModel(audioFilePath, filename, model = 'gpt-4o-transcribe') {
     const formData = new FormData();
     formData.append('file', fs.createReadStream(audioFilePath), filename);
-    formData.append('model', 'whisper-1');
+    formData.append('model', model);
+    formData.append('response_format', 'json');
+    
+    // Add intelligent prompting for better quality
+    const contextPrompt = this.generateTranscriptionPrompt(filename);
+    formData.append('prompt', contextPrompt);
 
     const headers = {
       ...formData.getHeaders(),
@@ -365,22 +393,202 @@ Enhanced prompt:`;
       
       return {
         success: true,
-        text: transcription
+        text: transcription,
+        model: model,
+        duration: response.data.duration
       };
     } catch (error) {
-      console.error('Whisper API Error:', error.message);
-      throw new Error(`Whisper API Error: ${error.response?.data?.error?.message || error.message}`);
+      console.error(`${model} API Error:`, error.message);
+      throw error;
     }
   }
 
   /**
-   * Handle text-to-speech conversion
+   * Fallback transcription with Whisper-1
    */
-  async textToSpeech(text) {
+  async transcribeWithWhisper(audioFilePath, filename) {
+    const formData = new FormData();
+    formData.append('file', fs.createReadStream(audioFilePath), filename);
+    formData.append('model', 'whisper-1');
+    formData.append('response_format', 'json');
+
+    const headers = {
+      ...formData.getHeaders(),
+      'Authorization': `Bearer ${this.apiKey}`
+    };
+
+    try {
+      const response = await axios.post(`${this.baseURL}/audio/transcriptions`, formData, { headers });
+      const transcription = "Voice Transcription: " + response.data.text;
+      
+      return {
+        success: true,
+        text: transcription,
+        model: 'whisper-1',
+        duration: response.data.duration
+      };
+    } catch (error) {
+      console.error('Whisper-1 API Error:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Main transcription method with intelligent model selection and fallback
+   */
+  async transcribeAudio(audioFilePath, filename, options = {}) {
+    const {
+      preferredModel = 'gpt-4o-transcribe',
+      usePrompting = true
+    } = options;
+
+    console.log(`🎤 Starting transcription of: "${filename}"`);
+
+    try {
+      // Try GPT-4o Transcribe first (highest quality)
+      if (preferredModel === 'gpt-4o-transcribe') {
+        console.log('📝 Attempting GPT-4o Transcribe...');
+        try {
+          const result = await this.transcribeWithGPTModel(audioFilePath, filename, 'gpt-4o-transcribe');
+          console.log('✅ GPT-4o Transcribe successful');
+          return result;
+        } catch (gpt4oError) {
+          console.warn('⚠️ GPT-4o Transcribe failed, trying GPT-4o Mini fallback:', gpt4oError.message);
+          
+          // Fallback to GPT-4o Mini Transcribe
+          try {
+            const result = await this.transcribeWithGPTModel(audioFilePath, filename, 'gpt-4o-mini-transcribe');
+            console.log('✅ GPT-4o Mini Transcribe fallback successful');
+            return { ...result, usedFallback: true, fallbackReason: gpt4oError.message };
+          } catch (gpt4oMiniError) {
+            console.warn('⚠️ GPT-4o Mini Transcribe failed, trying Whisper-1 fallback:', gpt4oMiniError.message);
+            
+            // Final fallback to Whisper-1
+            const result = await this.transcribeWithWhisper(audioFilePath, filename);
+            console.log('✅ Whisper-1 final fallback successful');
+            return { 
+              ...result, 
+              usedFallback: true, 
+              fallbackReason: `GPT-4o: ${gpt4oError.message}, GPT-4o Mini: ${gpt4oMiniError.message}` 
+            };
+          }
+        }
+      } else if (preferredModel === 'gpt-4o-mini-transcribe') {
+        // Start with GPT-4o Mini if specifically requested
+        try {
+          const result = await this.transcribeWithGPTModel(audioFilePath, filename, 'gpt-4o-mini-transcribe');
+          console.log('✅ GPT-4o Mini Transcribe successful');
+          return result;
+        } catch (gpt4oMiniError) {
+          console.warn('⚠️ GPT-4o Mini Transcribe failed, trying Whisper-1 fallback:', gpt4oMiniError.message);
+          const result = await this.transcribeWithWhisper(audioFilePath, filename);
+          console.log('✅ Whisper-1 fallback successful');
+          return { ...result, usedFallback: true, fallbackReason: gpt4oMiniError.message };
+        }
+      } else {
+        // Direct Whisper-1 transcription if specifically requested
+        return await this.transcribeWithWhisper(audioFilePath, filename);
+      }
+    } catch (error) {
+      console.error('🚨 All transcription methods failed:', error.message);
+      throw new Error(`Transcription failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Generate intelligent TTS instructions based on text content
+   */
+  generateTTSInstructions(text) {
+    const instructions = [];
+    
+    // Analyze text content for appropriate instructions
+    if (text.includes('!') || text.includes('?') || text.toUpperCase() === text) {
+      instructions.push('Speak with energy and emotion appropriate to the content.');
+    } else if (text.includes('...') || text.includes(' - ')) {
+      instructions.push('Use thoughtful pauses and contemplative tone.');
+    } else if (text.length > 200) {
+      instructions.push('Maintain a clear, engaging narration style suitable for longer content.');
+    } else {
+      instructions.push('Speak in a natural, conversational tone.');
+    }
+    
+    // Add context-specific instructions
+    if (text.toLowerCase().includes('error') || text.toLowerCase().includes('warning')) {
+      instructions.push('Use a concerned but helpful tone.');
+    } else if (text.toLowerCase().includes('success') || text.toLowerCase().includes('complete')) {
+      instructions.push('Use a positive, accomplished tone.');
+    } else if (text.toLowerCase().includes('question') || text.includes('?')) {
+      instructions.push('Use an inquisitive, engaging tone.');
+    }
+    
+    return instructions.join(' ');
+  }
+
+  /**
+   * Enhanced TTS with GPT-4o Mini TTS model
+   */
+  async textToSpeechWithGPTModel(text, options = {}) {
+    const {
+      voice = 'coral',
+      responseFormat = 'mp3',
+      instructions = null
+    } = options;
+
     const requestData = {
-      model: "tts-1-hd",
-      voice: "echo",
-      input: text
+      model: "gpt-4o-mini-tts",
+      voice: voice,
+      input: text,
+      response_format: responseFormat
+    };
+
+    // Add intelligent instructions if not provided
+    if (instructions) {
+      requestData.instructions = instructions;
+    } else {
+      requestData.instructions = this.generateTTSInstructions(text);
+    }
+
+    const headers = {
+      'Authorization': `Bearer ${this.apiKey}`,
+      'Content-Type': 'application/json'
+    };
+
+    try {
+      const response = await axios.post(`${this.baseURL}/audio/speech`, requestData, {
+        headers,
+        responseType: 'arraybuffer'
+      });
+      
+      const contentType = this.getContentTypeForFormat(responseFormat);
+      
+      return {
+        success: true,
+        audioData: response.data,
+        contentType: contentType,
+        model: 'gpt-4o-mini-tts',
+        voice: voice,
+        instructions: requestData.instructions
+      };
+    } catch (error) {
+      console.error('GPT-4o Mini TTS API Error:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Fallback TTS with legacy models
+   */
+  async textToSpeechWithLegacyModel(text, model = 'tts-1-hd', options = {}) {
+    const {
+      voice = 'echo',
+      responseFormat = 'mp3'
+    } = options;
+
+    const requestData = {
+      model: model,
+      voice: voice,
+      input: text,
+      response_format: responseFormat
     };
 
     const headers = {
@@ -394,14 +602,117 @@ Enhanced prompt:`;
         responseType: 'arraybuffer'
       });
       
+      const contentType = this.getContentTypeForFormat(responseFormat);
+      
       return {
         success: true,
         audioData: response.data,
-        contentType: 'audio/mpeg'
+        contentType: contentType,
+        model: model,
+        voice: voice
       };
     } catch (error) {
-      console.error('TTS API Error:', error.message);
-      throw new Error(`TTS API Error: ${error.response?.data?.error?.message || error.message}`);
+      console.error(`${model} API Error:`, error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Get content type for audio format
+   */
+  getContentTypeForFormat(format) {
+    const contentTypes = {
+      'mp3': 'audio/mpeg',
+      'opus': 'audio/opus',
+      'aac': 'audio/aac',
+      'flac': 'audio/flac',
+      'wav': 'audio/wav',
+      'pcm': 'audio/pcm'
+    };
+    return contentTypes[format] || 'audio/mpeg';
+  }
+
+  /**
+   * Main TTS method with intelligent model selection and fallback
+   */
+  async textToSpeech(text, options = {}) {
+    const {
+      preferredModel = 'gpt-4o-mini-tts',
+      voice = 'coral',
+      responseFormat = 'mp3',
+      instructions = null,
+      useIntelligentInstructions = true
+    } = options;
+
+    console.log(`🔊 Starting TTS generation for: "${text.substring(0, 50)}..."`);
+
+    try {
+      // Try GPT-4o Mini TTS first (default with advanced features)
+      if (preferredModel === 'gpt-4o-mini-tts') {
+        console.log('🎙️ Attempting GPT-4o Mini TTS...');
+        try {
+          const result = await this.textToSpeechWithGPTModel(text, {
+            voice,
+            responseFormat,
+            instructions: useIntelligentInstructions ? instructions : null
+          });
+          console.log('✅ GPT-4o Mini TTS successful');
+          return result;
+        } catch (gpt4oTTSError) {
+          console.warn('⚠️ GPT-4o Mini TTS failed, trying TTS-1-HD fallback:', gpt4oTTSError.message);
+          
+          // Fallback to TTS-1-HD
+          try {
+            const result = await this.textToSpeechWithLegacyModel(text, 'tts-1-hd', {
+              voice: voice === 'coral' ? 'echo' : voice, // coral not available in legacy models
+              responseFormat
+            });
+            console.log('✅ TTS-1-HD fallback successful');
+            return { ...result, usedFallback: true, fallbackReason: gpt4oTTSError.message };
+          } catch (tts1HDError) {
+            console.warn('⚠️ TTS-1-HD failed, trying TTS-1 fallback:', tts1HDError.message);
+            
+            // Final fallback to TTS-1
+            const result = await this.textToSpeechWithLegacyModel(text, 'tts-1', {
+              voice: voice === 'coral' ? 'echo' : voice, // coral not available in legacy models
+              responseFormat
+            });
+            console.log('✅ TTS-1 final fallback successful');
+            return { 
+              ...result, 
+              usedFallback: true, 
+              fallbackReason: `GPT-4o Mini TTS: ${gpt4oTTSError.message}, TTS-1-HD: ${tts1HDError.message}` 
+            };
+          }
+        }
+      } else if (preferredModel === 'tts-1-hd') {
+        // Start with TTS-1-HD if specifically requested
+        try {
+          const result = await this.textToSpeechWithLegacyModel(text, 'tts-1-hd', {
+            voice,
+            responseFormat
+          });
+          console.log('✅ TTS-1-HD successful');
+          return result;
+        } catch (tts1HDError) {
+          console.warn('⚠️ TTS-1-HD failed, trying TTS-1 fallback:', tts1HDError.message);
+          const result = await this.textToSpeechWithLegacyModel(text, 'tts-1', {
+            voice,
+            responseFormat
+          });
+          console.log('✅ TTS-1 fallback successful');
+          return { ...result, usedFallback: true, fallbackReason: tts1HDError.message };
+        }
+      } else {
+        // Direct TTS-1 generation if specifically requested
+        return await this.textToSpeechWithLegacyModel(text, 'tts-1', {
+          voice,
+          responseFormat
+        });
+      }
+    } catch (error) {
+      console.error('🚨 All TTS methods failed:', error.message);
+      throw new Error(`Text-to-speech failed: ${error.message}`);
     }
   }
 
