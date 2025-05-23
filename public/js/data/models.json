@@ -1,0 +1,433 @@
+{
+  "models": {
+    "gpt-4": {
+      "id": "gpt-4",
+      "name": "GPT-4: Oldest",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "core",
+      "description": "GPT-4: Oldest Intelligent Model"
+    },
+    "gpt-4.5-preview": {
+      "id": "gpt-4.5-preview",
+      "name": "GPT-4.5",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "core",
+      "description": "GPT-4.5: Preview version"
+    },
+    "gpt-4.1": {
+      "id": "gpt-4.1",
+      "name": "GPT-4.1",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "core",
+      "description": "GPT-4.1: Improved version"
+    },
+    "gpt-4o": {
+      "id": "gpt-4o",
+      "name": "GPT-4o: Latest",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "core",
+      "description": "GPT-4o: Latest OpenAI Intelligent Model"
+    },
+    "gpt-4-32k": {
+      "id": "gpt-4-32k",
+      "name": "GPT-4-32k",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "core",
+      "description": "GPT-4-32k: Longer Context Window — Higher Price"
+    },
+    "gpt-4-turbo": {
+      "id": "gpt-4-turbo",
+      "name": "GPT-4-Turbo: Standard",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "core",
+      "description": "GPT-4-Turbo: ChatGPT-Plus Model — 128k Tokens"
+    },
+    "gpt-3.5-turbo-0125": {
+      "id": "gpt-3.5-turbo-0125",
+      "name": "GPT-3.5-Turbo: Old",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "core",
+      "description": "GPT-3.5-Turbo: Older Cheap Option"
+    },
+    "gpt-4o-mini": {
+      "id": "gpt-4o-mini",
+      "name": "GPT-4o Mini: Cheapest",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "core",
+      "description": "GPT-4o-Mini: Small, fast, and cheap model from OpenAI with relatively high intelligence."
+    },
+
+    "claude-opus-4-20250514": {
+      "id": "claude-opus-4-20250514",
+      "name": "Claude 4 Opus",
+      "provider": "anthropic",
+      "category": "claude",
+      "source": "core",
+      "description": "Claude 4 Opus: Most capable Claude model"
+    },
+    "claude-sonnet-4-20250514": {
+      "id": "claude-sonnet-4-20250514",
+      "name": "Claude 4 Sonnet",
+      "provider": "anthropic",
+      "category": "claude",
+      "source": "core",
+      "description": "Claude 4 Sonnet: Balanced performance"
+    },
+    "claude-3-7-sonnet-latest": {
+      "id": "claude-3-7-sonnet-latest",
+      "name": "Claude 3.7 Sonnet",
+      "provider": "anthropic",
+      "category": "claude",
+      "source": "core",
+      "description": "Most Advanced Anthropic Model"
+    },
+    "claude-3-5-sonnet-latest": {
+      "id": "claude-3-5-sonnet-latest",
+      "name": "Claude 3.5 Sonnet",
+      "provider": "anthropic",
+      "category": "claude",
+      "source": "core",
+      "description": "Best Normal Claude Model"
+    },
+    "claude-3-5-haiku-latest": {
+      "id": "claude-3-5-haiku-latest",
+      "name": "Claude 3.5 Haiku",
+      "provider": "anthropic",
+      "category": "claude",
+      "source": "core",
+      "description": "Fast & Cheap Anthropic Model"
+    },
+    "claude-3-opus-20240229": {
+      "id": "claude-3-opus-20240229",
+      "name": "Claude Opus",
+      "provider": "anthropic",
+      "category": "claude",
+      "source": "core",
+      "description": "Claude-Opus: Very Powerful — GPT-4 Level"
+    },
+    "claude-3-sonnet-20240229": {
+      "id": "claude-3-sonnet-20240229",
+      "name": "Claude Sonnet",
+      "provider": "anthropic",
+      "category": "claude",
+      "source": "core",
+      "description": "Claude-Sonnet: Hard-Working — Turbo Level"
+    },
+    "claude-3-haiku-20240307": {
+      "id": "claude-3-haiku-20240307",
+      "name": "Claude Haiku: Cheap",
+      "provider": "anthropic",
+      "category": "claude",
+      "source": "core",
+      "description": "Claude-Haiku: Light, Cheap, & Fast — New"
+    },
+    "claude-2.1": {
+      "id": "claude-2.1",
+      "name": "Claude 2.1",
+      "provider": "anthropic",
+      "category": "claude",
+      "source": "core",
+      "description": "Claude-2.1: Best Instant Model — 200k Tokens"
+    },
+    "claude-2.0": {
+      "id": "claude-2.0",
+      "name": "Claude 2.0",
+      "provider": "anthropic",
+      "category": "claude",
+      "source": "core",
+      "description": "Claude-2.0: Average Cheap Model — 100k Tokens"
+    },
+    "claude-instant-1.2": {
+      "id": "claude-instant-1.2",
+      "name": "Claude 1.2",
+      "provider": "anthropic",
+      "category": "claude",
+      "source": "core",
+      "description": "Claude-1.2: Cheapest Instant Model — 100k Context"
+    },
+
+    "o1-preview": {
+      "id": "o1-preview",
+      "name": "GPT-o1-Preview: Intelligent Reasoning",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "core",
+      "description": "GPT-o1-Preview: Advanced reasoning model for complex problems"
+    },
+    "o1": {
+      "id": "o1",
+      "name": "GPT-o1: Strong Reasoning",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "core",
+      "description": "GPT-o1: Strong reasoning model"
+    },
+    "o3-mini": {
+      "id": "o3-mini",
+      "name": "GPT-o3 Mini: Cheap Reasoning",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "core",
+      "description": "GPT-o3-Mini: Next generation reasoning model"
+    },
+    "o4-mini": {
+      "id": "o4-mini",
+      "name": "GPT-o4 Mini: Cheaper Reasoning",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "core",
+      "description": "GPT-o4 Mini: Cheaper reasoning model"
+    },
+    "o1-mini": {
+      "id": "o1-mini",
+      "name": "GPT-o1 Mini: Cheapest Reasoning",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "core",
+      "description": "GPT-o1-Mini: Faster reasoning model for simpler tasks"
+    },
+    "deepseek-reasoner": {
+      "id": "deepseek-reasoner",
+      "name": "DeepSeek-R1",
+      "provider": "deepseek",
+      "category": "reasoning",
+      "source": "core",
+      "description": "DeepSeek-R1: Advanced reasoning model with step-by-step thinking"
+    },
+    "deepseek-chat": {
+      "id": "deepseek-chat",
+      "name": "DeepSeek-Chat",
+      "provider": "deepseek",
+      "category": "other",
+      "source": "core",
+      "description": "DeepSeek-Chat: General purpose chat model"
+    },
+
+    "gemini-pro": {
+      "id": "gemini-pro",
+      "name": "Gemini Pro",
+      "provider": "google",
+      "category": "gemini",
+      "source": "core",
+      "description": "Gemini-Pro: Google Bard Model — 3.5 Equivalent"
+    },
+    "gemini-pro-vision": {
+      "id": "gemini-pro-vision",
+      "name": "Gemini-Pro-Vision",
+      "provider": "google",
+      "category": "gemini",
+      "source": "core",
+      "description": "Gemini-Vision: View Images — One-Time Use"
+    },
+    "gemini-1.5-pro": {
+      "id": "gemini-1.5-pro",
+      "name": "Gemini-1.5 Pro: Best",
+      "provider": "google",
+      "category": "gemini",
+      "source": "core",
+      "description": "Gemini-Pro-1.5: Best Gemini Model — 2 Million Tokens"
+    },
+    "gemini-1.5-flash": {
+      "id": "gemini-1.5-flash",
+      "name": "Gemini-1.5 Flash",
+      "provider": "google",
+      "category": "gemini",
+      "source": "core",
+      "description": "Gemini-Flash-1.5: Fastest & Cheapest Google Model"
+    },
+    "gemini-2.0-flash-exp": {
+      "id": "gemini-2.0-flash-exp",
+      "name": "Gemini-2.0 Flash",
+      "provider": "google",
+      "category": "gemini",
+      "source": "core",
+      "description": "Gemini-Flash-2.0: Newest & Best Google Model"
+    },
+    "gemini-1.0-ultra": {
+      "id": "gemini-1.0-ultra",
+      "name": "Gemini Ultra",
+      "provider": "google",
+      "category": "gemini",
+      "source": "core",
+      "description": "Gemini-Ultra: Largest Google Model — Unreleased"
+    },
+
+    "llama-3.1-405b-reasoning": {
+      "id": "llama-3.1-405b-reasoning",
+      "name": "Llama3.1 405b: New",
+      "provider": "groq",
+      "category": "llama",
+      "source": "core",
+      "description": "Llama 3.1 405B: Largest open source model with strong reasoning"
+    },
+    "llama-3.1-70b-versatile": {
+      "id": "llama-3.1-70b-versatile",
+      "name": "Llama3.1 70b",
+      "provider": "groq",
+      "category": "llama",
+      "source": "core",
+      "description": "Llama 3.1 70B: Versatile model for various tasks"
+    },
+    "llama-3.1-8b-instant": {
+      "id": "llama-3.1-8b-instant",
+      "name": "Llama3.1 8b",
+      "provider": "groq",
+      "category": "llama",
+      "source": "core",
+      "description": "Llama 3.1 8B: Fast and efficient model"
+    },
+    "llama3-70b-8192": {
+      "id": "llama3-70b-8192",
+      "name": "Llama3 70b",
+      "provider": "groq",
+      "category": "llama",
+      "source": "core",
+      "description": "Llama3 70b: GPT-4 Level Performance — Intelligent"
+    },
+    "llama3-8b-8192": {
+      "id": "llama3-8b-8192",
+      "name": "Llama3 8b",
+      "provider": "groq",
+      "category": "llama",
+      "source": "core",
+      "description": "Llama3 8b: Smaller, Faster Model — Cheaper"
+    },
+
+    "mistral-large-latest": {
+      "id": "mistral-large-latest",
+      "name": "Mistral Large",
+      "provider": "mistral",
+      "category": "mistral",
+      "source": "core",
+      "description": "Mistral-Large: Most Expensive and Intelligent"
+    },
+    "mistral-small-latest": {
+      "id": "mistral-small-latest",
+      "name": "Mistral Small",
+      "provider": "mistral",
+      "category": "mistral",
+      "source": "core",
+      "description": "Mistral-Small: Smarter — More Costly"
+    },
+    "mistral-medium-latest": {
+      "id": "mistral-medium-latest",
+      "name": "Mistral Medium",
+      "provider": "mistral",
+      "category": "mistral",
+      "source": "core",
+      "description": "Mistral-Medium: Intelligent — Beats Gemini-Pro"
+    },
+    "open-mistral-7b": {
+      "id": "open-mistral-7b",
+      "name": "Mistral Tiny",
+      "provider": "mistral",
+      "category": "mistral",
+      "source": "core",
+      "description": "Mistral-Tiny: Cheapest — Open Source 7B"
+    },
+    "open-mixtral-8x7b": {
+      "id": "open-mixtral-8x7b",
+      "name": "Mixtral 8x7b",
+      "provider": "mistral",
+      "category": "mistral",
+      "source": "core",
+      "description": "Mixtral 8x7B: Mixture of Experts (MoE) Model"
+    },
+    "open-mixtral-8x22b": {
+      "id": "open-mixtral-8x22b",
+      "name": "Mixtral 8x22b",
+      "provider": "mistral",
+      "category": "mistral",
+      "source": "core",
+      "description": "Mixtral 8x22b: Strongest Open Source Model"
+    },
+    "codestral-latest": {
+      "id": "codestral-latest",
+      "name": "Codestral",
+      "provider": "mistral",
+      "category": "mistral",
+      "source": "core",
+      "description": "Codestral: Best Mistral Model for Coding"
+    },
+    "open-codestral-mamba": {
+      "id": "open-codestral-mamba",
+      "name": "Codestral Mamba",
+      "provider": "mistral",
+      "category": "mistral",
+      "source": "core",
+      "description": "Codestral Mamba: A Mamba 2 language model specialized in code generation"
+    },
+    "mathstral-temp-id": {
+      "id": "mathstral-temp-id",
+      "name": "Mathstral",
+      "provider": "mistral",
+      "category": "mistral",
+      "source": "core",
+      "description": "Mathstral: A math-specific 7B model designed for math reasoning and scientific tasks"
+    },
+    "open-mistral-nemo": {
+      "id": "open-mistral-nemo",
+      "name": "Mistral NeMo",
+      "provider": "mistral",
+      "category": "mistral",
+      "source": "core",
+      "description": "Mistral NeMo: A 12B model built in partnership with Nvidia, easy to use and a drop-in replacement for Mistral 7B"
+    },
+    "mixtral-8x7b-32768": {
+      "id": "mixtral-8x7b-32768",
+      "name": "Free Mixtral 8x7b",
+      "provider": "groq",
+      "category": "mistral",
+      "source": "core",
+      "description": "Qroq API: Free Mixtral 8x7b"
+    },
+
+    "gemma-7b-it": {
+      "id": "gemma-7b-it",
+      "name": "Gemma 7B",
+      "provider": "google",
+      "category": "other",
+      "source": "core",
+      "description": "Smallest Open-Source Google Model"
+    }
+  },
+  
+  "categories": {
+    "gpt": {
+      "name": "GPT Models",
+      "models": ["gpt-4", "gpt-4.5-preview", "gpt-4.1", "gpt-4o", "gpt-4-32k", "gpt-4-turbo", "gpt-3.5-turbo-0125", "gpt-4o-mini"]
+    },
+    "claude": {
+      "name": "Claude Models",
+      "models": ["claude-opus-4-20250514", "claude-sonnet-4-20250514", "claude-3-7-sonnet-latest", "claude-3-5-sonnet-latest", "claude-3-5-haiku-latest", "claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307", "claude-2.1", "claude-2.0", "claude-instant-1.2"]
+    },
+    "reasoning": {
+      "name": "Reasoning Models",
+      "models": ["o1-preview", "o1", "o3-mini", "o4-mini", "o1-mini", "deepseek-reasoner"]
+    },
+    "gemini": {
+      "name": "Gemini Models",
+      "models": ["gemini-pro", "gemini-pro-vision", "gemini-1.5-pro", "gemini-1.5-flash", "gemini-2.0-flash-exp", "gemini-1.0-ultra"]
+    },
+    "llama": {
+      "name": "LLaMA Models",
+      "models": ["llama-3.1-405b-reasoning", "llama-3.1-70b-versatile", "llama-3.1-8b-instant", "llama3-70b-8192", "llama3-8b-8192"]
+    },
+    "mistral": {
+      "name": "Mistral Models",
+      "models": ["mistral-large-latest", "mistral-small-latest", "mistral-medium-latest", "open-mistral-7b", "open-mixtral-8x7b", "open-mixtral-8x22b", "codestral-latest", "open-codestral-mamba", "mathstral-temp-id", "open-mistral-nemo", "mixtral-8x7b-32768"]
+    },
+    "other": {
+      "name": "Other Models",
+      "models": ["deepseek-chat", "gemma-7b-it"]
+    }
+  }
+}

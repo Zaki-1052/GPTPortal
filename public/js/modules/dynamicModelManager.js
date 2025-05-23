@@ -74,17 +74,14 @@ class DynamicModelManager {
       // Set initial state
       this.setInitialState();
       
-      // For now, just use fallback models directly to avoid API issues
-      this.loadFallbackModels();
+      // Use comprehensive static model list (now from JSON file)
+      await this.loadCompleteModelList();
       this.bindEvents();
       this.populateModelSelector();
-      console.log('Enhanced Dynamic Model Manager initialized successfully with core models');
-      
-      // Optionally try to load from API in background
-      // this.loadModelsInBackground();
+      console.log('Enhanced Dynamic Model Manager initialized successfully with complete model list');
     } catch (error) {
       console.error('Failed to initialize Dynamic Model Manager:', error);
-      this.loadFallbackModels();
+      await this.loadCompleteModelList();
       this.bindEvents();
       this.populateModelSelector();
       // Ensure proper state after fallback
@@ -222,6 +219,52 @@ class DynamicModelManager {
     };
     
     return customNames[modelId] || modelId;
+  }
+
+  /**
+   * Load complete model list from JSON file
+   */
+  async loadCompleteModelList() {
+    try {
+      console.log('Loading complete model list from JSON file...');
+      
+      const response = await fetch('/js/data/models.json');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const modelData = await response.json();
+      
+      // Flatten all categories into a single models object
+      this.models = {};
+      this.categories = {};
+      
+      Object.entries(modelData).forEach(([categoryKey, categoryModels]) => {
+        // Build category info
+        this.categories[categoryKey] = {
+          name: this.getCategoryDisplayName(categoryKey),
+          models: categoryModels.map(model => model.id)
+        };
+        
+        // Add models to main models object
+        categoryModels.forEach(model => {
+          this.models[model.id] = {
+            ...model,
+            category: categoryKey,
+            source: 'core'
+          };
+        });
+      });
+      
+      console.log(`Loaded ${Object.keys(this.models).length} models from JSON file`);
+      
+    } catch (error) {
+      console.error('Error loading model data from JSON:', error);
+      console.log('Falling back to hardcoded model list...');
+      
+      // Fallback to hardcoded models
+      this.models = this.getOriginalModelList();
+      this.categories = this.getOriginalCategories();
+    }
   }
 
   /**
@@ -884,7 +927,7 @@ class DynamicModelManager {
         refreshButton.disabled = true;
       }
       
-      await this.loadModels(true);
+      await this.loadCompleteModelList();
       this.populateModelSelector();
       this.showSuccess('Models refreshed successfully');
       
@@ -988,6 +1031,75 @@ class DynamicModelManager {
     });
     
     return results;
+  }
+
+  /**
+   * Get original complete model list (fallback only)
+   */
+  getOriginalModelList() {
+    // Simplified fallback - just core models for emergency use
+    return {
+      'gpt-4o': {
+        id: 'gpt-4o',
+        name: 'GPT-4o: Latest',
+        provider: 'openai',
+        category: 'gpt',
+        source: 'core',
+        description: this.modelDescriptions['gpt-4o']
+      },
+      'claude-3-5-sonnet-latest': {
+        id: 'claude-3-5-sonnet-latest',
+        name: 'Claude 3.5 Sonnet',
+        provider: 'anthropic',
+        category: 'claude',
+        source: 'core',
+        description: this.modelDescriptions['claude-3-5-sonnet-latest']
+      },
+      'gemini-1.5-pro': {
+        id: 'gemini-1.5-pro',
+        name: 'Gemini 1.5 Pro',
+        provider: 'google',
+        category: 'gemini',
+        source: 'core',
+        description: this.modelDescriptions['gemini-1.5-pro']
+      }
+    };
+  }
+
+  /**
+   * Get original categories structure
+   */
+  getOriginalCategories() {
+    return {
+      gpt: { 
+        name: 'GPT Models', 
+        models: ['gpt-4', 'gpt-4.5-preview', 'gpt-4.1', 'gpt-4o', 'gpt-4-32k', 'gpt-4-turbo', 'gpt-3.5-turbo-0125', 'gpt-4o-mini'] 
+      },
+      claude: { 
+        name: 'Claude Models', 
+        models: ['claude-opus-4-20250514', 'claude-sonnet-4-20250514', 'claude-3-7-sonnet-latest', 'claude-3-5-sonnet-latest', 'claude-3-5-haiku-latest', 'claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307', 'claude-2.1', 'claude-2.0', 'claude-instant-1.2'] 
+      },
+      reasoning: { 
+        name: 'Reasoning Models', 
+        models: ['o1-preview', 'o1', 'o3-mini', 'o4-mini', 'o1-mini', 'deepseek-reasoner'] 
+      },
+      gemini: { 
+        name: 'Gemini Models', 
+        models: ['gemini-pro', 'gemini-pro-vision', 'gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-2.0-flash-exp', 'gemini-1.0-ultra'] 
+      },
+      llama: { 
+        name: 'LLaMA Models', 
+        models: ['llama-3.1-405b-reasoning', 'llama-3.1-70b-versatile', 'llama-3.1-8b-instant', 'llama3-70b-8192', 'llama3-8b-8192'] 
+      },
+      mistral: { 
+        name: 'Mistral Models', 
+        models: ['mistral-large-latest', 'mistral-small-latest', 'mistral-medium-latest', 'open-mistral-7b', 'open-mixtral-8x7b', 'open-mixtral-8x22b', 'codestral-latest', 'open-codestral-mamba', 'mathstral-temp-id', 'open-mistral-nemo', 'mixtral-8x7b-32768'] 
+      },
+      other: { 
+        name: 'Other Models', 
+        models: ['deepseek-chat', 'gemma-7b-it'] 
+      }
+    };
   }
 }
 
