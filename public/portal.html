@@ -32,7 +32,7 @@
   <!-- Custom Tooltip -->
   <div id="custom-tooltip"></div>
   
-  <!-- Model Selector with Enhanced Dynamic Loading -->
+  <!-- Enhanced Model Selector with Dynamic Loading -->
   <div id="model-selector-container">
     <div class="custom-select" id="selected-model">Select a Model</div>
     <div id="model-search-container">
@@ -108,432 +108,178 @@
 </div>
 
 <!-- Load Enhanced Modular System -->
-<script src="js/modules/dynamicModelManager.js"></script>
+
+<!-- Core Dependencies (load first) -->
+<script>
+  // Global configuration and feature detection
+  window.GPTPortalConfig = {
+    debug: false,
+    features: {
+      voice: !(/^((?!chrome|android).)*safari/i.test(navigator.userAgent)),
+      markdown: typeof marked !== 'undefined',
+      sanitization: typeof DOMPurify !== 'undefined',
+      highlighting: typeof hljs !== 'undefined'
+    },
+    modules: {
+      loadTimeout: 10000, // 10 second timeout for module loading
+      required: ['portalInit', 'dynamicModelManager', 'modelSearch', 'modelUI', 'messageHandler'],
+      optional: ['chatManager', 'modelConfig', 'uiManager']
+    }
+  };
+
+  // Module loading utility
+  window.GPTPortalLoader = {
+    loadedModules: new Set(),
+    failedModules: new Set(),
+    
+    async loadModule(name, path, required = true) {
+      if (this.loadedModules.has(name)) {
+        return true;
+      }
+      
+      try {
+        await this.loadScript(path);
+        this.loadedModules.add(name);
+        console.log(`✓ Module ${name} loaded successfully`);
+        return true;
+      } catch (error) {
+        this.failedModules.add(name);
+        console.error(`✗ Failed to load module ${name}:`, error);
+        
+        if (required) {
+          throw new Error(`Required module ${name} failed to load`);
+        }
+        return false;
+      }
+    },
+    
+    loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    },
+    
+    async loadAllModules() {
+      console.log('🚀 Loading GPTPortal modules...');
+      
+      // Load required modules first
+      for (const module of window.GPTPortalConfig.modules.required) {
+        await this.loadModule(module, `js/modules/${module}.js`, true);
+      }
+      
+      // Load optional modules (best effort)
+      for (const module of window.GPTPortalConfig.modules.optional) {
+        await this.loadModule(module, `js/modules/${module}.js`, false);
+      }
+      
+      console.log(`📦 Loaded ${this.loadedModules.size} modules successfully`);
+      if (this.failedModules.size > 0) {
+        console.warn(`⚠️ Failed to load ${this.failedModules.size} optional modules:`, Array.from(this.failedModules));
+      }
+    }
+  };
+</script>
+
+<!-- Specialized Modules (load in order) -->
+<script src="js/modules/modelSearch.js"></script>
+<script src="js/modules/modelUI.js"></script>
+<script src="js/modules/messageHandler.js"></script>
+<script src="js/modules/dynamicModelManager-refactored.js"></script>
+
+<!-- Legacy Modules (for compatibility) -->
 <script src="js/modules/modelConfig.js"></script>
 <script src="js/modules/chatManager.js"></script>
 <script src="js/modules/uiManager.js"></script>
+
+<!-- Main Application -->
 <script src="js/app.js"></script>
 
-<!-- Enhanced Initialization Script -->
+<!-- Portal Initialization (load last) -->
+<script src="js/modules/portalInit.js"></script>
+
+<!-- Enhanced Initialization with Error Handling -->
 <script>
-// Enhanced initialization that ensures everything works together
 document.addEventListener('DOMContentLoaded', async function() {
-  console.log('Initializing GPTPortal Enhanced System...');
+  console.log('🎯 GPTPortal Enhanced System Starting...');
+  
+  const startTime = performance.now();
+  let initializationSuccess = false;
   
   try {
-    // Initialize core system
-    if (window.gptPortalApp) {
-      console.log('Modular system loaded successfully');
+    // Wait for all modules to be available
+    await waitForModules();
+    
+    // Initialize the enhanced system
+    if (window.portalInitializer) {
+      await window.portalInitializer.initialize();
+      initializationSuccess = true;
       
-      // Wait for dynamic models to load
-      if (window.gptPortalApp.modelConfig && window.gptPortalApp.modelConfig.dynamicModelManager) {
-        await window.gptPortalApp.modelConfig.dynamicModelManager.loadModels();
-        console.log('Dynamic models loaded');
-      }
+      const loadTime = Math.round(performance.now() - startTime);
+      console.log(`🎉 GPTPortal Enhanced System ready in ${loadTime}ms`);
       
-      // Initialize legacy functions for backward compatibility
-      initializeLegacyFunctions();
-      
-      // Setup additional event handlers
-      setupEnhancedFeatures();
+      // Show initialization success
+      showInitializationStatus('success', `System initialized in ${loadTime}ms`);
       
     } else {
-      console.warn('Modular system not available, initializing basic functionality');
-      initializeBasicFunctionality();
+      throw new Error('Portal initializer not available');
     }
     
   } catch (error) {
-    console.error('Error during initialization:', error);
+    console.error('💥 Enhanced system initialization failed:', error);
+    console.log('🔄 Falling back to basic functionality...');
+    
     // Fallback to basic functionality
     initializeBasicFunctionality();
+    showInitializationStatus('warning', 'Using basic functionality due to initialization issues');
   }
+  
+  // Setup global error handler
+  setupGlobalErrorHandler();
+  
+  // Setup performance monitoring
+  setupPerformanceMonitoring();
 });
 
-function initializeLegacyFunctions() {
-  // Ensure all original script.js functions are available
+/**
+ * Wait for required modules to be available
+ */
+async function waitForModules() {
+  const requiredClasses = [
+    'PortalInitializer',
+    'DynamicModelManager', 
+    'ModelSearchManager',
+    'ModelUIManager',
+    'MessageHandler'
+  ];
   
-  // Global variables for backward compatibility
-  window.selectedImage = null;
-  window.voiceMode = false;
-  window.mediaRecorder = null;
-  window.audioChunks = [];
-  window.isVoiceTranscription = false;
-  window.temperature = 1;
-  window.tokens = 8000;
+  const maxWait = 10000; // 10 seconds
+  const checkInterval = 100; // 100ms
+  const startTime = Date.now();
   
-  // Copy functions from original script.js
-  window.copyToClipboard = function(text) {
-    navigator.clipboard.writeText(text).then(() => {
-      console.log('Text copied to clipboard!');
-    }).catch(err => {
-      console.error('Error copying text: ', err);
-    });
-  };
-  
-  // File upload handling
-  window.uploadFile = async function(file) {
-    const formData = new FormData();
-    formData.append('file', file);
+  while (Date.now() - startTime < maxWait) {
+    const allAvailable = requiredClasses.every(className => window[className]);
     
-    try {
-      const response = await fetch('/upload-file', {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await response.json();
-      return data.fileId;
-    } catch (error) {
-      console.error('Error uploading file:', error);
-    }
-  };
-  
-  // Voice functionality
-  window.voice = function() {
-    console.log("Voice button clicked. Current mode:", window.voiceMode);
-    
-    if (isSafariBrowser()) {
-      displayErrorMessage('Safari browser detected. Please use a Chromium browser for voice functionality.');
+    if (allAvailable) {
+      console.log('✓ All required modules available');
       return;
     }
-  
-    if (window.voiceMode) {
-      stopRecordingAndTranscribe();
-    } else {
-      startRecording();
-    }
-    toggleVoiceMode();
-  };
-  
-  window.isSafariBrowser = function() {
-    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  };
-  
-  window.displayErrorMessage = function(message) {
-    const errorMessage = document.createElement('div');
-    errorMessage.className = 'message error';
-    errorMessage.textContent = message;
-    const chatBox = document.getElementById('chat-box');
-    chatBox.appendChild(errorMessage);
-    chatBox.scrollTop = chatBox.scrollHeight;
-  };
-  
-  window.startRecording = function() {
-    navigator.mediaDevices.getUserMedia({ audio: true })
-      .then(stream => {
-        window.mediaRecorder = new MediaRecorder(stream);
-        window.mediaRecorder.ondataavailable = e => {
-          window.audioChunks.push(e.data);
-        };
-        window.mediaRecorder.onstop = sendAudioToServer;
-        window.mediaRecorder.start();
-        console.log("Recording started");
-      })
-      .catch(error => {
-        console.error("Error accessing media devices:", error);
-      });
-  };
-  
-  window.stopRecordingAndTranscribe = function() {
-    if (window.mediaRecorder && window.mediaRecorder.state === "recording") {
-      window.mediaRecorder.stop();
-      console.log("Recording stopped");
-    }
-  };
-  
-  window.toggleVoiceMode = function() {
-    window.voiceMode = !window.voiceMode;
-    const voiceIndicator = document.getElementById('voice-indicator');
-    if (window.voiceMode) {
-      voiceIndicator.textContent = 'Voice Mode ON';
-      voiceIndicator.style.display = 'block';
-    } else {
-      voiceIndicator.style.display = 'none';
-    }
-  };
-  
-  window.sendAudioToServer = function() {
-    const audioBlob = new Blob(window.audioChunks, { type: 'audio/mpeg' });
-    const formData = new FormData();
-    formData.append('file', audioBlob, 'recording.mp3');
-    window.audioChunks = [];
     
-    setTimeout(() => {
-      fetch('/transcribe', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        const messageInput = document.getElementById('message-input');
-        if (data && data.text) {
-          messageInput.value = data.text;
-          window.isVoiceTranscription = data.text.startsWith("Voice Transcription: ");
-          window.copyToClipboard(data.text);
-        }
-        window.voiceMode = false;
-      })
-      .catch(console.error);
-    }, 100);
-  };
+    await new Promise(resolve => setTimeout(resolve, checkInterval));
+  }
   
-  // Text-to-speech function
-  window.callTTSAPI = function(text) {
-    fetch('/tts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ text: text })
-    })
-    .then(response => response.blob())
-    .then(blob => {
-      const audioURL = URL.createObjectURL(blob);
-      new Audio(audioURL).play();
-    })
-    .catch(console.error);
-  };
-  
-  // Setup/config functions
-  window.saveChanges = function() {
-    const content = document.getElementById('instructions-content').value;
-    
-    navigator.clipboard.writeText('node server.js').then(() => {
-      console.log('Text copied to clipboard');
-    }).catch(err => {
-      console.error('Could not copy text: ', err);
-    });
-
-    fetch('/update-instructions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ content: content })
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('Success:', data);
-      alert('Changes saved successfully');
-      document.getElementById('edit-instructions-container').style.display = 'none';
-      document.body.innerHTML = '<h2>Complete. Please restart the server and access the web app at <a href="http://localhost:3000">localhost:3000</a>. Simply paste `node server.js` into your Terminal to start again, reloading the page.</h2>';
-      
-      fetch('/shutdown-server', {
-        method: 'POST'
-      }).then(restartResponse => {
-        if (restartResponse.ok) {
-          console.log('Server shutdown initiated');
-        } else {
-          console.error('Failed to initiate server shutdown');
-        }
-      }).catch(err => {
-        console.error('Error:', err);
-      });
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('An error occurred during setup. Please try again.');
-    });
-  };
-  
-  window.saveEnvChanges = function() {
-    const content = document.getElementById('env-content').value;
-    
-    navigator.clipboard.writeText('node server.js').then(() => {
-      console.log('Text copied to clipboard');
-    }).catch(err => {
-      console.error('Could not copy text: ', err);
-    });
-
-    fetch('/update-my-env', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ content: content })
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('Success:', data);
-      alert('Changes saved successfully');
-      document.getElementById('edit-env-container').style.display = 'none';
-      document.body.innerHTML = '<h2>Setup is complete. Please restart the server and access the web app at <a href="http://localhost:3000">localhost:3000</a>. Simply paste `node server.js` into your Terminal to start again, reloading the page.</h2>';
-      
-      fetch('/shutdown-server', {
-        method: 'POST'
-      }).then(restartResponse => {
-        if (restartResponse.ok) {
-          console.log('Server shutdown initiated');
-        } else {
-          console.error('Failed to initiate server shutdown');
-        }
-      }).catch(err => {
-        console.error('Error:', err);
-      });
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('An error occurred during setup. Please try again.');
-    });
-  };
+  const missing = requiredClasses.filter(className => !window[className]);
+  throw new Error(`Required modules not available after ${maxWait}ms: ${missing.join(', ')}`);
 }
 
-function setupEnhancedFeatures() {
-  // Setup advanced features that weren't in the basic modules
-  
-  // Voice button
-  const voiceButton = document.getElementById('voice-button');
-  if (voiceButton) {
-    voiceButton.addEventListener('click', window.voice);
-  }
-  
-  // Export button
-  const exportButton = document.getElementById('export-button');
-  if (exportButton) {
-    exportButton.addEventListener('click', () => {
-      if (window.gptPortalApp && window.gptPortalApp.chatManager) {
-        window.gptPortalApp.chatManager.exportChat();
-      }
-    });
-  }
-  
-  // Setup/config buttons
-  const editInstructionsBtn = document.getElementById('edit-instructions-btn');
-  if (editInstructionsBtn) {
-    editInstructionsBtn.addEventListener('click', function() {
-      const container = document.getElementById('edit-instructions-container');
-      const isHidden = container.style.display === 'none';
-      container.style.display = isHidden ? 'block' : 'none';
-      
-      if (isHidden) {
-        fetch('/get-instructions', {
-          credentials: 'include'
-        })
-          .then(response => response.text())
-          .then(data => {
-            document.getElementById('instructions-content').value = data;
-            container.scrollIntoView({ behavior: 'smooth' });
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
-      }
-    });
-  }
-  
-  const editEnvBtn = document.getElementById('edit-env-btn');
-  if (editEnvBtn) {
-    editEnvBtn.addEventListener('click', function() {
-      const container = document.getElementById('edit-env-container');
-      const isHidden = container.style.display === 'none';
-      container.style.display = isHidden ? 'block' : 'none';
-      
-      if (isHidden) {
-        fetch('/get-my-env')
-          .then(response => response.text())
-          .then(data => {
-            document.getElementById('env-content').value = data;
-            container.scrollIntoView({ behavior: 'smooth' });
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
-      }
-    });
-  }
-  
-  // Enhanced keyboard shortcuts
-  document.addEventListener('keydown', (event) => {
-    // SHIFT+ESC for focusing the chat input
-    if (event.shiftKey && event.key === 'Escape') {
-      event.preventDefault();
-      const messageInput = document.getElementById('message-input');
-      if (messageInput) messageInput.focus();
-    }
-
-    // CMD+SHIFT+X for exporting chat history
-    if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'X') {
-      console.log("exporting");
-      event.preventDefault();
-      if (window.gptPortalApp && window.gptPortalApp.chatManager) {
-        window.gptPortalApp.chatManager.exportChat();
-      }
-    }
-
-    // CMD+SHIFT+V for toggling voice mode
-    if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'V') {
-      event.preventDefault();
-      window.voice();
-    }
-
-    // CMD+SHIFT+C for copying the latest chat message
-    if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'C') {
-      event.preventDefault();
-      const copyButtons = document.querySelectorAll('.message button');
-      const latestCopyButton = Array.from(copyButtons).reverse().find(btn => btn.textContent.includes('Copy') && !btn.textContent.includes('Copy Code'));
-      if (latestCopyButton) {
-        latestCopyButton.click();
-      }
-    }
-
-    // CMD+SHIFT+; for copying the latest code block
-    if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === ';') {
-      event.preventDefault();
-      const copyCodeButtons = document.querySelectorAll('.message button');
-      const latestCopyCodeButton = Array.from(copyCodeButtons).reverse().find(btn => btn.textContent.includes('Copy Code'));
-      if (latestCopyCodeButton) {
-        latestCopyCodeButton.click();
-      }
-    }
-
-    // CMD+SHIFT+F for focusing the file input
-    if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'F') {
-      event.preventDefault();
-      const fileInput = document.getElementById('file-input');
-      if (fileInput) {
-        fileInput.click();
-      }
-    }
-
-    // CMD+SHIFT+A for toggling Assistant Mode
-    if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'A') {
-      event.preventDefault();
-      const modeSelector = document.getElementById('mode-selector');
-      if (modeSelector) {
-        modeSelector.click();
-      }
-    }
-  });
-  
-  // Auto-expand textarea
-  const messageInput = document.getElementById('message-input');
-  if (messageInput) {
-    messageInput.addEventListener('input', function() {
-      autoExpand(this);
-    });
-  }
-  
-  function autoExpand(field) {
-    field.style.height = 'inherit';
-    const computed = window.getComputedStyle(field);
-    const borderTop = parseInt(computed.getPropertyValue('border-top-width'), 10);
-    const borderBottom = parseInt(computed.getPropertyValue('border-bottom-width'), 10);
-    const paddingTop = parseInt(computed.getPropertyValue('padding-top'), 10);
-    const paddingBottom = parseInt(computed.getPropertyValue('padding-bottom'), 10);
-    const heightNeeded = field.scrollHeight + borderTop + borderBottom;
-    
-    if (field.scrollHeight > field.clientHeight - paddingTop - paddingBottom - borderTop - borderBottom) {
-      field.style.height = `${heightNeeded}px`;
-    }
-  }
-  
-  window.resetTextAreaHeight = function(field) {
-    field.style.height = '40px';
-    autoExpand(field);
-  };
-}
-
+/**
+ * Initialize basic functionality as fallback
+ */
 function initializeBasicFunctionality() {
-  // Fallback initialization if modular system fails
-  console.log('Initializing basic functionality...');
+  console.log('🔧 Initializing basic functionality...');
   
   // Basic model selector
   const selectedModel = document.getElementById('selected-model');
@@ -541,7 +287,8 @@ function initializeBasicFunctionality() {
   
   if (selectedModel && modelOptions) {
     selectedModel.addEventListener('click', () => {
-      modelOptions.style.display = modelOptions.style.display === 'block' ? 'none' : 'block';
+      const isVisible = modelOptions.style.display === 'block';
+      modelOptions.style.display = isVisible ? 'none' : 'block';
     });
   }
   
@@ -554,14 +301,132 @@ function initializeBasicFunctionality() {
       const message = messageInput.value.trim();
       if (message) {
         console.log('Sending message:', message);
-        // Basic message sending would go here
         messageInput.value = '';
       }
     });
+    
+    messageInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        sendButton.click();
+      }
+    });
+  }
+  
+  // Basic file input
+  const fileInput = document.getElementById('file-input');
+  const clipboardButton = document.getElementById('clipboard-button');
+  
+  if (clipboardButton && fileInput) {
+    clipboardButton.addEventListener('click', () => {
+      fileInput.click();
+    });
+  }
+  
+  console.log('✓ Basic functionality initialized');
+}
+
+/**
+ * Show initialization status to user
+ */
+function showInitializationStatus(type, message) {
+  const statusTypes = {
+    success: { icon: '✅', color: '#4CAF50' },
+    warning: { icon: '⚠️', color: '#FF9800' },
+    error: { icon: '❌', color: '#F44336' }
+  };
+  
+  const status = statusTypes[type] || statusTypes.warning;
+  
+  // Create status element
+  const statusElement = document.createElement('div');
+  statusElement.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.9);
+    color: ${status.color};
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    z-index: 10000;
+    max-width: 300px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: opacity 0.3s ease;
+  `;
+  statusElement.innerHTML = `${status.icon} ${message}`;
+  
+  document.body.appendChild(statusElement);
+  
+  // Auto-remove after 5 seconds
+  setTimeout(() => {
+    statusElement.style.opacity = '0';
+    setTimeout(() => {
+      if (statusElement.parentNode) {
+        statusElement.parentNode.removeChild(statusElement);
+      }
+    }, 300);
+  }, 5000);
+}
+
+/**
+ * Setup global error handler
+ */
+function setupGlobalErrorHandler() {
+  window.addEventListener('error', (event) => {
+    console.error('Global error:', event.error);
+    
+    // Show user-friendly error message for critical errors
+    if (event.error && event.error.message && !event.error.handled) {
+      showInitializationStatus('error', 'An unexpected error occurred. Please refresh the page.');
+      event.error.handled = true;
+    }
+  });
+  
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection:', event.reason);
+    
+    // Prevent the default browser behavior
+    event.preventDefault();
+    
+    // Show user-friendly error message
+    showInitializationStatus('warning', 'A background operation failed. Functionality may be limited.');
+  });
+}
+
+/**
+ * Setup performance monitoring
+ */
+function setupPerformanceMonitoring() {
+  // Monitor long tasks
+  if ('PerformanceObserver' in window) {
+    try {
+      const observer = new PerformanceObserver((list) => {
+        list.getEntries().forEach((entry) => {
+          if (entry.duration > 50) { // Tasks longer than 50ms
+            console.warn(`Long task detected: ${entry.duration}ms`);
+          }
+        });
+      });
+      observer.observe({ entryTypes: ['longtask'] });
+    } catch (e) {
+      console.log('Performance monitoring not available');
+    }
+  }
+  
+  // Monitor memory usage (if available)
+  if (performance.memory) {
+    setInterval(() => {
+      const memory = performance.memory;
+      const usedPercent = (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100;
+      
+      if (usedPercent > 80) {
+        console.warn(`High memory usage: ${usedPercent.toFixed(1)}%`);
+      }
+    }, 30000); // Check every 30 seconds
   }
 }
 
-console.log('GPTPortal Enhanced Frontend initialized');
+console.log('📋 GPTPortal Enhanced Frontend loading complete');
 </script>
 
 </body>
