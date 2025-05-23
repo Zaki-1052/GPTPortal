@@ -126,11 +126,11 @@ class ProviderFactory {
   /**
    * Handle image generation (OpenAI only)
    */
-  async generateImage(prompt) {
+  async generateImage(prompt, options = {}) {
     if (!this.handlers.openai) {
       throw new Error('OpenAI API key required for image generation');
     }
-    return await this.handlers.openai.generateImage(prompt);
+    return await this.handlers.openai.generateImage(prompt, options);
   }
 
   /**

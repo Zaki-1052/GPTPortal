@@ -160,16 +160,113 @@ class OpenAIHandler {
   }
 
   /**
-   * Handle image generation with DALL-E
+   * Enhance prompt using GPT-4o for better image generation
    */
-  async generateImage(prompt) {
+  async enhanceImagePrompt(userPrompt) {
+    const enhancementPrompt = `You are an expert at creating detailed, artistic image generation prompts. Take the user's simple request and expand it into a rich, detailed prompt that will generate a beautiful, high-quality image. Focus on:
+
+1. Artistic style and medium
+2. Lighting and atmosphere
+3. Composition and perspective
+4. Color palette and mood
+5. Fine details and textures
+
+Keep the enhanced prompt under 200 words. Make it vivid and specific.
+
+User request: "${userPrompt}"
+
+Enhanced prompt:`;
+
+    try {
+      const response = await axios.post(`${this.baseURL}/chat/completions`, {
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: enhancementPrompt }],
+        temperature: 0.7,
+        max_tokens: 300
+      }, {
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response.data.choices[0].message.content.trim();
+    } catch (error) {
+      console.warn('Prompt enhancement failed, using original prompt:', error.message);
+      return userPrompt;
+    }
+  }
+
+  /**
+   * Generate image using GPT Image 1 with Responses API
+   */
+  async generateImageWithGPTImage(prompt, options = {}) {
+    const {
+      quality = 'auto',
+      size = 'auto',
+      background = 'auto',
+      enhancePrompt = true
+    } = options;
+
+    try {
+      // Enhance prompt for better results
+      const enhancedPrompt = enhancePrompt ? await this.enhanceImagePrompt(prompt) : prompt;
+      
+      const requestData = {
+        model: "gpt-4o-mini",
+        input: enhancedPrompt,
+        tools: [{
+          type: "image_generation",
+          quality: quality,
+          size: size,
+          background: background,
+          response_format: 'b64_json'
+        }]
+      };
+
+      const headers = {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json'
+      };
+
+      const response = await axios.post(`${this.baseURL}/responses`, requestData, { headers });
+      
+      // Extract image data from responses API output
+      const imageGenerationCalls = response.data.output?.filter(
+        output => output.type === "image_generation_call"
+      );
+
+      if (imageGenerationCalls && imageGenerationCalls.length > 0) {
+        const imageCall = imageGenerationCalls[0];
+        
+        return {
+          success: true,
+          imageData: imageCall.result, // Base64 image data
+          enhancedPrompt: enhancedPrompt,
+          originalPrompt: prompt,
+          model: 'gpt-image-1',
+          revisedPrompt: imageCall.revised_prompt || enhancedPrompt
+        };
+      } else {
+        throw new Error('No image generation output found in response');
+      }
+    } catch (error) {
+      console.error('GPT Image 1 API Error:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Generate image using DALL-E as fallback
+   */
+  async generateImageWithDALLE(prompt, model = "dall-e-3") {
     const requestData = {
       prompt: prompt,
-      model: "dall-e-3",
+      model: model,
       n: 1,
-      quality: 'hd',
-      response_format: 'url',
-      size: '1024x1024'
+      quality: model === "dall-e-3" ? 'hd' : 'standard',
+      response_format: 'b64_json',
+      size: model === "dall-e-3" ? '1024x1024' : '1024x1024'
     };
 
     const headers = {
@@ -179,16 +276,73 @@ class OpenAIHandler {
 
     try {
       const response = await axios.post(`${this.baseURL}/images/generations`, requestData, { headers });
-      const imageUrl = response.data.data[0].url;
       
       return {
         success: true,
-        imageUrl: imageUrl,
-        prompt: prompt
+        imageData: response.data.data[0].b64_json,
+        prompt: prompt,
+        model: model,
+        revisedPrompt: response.data.data[0].revised_prompt || prompt
       };
     } catch (error) {
-      console.error('DALL-E API Error:', error.message);
-      throw new Error(`DALL-E API Error: ${error.response?.data?.error?.message || error.message}`);
+      console.error(`${model} API Error:`, error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Main image generation method with intelligent model selection and fallback
+   */
+  async generateImage(prompt, options = {}) {
+    const {
+      preferredModel = 'gpt-image-1',
+      enhancePrompt = true,
+      quality = 'auto',
+      size = 'auto'
+    } = options;
+
+    console.log(`🎨 Starting image generation with prompt: "${prompt}"`);
+
+    try {
+      // Try GPT Image 1 first (default)
+      if (preferredModel === 'gpt-image-1') {
+        console.log('📸 Attempting GPT Image 1...');
+        try {
+          const result = await this.generateImageWithGPTImage(prompt, { 
+            quality, 
+            size, 
+            enhancePrompt 
+          });
+          console.log('✅ GPT Image 1 successful');
+          return result;
+        } catch (gptImageError) {
+          console.warn('⚠️ GPT Image 1 failed, trying DALL-E 3 fallback:', gptImageError.message);
+          
+          // Fallback to DALL-E 3
+          try {
+            const result = await this.generateImageWithDALLE(prompt, 'dall-e-3');
+            console.log('✅ DALL-E 3 fallback successful');
+            return { ...result, usedFallback: true, fallbackReason: gptImageError.message };
+          } catch (dalle3Error) {
+            console.warn('⚠️ DALL-E 3 failed, trying DALL-E 2 fallback:', dalle3Error.message);
+            
+            // Final fallback to DALL-E 2
+            const result = await this.generateImageWithDALLE(prompt, 'dall-e-2');
+            console.log('✅ DALL-E 2 final fallback successful');
+            return { 
+              ...result, 
+              usedFallback: true, 
+              fallbackReason: `GPT Image 1: ${gptImageError.message}, DALL-E 3: ${dalle3Error.message}` 
+            };
+          }
+        }
+      } else {
+        // Direct DALL-E generation if specifically requested
+        return await this.generateImageWithDALLE(prompt, preferredModel);
+      }
+    } catch (error) {
+      console.error('🚨 All image generation methods failed:', error.message);
+      throw new Error(`Image generation failed: ${error.message}`);
     }
   }
 

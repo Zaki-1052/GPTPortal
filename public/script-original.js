@@ -246,11 +246,22 @@ function isImageGenerationRequest(message) {
 async function handleImageGenerationRequest(message) {
   const prompt = message.substring("Generate:".length).trim();
 
+  // Show loading message
+  displayMessage(`🎨 Generating image with GPT Image 1: "${prompt}"`, 'system');
+
   try {
       const response = await fetch(`${baseURL}/generate-image`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: prompt })
+          body: JSON.stringify({ 
+            prompt: prompt,
+            options: {
+              preferredModel: 'gpt-image-1',
+              enhancePrompt: true,
+              quality: 'auto',
+              size: 'auto'
+            }
+          })
       });
 
       if (!response.ok) {
@@ -259,27 +270,46 @@ async function handleImageGenerationRequest(message) {
 
       const result = await response.json();
       if (result.imageUrl) {
-          displayGeneratedImage(result.imageUrl);
+          // Display generation info
+          let infoMessage = `✅ Image generated successfully using ${result.model || 'unknown model'}`;
+          
+          if (result.usedFallback) {
+            infoMessage += `\n⚠️ Used fallback due to: ${result.fallbackReason}`;
+          }
+          
+          if (result.enhancedPrompt && result.enhancedPrompt !== prompt) {
+            infoMessage += `\n📝 Enhanced prompt: "${result.enhancedPrompt}"`;
+          }
+          
+          if (result.revisedPrompt && result.revisedPrompt !== (result.enhancedPrompt || prompt)) {
+            infoMessage += `\n🔄 Revised prompt: "${result.revisedPrompt}"`;
+          }
+          
+          displayMessage(infoMessage, 'system');
+          displayGeneratedImage(result.imageUrl, result);
           sendMessageToServer("Generated image", result.imageUrl);
       } else {
-          displayMessage('Image generation failed, please try again.', 'error');
+          displayMessage('❌ Image generation failed, please try again.', 'error');
       }
   } catch (error) {
       console.error('Error in image generation:', error);
-      displayMessage('Error in image generation, please try again.', 'error');
+      displayMessage(`❌ Error in image generation: ${error.message}`, 'error');
   }
 }
 
-function displayGeneratedImage(imageUrl) {
+function displayGeneratedImage(imageUrl, result = {}) {
   const imageElement = document.createElement('img');
   imageElement.src = imageUrl;
   imageElement.alt = "Generated Image";
   imageElement.classList.add('generated-image'); // Add a class for styling
+  imageElement.title = `Generated using ${result.model || 'AI model'}`;
 
-  // Trigger image download
+  // Trigger image download with better filename
   const downloadLink = document.createElement('a');
   downloadLink.href = imageUrl;
-  downloadLink.download = 'generated-image.jpg'; // or use a dynamic name
+  const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+  const modelName = (result.model || 'generated').replace(/[^a-zA-Z0-9]/g, '-');
+  downloadLink.download = `${modelName}-image-${timestamp}.png`;
   document.body.appendChild(downloadLink);
   downloadLink.click();
   document.body.removeChild(downloadLink);

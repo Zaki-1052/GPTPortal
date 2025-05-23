@@ -128,20 +128,51 @@ app.post('/tts', async (req, res) => {
 app.post('/generate-image', async (req, res) => {
   try {
     const prompt = req.body.prompt;
-    const result = await providerFactory.generateImage(prompt);
+    const options = req.body.options || {};
+    const result = await providerFactory.generateImage(prompt, options);
     
-    // Download and save the image locally
-    const download = require('image-downloader');
     const fs = require('fs');
     const uploadsDir = path.join(__dirname, 'public/uploads');
-    const imagePath = path.join(uploadsDir, `generated-${Date.now()}.jpg`);
-
+    const timestamp = Date.now();
+    
     if (!fs.existsSync(uploadsDir)){
       fs.mkdirSync(uploadsDir, { recursive: true });
     }
 
-    await download.image({ url: result.imageUrl, dest: imagePath });
-    res.json({ imageUrl: result.imageUrl });
+    let imageUrl;
+    
+    // Handle new base64 format (GPT Image 1 and updated DALL-E)
+    if (result.imageData) {
+      const imagePath = path.join(uploadsDir, `generated-${timestamp}.png`);
+      const imageBuffer = Buffer.from(result.imageData, 'base64');
+      fs.writeFileSync(imagePath, imageBuffer);
+      imageUrl = `/uploads/generated-${timestamp}.png`;
+      
+      res.json({ 
+        imageUrl: imageUrl,
+        model: result.model,
+        enhancedPrompt: result.enhancedPrompt,
+        revisedPrompt: result.revisedPrompt,
+        usedFallback: result.usedFallback,
+        fallbackReason: result.fallbackReason
+      });
+    } 
+    // Handle legacy URL format (fallback compatibility)
+    else if (result.imageUrl) {
+      const download = require('image-downloader');
+      const imagePath = path.join(uploadsDir, `generated-${timestamp}.jpg`);
+      await download.image({ url: result.imageUrl, dest: imagePath });
+      imageUrl = result.imageUrl;
+      
+      res.json({ 
+        imageUrl: imageUrl,
+        model: result.model || 'dall-e-3',
+        prompt: result.prompt
+      });
+    } 
+    else {
+      throw new Error('No image data or URL in result');
+    }
   } catch (error) {
     console.error('Error generating image:', error.message);
     res.status(500).json({ error: "Error generating image", details: error.message });
