@@ -378,8 +378,10 @@ class ChatManager {
         messageContent = data.text || 'No response received.';
       }
 
-      this.displayMessage(messageContent, 'response', this.isVoiceTranscription);
+      const shouldReadAloud = this.isVoiceTranscription || window.isVoiceTranscription;
+      this.displayMessage(messageContent, 'response', shouldReadAloud);
       this.isVoiceTranscription = false;
+      window.isVoiceTranscription = false;
       
     } catch (error) {
       console.error('Error sending message to server:', error);

@@ -254,7 +254,7 @@ function initializeLegacyFunctions() {
   window.sendAudioToServer = function() {
     const audioBlob = new Blob(window.audioChunks, { type: 'audio/mpeg' });
     const formData = new FormData();
-    formData.append('audio', audioBlob, 'recording.mp3');
+    formData.append('file', audioBlob, 'recording.mp3');
     window.audioChunks = [];
     
     setTimeout(() => {
@@ -265,13 +265,31 @@ function initializeLegacyFunctions() {
       .then(response => response.json())
       .then(data => {
         const messageInput = document.getElementById('message-input');
-        messageInput.value = data.text;
-        window.isVoiceTranscription = data.text.startsWith("Voice Transcription: ");
-        window.copyToClipboard(data.text);
+        if (data && data.text) {
+          messageInput.value = data.text;
+          window.isVoiceTranscription = data.text.startsWith("Voice Transcription: ");
+          window.copyToClipboard(data.text);
+        }
         window.voiceMode = false;
       })
       .catch(console.error);
     }, 100);
+  };
+  
+  // Text-to-speech function
+  window.callTTSAPI = function(text) {
+    fetch('/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ text: text })
+    })
+    .then(response => response.blob())
+    .then(blob => {
+      const audioURL = URL.createObjectURL(blob);
+      new Audio(audioURL).play();
+    })
+    .catch(console.error);
   };
   
   // Setup/config functions
@@ -386,7 +404,9 @@ function setupEnhancedFeatures() {
       container.style.display = isHidden ? 'block' : 'none';
       
       if (isHidden) {
-        fetch('/get-instructions')
+        fetch('/get-instructions', {
+          credentials: 'include'
+        })
           .then(response => response.text())
           .then(data => {
             document.getElementById('instructions-content').value = data;
