@@ -8,21 +8,12 @@ This document provides detailed technical information about the GPTPortal modula
 
 ## 🌐 **API ROUTES & ENDPOINTS**
 
-### **Dynamic Model Management (`/api/models/*`)**
+### **Model Management**
 ```javascript
-// Core model endpoints
-GET /api/models                    // All models (core + OpenRouter)
-GET /api/models?format=frontend    // UI-optimized format for dropdowns
-GET /api/models/core               // Only static core models (47+)
-GET /api/models/openrouter         // Only OpenRouter models (321+)
-GET /api/models/categories         // Models organized by category
-
-// Model operations
-GET /api/models/search?q=claude    // Search models by name/description
-GET /api/models/:modelId           // Specific model details
-GET /api/models/provider/:modelId  // Get provider for routing decisions
-POST /api/models/refresh           // Manual refresh of OpenRouter models
-GET /api/models/status             // System health and cache status
+// Current working endpoints
+GET /model                         // Get default model
+// Note: Dynamic /api/models endpoints are planned but not implemented
+// Frontend uses static model lists from JSON configuration
 ```
 
 ### **Chat & Communication Routes**
@@ -260,60 +251,44 @@ class GeminiHandler {
 
 ## 📊 **MODEL MANAGEMENT SYSTEM**
 
-### **Core Models (`coreModels.js`)**
+### **Frontend Model Configuration**
 ```javascript
-// Static reliable models (47+)
-const coreModels = {
-  // OpenAI models
-  "gpt-4o": { name: "GPT-4o: Latest", provider: "openai", ... },
-  "o1-preview": { name: "GPT-o1 Preview: Reasoning", ... },
-  
-  // Claude models
-  "claude-opus-4-20250514": { name: "Claude 4 Opus", ... },
-  "claude-3-5-sonnet-latest": { name: "Claude 3.5 Sonnet", ... },
-  
-  // Gemini models
-  "gemini-2.0-flash-exp": { name: "Gemini 2.0 Flash", ... },
-  
-  // Other providers...
-};
-```
+// JSON-based model configuration
+// Models defined in: public/js/data/models.json
+{
+  "gpt": [
+    { "id": "gpt-4o", "name": "GPT-4o: Latest", "provider": "openai", ... }
+  ],
+  "claude": [
+    { "id": "claude-3-5-sonnet-latest", "name": "Claude 3.5 Sonnet", ... }
+  ],
+  // ... other categories
+}
 
-### **OpenRouter Provider (`openRouterProvider.js`)**
-```javascript
-class OpenRouterProvider {
-  // Automatic model fetching
-  fetchModelsFromAPI()             // Fetch from OpenRouter API
-  transformModel(apiModel)         // Transform to internal format
-  inferCategory(modelId)           // Categorize models
-  
-  // Caching system
-  loadFromCache()                  // Load cached models
-  saveToCache()                    // Save models to cache
-  isCacheStale()                   // Check cache validity
-  
-  // Background operations
-  refreshModels(retries)           // Refresh with retry logic
-  startAutoRefresh()               // Hourly background refresh
+// Dynamic Model Manager loads from JSON with fallback
+class DynamicModelManager {
+  async loadCompleteModelList()    // Load from JSON file
+  getOriginalModelList()           // Fallback hardcoded models
+  populateModelSelector()          // Render UI dropdown
+  selectModel(modelId)             // Handle model selection
 }
 ```
 
-### **Model Registry (`modelRegistry.js`)**
+### **Backend Model Handling**
 ```javascript
-class ModelRegistry {
-  // Unified interface
-  getAllModels()                   // Core + OpenRouter combined
-  getModel(modelId)                // Get specific model
-  searchModels(query)              // Search across all models
-  
-  // Frontend support
-  getModelsForFrontend()           // UI-optimized format
-  getModelsByCategories()          // Organized by category
-  getModelProvider(modelId)        // Provider for routing
-  
-  // Status and statistics
-  getStatus()                      // System status
-  getStatistics()                  // Usage statistics
+// Provider factory determines routing
+function getProviderForModel(modelID) {
+  if (modelID.startsWith('claude')) return 'anthropic';
+  if (modelID.startsWith('gpt') || modelID.startsWith('o1')) return 'openai';
+  if (modelID.startsWith('gemini')) return 'google';
+  // ... other providers
+}
+
+// Token limits enforced server-side
+function getMaxTokensByModel(modelId) {
+  if (modelId === 'gpt-4') return 6000;
+  if (modelId === 'gpt-4o-mini') return 16000;
+  // ... other model limits
 }
 ```
 
@@ -474,10 +449,12 @@ node server.js
 
 ### **Frontend Integration**
 ```javascript
-// API connection for dynamic models
-fetch('/api/models?format=frontend')
-  .then(res => res.json())
-  .then(data => populateModelSelector(data.data.models));
+// Model loading from JSON file
+async loadCompleteModelList() {
+  const response = await fetch('/js/data/models.json');
+  const modelData = await response.json();
+  // Process and populate model selector
+}
 
 // Chat API integration
 fetch('/message', {
