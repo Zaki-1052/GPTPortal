@@ -15,6 +15,7 @@ class UIManager {
     this.setupPromptBar();
     this.setupKeyboardShortcuts();
     this.setupFileUpload();
+    this.setupDragAndDrop();
   }
 
   setupModelSelector() {
@@ -138,8 +139,7 @@ class UIManager {
 
   setupFileUpload() {
     const fileInput = document.getElementById('file-input');
-    const uploadButton = document.getElementById('upload-button');
-    const imagePreview = document.getElementById('image-preview');
+    const clipboardButton = document.getElementById('clipboard-button');
 
     if (fileInput) {
       fileInput.addEventListener('change', (e) => {
@@ -147,11 +147,112 @@ class UIManager {
       });
     }
 
-    if (uploadButton) {
-      uploadButton.addEventListener('click', () => {
+    if (clipboardButton) {
+      clipboardButton.addEventListener('click', () => {
         fileInput?.click();
       });
     }
+  }
+
+  setupDragAndDrop() {
+    const chatContainer = document.getElementById('chat-container');
+    const messageInput = document.getElementById('message-input');
+    
+    // Create visual feedback element
+    const dropZone = document.createElement('div');
+    dropZone.id = 'drop-zone';
+    dropZone.innerHTML = `
+      <div class="drop-zone-content">
+        <div class="drop-zone-icon">📁</div>
+        <div class="drop-zone-text">Drop files here to upload</div>
+      </div>
+    `;
+    dropZone.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 24px;
+      text-align: center;
+    `;
+    
+    // Add CSS for drop zone content
+    const style = document.createElement('style');
+    style.textContent = `
+      .drop-zone-content {
+        padding: 40px;
+        border: 3px dashed #fff;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .drop-zone-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+      }
+      .drop-zone-text {
+        font-size: 24px;
+        font-weight: bold;
+      }
+    `;
+    document.head.appendChild(style);
+    document.body.appendChild(dropZone);
+
+    // Prevent default drag behaviors on document
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      document.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+
+    // Show drop zone when dragging over the document
+    document.addEventListener('dragenter', (e) => {
+      if (e.dataTransfer.types.includes('Files')) {
+        dropZone.style.display = 'flex';
+      }
+    });
+
+    // Hide drop zone when dragging leaves
+    document.addEventListener('dragleave', (e) => {
+      // Only hide if we're leaving the entire document
+      if (e.clientX === 0 && e.clientY === 0) {
+        dropZone.style.display = 'none';
+      }
+    });
+
+    // Handle drop on drop zone
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.style.display = 'none';
+      
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length > 0) {
+        // Handle single file for now, can be extended for multiple files
+        this.handleFileUpload(files[0]);
+      }
+    });
+
+    // Also handle direct drops on chat container and message input
+    [chatContainer, messageInput].forEach(element => {
+      if (element) {
+        element.addEventListener('drop', (e) => {
+          e.preventDefault();
+          dropZone.style.display = 'none';
+          
+          const files = Array.from(e.dataTransfer.files);
+          if (files.length > 0) {
+            this.handleFileUpload(files[0]);
+          }
+        });
+      }
+    });
   }
 
   async handleFileUpload(file) {
@@ -169,6 +270,9 @@ class UIManager {
 
       if (response.ok) {
         const result = await response.json();
+        
+        // Show upload success message using original file name (like existing implementation)
+        this.showUploadMessage(`File Uploaded: ${file.name}`);
         
         if (file.type.startsWith('image/')) {
           this.chatManager.selectedImage = result.filename;
@@ -206,6 +310,23 @@ class UIManager {
         <a href="/uploads/${filename}" target="_blank">View</a>
       `;
       chatContainer.appendChild(fileDiv);
+    }
+  }
+
+  showUploadMessage(message) {
+    const uploadStatus = document.getElementById('upload-status');
+    if (uploadStatus) {
+      uploadStatus.textContent = message;
+      uploadStatus.style.color = '#4CAF50';
+      uploadStatus.style.fontWeight = 'bold';
+      
+      // Clear the message after 5 seconds (longer duration to match user expectations)
+      setTimeout(() => {
+        uploadStatus.textContent = '';
+      }, 5000);
+    } else {
+      // Fallback to console if upload-status element doesn't exist
+      console.log(message);
     }
   }
 
