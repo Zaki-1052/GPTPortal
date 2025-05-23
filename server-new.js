@@ -45,6 +45,10 @@ setupAuth(app, config);
 app.use('/', createSetupRoutes(config));
 app.use('/', createConfigRoutes(config));
 
+// Mount model API routes
+const modelRoutes = require('./src/server/routes/models');
+app.use('/api', modelRoutes);
+
 // Legacy route compatibility - preserve all existing functionality
 // Note: The original server.js had many chat endpoints and AI integration routes
 // These need to be preserved but organized into route modules

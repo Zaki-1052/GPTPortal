@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GPTPortal - Dynamic Model Loading</title>
+  <meta name="author" content="Zakir Alibhai">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="chat.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Additional styles for dynamic model interface */
+    .model-category {
+      margin: 10px 0;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+    
+    .model-category h4 {
+      margin: 0 0 8px 0;
+      color: #333;
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    
+    .model-category button {
+      display: block;
+      width: 100%;
+      margin: 2px 0;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      background: white;
+      cursor: pointer;
+      text-align: left;
+      border-radius: 4px;
+      position: relative;
+    }
+    
+    .model-category button:hover {
+      background: #f5f5f5;
+      border-color: #bbb;
+    }
+    
+    .provider-badge {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #007cba;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 500;
+    }
+    
+    .openrouter-model .provider-badge {
+      background: #ff6b35;
+    }
+    
+    .no-models-message {
+      padding: 20px;
+      text-align: center;
+      color: #666;
+      font-style: italic;
+    }
+    
+    .model-controls {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      background: #f9f9f9;
+    }
+    
+    .refresh-button {
+      width: 100%;
+      padding: 8px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    
+    .refresh-button:hover {
+      background: #218838;
+    }
+    
+    .loading-indicator {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+    
+    .model-search-container {
+      padding: 10px;
+      background: #f9f9f9;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .model-search-container input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      border-radius: 24px;
+      transition: .4s;
+    }
+    
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      border-radius: 50%;
+      transition: .4s;
+    }
+    
+    input:checked + .toggle-slider {
+      background-color: #007cba;
+    }
+    
+    input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+    }
+    
+    .toggle-label {
+      font-size: 12px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <!-- Main Container -->
+  <div class="app-container">
+    
+    <!-- Sidebar for Chat History -->
+    <div id="toggleArrow">&#x25B6;</div>
+    <div id="sidebar">
+      <div id="chatList"></div>
+      <div id="summariesButtonContainer">
+        <button id="summariesButton">Summaries Only</button>
+      </div>
+    </div>
+
+    <!-- Prompt Templates Sidebar -->
+    <div id="promptBar">
+      <div id="promptList"></div>
+      <button id="copyPromptButton"></button>
+    </div>
+    <div id="toggleRightArrow">&#x25C0;</div>
+    
+    <!-- Custom Tooltip -->
+    <div id="custom-tooltip"></div>
+
+    <!-- Dynamic Model Selector -->
+    <div id="model-selector-container">
+      <div class="custom-select" id="selected-model">Select a Model</div>
+      
+      <!-- Model Search and Controls -->
+      <div id="model-search-container" class="model-search-container">
+        <input type="text" id="model-search" placeholder="Search models...">
+        <div class="toggle-container">
+          <label class="toggle-switch">
+            <input type="checkbox" id="show-open-router">
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label">Show OpenRouter Models</span>
+        </div>
+        <button id="refresh-models" class="refresh-button">Refresh Models</button>
+      </div>
+      
+      <!-- Dynamic Model Options Container -->
+      <div id="model-options" class="select-options">
+        <div class="loading-indicator">
+          Loading models...
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="main-chat-area">
+      <!-- Chat Container -->
+      <div id="chat-container" class="chat-container">
+        <div class="welcome-message">
+          <h2>Welcome to GPTPortal</h2>
+          <p>Experience dynamic model loading with automatic OpenRouter integration.</p>
+          <p>Select a model above and start chatting with multiple AI providers.</p>
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="input-area">
+        <!-- File Upload Area -->
+        <div id="file-upload-area" class="file-upload-area">
+          <input type="file" id="file-input" multiple style="display: none;">
+          <button id="upload-button" class="upload-btn">📎</button>
+          <div id="image-preview" class="image-preview"></div>
+        </div>
+
+        <!-- Message Input -->
+        <div class="message-input-container">
+          <textarea id="message-input" placeholder="Type your message here... (Ctrl+Enter to send)" rows="3"></textarea>
+          <button id="send-button" class="send-btn">Send</button>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+          <button id="clear-chat" class="control-btn">Clear Chat</button>
+          <button id="export-chat" class="control-btn">Export</button>
+          <div id="token-count" class="token-display"></div>
+          <div id="loading" class="loading" style="display: none;">Processing...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span id="connection-status">Connected</span>
+    <span id="model-status"></span>
+    <span id="model-count">Models: Loading...</span>
+  </div>
+
+  <!-- Load Dynamic Model Management -->
+  <script src="js/modules/dynamicModelManager.js"></script>
+  <script src="js/modules/modelConfig-new.js"></script>
+  <script src="js/modules/chatManager.js"></script>
+  <script src="js/modules/uiManager.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- Initialize Dynamic Model System -->
+  <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+      console.log('Initializing GPTPortal with dynamic models...');
+      
+      // Initialize the dynamic model system
+      try {
+        // Update model count in status bar
+        const updateModelCount = () => {
+          if (window.gptPortalApp && window.gptPortalApp.getModelConfig() && 
+              window.gptPortalApp.getModelConfig().dynamicModelManager) {
+            const models = window.gptPortalApp.getModelConfig().dynamicModelManager.getAllModels();
+            const count = Object.keys(models).length;
+            const modelCountSpan = document.getElementById('model-count');
+            if (modelCountSpan) {
+              modelCountSpan.textContent = `Models: ${count}`;
+            }
+          }
+        };
+        
+        // Update count when models are loaded
+        setTimeout(updateModelCount, 2000);
+        
+        // Set up periodic status updates
+        setInterval(updateModelCount, 30000); // Every 30 seconds
+        
+        console.log('GPTPortal dynamic model system loaded successfully');
+      } catch (error) {
+        console.error('Failed to initialize dynamic model system:', error);
+      }
+    });
+
+    // Handle model selector clicks
+    document.addEventListener('click', function(e) {
+      const selectedModel = document.getElementById('selected-model');
+      const modelOptions = document.getElementById('model-options');
+      
+      if (e.target === selectedModel) {
+        const isVisible = modelOptions.style.display === 'block';
+        modelOptions.style.display = isVisible ? 'none' : 'block';
+      } else if (!e.target.closest('#model-selector-container')) {
+        modelOptions.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
