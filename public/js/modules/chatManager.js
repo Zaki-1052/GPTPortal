@@ -693,13 +693,22 @@ class ChatManager {
   // Legacy compatibility methods
   async loadChatHistory() {
     try {
-      const response = await fetch('/api/chat-history');
+      // Use the correct endpoint from the backend architecture
+      const response = await fetch('/listChats');
       if (response.ok) {
-        const history = await response.json();
-        this.conversations = new Map(history);
+        const data = await response.json();
+        // Convert file list to conversations map for compatibility
+        const conversations = new Map();
+        data.files.forEach(file => {
+          const chatName = file.replace('.txt', '');
+          conversations.set(chatName, { name: chatName, file: file });
+        });
+        this.conversations = conversations;
       }
     } catch (error) {
       console.error('Error loading chat history:', error);
+      // Graceful fallback - initialize empty conversations
+      this.conversations = new Map();
     }
   }
 

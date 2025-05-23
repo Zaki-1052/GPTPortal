@@ -32,6 +32,9 @@ class GPTPortalApp {
       this.initialized = true;
       console.log('GPTPortal Enhanced Application initialized successfully');
       
+      // Initialize sliders after everything is set up
+      this.initializeSliders();
+      
       // Show successful initialization
       this.showInitializationSuccess();
       
@@ -228,6 +231,9 @@ class GPTPortalApp {
   }
 
   setupEnhancedFeatures() {
+    // Add CSS for sliders first
+    this.addSliderCSS();
+    
     // Enhanced temperature and token sliders
     this.setupTemperatureSlider();
     this.setupTokensSlider();
@@ -243,49 +249,62 @@ class GPTPortalApp {
     
     // Enhanced Assistant Mode
     this.setupAssistantMode();
+    
+    // Fix model selector dropdown
+    this.fixModelSelector();
+    
+    // Ensure model selector is populated
+    if (this.dynamicModelManager) {
+      this.dynamicModelManager.populateModelSelector();
+    }
   }
 
   setupTemperatureSlider() {
-    let tempSliderContainer = document.getElementById('temperature-slider-container');
-    if (!tempSliderContainer) {
-      tempSliderContainer = document.createElement('div');
-      tempSliderContainer.id = 'temperature-slider-container';
-      tempSliderContainer.className = 'slider-container';
-      const chatContainer = document.getElementById('chat-container');
-      if (chatContainer) {
-        chatContainer.appendChild(tempSliderContainer);
-      }
+    // Use existing elements from HTML
+    const tempSlider = document.getElementById('temperature-slider');
+    const tempValueDisplay = document.getElementById('temperature-value');
+    const tempSliderContainer = document.getElementById('temperature-slider-container');
+    
+    if (!tempSlider || !tempValueDisplay || !tempSliderContainer) {
+      console.warn('Temperature slider elements not found in HTML');
+      return;
     }
 
-    let tempSlider = document.getElementById('temperature-slider');
-    if (!tempSlider) {
-      tempSlider = document.createElement('input');
-      tempSlider.type = 'range';
-      tempSlider.id = 'temperature-slider';
-      tempSlider.min = '0';
-      tempSlider.max = '2';
-      tempSlider.step = '0.1';
-      tempSlider.value = window.temperature || 1;
-      tempSliderContainer.appendChild(tempSlider);
+    // Update the label text to match original
+    const label = tempSliderContainer.querySelector('label');
+    if (label) {
+      label.textContent = 'Adjust Temperature:';
     }
 
-    let tempValueDisplay = document.getElementById('temperature-value');
-    if (!tempValueDisplay) {
-      tempValueDisplay = document.createElement('span');
-      tempValueDisplay.id = 'temperature-value';
-      tempSliderContainer.appendChild(tempValueDisplay);
-    }
+    // Set slider attributes
+    tempSlider.min = '0';
+    tempSlider.max = '2';
+    tempSlider.step = '0.1';
+    tempSlider.value = window.temperature || 1;
 
+    // Update display
     tempValueDisplay.textContent = (window.temperature || 1).toFixed(1);
 
-    tempSlider.addEventListener('input', function() {
+    // Set initial color
+    const initialTempPercentage = ((window.temperature || 1) - 0) / (2 - 0) * 100;
+    const initialTempColor = initialTempPercentage < 50 
+      ? `rgb(${Math.round(initialTempPercentage * 2.55)}, 255, 0)` 
+      : `rgb(255, ${Math.round(255 - (initialTempPercentage - 50) * 5.1)}, 0)`;
+    tempValueDisplay.style.color = initialTempColor;
+    tempSlider.style.setProperty('--thumb-color', initialTempColor);
+
+    // Remove any existing event listeners to avoid duplicates
+    const newTempSlider = tempSlider.cloneNode(true);
+    tempSlider.parentNode.replaceChild(newTempSlider, tempSlider);
+
+    newTempSlider.addEventListener('input', function() {
       window.temperature = parseFloat(this.value);
       tempValueDisplay.textContent = window.temperature.toFixed(1);
       
       const tempPercentage = (window.temperature - 0) / (2 - 0) * 100;
       const tempColor = tempPercentage < 50 
-        ? `rgb(${tempPercentage * 2.55}, ${255}, 0)` 
-        : `rgb(255, ${255 - (tempPercentage - 50) * 5.1}, 0)`;
+        ? `rgb(${Math.round(tempPercentage * 2.55)}, 255, 0)` 
+        : `rgb(255, ${Math.round(255 - (tempPercentage - 50) * 5.1)}, 0)`;
       
       tempValueDisplay.style.color = tempColor;
       this.style.setProperty('--thumb-color', tempColor);
@@ -295,59 +314,56 @@ class GPTPortalApp {
   }
 
   setupTokensSlider() {
-    let tokensSliderContainer = document.getElementById('tokens-slider-container');
-    if (!tokensSliderContainer) {
-      tokensSliderContainer = document.createElement('div');
-      tokensSliderContainer.id = 'tokens-slider-container';
-      tokensSliderContainer.className = 'slider-container';
+    // Use existing elements from HTML
+    const tokensSlider = document.getElementById('tokens-slider');
+    const tokensValueDisplay = document.getElementById('tokens-value');
+    const tokensSliderContainer = document.getElementById('tokens-slider-container');
+    const tokensLimitDisplay = document.getElementById('tokens-limit');
+    const modelTokenLimit = document.getElementById('model-token-limit');
+    
+    if (!tokensSlider || !tokensValueDisplay || !tokensSliderContainer) {
+      console.warn('Tokens slider elements not found in HTML');
+      return;
+    }
+
+    // Set slider attributes
+    tokensSlider.min = '1000';
+    tokensSlider.max = '100000';
+    tokensSlider.step = '500';
+    tokensSlider.value = window.tokens || 8000;
+
+    // Update display
+    tokensValueDisplay.textContent = (window.tokens || 8000).toLocaleString();
+    
+    // Ensure model limit display exists
+    if (modelTokenLimit) {
+      modelTokenLimit.textContent = '8000';
+    }
+
+    // Set initial color - start with blue for default value
+    const initialTokensColor = 'rgb(0, 128, 255)'; // Blue color for initial state
+    tokensValueDisplay.style.color = initialTokensColor;
+    tokensSlider.style.setProperty('--thumb-color', initialTokensColor);
+
+    // Remove any existing event listeners to avoid duplicates
+    const newTokensSlider = tokensSlider.cloneNode(true);
+    tokensSlider.parentNode.replaceChild(newTokensSlider, tokensSlider);
+
+    newTokensSlider.addEventListener('input', (e) => {
+      window.tokens = parseInt(e.target.value);
+      tokensValueDisplay.textContent = window.tokens.toLocaleString();
       
-      const tempContainer = document.getElementById('temperature-slider-container');
-      if (tempContainer && tempContainer.parentNode) {
-        tempContainer.parentNode.insertBefore(tokensSliderContainer, tempContainer.nextSibling);
-      }
-    }
+      const maxTokens = this.getMaxTokensByModel(window.currentModelID || 'default');
+      const tokensPercentage = (window.tokens - 1000) / (maxTokens - 1000) * 100;
+      const tokensColor = tokensPercentage < 50 
+        ? `rgb(${Math.round(tokensPercentage * 2.55)}, 255, 0)` 
+        : `rgb(255, ${Math.round(255 - (tokensPercentage - 50) * 5.1)}, 0)`;
+      
+      tokensValueDisplay.style.color = tokensColor;
+      e.target.style.setProperty('--thumb-color', tokensColor);
 
-    if (!document.getElementById('tokens-slider')) {
-      const tokensLabel = document.createElement('label');
-      tokensLabel.htmlFor = 'tokens-slider';
-      tokensLabel.textContent = 'Max Tokens:';
-      tokensSliderContainer.appendChild(tokensLabel);
-
-      const tokensSlider = document.createElement('input');
-      tokensSlider.type = 'range';
-      tokensSlider.id = 'tokens-slider';
-      tokensSlider.min = '1000';
-      tokensSlider.max = '100000';
-      tokensSlider.step = '500';
-      tokensSlider.value = window.tokens || 8000;
-      tokensSliderContainer.appendChild(tokensSlider);
-
-      const tokensValueDisplay = document.createElement('span');
-      tokensValueDisplay.id = 'tokens-value';
-      tokensValueDisplay.textContent = (window.tokens || 8000).toLocaleString();
-      tokensSliderContainer.appendChild(tokensValueDisplay);
-
-      const tokensLimitDisplay = document.createElement('span');
-      tokensLimitDisplay.id = 'tokens-limit';
-      tokensLimitDisplay.innerHTML = ' (Model limit: <span id="model-token-limit">8000</span>)';
-      tokensSliderContainer.appendChild(tokensLimitDisplay);
-
-      tokensSlider.addEventListener('input', function() {
-        window.tokens = parseInt(this.value);
-        tokensValueDisplay.textContent = window.tokens.toLocaleString();
-        
-        const maxTokens = this.getMaxTokensByModel(window.currentModelID || 'default');
-        const tokensPercentage = (window.tokens - 1000) / (maxTokens - 1000) * 100;
-        const tokensColor = tokensPercentage < 50 
-          ? `rgb(${tokensPercentage * 2.55}, ${255}, 0)` 
-          : `rgb(255, ${255 - (tokensPercentage - 50) * 5.1}, 0)`;
-        
-        tokensValueDisplay.style.color = tokensColor;
-        this.style.setProperty('--thumb-color', tokensColor);
-
-        console.log('Tokens updated:', window.tokens);
-      }.bind(this));
-    }
+      console.log('Tokens updated:', window.tokens);
+    });
   }
 
   getMaxTokensByModel(modelID) {
@@ -508,26 +524,19 @@ class GPTPortalApp {
     
     // Show ready status
     const selectedModelDiv = document.getElementById('selected-model');
-    if (selectedModelDiv && selectedModelDiv.textContent === 'Loading models...') {
+    if (selectedModelDiv && (selectedModelDiv.textContent === 'Loading models...' || selectedModelDiv.textContent === 'Select a Model')) {
       if (this.dynamicModelManager && this.dynamicModelManager.models) {
         const modelCount = Object.keys(this.dynamicModelManager.models).length;
         console.log(`Ready with ${modelCount} models available`);
       }
       
-      // Set default model
+      // Keep showing "Select a Model" until first message is sent
+      selectedModelDiv.textContent = 'Select a Model';
+      
+      // Still set up the model ID in the background for when it's needed
       if (this.modelConfig && this.modelConfig.currentModelID) {
-        if (this.dynamicModelManager) {
-          const model = this.dynamicModelManager.getModel(this.modelConfig.currentModelID);
-          if (model) {
-            selectedModelDiv.textContent = model.name;
-          } else {
-            selectedModelDiv.textContent = this.modelConfig.currentModelID;
-          }
-        } else {
-          selectedModelDiv.textContent = this.modelConfig.currentModelID;
-        }
-      } else {
-        selectedModelDiv.textContent = 'Select a Model';
+        // Update global currentModelID for backward compatibility
+        window.currentModelID = this.modelConfig.currentModelID;
       }
     }
 
@@ -575,6 +584,30 @@ class GPTPortalApp {
     return this.initialized;
   }
 
+  initializeSliders() {
+    // Make sure sliders work with existing HTML elements and have proper initial values
+    const tempSlider = document.getElementById('temperature-slider');
+    const tokensSlider = document.getElementById('tokens-slider');
+    const tempValue = document.getElementById('temperature-value');
+    const tokensValue = document.getElementById('tokens-value');
+    
+    if (tempSlider && tempValue) {
+      tempSlider.value = window.temperature || 1;
+      tempValue.textContent = (window.temperature || 1).toFixed(1);
+      // Trigger initial color update
+      tempSlider.dispatchEvent(new Event('input'));
+    }
+    
+    if (tokensSlider && tokensValue) {
+      tokensSlider.value = window.tokens || 8000;
+      tokensValue.textContent = (window.tokens || 8000).toLocaleString();
+      // Set initial blue color instead of triggering input event
+      const initialTokensColor = 'rgb(0, 128, 255)';
+      tokensValue.style.color = initialTokensColor;
+      tokensSlider.style.setProperty('--thumb-color', initialTokensColor);
+    }
+  }
+
   // Utility methods
   async restartApp() {
     try {
@@ -595,6 +628,148 @@ class GPTPortalApp {
       temperature: window.temperature,
       tokens: window.tokens
     };
+  }
+
+  addSliderCSS() {
+    const style = document.createElement('style');
+    style.textContent = `
+      .slider-container {
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      
+      .slider-container label {
+        font-weight: bold;
+        color: white;
+        min-width: 120px;
+      }
+      
+      #temperature-slider, #tokens-slider {
+        flex-grow: 1;
+        height: 8px;
+        -webkit-appearance: none;
+        appearance: none;
+        background: linear-gradient(to right, #0000ff 0%, #00ff00 50%, #ffff00 75%, #ff0000 100%);
+        outline: none;
+        border-radius: 5px;
+        --thumb-color: rgb(0, 255, 0);
+      }
+      
+      #tokens-slider {
+        background: linear-gradient(to right, #0000ff 0%, #00ff00 50%, #ffff00 75%, #ff0000 100%);
+      }
+      
+      #temperature-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--thumb-color, #00ff00);
+        cursor: pointer;
+        border: 2px solid white;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      }
+      
+      #tokens-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--thumb-color, #00ff00);
+        cursor: pointer;
+        border: 2px solid white;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      }
+      
+      #temperature-slider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--thumb-color, #00ff00);
+        cursor: pointer;
+        border: 2px solid white;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      }
+      
+      #tokens-slider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--thumb-color, #00ff00);
+        cursor: pointer;
+        border: 2px solid white;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      }
+      
+      #temperature-value, #tokens-value {
+        font-weight: bold;
+        min-width: 40px;
+        color: #00ff00;
+      }
+      
+      #tokens-limit {
+        font-size: 0.9em;
+        color: #666;
+      }
+      
+      #model-token-limit {
+        color: #ccc;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  fixModelSelector() {
+    const selectedModel = document.getElementById('selected-model');
+    const modelOptions = document.getElementById('model-options');
+    const modelSelector = document.getElementById('model-selector-container');
+    
+    if (selectedModel && modelOptions && modelSelector) {
+      // Make sure container has proper positioning
+      modelSelector.style.position = 'relative';
+      
+      // Ensure the dropdown toggle works
+      selectedModel.style.cursor = 'pointer';
+      
+      // Remove existing event listeners to avoid duplicates
+      const newSelectedModel = selectedModel.cloneNode(true);
+      selectedModel.parentNode.replaceChild(newSelectedModel, selectedModel);
+      
+      newSelectedModel.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isVisible = modelOptions.style.display === 'block';
+        modelOptions.style.display = isVisible ? 'none' : 'block';
+        
+        if (!isVisible) {
+          // Reset search when opening
+          const searchInput = document.getElementById('model-search');
+          if (searchInput) {
+            searchInput.value = '';
+            // Don't auto-focus to avoid keyboard issues
+          }
+          
+          // Trigger model population if dynamic manager exists
+          if (this.dynamicModelManager) {
+            this.dynamicModelManager.populateModelSelector();
+          }
+        }
+      });
+      
+      // Ensure dropdown styling - let CSS handle positioning, just ensure basic properties
+      modelOptions.style.backgroundColor = '#2a2a2a';
+      modelOptions.style.border = '1px solid #555';
+      modelOptions.style.borderRadius = '5px';
+      modelOptions.style.zIndex = '1000';
+      modelOptions.style.maxHeight = '300px';
+      modelOptions.style.overflowY = 'auto';
+      modelOptions.style.padding = '10px';
+      modelOptions.style.display = 'none'; // Initially hidden
+    }
   }
 }
 

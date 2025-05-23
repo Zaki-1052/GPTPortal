@@ -792,40 +792,6 @@
       "per_request_limits": null
     }
   },
-  "qwen/qwen3-4b:free": {
-    "name": "Qwen: Qwen3 4B (free)",
-    "provider": "openrouter",
-    "category": "qwen",
-    "description": "Qwen3-4B is a 4 billion parameter dense language model from the Qwen3 series, designed to support both general-purpose and reasoning-intensive tasks. It introduces a dual-mode architecture—thinking and non-thinking—allowing dynamic switching between high-precision logical reasoning and efficient dialogue generation. This makes it well-suited for multi-turn chat, instruction following, and complex agent workflows.",
-    "pricing": {
-      "input": 0,
-      "output": 0
-    },
-    "contextWindow": 128000,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 128000,
-      "max_completion_tokens": null,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Qwen3",
-      "instruct_type": "qwen3"
-    },
-    "openRouterData": {
-      "id": "qwen/qwen3-4b:free",
-      "created": 1746031104,
-      "per_request_limits": null
-    }
-  },
   "opengvlab/internvl3-14b:free": {
     "name": "OpenGVLab: InternVL3 14B (free)",
     "provider": "openrouter",
@@ -1404,74 +1370,6 @@
     "openRouterData": {
       "id": "thudm/glm-z1-rumination-32b",
       "created": 1745601495,
-      "per_request_limits": null
-    }
-  },
-  "thudm/glm-z1-9b:free": {
-    "name": "THUDM: GLM Z1 9B (free)",
-    "provider": "openrouter",
-    "category": "other",
-    "description": "GLM-Z1-9B-0414 is a 9B-parameter language model developed by THUDM as part of the GLM-4 family. It incorporates techniques originally applied to larger GLM-Z1 models, including extended reinforcement learning, pairwise ranking alignment, and training on reasoning-intensive tasks such as mathematics, code, and logic. Despite its smaller size, it demonstrates strong performance on general-purpose reasoning tasks and outperforms many open-source models in its weight class.",
-    "pricing": {
-      "input": 0,
-      "output": 0
-    },
-    "contextWindow": 32000,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 32000,
-      "max_completion_tokens": null,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Other",
-      "instruct_type": "deepseek-r1"
-    },
-    "openRouterData": {
-      "id": "thudm/glm-z1-9b:free",
-      "created": 1745601140,
-      "per_request_limits": null
-    }
-  },
-  "thudm/glm-4-9b:free": {
-    "name": "THUDM: GLM 4 9B (free)",
-    "provider": "openrouter",
-    "category": "other",
-    "description": "GLM-4-9B-0414 is a 9 billion parameter language model from the GLM-4 series developed by THUDM. Trained using the same reinforcement learning and alignment strategies as its larger 32B counterparts, GLM-4-9B-0414 achieves high performance relative to its size, making it suitable for resource-constrained deployments that still require robust language understanding and generation capabilities.",
-    "pricing": {
-      "input": 0,
-      "output": 0
-    },
-    "contextWindow": 32000,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 32000,
-      "max_completion_tokens": null,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Other",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "thudm/glm-4-9b:free",
-      "created": 1745601023,
       "per_request_limits": null
     }
   },
@@ -6506,40 +6404,6 @@
       "per_request_limits": null
     }
   },
-  "mistralai/ministral-8b": {
-    "name": "Mistral: Ministral 8B",
-    "provider": "openrouter",
-    "category": "mistral",
-    "description": "Ministral 8B is an 8B parameter model featuring a unique interleaved sliding-window attention pattern for faster, memory-efficient inference. Designed for edge use cases, it supports up to 128k context length and excels in knowledge and reasoning tasks. It outperforms peers in the sub-10B category, making it perfect for low-latency, privacy-first applications.",
-    "pricing": {
-      "input": 0.09999999999999999,
-      "output": 0.09999999999999999
-    },
-    "contextWindow": 128000,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 128000,
-      "max_completion_tokens": null,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Mistral",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "mistralai/ministral-8b",
-      "created": 1729123200,
-      "per_request_limits": null
-    }
-  },
   "mistralai/ministral-3b": {
     "name": "Mistral: Ministral 3B",
     "provider": "openrouter",
@@ -6570,6 +6434,40 @@
     },
     "openRouterData": {
       "id": "mistralai/ministral-3b",
+      "created": 1729123200,
+      "per_request_limits": null
+    }
+  },
+  "mistralai/ministral-8b": {
+    "name": "Mistral: Ministral 8B",
+    "provider": "openrouter",
+    "category": "mistral",
+    "description": "Ministral 8B is an 8B parameter model featuring a unique interleaved sliding-window attention pattern for faster, memory-efficient inference. Designed for edge use cases, it supports up to 128k context length and excels in knowledge and reasoning tasks. It outperforms peers in the sub-10B category, making it perfect for low-latency, privacy-first applications.",
+    "pricing": {
+      "input": 0.09999999999999999,
+      "output": 0.09999999999999999
+    },
+    "contextWindow": 128000,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 128000,
+      "max_completion_tokens": null,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Mistral",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "mistralai/ministral-8b",
       "created": 1729123200,
       "per_request_limits": null
     }
@@ -6779,40 +6677,6 @@
       "per_request_limits": null
     }
   },
-  "thedrummer/rocinante-12b": {
-    "name": "Rocinante 12B",
-    "provider": "openrouter",
-    "category": "other",
-    "description": "Rocinante 12B is designed for engaging storytelling and rich prose.\n\nEarly testers have reported:\n- Expanded vocabulary with unique and expressive word choices\n- Enhanced creativity for vivid narratives\n- Adventure-filled and captivating stories",
-    "pricing": {
-      "input": 0.25,
-      "output": 0.5
-    },
-    "contextWindow": 32768,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 32768,
-      "max_completion_tokens": null,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Qwen",
-      "instruct_type": "chatml"
-    },
-    "openRouterData": {
-      "id": "thedrummer/rocinante-12b",
-      "created": 1727654400,
-      "per_request_limits": null
-    }
-  },
   "anthracite-org/magnum-v2-72b": {
     "name": "Magnum v2 72B",
     "provider": "openrouter",
@@ -6843,6 +6707,40 @@
     },
     "openRouterData": {
       "id": "anthracite-org/magnum-v2-72b",
+      "created": 1727654400,
+      "per_request_limits": null
+    }
+  },
+  "thedrummer/rocinante-12b": {
+    "name": "Rocinante 12B",
+    "provider": "openrouter",
+    "category": "other",
+    "description": "Rocinante 12B is designed for engaging storytelling and rich prose.\n\nEarly testers have reported:\n- Expanded vocabulary with unique and expressive word choices\n- Enhanced creativity for vivid narratives\n- Adventure-filled and captivating stories",
+    "pricing": {
+      "input": 0.25,
+      "output": 0.5
+    },
+    "contextWindow": 32768,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 32768,
+      "max_completion_tokens": null,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Qwen",
+      "instruct_type": "chatml"
+    },
+    "openRouterData": {
+      "id": "thedrummer/rocinante-12b",
       "created": 1727654400,
       "per_request_limits": null
     }
@@ -6949,6 +6847,41 @@
       "per_request_limits": null
     }
   },
+  "meta-llama/llama-3.2-90b-vision-instruct": {
+    "name": "Meta: Llama 3.2 90B Vision Instruct",
+    "provider": "openrouter",
+    "category": "llama",
+    "description": "The Llama 90B Vision model is a top-tier, 90-billion-parameter multimodal model designed for the most challenging visual reasoning and language tasks. It offers unparalleled accuracy in image captioning, visual question answering, and advanced image-text comprehension. Pre-trained on vast multimodal datasets and fine-tuned with human feedback, the Llama 90B Vision is engineered to handle the most demanding image-based AI tasks.\n\nThis model is perfect for industries requiring cutting-edge multimodal AI capabilities, particularly those dealing with complex, real-time visual and textual analysis.\n\nClick here for the [original model card](https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/MODEL_CARD_VISION.md).\n\nUsage of this model is subject to [Meta's Acceptable Use Policy](https://www.llama.com/llama3/use-policy/).",
+    "pricing": {
+      "input": 1.2,
+      "output": 1.2
+    },
+    "contextWindow": 131072,
+    "supportsVision": true,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 131072,
+      "max_completion_tokens": 2048,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Llama3",
+      "instruct_type": "llama3"
+    },
+    "openRouterData": {
+      "id": "meta-llama/llama-3.2-90b-vision-instruct",
+      "created": 1727222400,
+      "per_request_limits": null
+    }
+  },
   "meta-llama/llama-3.2-1b-instruct:free": {
     "name": "Meta: Llama 3.2 1B Instruct (free)",
     "provider": "openrouter",
@@ -6958,12 +6891,12 @@
       "input": 0,
       "output": 0
     },
-    "contextWindow": 131000,
+    "contextWindow": 131072,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 131000,
-      "max_completion_tokens": null,
+      "context_length": 131072,
+      "max_completion_tokens": 8192,
       "is_moderated": false
     },
     "architecture": {
@@ -7013,41 +6946,6 @@
     },
     "openRouterData": {
       "id": "meta-llama/llama-3.2-1b-instruct",
-      "created": 1727222400,
-      "per_request_limits": null
-    }
-  },
-  "meta-llama/llama-3.2-90b-vision-instruct": {
-    "name": "Meta: Llama 3.2 90B Vision Instruct",
-    "provider": "openrouter",
-    "category": "llama",
-    "description": "The Llama 90B Vision model is a top-tier, 90-billion-parameter multimodal model designed for the most challenging visual reasoning and language tasks. It offers unparalleled accuracy in image captioning, visual question answering, and advanced image-text comprehension. Pre-trained on vast multimodal datasets and fine-tuned with human feedback, the Llama 90B Vision is engineered to handle the most demanding image-based AI tasks.\n\nThis model is perfect for industries requiring cutting-edge multimodal AI capabilities, particularly those dealing with complex, real-time visual and textual analysis.\n\nClick here for the [original model card](https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/MODEL_CARD_VISION.md).\n\nUsage of this model is subject to [Meta's Acceptable Use Policy](https://www.llama.com/llama3/use-policy/).",
-    "pricing": {
-      "input": 1.2,
-      "output": 1.2
-    },
-    "contextWindow": 131072,
-    "supportsVision": true,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 131072,
-      "max_completion_tokens": 2048,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Llama3",
-      "instruct_type": "llama3"
-    },
-    "openRouterData": {
-      "id": "meta-llama/llama-3.2-90b-vision-instruct",
       "created": 1727222400,
       "per_request_limits": null
     }
@@ -7224,21 +7122,21 @@
       "per_request_limits": null
     }
   },
-  "openai/o1-preview": {
-    "name": "OpenAI: o1-preview",
+  "openai/o1-mini-2024-09-12": {
+    "name": "OpenAI: o1-mini (2024-09-12)",
     "provider": "openrouter",
     "category": "gpt",
     "description": "The latest and strongest model family from OpenAI, o1 is designed to spend more time thinking before responding.\n\nThe o1 models are optimized for math, science, programming, and other STEM-related tasks. They consistently exhibit PhD-level accuracy on benchmarks in physics, chemistry, and biology. Learn more in the [launch announcement](https://openai.com/o1).\n\nNote: This model is currently experimental and not suitable for production use-cases, and may be heavily rate-limited.",
     "pricing": {
-      "input": 15,
-      "output": 60
+      "input": 1.1,
+      "output": 4.4
     },
     "contextWindow": 128000,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
       "context_length": 128000,
-      "max_completion_tokens": 32768,
+      "max_completion_tokens": 65536,
       "is_moderated": true
     },
     "architecture": {
@@ -7253,7 +7151,7 @@
       "instruct_type": null
     },
     "openRouterData": {
-      "id": "openai/o1-preview",
+      "id": "openai/o1-mini-2024-09-12",
       "created": 1726099200,
       "per_request_limits": null
     }
@@ -7326,21 +7224,21 @@
       "per_request_limits": null
     }
   },
-  "openai/o1-mini-2024-09-12": {
-    "name": "OpenAI: o1-mini (2024-09-12)",
+  "openai/o1-preview": {
+    "name": "OpenAI: o1-preview",
     "provider": "openrouter",
     "category": "gpt",
     "description": "The latest and strongest model family from OpenAI, o1 is designed to spend more time thinking before responding.\n\nThe o1 models are optimized for math, science, programming, and other STEM-related tasks. They consistently exhibit PhD-level accuracy on benchmarks in physics, chemistry, and biology. Learn more in the [launch announcement](https://openai.com/o1).\n\nNote: This model is currently experimental and not suitable for production use-cases, and may be heavily rate-limited.",
     "pricing": {
-      "input": 1.1,
-      "output": 4.4
+      "input": 15,
+      "output": 60
     },
     "contextWindow": 128000,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
       "context_length": 128000,
-      "max_completion_tokens": 65536,
+      "max_completion_tokens": 32768,
       "is_moderated": true
     },
     "architecture": {
@@ -7355,7 +7253,7 @@
       "instruct_type": null
     },
     "openRouterData": {
-      "id": "openai/o1-mini-2024-09-12",
+      "id": "openai/o1-preview",
       "created": 1726099200,
       "per_request_limits": null
     }
@@ -7395,40 +7293,6 @@
       "per_request_limits": null
     }
   },
-  "cohere/command-r-plus-08-2024": {
-    "name": "Cohere: Command R+ (08-2024)",
-    "provider": "openrouter",
-    "category": "cohere",
-    "description": "command-r-plus-08-2024 is an update of the [Command R+](/models/cohere/command-r-plus) with roughly 50% higher throughput and 25% lower latencies as compared to the previous Command R+ version, while keeping the hardware footprint the same.\n\nRead the launch post [here](https://docs.cohere.com/changelog/command-gets-refreshed).\n\nUse of this model is subject to Cohere's [Usage Policy](https://docs.cohere.com/docs/usage-policy) and [SaaS Agreement](https://cohere.com/saas-agreement).",
-    "pricing": {
-      "input": 2.5,
-      "output": 10
-    },
-    "contextWindow": 128000,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 128000,
-      "max_completion_tokens": 4000,
-      "is_moderated": true
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Cohere",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "cohere/command-r-plus-08-2024",
-      "created": 1724976000,
-      "per_request_limits": null
-    }
-  },
   "cohere/command-r-08-2024": {
     "name": "Cohere: Command R (08-2024)",
     "provider": "openrouter",
@@ -7459,6 +7323,40 @@
     },
     "openRouterData": {
       "id": "cohere/command-r-08-2024",
+      "created": 1724976000,
+      "per_request_limits": null
+    }
+  },
+  "cohere/command-r-plus-08-2024": {
+    "name": "Cohere: Command R+ (08-2024)",
+    "provider": "openrouter",
+    "category": "cohere",
+    "description": "command-r-plus-08-2024 is an update of the [Command R+](/models/cohere/command-r-plus) with roughly 50% higher throughput and 25% lower latencies as compared to the previous Command R+ version, while keeping the hardware footprint the same.\n\nRead the launch post [here](https://docs.cohere.com/changelog/command-gets-refreshed).\n\nUse of this model is subject to Cohere's [Usage Policy](https://docs.cohere.com/docs/usage-policy) and [SaaS Agreement](https://cohere.com/saas-agreement).",
+    "pricing": {
+      "input": 2.5,
+      "output": 10
+    },
+    "contextWindow": 128000,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 128000,
+      "max_completion_tokens": 4000,
+      "is_moderated": true
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Cohere",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "cohere/command-r-plus-08-2024",
       "created": 1724976000,
       "per_request_limits": null
     }
@@ -7704,40 +7602,6 @@
       "per_request_limits": null
     }
   },
-  "sao10k/l3-lunaris-8b": {
-    "name": "Sao10K: Llama 3 8B Lunaris",
-    "provider": "openrouter",
-    "category": "other",
-    "description": "Lunaris 8B is a versatile generalist and roleplaying model based on Llama 3. It's a strategic merge of multiple models, designed to balance creativity with improved logic and general knowledge.\n\nCreated by [Sao10k](https://huggingface.co/Sao10k), this model aims to offer an improved experience over Stheno v3.2, with enhanced creativity and logical reasoning.\n\nFor best results, use with Llama 3 Instruct context template, temperature 1.4, and min_p 0.1.",
-    "pricing": {
-      "input": 0.02,
-      "output": 0.049999999999999996
-    },
-    "contextWindow": 8192,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 8192,
-      "max_completion_tokens": null,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Llama3",
-      "instruct_type": "llama3"
-    },
-    "openRouterData": {
-      "id": "sao10k/l3-lunaris-8b",
-      "created": 1723507200,
-      "per_request_limits": null
-    }
-  },
   "aetherwiing/mn-starcannon-12b": {
     "name": "Aetherwiing: Starcannon 12B",
     "provider": "openrouter",
@@ -7768,6 +7632,40 @@
     },
     "openRouterData": {
       "id": "aetherwiing/mn-starcannon-12b",
+      "created": 1723507200,
+      "per_request_limits": null
+    }
+  },
+  "sao10k/l3-lunaris-8b": {
+    "name": "Sao10K: Llama 3 8B Lunaris",
+    "provider": "openrouter",
+    "category": "other",
+    "description": "Lunaris 8B is a versatile generalist and roleplaying model based on Llama 3. It's a strategic merge of multiple models, designed to balance creativity with improved logic and general knowledge.\n\nCreated by [Sao10k](https://huggingface.co/Sao10k), this model aims to offer an improved experience over Stheno v3.2, with enhanced creativity and logical reasoning.\n\nFor best results, use with Llama 3 Instruct context template, temperature 1.4, and min_p 0.1.",
+    "pricing": {
+      "input": 0.02,
+      "output": 0.049999999999999996
+    },
+    "contextWindow": 8192,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 8192,
+      "max_completion_tokens": null,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Llama3",
+      "instruct_type": "llama3"
+    },
+    "openRouterData": {
+      "id": "sao10k/l3-lunaris-8b",
       "created": 1723507200,
       "per_request_limits": null
     }
@@ -7805,6 +7703,40 @@
     "openRouterData": {
       "id": "openai/gpt-4o-2024-08-06",
       "created": 1722902400,
+      "per_request_limits": null
+    }
+  },
+  "nothingiisreal/mn-celeste-12b": {
+    "name": "Mistral Nemo 12B Celeste",
+    "provider": "openrouter",
+    "category": "other",
+    "description": "A specialized story writing and roleplaying model based on Mistral's NeMo 12B Instruct. Fine-tuned on curated datasets including Reddit Writing Prompts and Opus Instruct 25K.\n\nThis model excels at creative writing, offering improved NSFW capabilities, with smarter and more active narration. It demonstrates remarkable versatility in both SFW and NSFW scenarios, with strong Out of Character (OOC) steering capabilities, allowing fine-tuned control over narrative direction and character behavior.\n\nCheck out the model's [HuggingFace page](https://huggingface.co/nothingiisreal/MN-12B-Celeste-V1.9) for details on what parameters and prompts work best!",
+    "pricing": {
+      "input": 0.7999999999999999,
+      "output": 1.2
+    },
+    "contextWindow": 16384,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 16384,
+      "max_completion_tokens": 4096,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Mistral",
+      "instruct_type": "chatml"
+    },
+    "openRouterData": {
+      "id": "nothingiisreal/mn-celeste-12b",
+      "created": 1722556800,
       "per_request_limits": null
     }
   },
@@ -7872,40 +7804,6 @@
     },
     "openRouterData": {
       "id": "meta-llama/llama-3.1-405b",
-      "created": 1722556800,
-      "per_request_limits": null
-    }
-  },
-  "nothingiisreal/mn-celeste-12b": {
-    "name": "Mistral Nemo 12B Celeste",
-    "provider": "openrouter",
-    "category": "other",
-    "description": "A specialized story writing and roleplaying model based on Mistral's NeMo 12B Instruct. Fine-tuned on curated datasets including Reddit Writing Prompts and Opus Instruct 25K.\n\nThis model excels at creative writing, offering improved NSFW capabilities, with smarter and more active narration. It demonstrates remarkable versatility in both SFW and NSFW scenarios, with strong Out of Character (OOC) steering capabilities, allowing fine-tuned control over narrative direction and character behavior.\n\nCheck out the model's [HuggingFace page](https://huggingface.co/nothingiisreal/MN-12B-Celeste-V1.9) for details on what parameters and prompts work best!",
-    "pricing": {
-      "input": 0.7999999999999999,
-      "output": 1.2
-    },
-    "contextWindow": 16384,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 16384,
-      "max_completion_tokens": 4096,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Mistral",
-      "instruct_type": "chatml"
-    },
-    "openRouterData": {
-      "id": "nothingiisreal/mn-celeste-12b",
       "created": 1722556800,
       "per_request_limits": null
     }
@@ -8114,40 +8012,6 @@
       "per_request_limits": null
     }
   },
-  "mistralai/codestral-mamba": {
-    "name": "Mistral: Codestral Mamba",
-    "provider": "openrouter",
-    "category": "mistral",
-    "description": "A 7.3B parameter Mamba-based model designed for code and reasoning tasks.\n\n- Linear time inference, allowing for theoretically infinite sequence lengths\n- 256k token context window\n- Optimized for quick responses, especially beneficial for code productivity\n- Performs comparably to state-of-the-art transformer models in code and reasoning tasks\n- Available under the Apache 2.0 license for free use, modification, and distribution",
-    "pricing": {
-      "input": 0.25,
-      "output": 0.25
-    },
-    "contextWindow": 262144,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 262144,
-      "max_completion_tokens": null,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Mistral",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "mistralai/codestral-mamba",
-      "created": 1721347200,
-      "per_request_limits": null
-    }
-  },
   "mistralai/mistral-nemo:free": {
     "name": "Mistral: Mistral Nemo (free)",
     "provider": "openrouter",
@@ -8212,6 +8076,40 @@
     },
     "openRouterData": {
       "id": "mistralai/mistral-nemo",
+      "created": 1721347200,
+      "per_request_limits": null
+    }
+  },
+  "mistralai/codestral-mamba": {
+    "name": "Mistral: Codestral Mamba",
+    "provider": "openrouter",
+    "category": "mistral",
+    "description": "A 7.3B parameter Mamba-based model designed for code and reasoning tasks.\n\n- Linear time inference, allowing for theoretically infinite sequence lengths\n- 256k token context window\n- Optimized for quick responses, especially beneficial for code productivity\n- Performs comparably to state-of-the-art transformer models in code and reasoning tasks\n- Available under the Apache 2.0 license for free use, modification, and distribution",
+    "pricing": {
+      "input": 0.25,
+      "output": 0.25
+    },
+    "contextWindow": 262144,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 262144,
+      "max_completion_tokens": null,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Mistral",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "mistralai/codestral-mamba",
       "created": 1721347200,
       "per_request_limits": null
     }
@@ -8868,6 +8766,41 @@
       "per_request_limits": null
     }
   },
+  "google/gemini-flash-1.5": {
+    "name": "Google: Gemini 1.5 Flash ",
+    "provider": "openrouter",
+    "category": "gemini",
+    "description": "Gemini 1.5 Flash is a foundation model that performs well at a variety of multimodal tasks such as visual understanding, classification, summarization, and creating content from image, audio and video. It's adept at processing visual and text inputs such as photographs, documents, infographics, and screenshots.\n\nGemini 1.5 Flash is designed for high-volume, high-frequency tasks where cost and latency matter. On most common tasks, Flash achieves comparable quality to other Gemini Pro models at a significantly reduced cost. Flash is well-suited for applications like chat assistants and on-demand content generation where speed and scale matter.\n\nUsage of Gemini is subject to Google's [Gemini Terms of Use](https://ai.google.dev/terms).\n\n#multimodal",
+    "pricing": {
+      "input": 0.075,
+      "output": 0.3
+    },
+    "contextWindow": 1000000,
+    "supportsVision": true,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 1000000,
+      "max_completion_tokens": 8192,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Gemini",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "google/gemini-flash-1.5",
+      "created": 1715644800,
+      "per_request_limits": null
+    }
+  },
   "deepseek/deepseek-coder": {
     "name": "DeepSeek-Coder-V2",
     "provider": "openrouter",
@@ -8902,38 +8835,37 @@
       "per_request_limits": null
     }
   },
-  "google/gemini-flash-1.5": {
-    "name": "Google: Gemini 1.5 Flash ",
+  "meta-llama/llama-guard-2-8b": {
+    "name": "Meta: LlamaGuard 2 8B",
     "provider": "openrouter",
-    "category": "gemini",
-    "description": "Gemini 1.5 Flash is a foundation model that performs well at a variety of multimodal tasks such as visual understanding, classification, summarization, and creating content from image, audio and video. It's adept at processing visual and text inputs such as photographs, documents, infographics, and screenshots.\n\nGemini 1.5 Flash is designed for high-volume, high-frequency tasks where cost and latency matter. On most common tasks, Flash achieves comparable quality to other Gemini Pro models at a significantly reduced cost. Flash is well-suited for applications like chat assistants and on-demand content generation where speed and scale matter.\n\nUsage of Gemini is subject to Google's [Gemini Terms of Use](https://ai.google.dev/terms).\n\n#multimodal",
+    "category": "llama",
+    "description": "This safeguard model has 8B parameters and is based on the Llama 3 family. Just like is predecessor, [LlamaGuard 1](https://huggingface.co/meta-llama/LlamaGuard-7b), it can do both prompt and response classification.\n\nLlamaGuard 2 acts as a normal LLM would, generating text that indicates whether the given input/output is safe/unsafe. If deemed unsafe, it will also share the content categories violated.\n\nFor best results, please use raw prompt input or the `/completions` endpoint, instead of the chat API.\n\nIt has demonstrated strong performance compared to leading closed-source models in human evaluations.\n\nTo read more about the model release, [click here](https://ai.meta.com/blog/meta-llama-3/). Usage of this model is subject to [Meta's Acceptable Use Policy](https://llama.meta.com/llama3/use-policy/).",
     "pricing": {
-      "input": 0.075,
-      "output": 0.3
+      "input": 0.19999999999999998,
+      "output": 0.19999999999999998
     },
-    "contextWindow": 1000000,
-    "supportsVision": true,
+    "contextWindow": 8192,
+    "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 1000000,
-      "max_completion_tokens": 8192,
+      "context_length": 8192,
+      "max_completion_tokens": null,
       "is_moderated": false
     },
     "architecture": {
-      "modality": "text+image->text",
+      "modality": "text->text",
       "input_modalities": [
-        "text",
-        "image"
+        "text"
       ],
       "output_modalities": [
         "text"
       ],
-      "tokenizer": "Gemini",
-      "instruct_type": null
+      "tokenizer": "Llama3",
+      "instruct_type": "none"
     },
     "openRouterData": {
-      "id": "google/gemini-flash-1.5",
-      "created": 1715644800,
+      "id": "meta-llama/llama-guard-2-8b",
+      "created": 1715558400,
       "per_request_limits": null
     }
   },
@@ -9005,40 +8937,6 @@
     },
     "openRouterData": {
       "id": "openai/gpt-4o:extended",
-      "created": 1715558400,
-      "per_request_limits": null
-    }
-  },
-  "meta-llama/llama-guard-2-8b": {
-    "name": "Meta: LlamaGuard 2 8B",
-    "provider": "openrouter",
-    "category": "llama",
-    "description": "This safeguard model has 8B parameters and is based on the Llama 3 family. Just like is predecessor, [LlamaGuard 1](https://huggingface.co/meta-llama/LlamaGuard-7b), it can do both prompt and response classification.\n\nLlamaGuard 2 acts as a normal LLM would, generating text that indicates whether the given input/output is safe/unsafe. If deemed unsafe, it will also share the content categories violated.\n\nFor best results, please use raw prompt input or the `/completions` endpoint, instead of the chat API.\n\nIt has demonstrated strong performance compared to leading closed-source models in human evaluations.\n\nTo read more about the model release, [click here](https://ai.meta.com/blog/meta-llama-3/). Usage of this model is subject to [Meta's Acceptable Use Policy](https://llama.meta.com/llama3/use-policy/).",
-    "pricing": {
-      "input": 0.19999999999999998,
-      "output": 0.19999999999999998
-    },
-    "contextWindow": 8192,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 8192,
-      "max_completion_tokens": null,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Llama3",
-      "instruct_type": "none"
-    },
-    "openRouterData": {
-      "id": "meta-llama/llama-guard-2-8b",
       "created": 1715558400,
       "per_request_limits": null
     }
@@ -9215,40 +9113,6 @@
       "per_request_limits": null
     }
   },
-  "meta-llama/llama-3-8b-instruct": {
-    "name": "Meta: Llama 3 8B Instruct",
-    "provider": "openrouter",
-    "category": "llama",
-    "description": "Meta's latest class of model (Llama 3) launched with a variety of sizes & flavors. This 8B instruct-tuned version was optimized for high quality dialogue usecases.\n\nIt has demonstrated strong performance compared to leading closed-source models in human evaluations.\n\nTo read more about the model release, [click here](https://ai.meta.com/blog/meta-llama-3/). Usage of this model is subject to [Meta's Acceptable Use Policy](https://llama.meta.com/llama3/use-policy/).",
-    "pricing": {
-      "input": 0.03,
-      "output": 0.06
-    },
-    "contextWindow": 8192,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 8192,
-      "max_completion_tokens": 16384,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Llama3",
-      "instruct_type": "llama3"
-    },
-    "openRouterData": {
-      "id": "meta-llama/llama-3-8b-instruct",
-      "created": 1713398400,
-      "per_request_limits": null
-    }
-  },
   "meta-llama/llama-3-70b-instruct": {
     "name": "Meta: Llama 3 70B Instruct",
     "provider": "openrouter",
@@ -9279,6 +9143,40 @@
     },
     "openRouterData": {
       "id": "meta-llama/llama-3-70b-instruct",
+      "created": 1713398400,
+      "per_request_limits": null
+    }
+  },
+  "meta-llama/llama-3-8b-instruct": {
+    "name": "Meta: Llama 3 8B Instruct",
+    "provider": "openrouter",
+    "category": "llama",
+    "description": "Meta's latest class of model (Llama 3) launched with a variety of sizes & flavors. This 8B instruct-tuned version was optimized for high quality dialogue usecases.\n\nIt has demonstrated strong performance compared to leading closed-source models in human evaluations.\n\nTo read more about the model release, [click here](https://ai.meta.com/blog/meta-llama-3/). Usage of this model is subject to [Meta's Acceptable Use Policy](https://llama.meta.com/llama3/use-policy/).",
+    "pricing": {
+      "input": 0.03,
+      "output": 0.06
+    },
+    "contextWindow": 8192,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 8192,
+      "max_completion_tokens": 16384,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Llama3",
+      "instruct_type": "llama3"
+    },
+    "openRouterData": {
+      "id": "meta-llama/llama-3-8b-instruct",
       "created": 1713398400,
       "per_request_limits": null
     }
@@ -9351,41 +9249,6 @@
       "per_request_limits": null
     }
   },
-  "google/gemini-pro-1.5": {
-    "name": "Google: Gemini 1.5 Pro",
-    "provider": "openrouter",
-    "category": "gemini",
-    "description": "Google's latest multimodal model, supports image and video[0] in text or chat prompts.\n\nOptimized for language tasks including:\n\n- Code generation\n- Text generation\n- Text editing\n- Problem solving\n- Recommendations\n- Information extraction\n- Data extraction or generation\n- AI agents\n\nUsage of Gemini is subject to Google's [Gemini Terms of Use](https://ai.google.dev/terms).\n\n* [0]: Video input is not available through OpenRouter at this time.",
-    "pricing": {
-      "input": 1.25,
-      "output": 5
-    },
-    "contextWindow": 2000000,
-    "supportsVision": true,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 2000000,
-      "max_completion_tokens": 8192,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Gemini",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "google/gemini-pro-1.5",
-      "created": 1712620800,
-      "per_request_limits": null
-    }
-  },
   "openai/gpt-4-turbo": {
     "name": "OpenAI: GPT-4 Turbo",
     "provider": "openrouter",
@@ -9417,6 +9280,41 @@
     },
     "openRouterData": {
       "id": "openai/gpt-4-turbo",
+      "created": 1712620800,
+      "per_request_limits": null
+    }
+  },
+  "google/gemini-pro-1.5": {
+    "name": "Google: Gemini 1.5 Pro",
+    "provider": "openrouter",
+    "category": "gemini",
+    "description": "Google's latest multimodal model, supports image and video[0] in text or chat prompts.\n\nOptimized for language tasks including:\n\n- Code generation\n- Text generation\n- Text editing\n- Problem solving\n- Recommendations\n- Information extraction\n- Data extraction or generation\n- AI agents\n\nUsage of Gemini is subject to Google's [Gemini Terms of Use](https://ai.google.dev/terms).\n\n* [0]: Video input is not available through OpenRouter at this time.",
+    "pricing": {
+      "input": 1.25,
+      "output": 5
+    },
+    "contextWindow": 2000000,
+    "supportsVision": true,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 2000000,
+      "max_completion_tokens": 8192,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Gemini",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "google/gemini-pro-1.5",
       "created": 1712620800,
       "per_request_limits": null
     }
@@ -9661,76 +9559,6 @@
       "per_request_limits": null
     }
   },
-  "anthropic/claude-3-opus:beta": {
-    "name": "Anthropic: Claude 3 Opus (self-moderated)",
-    "provider": "openrouter",
-    "category": "claude",
-    "description": "Claude 3 Opus is Anthropic's most powerful model for highly complex tasks. It boasts top-level performance, intelligence, fluency, and understanding.\n\nSee the launch announcement and benchmark results [here](https://www.anthropic.com/news/claude-3-family)\n\n#multimodal",
-    "pricing": {
-      "input": 15,
-      "output": 75
-    },
-    "contextWindow": 200000,
-    "supportsVision": true,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 200000,
-      "max_completion_tokens": 4096,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Claude",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "anthropic/claude-3-opus:beta",
-      "created": 1709596800,
-      "per_request_limits": null
-    }
-  },
-  "anthropic/claude-3-opus": {
-    "name": "Anthropic: Claude 3 Opus",
-    "provider": "openrouter",
-    "category": "claude",
-    "description": "Claude 3 Opus is Anthropic's most powerful model for highly complex tasks. It boasts top-level performance, intelligence, fluency, and understanding.\n\nSee the launch announcement and benchmark results [here](https://www.anthropic.com/news/claude-3-family)\n\n#multimodal",
-    "pricing": {
-      "input": 15,
-      "output": 75
-    },
-    "contextWindow": 200000,
-    "supportsVision": true,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 200000,
-      "max_completion_tokens": 4096,
-      "is_moderated": true
-    },
-    "architecture": {
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Claude",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "anthropic/claude-3-opus",
-      "created": 1709596800,
-      "per_request_limits": null
-    }
-  },
   "anthropic/claude-3-sonnet:beta": {
     "name": "Anthropic: Claude 3 Sonnet (self-moderated)",
     "provider": "openrouter",
@@ -9797,6 +9625,76 @@
     },
     "openRouterData": {
       "id": "anthropic/claude-3-sonnet",
+      "created": 1709596800,
+      "per_request_limits": null
+    }
+  },
+  "anthropic/claude-3-opus:beta": {
+    "name": "Anthropic: Claude 3 Opus (self-moderated)",
+    "provider": "openrouter",
+    "category": "claude",
+    "description": "Claude 3 Opus is Anthropic's most powerful model for highly complex tasks. It boasts top-level performance, intelligence, fluency, and understanding.\n\nSee the launch announcement and benchmark results [here](https://www.anthropic.com/news/claude-3-family)\n\n#multimodal",
+    "pricing": {
+      "input": 15,
+      "output": 75
+    },
+    "contextWindow": 200000,
+    "supportsVision": true,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 200000,
+      "max_completion_tokens": 4096,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Claude",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "anthropic/claude-3-opus:beta",
+      "created": 1709596800,
+      "per_request_limits": null
+    }
+  },
+  "anthropic/claude-3-opus": {
+    "name": "Anthropic: Claude 3 Opus",
+    "provider": "openrouter",
+    "category": "claude",
+    "description": "Claude 3 Opus is Anthropic's most powerful model for highly complex tasks. It boasts top-level performance, intelligence, fluency, and understanding.\n\nSee the launch announcement and benchmark results [here](https://www.anthropic.com/news/claude-3-family)\n\n#multimodal",
+    "pricing": {
+      "input": 15,
+      "output": 75
+    },
+    "contextWindow": 200000,
+    "supportsVision": true,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 200000,
+      "max_completion_tokens": 4096,
+      "is_moderated": true
+    },
+    "architecture": {
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Claude",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "anthropic/claude-3-opus",
       "created": 1709596800,
       "per_request_limits": null
     }
@@ -9971,40 +9869,6 @@
       "per_request_limits": null
     }
   },
-  "mistralai/mistral-medium": {
-    "name": "Mistral Medium",
-    "provider": "openrouter",
-    "category": "mistral",
-    "description": "This is Mistral AI's closed-source, medium-sided model. It's powered by a closed-source prototype and excels at reasoning, code, JSON, chat, and more. In benchmarks, it compares with many of the flagship models of other companies.",
-    "pricing": {
-      "input": 2.75,
-      "output": 8.1
-    },
-    "contextWindow": 32768,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 32768,
-      "max_completion_tokens": null,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Mistral",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "mistralai/mistral-medium",
-      "created": 1704844800,
-      "per_request_limits": null
-    }
-  },
   "mistralai/mistral-small": {
     "name": "Mistral Small",
     "provider": "openrouter",
@@ -10035,6 +9899,40 @@
     },
     "openRouterData": {
       "id": "mistralai/mistral-small",
+      "created": 1704844800,
+      "per_request_limits": null
+    }
+  },
+  "mistralai/mistral-medium": {
+    "name": "Mistral Medium",
+    "provider": "openrouter",
+    "category": "mistral",
+    "description": "This is Mistral AI's closed-source, medium-sided model. It's powered by a closed-source prototype and excels at reasoning, code, JSON, chat, and more. In benchmarks, it compares with many of the flagship models of other companies.",
+    "pricing": {
+      "input": 2.75,
+      "output": 8.1
+    },
+    "contextWindow": 32768,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 32768,
+      "max_completion_tokens": null,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Mistral",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "mistralai/mistral-medium",
       "created": 1704844800,
       "per_request_limits": null
     }
@@ -10413,40 +10311,6 @@
       "per_request_limits": null
     }
   },
-  "openai/gpt-3.5-turbo-1106": {
-    "name": "OpenAI: GPT-3.5 Turbo 16k (older v1106)",
-    "provider": "openrouter",
-    "category": "gpt",
-    "description": "An older GPT-3.5 Turbo model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Training data: up to Sep 2021.",
-    "pricing": {
-      "input": 1,
-      "output": 2
-    },
-    "contextWindow": 16385,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 16385,
-      "max_completion_tokens": 4096,
-      "is_moderated": true
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "GPT",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "openai/gpt-3.5-turbo-1106",
-      "created": 1699228800,
-      "per_request_limits": null
-    }
-  },
   "openai/gpt-4-1106-preview": {
     "name": "OpenAI: GPT-4 Turbo (older v1106)",
     "provider": "openrouter",
@@ -10477,6 +10341,40 @@
     },
     "openRouterData": {
       "id": "openai/gpt-4-1106-preview",
+      "created": 1699228800,
+      "per_request_limits": null
+    }
+  },
+  "openai/gpt-3.5-turbo-1106": {
+    "name": "OpenAI: GPT-3.5 Turbo 16k (older v1106)",
+    "provider": "openrouter",
+    "category": "gpt",
+    "description": "An older GPT-3.5 Turbo model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Training data: up to Sep 2021.",
+    "pricing": {
+      "input": 1,
+      "output": 2
+    },
+    "contextWindow": 16385,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 16385,
+      "max_completion_tokens": 4096,
+      "is_moderated": true
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "GPT",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "openai/gpt-3.5-turbo-1106",
       "created": 1699228800,
       "per_request_limits": null
     }
@@ -10583,6 +10481,40 @@
       "per_request_limits": null
     }
   },
+  "openai/gpt-4-32k-0314": {
+    "name": "OpenAI: GPT-4 32k (older v0314)",
+    "provider": "openrouter",
+    "category": "gpt",
+    "description": "GPT-4-32k is an extended version of GPT-4, with the same capabilities but quadrupled context length, allowing for processing up to 40 pages of text in a single pass. This is particularly beneficial for handling longer content like interacting with PDFs without an external vector database. Training data: up to Sep 2021.",
+    "pricing": {
+      "input": 60,
+      "output": 120
+    },
+    "contextWindow": 32767,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 32767,
+      "max_completion_tokens": 4096,
+      "is_moderated": true
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "GPT",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "openai/gpt-4-32k-0314",
+      "created": 1693180800,
+      "per_request_limits": null
+    }
+  },
   "openai/gpt-3.5-turbo-16k": {
     "name": "OpenAI: GPT-3.5 Turbo 16k",
     "provider": "openrouter",
@@ -10647,40 +10579,6 @@
     },
     "openRouterData": {
       "id": "openai/gpt-4-32k",
-      "created": 1693180800,
-      "per_request_limits": null
-    }
-  },
-  "openai/gpt-4-32k-0314": {
-    "name": "OpenAI: GPT-4 32k (older v0314)",
-    "provider": "openrouter",
-    "category": "gpt",
-    "description": "GPT-4-32k is an extended version of GPT-4, with the same capabilities but quadrupled context length, allowing for processing up to 40 pages of text in a single pass. This is particularly beneficial for handling longer content like interacting with PDFs without an external vector database. Training data: up to Sep 2021.",
-    "pricing": {
-      "input": 60,
-      "output": 120
-    },
-    "contextWindow": 32767,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 32767,
-      "max_completion_tokens": 4096,
-      "is_moderated": true
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "GPT",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "openai/gpt-4-32k-0314",
       "created": 1693180800,
       "per_request_limits": null
     }
@@ -10889,20 +10787,20 @@
       "per_request_limits": null
     }
   },
-  "openai/gpt-3.5-turbo": {
-    "name": "OpenAI: GPT-3.5 Turbo",
+  "openai/gpt-4-0314": {
+    "name": "OpenAI: GPT-4 (older v0314)",
     "provider": "openrouter",
     "category": "gpt",
-    "description": "GPT-3.5 Turbo is OpenAI's fastest model. It can understand and generate natural language or code, and is optimized for chat and traditional completion tasks.\n\nTraining data up to Sep 2021.",
+    "description": "GPT-4-0314 is the first version of GPT-4 released, with a context length of 8,192 tokens, and was supported until June 14. Training data: up to Sep 2021.",
     "pricing": {
-      "input": 0.5,
-      "output": 1.5
+      "input": 30,
+      "output": 60
     },
-    "contextWindow": 16385,
+    "contextWindow": 8191,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 16385,
+      "context_length": 8191,
       "max_completion_tokens": 4096,
       "is_moderated": true
     },
@@ -10918,41 +10816,7 @@
       "instruct_type": null
     },
     "openRouterData": {
-      "id": "openai/gpt-3.5-turbo",
-      "created": 1685232000,
-      "per_request_limits": null
-    }
-  },
-  "openai/gpt-3.5-turbo-0125": {
-    "name": "OpenAI: GPT-3.5 Turbo 16k",
-    "provider": "openrouter",
-    "category": "gpt",
-    "description": "The latest GPT-3.5 Turbo model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Training data: up to Sep 2021.\n\nThis version has a higher accuracy at responding in requested formats and a fix for a bug which caused a text encoding issue for non-English language function calls.",
-    "pricing": {
-      "input": 0.5,
-      "output": 1.5
-    },
-    "contextWindow": 16385,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 16385,
-      "max_completion_tokens": 4096,
-      "is_moderated": true
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "GPT",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "openai/gpt-3.5-turbo-0125",
+      "id": "openai/gpt-4-0314",
       "created": 1685232000,
       "per_request_limits": null
     }
@@ -10991,20 +10855,20 @@
       "per_request_limits": null
     }
   },
-  "openai/gpt-4-0314": {
-    "name": "OpenAI: GPT-4 (older v0314)",
+  "openai/gpt-3.5-turbo-0125": {
+    "name": "OpenAI: GPT-3.5 Turbo 16k",
     "provider": "openrouter",
     "category": "gpt",
-    "description": "GPT-4-0314 is the first version of GPT-4 released, with a context length of 8,192 tokens, and was supported until June 14. Training data: up to Sep 2021.",
+    "description": "The latest GPT-3.5 Turbo model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Training data: up to Sep 2021.\n\nThis version has a higher accuracy at responding in requested formats and a fix for a bug which caused a text encoding issue for non-English language function calls.",
     "pricing": {
-      "input": 30,
-      "output": 60
+      "input": 0.5,
+      "output": 1.5
     },
-    "contextWindow": 8191,
+    "contextWindow": 16385,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 8191,
+      "context_length": 16385,
       "max_completion_tokens": 4096,
       "is_moderated": true
     },
@@ -11020,7 +10884,41 @@
       "instruct_type": null
     },
     "openRouterData": {
-      "id": "openai/gpt-4-0314",
+      "id": "openai/gpt-3.5-turbo-0125",
+      "created": 1685232000,
+      "per_request_limits": null
+    }
+  },
+  "openai/gpt-3.5-turbo": {
+    "name": "OpenAI: GPT-3.5 Turbo",
+    "provider": "openrouter",
+    "category": "gpt",
+    "description": "GPT-3.5 Turbo is OpenAI's fastest model. It can understand and generate natural language or code, and is optimized for chat and traditional completion tasks.\n\nTraining data up to Sep 2021.",
+    "pricing": {
+      "input": 0.5,
+      "output": 1.5
+    },
+    "contextWindow": 16385,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 16385,
+      "max_completion_tokens": 4096,
+      "is_moderated": true
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "GPT",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "openai/gpt-3.5-turbo",
       "created": 1685232000,
       "per_request_limits": null
     }

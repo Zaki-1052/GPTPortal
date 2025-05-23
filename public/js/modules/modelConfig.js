@@ -25,7 +25,8 @@ class ModelConfig {
       this.usesDynamicModels = false;
     }
     
-    this.setDefaultModel();
+    // Don't set default model on initialization - let it show "Select a Model" until first message
+    // this.setDefaultModel();
   }
 
   async fetchConfig() {

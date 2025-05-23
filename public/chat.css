@@ -106,6 +106,7 @@ body {
 }
 
 #model-selector-container {
+  position: relative; /* This is crucial for absolute positioning of children */
   text-align: center; /* Center align the container */
   padding: 6px; /* Add some padding */
   margin-bottom: 4px; /* Space before the chat container */
@@ -278,18 +279,19 @@ body {
 .select-options {
   display: none;
   position: absolute;
+  top: 100%; /* Position below the selector */
+  left: 50%; /* Center horizontally relative to container */
+  transform: translateX(-50%); /* Shift to the left by half of its own width */
   background-color: #404245;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   border-radius: 5px;
-  padding: 5px;
+  padding: 10px;
   z-index: 600;
-  width: 400px; /* Make the dropdown wider for better model names display */
-  align-self: center;
-  left: 50%; /* Center horizontally */
-  transform: translateX(-50%); /* Shift to the left by half of its own width */
+  width: 500px; /* Make the dropdown wider for better model names display */
   font-size: 16px;
   max-height: 400px;
   overflow-y: auto;
+  margin-top: 5px; /* Small gap between selector and dropdown */
 }
 
 .select-options button {
