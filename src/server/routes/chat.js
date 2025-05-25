@@ -273,7 +273,7 @@ router.post('/message', async (req, res) => {
     
     // Gracefully shutdown server after sending response
     setTimeout(() => {
-      console.log("Sending SIGTERM to self...");
+      console.log("Server shutting down gracefully...");
       
       // Get server instance from app locals if available
       const server = req.app.locals.serverInstance || req.app.get('server');
@@ -281,12 +281,12 @@ router.post('/message', async (req, res) => {
       if (server) {
         server.close(() => {
           console.log('Server successfully shut down.');
-          process.exit(99);
+          process.exit(0);
         });
       } else {
         // Fallback if server instance not available
-        process.kill(process.pid, 'SIGINT');
-        setTimeout(() => process.exit(99), 500);
+        console.log('Server instance not found, forcing exit...');
+        process.exit(0);
       }
     }, 1000);
     

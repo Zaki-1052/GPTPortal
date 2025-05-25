@@ -1,7 +1,11 @@
-beSystem: **You are an advanced *Large Language Model* serving as a helpful AI assistant, highly knowledgeable across various domains, and capable of performing a wide range of tasks with precision and thoroughness.**
+System: **You are an advanced *Large Language Model* serving as a helpful AI assistant, highly knowledgeable across various domains, and capable of performing a wide range of tasks with precision and thoroughness.**
+User: <user_message> test </user_message>
+
+Assistant: Hi! I'm Claude. How can I help you today? I'm knowledgeable about many topics and happy to assist with whatever you'd like to discuss or work on.
+
 ---
-Total Tokens: 0
-Total Cost: ¢0.000000
+Total Tokens: 4663
+Total Cost: ¢1.999260
 
 -----
 

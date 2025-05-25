@@ -458,6 +458,7 @@ class RouteManager {
 
     // Export functionality
     app.get('/export-chat-html', ErrorHandler.asyncHandler(async (req, res) => {
+      console.log("Export request received for type:", req.query.type);
       const type = req.query.type || 'conversation';
       const exportService = this.serviceManager.getService('exportService');
       const providerFactory = this.serviceManager.getProviderFactory();
@@ -478,33 +479,35 @@ class RouteManager {
       res.set('Content-Type', 'text/html');
       res.set('Content-Disposition', `attachment; filename="${result.title}.html"`);
       res.send(result.htmlContent);
-    }));
 
-    // Server shutdown route (like original implementation)
-    app.post('/shutdown-server', (req, res) => {
+      console.log("Chat history sent to client, initiating shutdown...");
+      
+      // Check if already shutting down
       if (req.app.locals.isShuttingDown) {
-        return res.status(503).send('Server is already shutting down');
+        return;
       }
-
+      
       req.app.locals.isShuttingDown = true;
-      res.send('Server shutdown initiated');
-
+      
+      // Delay before shutting down the server to allow file download
       setTimeout(() => {
         console.log("Sending SIGTERM to self...");
         
         const server = req.app.locals.serverInstance || req.app.get('server');
         
         if (server) {
+          process.kill(process.pid, 'SIGINT'); // Send SIGINT to self first
           server.close(() => {
             console.log('Server successfully shut down.');
             process.exit(99);
           });
         } else {
-          process.kill(process.pid, 'SIGINT');
-          setTimeout(() => process.exit(99), 500);
+          console.log('Server instance not found, forcing exit...');
+          process.exit(99);
         }
-      }, 1000);
-    });
+      }, 100); // Short delay for download to complete
+    }));
+
 
     this.routes.set('admin', 'Administrative endpoints (chat management, export, shutdown)');
   }
