@@ -85,16 +85,12 @@ class MessageHandler {
     let counter = 0;
     let processedText = text;
     
-    // Use Unicode private use area characters as markers that won't be transformed by markdown
-    const MARKER_START = '\uE000';
-    const MARKER_END = '\uE001';
-    
     console.log('=== extractLaTeX called ===');
     console.log('Input text:', text);
     
     // Extract \begin{equation}...\end{equation} blocks first
     processedText = processedText.replace(/\\begin\{equation\}([\s\S]*?)\\end\{equation\}/g, (match, content) => {
-      const placeholder = `${MARKER_START}LATEX${counter}${MARKER_END}`;
+      const placeholder = `LATEXPLACEHOLDER${counter}ENDLATEX`;
       latexMap.set(placeholder, {
         content: content.trim(),
         displayMode: true,
@@ -105,9 +101,9 @@ class MessageHandler {
       return placeholder;
     });
     
-    // Extract display math \[...\]
-    processedText = processedText.replace(/\\\[([\s\S]*?)\\\]/g, (match, content) => {
-      const placeholder = `${MARKER_START}LATEX${counter}${MARKER_END}`;
+    // Extract display math \[...\] - must have content
+    processedText = processedText.replace(/\\\[([^\]]+)\\\]/g, (match, content) => {
+      const placeholder = `LATEXPLACEHOLDER${counter}ENDLATEX`;
       latexMap.set(placeholder, {
         content: content.trim(),
         displayMode: true,
@@ -118,9 +114,9 @@ class MessageHandler {
       return placeholder;
     });
     
-    // Extract display math $$...$$ (ensure the $$ are actually adjacent)
-    processedText = processedText.replace(/\$\$([\s\S]*?)\$\$/g, (match, content) => {
-      const placeholder = `${MARKER_START}LATEX${counter}${MARKER_END}`;
+    // Extract display math $$...$$ - don't require newlines
+    processedText = processedText.replace(/\$\$([^$]+)\$\$/g, (match, content) => {
+      const placeholder = `LATEXPLACEHOLDER${counter}ENDLATEX`;
       latexMap.set(placeholder, {
         content: content.trim(),
         displayMode: true,
@@ -132,8 +128,8 @@ class MessageHandler {
     });
     
     // Extract inline math \(...\)
-    processedText = processedText.replace(/\\\(([\s\S]*?)\\\)/g, (match, content) => {
-      const placeholder = `${MARKER_START}LATEX${counter}${MARKER_END}`;
+    processedText = processedText.replace(/\\\(([^)]+)\\\)/g, (match, content) => {
+      const placeholder = `LATEXPLACEHOLDER${counter}ENDLATEX`;
       latexMap.set(placeholder, {
         content: content.trim(),
         displayMode: false,
@@ -144,23 +140,37 @@ class MessageHandler {
       return placeholder;
     });
     
-    // Extract inline math $...$ with more careful pattern
-    // This pattern ensures we don't match $ signs that are not meant for LaTeX
-    processedText = processedText.replace(/(?<!\$)\$(?!\$)([^\$\n]+?)\$(?!\$)/g, (match, content) => {
-      // Additional check: content should look like LaTeX (contains backslash, ^, _, etc.)
-      if (!/[\\^_{}]/.test(content)) {
-        return match; // Not LaTeX, return original
+    // Extract inline math $...$ - simpler pattern
+    // Process from end to beginning to avoid issues with offset-based validation
+    const dollarMatches = [];
+    let dollarRegex = /\$([^$\n]+)\$/g;
+    let match;
+    
+    while ((match = dollarRegex.exec(processedText)) !== null) {
+      // Check if it's actually LaTeX (contains backslash, ^, _, or braces)
+      if (/[\\^_{}]/.test(match[1])) {
+        dollarMatches.push({
+          start: match.index,
+          end: match.index + match[0].length,
+          content: match[1],
+          original: match[0]
+        });
       }
-      const placeholder = `${MARKER_START}LATEX${counter}${MARKER_END}`;
+    }
+    
+    // Replace from end to beginning to maintain string positions
+    for (let i = dollarMatches.length - 1; i >= 0; i--) {
+      const m = dollarMatches[i];
+      const placeholder = `LATEXPLACEHOLDER${counter}ENDLATEX`;
       latexMap.set(placeholder, {
-        content: content.trim(),
+        content: m.content.trim(),
         displayMode: false,
-        original: match
+        original: m.original
       });
       counter++;
-      console.log(`Extracted inline dollar math: ${match} → ${placeholder}`);
-      return placeholder;
-    });
+      processedText = processedText.substring(0, m.start) + placeholder + processedText.substring(m.end);
+      console.log(`Extracted inline dollar math: ${m.original} → ${placeholder}`);
+    }
     
     console.log(`Extracted ${counter} LaTeX expressions`);
     console.log('Processed text:', processedText);
@@ -185,7 +195,8 @@ class MessageHandler {
     
     // Replace each placeholder with rendered LaTeX
     for (const [placeholder, data] of latexMap) {
-      console.log(`Restoring ${placeholder}...`);
+      console.log(`Restoring placeholder: "${placeholder}"`);
+      console.log(`HTML contains placeholder? ${restoredHtml.includes(placeholder)}`);
       
       try {
         const rendered = katex.renderToString(data.content, {
@@ -196,19 +207,15 @@ class MessageHandler {
           errorColor: '#cc0000'
         });
         
-        // Replace all occurrences of this placeholder
-        // The Unicode markers should have survived markdown processing
-        const escapedPlaceholder = placeholder.replace(/[\uE000\uE001]/g, (char) => {
-          return '\\u' + ('0000' + char.charCodeAt(0).toString(16)).slice(-4);
-        });
-        const regex = new RegExp(escapedPlaceholder, 'g');
-        restoredHtml = restoredHtml.replace(regex, rendered);
+        // Simple string replacement - the placeholder should be unique enough
+        restoredHtml = restoredHtml.replace(new RegExp(placeholder, 'g'), rendered);
+        
         console.log(`Successfully rendered ${data.displayMode ? 'display' : 'inline'} math: ${data.content}`);
       } catch (error) {
         console.warn(`LaTeX rendering error for ${placeholder}:`, error.message);
         // On error, show the original LaTeX notation with error styling
         const errorHtml = `<span class="latex-error" title="LaTeX Error: ${error.message}">${this.escapeHtml(data.original)}</span>`;
-        restoredHtml = restoredHtml.replace(new RegExp(placeholder.replace(/[\uE000\uE001]/g, '\\$&'), 'g'), errorHtml);
+        restoredHtml = restoredHtml.replace(new RegExp(placeholder, 'g'), errorHtml);
       }
     }
     
