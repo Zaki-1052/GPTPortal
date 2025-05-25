@@ -149,21 +149,47 @@ class ContextTracker {
   }
 
   /**
-   * Estimate tokens in text (client-side estimation)
+   * Estimate tokens in text using accurate tiktoken when available
    * @param {string} text - Text to estimate
-   * @returns {number} Estimated token count
+   * @param {string} [modelId] - Model ID for accurate tokenization
+   * @returns {Promise<number>|number} Token count (async if tiktoken available, sync fallback)
    */
-  estimateTokens(text) {
+  async estimateTokens(text, modelId = null) {
     if (!text) return 0;
     
-    // Simple token estimation (approximately 4 characters per token for English)
+    // Use accurate tiktoken counting if available
+    if (window.tokenCounterClient) {
+      try {
+        const currentModel = modelId || this.currentModel || (this.modelConfig ? this.modelConfig.currentModelID : 'gpt-4o');
+        return await window.tokenCounterClient.countTokens(text, currentModel);
+      } catch (error) {
+        console.warn('Accurate token counting failed, using fallback:', error);
+      }
+    }
+    
+    // Fallback to improved estimation
+    return this._fallbackEstimateTokens(text);
+  }
+
+  /**
+   * Fallback token estimation (more accurate than simple char/4)
+   * @param {string} text - Text to estimate
+   * @returns {number} Estimated token count
+   * @private
+   */
+  _fallbackEstimateTokens(text) {
+    if (!text) return 0;
+    
+    // More sophisticated estimation than simple char/4
     const baseTokens = Math.ceil(text.length / 4);
     
     // Add extra tokens for special characters and formatting
     const specialChars = (text.match(/[{}[\](),.;:!?'"]/g) || []).length;
+    const whitespace = (text.match(/\s+/g) || []).length;
     const codeBlocks = (text.match(/```[\s\S]*?```/g) || []).length * 10;
+    const markup = (text.match(/<[^>]+>/g) || []).length * 2;
     
-    return baseTokens + Math.ceil(specialChars / 2) + codeBlocks;
+    return baseTokens + Math.ceil(specialChars / 3) + Math.ceil(whitespace / 8) + codeBlocks + markup;
   }
 
   /**
@@ -176,14 +202,17 @@ class ContextTracker {
     // Get conversation history from chat manager
     const history = this.chatManager ? this.chatManager.conversationHistory : this.conversationHistory;
     
+    // Get current model for accurate tokenization
+    const currentModel = this.currentModel || (this.modelConfig ? this.modelConfig.currentModelID : 'gpt-4o');
+    
     // Estimate tokens from conversation history
     for (const message of history) {
       if (typeof message.content === 'string') {
-        totalTokens += this.estimateTokens(message.content);
+        totalTokens += await this.estimateTokens(message.content, currentModel);
       } else if (Array.isArray(message.content)) {
         for (const part of message.content) {
           if (part.text) {
-            totalTokens += this.estimateTokens(part.text);
+            totalTokens += await this.estimateTokens(part.text, currentModel);
           }
         }
       }
@@ -227,8 +256,8 @@ class ContextTracker {
         systemPromptContent += '\n\n' + customPromptContent;
       }
       
-      // Calculate tokens
-      const tokens = this.estimateTokens(systemPromptContent);
+      // Calculate tokens using accurate counting
+      const tokens = await this.estimateTokens(systemPromptContent, currentModelID);
       
       // Cache the result
       this.systemPromptCache.set(cacheKey, tokens);
@@ -335,12 +364,22 @@ class ContextTracker {
       
       // Calculate current usage
       const conversationTokens = await this.estimateConversationTokens();
-      const currentInputTokens = this.estimateTokens(currentInput);
+      const currentInputTokens = await this.estimateTokens(currentInput, modelId);
       const totalTokens = conversationTokens + currentInputTokens;
       
       // Update display
       contextUsed.textContent = totalTokens.toLocaleString();
       contextLimit.textContent = contextWindow.toLocaleString();
+      
+      // Add indicator for accurate vs estimated counting
+      const isAccurate = window.tokenCounterClient && !window.tokenCounterClient.fallbackMode;
+      if (isAccurate) {
+        contextUsed.title = `Accurate token count using tiktoken for ${modelId}`;
+        contextUsed.style.fontWeight = '600';
+      } else {
+        contextUsed.title = 'Estimated token count (tiktoken unavailable)';
+        contextUsed.style.fontWeight = '500';
+      }
       
       // Update progress bar
       const percentage = Math.min((totalTokens / contextWindow) * 100, 100);

@@ -188,7 +188,18 @@
       <div class="setup-editor-field">
         <textarea id="instructions-content" placeholder="Enter your system instructions here..."></textarea>
         <div class="textarea-footer">
-          <span class="char-count">Characters: <span id="instructions-char-count">0</span></span>
+          <div class="count-group">
+            <span class="char-count">Characters: <span id="instructions-char-count">0</span></span>
+            <span class="token-count">Tokens: <span id="instructions-token-count">0</span></span>
+          </div>
+          <div class="model-select-mini">
+            <select id="instructions-model-select" class="mini-model-select">
+              <option value="gpt-4o">GPT-4o</option>
+              <option value="gpt-4o-mini">GPT-4o Mini</option>
+              <option value="claude-3-5-sonnet-latest">Claude 3.5 Sonnet</option>
+              <option value="claude-3-5-haiku-latest">Claude 3.5 Haiku</option>
+            </select>
+          </div>
         </div>
       </div>
       <div class="setup-editor-actions">
@@ -224,7 +235,18 @@
       <div class="setup-editor-field">
         <textarea id="env-content" placeholder="KEY=value\nANOTHER_KEY=another_value"></textarea>
         <div class="textarea-footer">
-          <span class="char-count">Lines: <span id="env-line-count">0</span></span>
+          <div class="count-group">
+            <span class="char-count">Lines: <span id="env-line-count">0</span></span>
+            <span class="token-count">Tokens: <span id="env-token-count">0</span></span>
+          </div>
+          <div class="model-select-mini">
+            <select id="env-model-select" class="mini-model-select">
+              <option value="gpt-4o">GPT-4o</option>
+              <option value="gpt-4o-mini">GPT-4o Mini</option>
+              <option value="claude-3-5-sonnet-latest">Claude 3.5 Sonnet</option>
+              <option value="claude-3-5-haiku-latest">Claude 3.5 Haiku</option>
+            </select>
+          </div>
         </div>
       </div>
       <div class="setup-editor-actions">
@@ -244,6 +266,9 @@
 
 <!-- Context Tracker Service -->
 <script src="js/services/contextTracker.js"></script>
+
+<!-- Token Counter Client Service -->
+<script src="js/services/tokenCounterClient.js"></script>
 
 <!-- Core Dependencies (load first) -->
 <script>

@@ -39,9 +39,10 @@ public/js/
 ├── data/
 │   └── models.json           # Model definitions and metadata
 ├── services/
-│   └── contextTracker.js    # Context window tracking service
+│   ├── contextTracker.js    # Context window tracking service with accurate tiktoken
+│   └── tokenCounterClient.js # Client-side accurate token counting service
 └── modules/
-    ├── portalInit.js         # Portal initialization and legacy compatibility
+    ├── portalInit.js         # Portal initialization and enhanced setup controls
     ├── dynamicModelManager.js # Main model management coordinator
     ├── modelSearch.js        # Model searching and filtering
     ├── modelUI.js           # Model selector UI management with custom ordering
@@ -55,17 +56,18 @@ public/js/
 
 ### 1. Context Tracker Service (`services/contextTracker.js`)
 
-**Purpose**: Provides real-time context window usage tracking and visualization for all AI models.
+**Purpose**: Provides real-time context window usage tracking and visualization for all AI models with accurate tiktoken integration.
 
 **Key Responsibilities**:
 - Dynamic context window limit retrieval from server API
-- Real-time token estimation and usage calculation
+- **Accurate token counting** using tiktoken instead of 4-character approximation
+- Real-time token estimation and usage calculation with visual feedback
 - Context window usage visualization with progress indicators
 - Integration with chat manager and model selection
 - Fallback context window calculation for offline scenarios
 
 **Key Classes**:
-- `ContextTracker`: Main context tracking coordinator
+- `ContextTracker`: Main context tracking coordinator with tiktoken integration
 
 **API**:
 ```javascript
@@ -75,7 +77,7 @@ contextTracker.initialize(chatManager, modelConfig);
 // Get context window for model
 const contextWindow = await contextTracker.getContextWindow('gpt-4o');
 
-// Update indicator with current input
+// Update indicator with current input (now with accurate counting)
 contextTracker.updateIndicator('Current message text...');
 
 // Set current model
@@ -83,21 +85,26 @@ contextTracker.setCurrentModel('claude-3-5-sonnet-latest');
 
 // Update conversation history
 contextTracker.updateConversationHistory(conversationArray);
+
+// Accurate token estimation (upgraded from 4-char approximation)
+const tokens = await contextTracker.estimateTokens(text, modelId);
 ```
 
-**Features**:
+**Enhanced Features**:
+- **Accurate Token Counting**: Uses tiktoken library for precise token calculations
+- **Visual Accuracy Indicators**: Green checkmark (✓) for accurate counting, orange tilde (~) for estimation
+- **Model-Specific Tokenization**: Uses appropriate encoding for each model (cl100k_base, o200k_base)
 - **Dynamic Context Limits**: Fetches actual context windows from `models.json` via server API
-- **Real-time Tracking**: Updates as user types and conversation progresses
-- **Visual Indicators**: Color-coded progress bar (green → blue → orange → red)
-- **Smart Estimation**: Client-side token estimation with pattern recognition
-- **Model Integration**: Automatically updates when models are changed
-- **Caching**: Intelligent caching of context window data for performance
+- **Real-time Tracking**: Updates as user types and conversation progresses with accurate feedback
+- **Visual Indicators**: Color-coded progress bar with accuracy indicators
+- **Graceful Fallback**: Falls back to improved estimation if tiktoken unavailable
+- **Performance Optimized**: Efficient caching and async token counting
 
 **Data Flow**:
 1. Server `contextWindowService` reads from `models.json`
 2. Client fetches context limits via `/api/models/:modelId/context-window`
-3. Real-time token estimation using conversation history + current input
-4. Visual indicator updates with usage percentage and color coding
+3. **Accurate tiktoken-based token counting** for conversation history + current input
+4. Visual indicator updates with usage percentage, color coding, and accuracy status
 
 ### 2. Portal Initialization Module (`portalInit.js`)
 

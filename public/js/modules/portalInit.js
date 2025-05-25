@@ -516,6 +516,14 @@ class PortalInitializer {
         this.updateCharCount('instructions');
       });
     }
+    
+    // Setup model selector change for instructions
+    const instructionsModelSelect = document.getElementById('instructions-model-select');
+    if (instructionsModelSelect) {
+      instructionsModelSelect.addEventListener('change', () => {
+        this.updateCharCount('instructions');
+      });
+    }
   }
 
   /**
@@ -563,6 +571,14 @@ class PortalInitializer {
     const envTextarea = document.getElementById('env-content');
     if (envTextarea) {
       envTextarea.addEventListener('input', () => {
+        this.updateLineCount();
+      });
+    }
+    
+    // Setup model selector change for environment variables
+    const envModelSelect = document.getElementById('env-model-select');
+    if (envModelSelect) {
+      envModelSelect.addEventListener('change', () => {
         this.updateLineCount();
       });
     }
@@ -709,46 +725,142 @@ class PortalInitializer {
   }
 
   /**
-   * Update character count for instructions
+   * Update character count and token count for instructions
    * @param {string} type - Type of editor ('instructions')
    */
-  updateCharCount(type) {
+  async updateCharCount(type) {
     const textarea = document.getElementById(`${type}-content`);
-    const countElement = document.getElementById(`${type}-char-count`);
+    const charCountElement = document.getElementById(`${type}-char-count`);
+    const tokenCountElement = document.getElementById(`${type}-token-count`);
+    const modelSelect = document.getElementById(`${type}-model-select`);
     
-    if (textarea && countElement) {
+    if (textarea && charCountElement) {
       const count = textarea.value.length;
-      countElement.textContent = count.toLocaleString();
+      charCountElement.textContent = count.toLocaleString();
       
       // Add color coding based on content length
       if (count > 10000) {
-        countElement.style.color = '#ff6b35';
+        charCountElement.style.color = '#ff6b35';
       } else if (count > 5000) {
-        countElement.style.color = '#ff9500';
+        charCountElement.style.color = '#ff9500';
       } else {
-        countElement.style.color = '#6e7681';
+        charCountElement.style.color = '#6e7681';
+      }
+    }
+    
+    // Update token count if elements exist
+    if (textarea && tokenCountElement && window.tokenCounterClient) {
+      const modelId = modelSelect ? modelSelect.value : 'gpt-4o';
+      
+      // Show loading state
+      tokenCountElement.classList.add('loading');
+      tokenCountElement.textContent = 'Counting';
+      
+      try {
+        const tokenCount = await window.tokenCounterClient.countTokens(textarea.value, modelId);
+        const formatted = window.tokenCounterClient.formatTokenCount(tokenCount, modelId);
+        
+        // Remove loading state
+        tokenCountElement.classList.remove('loading');
+        
+        // Extract just the number for display
+        const tokenNumber = tokenCount.toLocaleString();
+        tokenCountElement.textContent = tokenNumber;
+        
+        // Add tooltip with cost estimate
+        tokenCountElement.title = formatted;
+        
+        // Color coding based on token count
+        if (tokenCount > 50000) {
+          tokenCountElement.style.color = '#ff6b35';
+        } else if (tokenCount > 20000) {
+          tokenCountElement.style.color = '#ff9500';
+        } else if (tokenCount > 5000) {
+          tokenCountElement.style.color = '#58a6ff';
+        } else {
+          tokenCountElement.style.color = '#00d084';
+        }
+        
+      } catch (error) {
+        console.warn('Token counting failed:', error);
+        // Remove loading state
+        tokenCountElement.classList.remove('loading');
+        
+        // Fallback to estimation
+        const estimatedTokens = Math.ceil(textarea.value.length / 4);
+        tokenCountElement.textContent = `~${estimatedTokens.toLocaleString()}`;
+        tokenCountElement.style.color = '#6e7681';
+        tokenCountElement.title = 'Estimated (tiktoken unavailable)';
       }
     }
   }
 
   /**
-   * Update line count for environment variables
+   * Update line count and token count for environment variables
    */
-  updateLineCount() {
+  async updateLineCount() {
     const textarea = document.getElementById('env-content');
-    const countElement = document.getElementById('env-line-count');
+    const lineCountElement = document.getElementById('env-line-count');
+    const tokenCountElement = document.getElementById('env-token-count');
+    const modelSelect = document.getElementById('env-model-select');
     
-    if (textarea && countElement) {
+    if (textarea && lineCountElement) {
       const lines = textarea.value.split('\n').length;
-      countElement.textContent = lines.toLocaleString();
+      lineCountElement.textContent = lines.toLocaleString();
       
       // Add color coding based on line count
       if (lines > 100) {
-        countElement.style.color = '#ff6b35';
+        lineCountElement.style.color = '#ff6b35';
       } else if (lines > 50) {
-        countElement.style.color = '#ff9500';
+        lineCountElement.style.color = '#ff9500';
       } else {
-        countElement.style.color = '#6e7681';
+        lineCountElement.style.color = '#6e7681';
+      }
+    }
+    
+    // Update token count if elements exist
+    if (textarea && tokenCountElement && window.tokenCounterClient) {
+      const modelId = modelSelect ? modelSelect.value : 'gpt-4o';
+      
+      // Show loading state
+      tokenCountElement.classList.add('loading');
+      tokenCountElement.textContent = 'Counting';
+      
+      try {
+        const tokenCount = await window.tokenCounterClient.countTokens(textarea.value, modelId);
+        const formatted = window.tokenCounterClient.formatTokenCount(tokenCount, modelId);
+        
+        // Remove loading state
+        tokenCountElement.classList.remove('loading');
+        
+        // Extract just the number for display
+        const tokenNumber = tokenCount.toLocaleString();
+        tokenCountElement.textContent = tokenNumber;
+        
+        // Add tooltip with cost estimate
+        tokenCountElement.title = formatted;
+        
+        // Color coding based on token count (env vars are usually much smaller)
+        if (tokenCount > 10000) {
+          tokenCountElement.style.color = '#ff6b35';
+        } else if (tokenCount > 5000) {
+          tokenCountElement.style.color = '#ff9500';
+        } else if (tokenCount > 1000) {
+          tokenCountElement.style.color = '#58a6ff';
+        } else {
+          tokenCountElement.style.color = '#00d084';
+        }
+        
+      } catch (error) {
+        console.warn('Token counting failed:', error);
+        // Remove loading state
+        tokenCountElement.classList.remove('loading');
+        
+        // Fallback to estimation
+        const estimatedTokens = Math.ceil(textarea.value.length / 4);
+        tokenCountElement.textContent = `~${estimatedTokens.toLocaleString()}`;
+        tokenCountElement.style.color = '#6e7681';
+        tokenCountElement.title = 'Estimated (tiktoken unavailable)';
       }
     }
   }
@@ -800,11 +912,11 @@ class PortalInitializer {
     document.removeEventListener('keydown', this.setupKeyboardShortcuts);
     
     // Clear global functions and variables
-    this.legacyFunctions.forEach((func, name) => {
+    this.legacyFunctions.forEach((_, name) => {
       delete window[name];
     });
     
-    this.globalVariables.forEach((value, name) => {
+    this.globalVariables.forEach((_, name) => {
       delete window[name];
     });
     
