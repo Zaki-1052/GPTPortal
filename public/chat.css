@@ -101,15 +101,18 @@ body::before {
   border-radius: 16px;
   color: #e6edf3;
   font-size: 16px;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   resize: none;
   min-height: 56px;
-  max-height: 200px;
+  max-height: 300px;
   box-sizing: border-box;
   position: relative;
   font-family: inherit;
   transition: all 0.2s ease;
   outline: none;
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 #message-input:focus {

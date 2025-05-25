@@ -259,6 +259,12 @@ router.post('/message', async (req, res) => {
   if (user_message === "Bye!") {
     console.log("Shutdown message received. Exporting chat and closing server...");
     
+    if (req.app.locals.isShuttingDown) {
+      return res.status(503).send('Server is already shutting down');
+    }
+    
+    req.app.locals.isShuttingDown = true;
+    
     const htmlContent = await exportChatToHTML();
     
     res.set('Content-Type', 'text/html');
@@ -267,8 +273,21 @@ router.post('/message', async (req, res) => {
     
     // Gracefully shutdown server after sending response
     setTimeout(() => {
-      console.log("Server shutting down...");
-      process.exit(0);
+      console.log("Sending SIGTERM to self...");
+      
+      // Get server instance from app locals if available
+      const server = req.app.locals.serverInstance || req.app.get('server');
+      
+      if (server) {
+        server.close(() => {
+          console.log('Server successfully shut down.');
+          process.exit(99);
+        });
+      } else {
+        // Fallback if server instance not available
+        process.kill(process.pid, 'SIGINT');
+        setTimeout(() => process.exit(99), 500);
+      }
     }, 1000);
     
     return;

@@ -6,6 +6,10 @@ class ContextTracker {
     this.contextCache = new Map();
     this.cacheExpiry = 5 * 60 * 1000; // 5 minutes
     
+    // System prompt caching for accurate token counting
+    this.systemPromptCache = new Map();
+    this.customPromptCache = new Map();
+    
     // Bind methods
     this.updateIndicator = this.updateIndicator.bind(this);
   }
@@ -164,9 +168,9 @@ class ContextTracker {
 
   /**
    * Estimate conversation tokens
-   * @returns {number} Estimated token count for conversation
+   * @returns {Promise<number>} Estimated token count for conversation
    */
-  estimateConversationTokens() {
+  async estimateConversationTokens() {
     let totalTokens = 0;
     
     // Get conversation history from chat manager
@@ -187,10 +191,125 @@ class ContextTracker {
       totalTokens += 10;
     }
     
-    // Add system message overhead
-    totalTokens += 200; // Estimated system message tokens
+    // Add actual system message tokens
+    const systemTokens = await this.getSystemPromptTokens();
+    totalTokens += systemTokens;
     
     return totalTokens;
+  }
+  
+  /**
+   * Get actual system prompt tokens by reading the real files
+   * @returns {Promise<number>} Real system prompt token count
+   */
+  async getSystemPromptTokens() {
+    const currentModelID = this.currentModel || (this.modelConfig ? this.modelConfig.currentModelID : 'gpt-4o');
+    
+    // Check cache first
+    const cacheKey = `${currentModelID}-${this.getActivePromptId()}`;
+    if (this.systemPromptCache.has(cacheKey)) {
+      return this.systemPromptCache.get(cacheKey);
+    }
+    
+    let systemPromptContent = '';
+    
+    try {
+      // Determine which system prompt to use based on model
+      if (currentModelID.includes('claude')) {
+        systemPromptContent = await this.fetchSystemPrompt('claudeInstructions.xml');
+      } else {
+        systemPromptContent = await this.fetchSystemPrompt('instructions.md');
+      }
+      
+      // Add custom prompt if active
+      const customPromptContent = await this.getActiveCustomPrompt();
+      if (customPromptContent) {
+        systemPromptContent += '\n\n' + customPromptContent;
+      }
+      
+      // Calculate tokens
+      const tokens = this.estimateTokens(systemPromptContent);
+      
+      // Cache the result
+      this.systemPromptCache.set(cacheKey, tokens);
+      
+      return tokens;
+      
+    } catch (error) {
+      console.warn('Failed to fetch system prompt, using fallback estimate:', error);
+      // Return a reasonable fallback based on what we observed in the files
+      if (currentModelID.includes('claude')) {
+        return 4600; // Based on the Claude XML file we read (185 lines)
+      } else {
+        return 1600; // Based on the instructions.md file we read (138 lines)
+      }
+    }
+  }
+  
+  /**
+   * Fetch system prompt from file
+   * @param {string} filename - System prompt filename
+   * @returns {Promise<string>} System prompt content
+   */
+  async fetchSystemPrompt(filename) {
+    try {
+      const response = await fetch(`/${filename}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${filename}: ${response.status}`);
+      }
+      return await response.text();
+    } catch (error) {
+      console.warn(`Failed to fetch system prompt ${filename}:`, error);
+      return '';
+    }
+  }
+  
+  /**
+   * Get the ID of the currently active custom prompt
+   * @returns {string} Active prompt ID or 'default'
+   */
+  getActivePromptId() {
+    // Check if there's an active custom prompt
+    // This would need to be tracked when a prompt is selected
+    return window.activeCustomPrompt || 'default';
+  }
+  
+  /**
+   * Get the content of the currently active custom prompt
+   * @returns {Promise<string>} Custom prompt content
+   */
+  async getActiveCustomPrompt() {
+    const activePromptId = this.getActivePromptId();
+    if (activePromptId === 'default') {
+      return '';
+    }
+    
+    // Check cache first
+    if (this.customPromptCache.has(activePromptId)) {
+      return this.customPromptCache.get(activePromptId);
+    }
+    
+    try {
+      const response = await fetch(`/uploads/prompts/${activePromptId}.md`);
+      if (!response.ok) {
+        return '';
+      }
+      
+      const content = await response.text();
+      
+      // Parse the markdown to extract just the instructions
+      const bodyMatch = content.match(/#### Instructions\s*\n(.*?)\n##### Conversation starters/s);
+      const promptContent = bodyMatch ? bodyMatch[1].trim() : content;
+      
+      // Cache the result
+      this.customPromptCache.set(activePromptId, promptContent);
+      
+      return promptContent;
+      
+    } catch (error) {
+      console.warn(`Failed to fetch custom prompt ${activePromptId}:`, error);
+      return '';
+    }
   }
 
   /**
@@ -215,7 +334,7 @@ class ContextTracker {
       const contextWindow = await this.getContextWindow(modelId);
       
       // Calculate current usage
-      const conversationTokens = this.estimateConversationTokens();
+      const conversationTokens = await this.estimateConversationTokens();
       const currentInputTokens = this.estimateTokens(currentInput);
       const totalTokens = conversationTokens + currentInputTokens;
       

@@ -19,6 +19,10 @@ class ChatManager {
     // Context tracking
     this.contextTracker = null;
     
+    // System prompt caching for accurate token counting
+    this.systemPromptCache = new Map();
+    this.customPromptCache = new Map();
+    
     this.init();
   }
 
@@ -469,7 +473,7 @@ class ChatManager {
             // Handle code blocks
             const codeContent = part.substring(3, part.length - 3);
             const languageMatch = codeContent.match(/^[^\n]+/);
-            //const language = languageMatch ? languageMatch[0].trim() : '';
+            //wconst language = languageMatch ? languageMatch[0].trim() : '';
             const actualCode = codeContent.replace(/^[^\n]+/, '').trim();
 
             const pre = document.createElement('pre');
@@ -720,6 +724,14 @@ class ChatManager {
       });
       
       if (response.ok) {
+        // Track the active custom prompt for context calculation
+        window.activeCustomPrompt = promptName;
+        
+        // Update context tracker to reflect the new prompt
+        if (this.contextTracker) {
+          this.contextTracker.updateIndicator();
+        }
+        
         event.target.textContent = 'Copied!';
         setTimeout(() => {
           event.target.textContent = 'Copy';
@@ -734,23 +746,39 @@ class ChatManager {
 
   resetTextAreaHeight(field) {
     if (field) {
-      field.style.height = '40px';
+      field.style.height = '56px'; // Use the CSS min-height
+      field.style.overflowY = 'hidden';
       this.autoExpand(field);
     }
   }
 
   autoExpand(field) {
-    field.style.height = 'inherit';
+    // Reset height to auto to get the proper scrollHeight
+    field.style.height = 'auto';
+    
     const computed = window.getComputedStyle(field);
     const borderTop = parseInt(computed.getPropertyValue('border-top-width'), 10);
     const borderBottom = parseInt(computed.getPropertyValue('border-bottom-width'), 10);
     const paddingTop = parseInt(computed.getPropertyValue('padding-top'), 10);
     const paddingBottom = parseInt(computed.getPropertyValue('padding-bottom'), 10);
-    const heightNeeded = field.scrollHeight + borderTop + borderBottom;
     
-    if (field.scrollHeight > field.clientHeight - paddingTop - paddingBottom - borderTop - borderBottom) {
-      field.style.height = `${heightNeeded}px`;
+    // Calculate the height needed for the content
+    const contentHeight = field.scrollHeight;
+    const minHeight = 56; // From CSS min-height
+    const maxHeight = 300; // From CSS max-height
+    
+    // Calculate the actual height needed
+    let newHeight = Math.max(minHeight, contentHeight);
+    
+    // If content exceeds max height, let it scroll
+    if (newHeight > maxHeight) {
+      newHeight = maxHeight;
+      field.style.overflowY = 'auto';
+    } else {
+      field.style.overflowY = 'hidden';
     }
+    
+    field.style.height = `${newHeight}px`;
   }
 
   // Context Tracker Integration

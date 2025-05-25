@@ -79,6 +79,10 @@ class Application extends EventEmitter {
           return;
         }
 
+        // Store server instance for routes to access
+        this.app.locals.serverInstance = this.server;
+        this.app.set('server', this.server);
+
         this.logger.info(`🚀 GPTPortal server running at http://${HOST}:${PORT}`);
         this.logger.info('✅ All systems operational');
         this.logger.info(`📊 Available providers: ${this.serviceManager.getAvailableProviders().join(', ')}`);

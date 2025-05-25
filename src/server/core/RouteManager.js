@@ -480,7 +480,33 @@ class RouteManager {
       res.send(result.htmlContent);
     }));
 
-    this.routes.set('admin', 'Administrative endpoints (chat management, export)');
+    // Server shutdown route (like original implementation)
+    app.post('/shutdown-server', (req, res) => {
+      if (req.app.locals.isShuttingDown) {
+        return res.status(503).send('Server is already shutting down');
+      }
+
+      req.app.locals.isShuttingDown = true;
+      res.send('Server shutdown initiated');
+
+      setTimeout(() => {
+        console.log("Sending SIGTERM to self...");
+        
+        const server = req.app.locals.serverInstance || req.app.get('server');
+        
+        if (server) {
+          server.close(() => {
+            console.log('Server successfully shut down.');
+            process.exit(99);
+          });
+        } else {
+          process.kill(process.pid, 'SIGINT');
+          setTimeout(() => process.exit(99), 500);
+        }
+      }, 1000);
+    });
+
+    this.routes.set('admin', 'Administrative endpoints (chat management, export, shutdown)');
   }
 
   /**
