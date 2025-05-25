@@ -76,6 +76,136 @@ class MessageHandler {
   }
 
   /**
+   * Process LaTeX expressions in DOM elements
+   * @param {HTMLElement} element - DOM element to process
+   */
+  processLaTeXInDOM(element) {
+    // Get all text nodes in the element
+    const walker = document.createTreeWalker(
+      element,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode: (node) => {
+          // Skip text nodes inside code blocks and pre elements
+          if (node.parentElement.closest('code, pre')) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      }
+    );
+    
+    const textNodes = [];
+    let node;
+    while (node = walker.nextNode()) {
+      textNodes.push(node);
+    }
+    
+    // Process each text node
+    textNodes.forEach(textNode => {
+      const text = textNode.textContent;
+      if (!text) return;
+      
+      // Check for LaTeX patterns
+      const hasLaTeX = 
+        /\$\$[\s\S]+?\$\$/.test(text) ||  // Display math $$...$$
+        /\$[^$\n]+?\$/.test(text) ||       // Inline math $...$
+        /\\\[[\s\S]+?\\\]/.test(text) ||   // Display math \[...\]
+        /\\\([\s\S]+?\\\)/.test(text) ||   // Inline math \(...\)
+        /\\begin\{equation\}[\s\S]+?\\end\{equation\}/.test(text); // Equation environment
+      
+      if (!hasLaTeX) return;
+      
+      console.log('Found LaTeX in text node:', text);
+      
+      // Create a temporary container to process the text
+      const tempDiv = document.createElement('div');
+      let processedText = text;
+      
+      // Process display math $$...$$ first
+      processedText = processedText.replace(/\$\$([^$]+)\$\$/g, (match, content) => {
+        try {
+          return katex.renderToString(content.trim(), {
+            displayMode: true,
+            throwOnError: false
+          });
+        } catch (e) {
+          console.warn('LaTeX error:', e);
+          return match;
+        }
+      });
+      
+      // Process display math \[...\]
+      processedText = processedText.replace(/\\\[([^\]]+)\\\]/g, (match, content) => {
+        try {
+          return katex.renderToString(content.trim(), {
+            displayMode: true,
+            throwOnError: false
+          });
+        } catch (e) {
+          console.warn('LaTeX error:', e);
+          return match;
+        }
+      });
+      
+      // Process equation environments
+      processedText = processedText.replace(/\\begin\{equation\}([\s\S]*?)\\end\{equation\}/g, (match, content) => {
+        try {
+          return katex.renderToString(content.trim(), {
+            displayMode: true,
+            throwOnError: false
+          });
+        } catch (e) {
+          console.warn('LaTeX error:', e);
+          return match;
+        }
+      });
+      
+      // Process inline math \(...\)
+      processedText = processedText.replace(/\\\(([^)]+)\\\)/g, (match, content) => {
+        try {
+          return katex.renderToString(content.trim(), {
+            displayMode: false,
+            throwOnError: false
+          });
+        } catch (e) {
+          console.warn('LaTeX error:', e);
+          return match;
+        }
+      });
+      
+      // Process inline math $...$ (be careful not to match $$)
+      processedText = processedText.replace(/(?<!\$)\$(?!\$)([^$\n]+?)\$(?!\$)/g, (match, content) => {
+        // Check if it looks like LaTeX
+        if (!/[\\^_{}]/.test(content)) {
+          return match;
+        }
+        try {
+          return katex.renderToString(content.trim(), {
+            displayMode: false,
+            throwOnError: false
+          });
+        } catch (e) {
+          console.warn('LaTeX error:', e);
+          return match;
+        }
+      });
+      
+      // If text changed, replace the text node with processed HTML
+      if (processedText !== text) {
+        tempDiv.innerHTML = processedText;
+        
+        // Replace the text node with the new nodes
+        const parent = textNode.parentNode;
+        while (tempDiv.firstChild) {
+          parent.insertBefore(tempDiv.firstChild, textNode);
+        }
+        parent.removeChild(textNode);
+      }
+    });
+  }
+  
+  /**
    * Extract LaTeX expressions and replace with placeholders
    * @param {string} text - Text containing LaTeX expressions
    * @returns {Object} Object with processed text and LaTeX map
@@ -512,17 +642,8 @@ class MessageHandler {
     textSpan.className = 'message-text';
     
     let processedHtml = '';
-    let latexMap = new Map();
     
-    // Extract LaTeX expressions BEFORE markdown processing
-    if (this.latexEnabled) {
-      console.log('Extracting LaTeX expressions before markdown...');
-      const extracted = this.extractLaTeX(text);
-      text = extracted.processedText;
-      latexMap = extracted.latexMap;
-    }
-    
-    // Process markdown on text with placeholders
+    // Process markdown first
     if (this.markdownRenderer) {
       processedHtml = this.markdownRenderer.parse(text);
       console.log('Markdown processed, output HTML:', processedHtml);
@@ -532,13 +653,7 @@ class MessageHandler {
       processedHtml = this.escapeHtml(text);
     }
     
-    // Restore LaTeX expressions after markdown processing
-    if (this.latexEnabled && latexMap.size > 0) {
-      console.log('Restoring LaTeX expressions after markdown...');
-      processedHtml = this.restoreLaTeX(processedHtml, latexMap);
-    }
-    
-    // Finally sanitize the HTML
+    // Set the HTML first
     if (this.sanitizer) {
       const safeHtml = this.sanitizer.sanitize(processedHtml, {
         ADD_TAGS: ['span'],
@@ -546,8 +661,13 @@ class MessageHandler {
       });
       textSpan.innerHTML = safeHtml;
     } else {
-      // If no sanitizer, still set the HTML (less safe)
       textSpan.innerHTML = processedHtml;
+    }
+    
+    // Now process LaTeX in the DOM if enabled
+    if (this.latexEnabled && this.latexRenderer) {
+      console.log('Processing LaTeX in DOM...');
+      this.processLaTeXInDOM(textSpan);
     }
     
     parent.appendChild(textSpan);
@@ -567,17 +687,8 @@ class MessageHandler {
     messageText.className = 'message-text';
     
     let processedHtml = '';
-    let latexMap = new Map();
     
-    // Extract LaTeX expressions BEFORE markdown processing
-    if (this.latexEnabled) {
-      console.log('Extracting LaTeX expressions before markdown...');
-      const extracted = this.extractLaTeX(message);
-      message = extracted.processedText;
-      latexMap = extracted.latexMap;
-    }
-    
-    // Process markdown on text with placeholders
+    // Process markdown first
     if (this.markdownRenderer) {
       processedHtml = this.markdownRenderer.parse(message);
       console.log('Markdown processed');
@@ -586,13 +697,7 @@ class MessageHandler {
       processedHtml = this.escapeHtml(message);
     }
     
-    // Restore LaTeX expressions after markdown processing
-    if (this.latexEnabled && latexMap.size > 0) {
-      console.log('Restoring LaTeX expressions after markdown...');
-      processedHtml = this.restoreLaTeX(processedHtml, latexMap);
-    }
-    
-    // Finally sanitize the HTML
+    // Set the HTML
     if (this.sanitizer) {
       const safeHtml = this.sanitizer.sanitize(processedHtml, {
         ADD_TAGS: ['span'],
@@ -600,8 +705,13 @@ class MessageHandler {
       });
       messageText.innerHTML = safeHtml;
     } else {
-      // If no sanitizer, still set the HTML (less safe)
       messageText.innerHTML = processedHtml;
+    }
+    
+    // Process LaTeX in the DOM if enabled
+    if (this.latexEnabled && this.latexRenderer) {
+      console.log('Processing LaTeX in DOM...');
+      this.processLaTeXInDOM(messageText);
     }
 
     element.appendChild(messageText);
