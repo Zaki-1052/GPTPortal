@@ -8,10 +8,22 @@ const OpenRouterHandler = require('./openrouterHandler');
 const GeminiHandler = require('./geminiHandler');
 
 class ProviderFactory {
-  constructor(apiKeys) {
+  constructor(apiKeys, promptCacheService = null) {
     this.apiKeys = apiKeys;
     this.handlers = {};
+    this.promptCacheService = promptCacheService;
     this.initializeHandlers();
+  }
+
+  /**
+   * Set the prompt cache service (dependency injection)
+   */
+  setPromptCacheService(promptCacheService) {
+    this.promptCacheService = promptCacheService;
+    // Inject into existing Claude handler if available
+    if (this.handlers.claude && promptCacheService) {
+      this.handlers.claude.setPromptCacheService(promptCacheService);
+    }
   }
 
   /**
@@ -25,6 +37,10 @@ class ProviderFactory {
 
     if (this.apiKeys.claude) {
       this.handlers.claude = new ClaudeHandler(this.apiKeys.claude);
+      // Inject prompt cache service if available
+      if (this.promptCacheService) {
+        this.handlers.claude.setPromptCacheService(this.promptCacheService);
+      }
       console.log('✅ Claude handler initialized');
     }
 

@@ -250,6 +250,9 @@ class GPTPortalApp {
     // Enhanced Assistant Mode
     this.setupAssistantMode();
     
+    // Prompt caching controls
+    this.setupPromptCacheControls();
+    
     // Fix model selector dropdown
     this.fixModelSelector();
     
@@ -754,6 +757,38 @@ class GPTPortalApp {
       console.log('🔧 After fixModelSelector - display set to none');
       console.log('🔧 After fixModelSelector - computed display:', window.getComputedStyle(modelOptions).display);
     }
+  }
+
+  setupPromptCacheControls() {
+    console.log('Setting up prompt cache controls...');
+    
+    const cacheToggle = document.getElementById('enable-prompt-cache');
+    if (!cacheToggle) {
+      console.warn('Prompt cache toggle not found in DOM');
+      return;
+    }
+
+    // Load saved preferences
+    if (this.modelConfig && typeof this.modelConfig.loadCachePreferences === 'function') {
+      this.modelConfig.loadCachePreferences();
+    }
+
+    // Add event listener for cache toggle
+    cacheToggle.addEventListener('change', (e) => {
+      const enabled = e.target.checked;
+      console.log('Prompt cache toggled:', enabled);
+      
+      if (this.modelConfig && typeof this.modelConfig.updatePromptCacheEnabled === 'function') {
+        this.modelConfig.updatePromptCacheEnabled(enabled);
+      }
+    });
+
+    // Initialize visibility based on current model
+    if (this.modelConfig && typeof this.modelConfig.updateCacheControlVisibility === 'function') {
+      this.modelConfig.updateCacheControlVisibility();
+    }
+
+    console.log('Prompt cache controls initialized');
   }
 }
 

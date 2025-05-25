@@ -9,6 +9,10 @@ class ModelConfig {
     this.dynamicModelManager = null;
     this.usesDynamicModels = true; // Flag to enable new dynamic system
     
+    // Prompt caching configuration
+    this.promptCacheEnabled = false;
+    this.promptCachePreference = 'auto'; // 'auto', 'force', 'none'
+    
     this.init();
   }
 
@@ -219,6 +223,84 @@ class ModelConfig {
       name: this.getLegacyModelName(this.currentModelID),
       provider: this.inferProvider(this.currentModelID)
     };
+  }
+
+  // Prompt caching methods
+  isClaudeModel(modelID = this.currentModelID) {
+    return modelID && modelID.includes('claude');
+  }
+
+  supportsPromptCaching(modelID = this.currentModelID) {
+    return this.isClaudeModel(modelID);
+  }
+
+  updatePromptCacheEnabled(enabled) {
+    this.promptCacheEnabled = enabled;
+    localStorage.setItem('promptCacheEnabled', enabled.toString());
+    
+    // Update UI
+    this.updateCacheControlVisibility();
+    
+    console.log('Prompt caching', enabled ? 'enabled' : 'disabled');
+  }
+
+  getPromptCachePreference() {
+    if (!this.promptCacheEnabled || !this.supportsPromptCaching()) {
+      return 'none';
+    }
+    return this.promptCachePreference;
+  }
+
+  setPromptCachePreference(preference) {
+    this.promptCachePreference = preference;
+    localStorage.setItem('promptCachePreference', preference);
+  }
+
+  loadCachePreferences() {
+    const saved = localStorage.getItem('promptCacheEnabled');
+    if (saved !== null) {
+      this.promptCacheEnabled = saved === 'true';
+    }
+    
+    const savedPreference = localStorage.getItem('promptCachePreference');
+    if (savedPreference) {
+      this.promptCachePreference = savedPreference;
+    }
+
+    // Update UI
+    this.updateCacheControlVisibility();
+    const cacheToggle = document.getElementById('enable-prompt-cache');
+    if (cacheToggle) {
+      cacheToggle.checked = this.promptCacheEnabled;
+    }
+  }
+
+  updateCacheControlVisibility() {
+    const cacheContainer = document.getElementById('prompt-cache-container');
+    if (cacheContainer) {
+      if (this.supportsPromptCaching()) {
+        cacheContainer.style.display = 'flex';
+      } else {
+        cacheContainer.style.display = 'none';
+      }
+    }
+  }
+
+  // Override selectModel to handle cache UI visibility
+  selectModel(modelID) {
+    this.currentModelID = modelID;
+    this.determineEndpoint(modelID);
+    
+    // Update cache control visibility based on model
+    this.updateCacheControlVisibility();
+    
+    // Close dropdown
+    const options = document.getElementById('model-options');
+    if (options) {
+      options.style.display = 'none';
+    }
+    
+    console.log("Selected model ID:", modelID);
   }
 }
 

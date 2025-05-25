@@ -332,12 +332,34 @@ chatManager.uploadImageAndGetUrl(imageFile);
 
 ### 8. Model Configuration (`modelConfig.js`)
 
-**Purpose**: Manages model configuration, endpoint determination, and provider settings.
+**Purpose**: Manages model configuration, endpoint determination, provider settings, and prompt caching preferences.
 
-**Enhancement Opportunities**:
-- Better separation between configuration and UI state
-- Enhanced provider detection and routing
-- Configuration validation and error handling
+**Key Responsibilities**:
+- Model selection and endpoint routing
+- Prompt caching configuration and preferences
+- Claude model detection and caching support validation
+- Cache control UI visibility management
+- Preference persistence and loading
+
+**Prompt Caching Features**:
+- **Claude Model Detection**: Automatically detects Claude models that support caching
+- **Cache Preference Management**: Handles user preferences for caching behavior
+- **UI Integration**: Shows/hides cache controls based on selected model
+- **Persistence**: Saves cache preferences to localStorage
+- **Backward Compatibility**: Works seamlessly with existing model configuration
+
+**API**:
+```javascript
+// Check if current model supports caching
+const supported = modelConfig.supportsPromptCaching();
+
+// Update cache preferences
+modelConfig.updatePromptCacheEnabled(true);
+modelConfig.setPromptCachePreference('conservative');
+
+// Get current cache preference for API requests
+const preference = modelConfig.getPromptCachePreference();
+```
 
 ### 9. UI Manager (`uiManager.js`)
 
@@ -347,6 +369,128 @@ chatManager.uploadImageAndGetUrl(imageFile);
 - Better separation of concerns with ModelUIManager
 - Enhanced file upload UI
 - Improved sidebar and navigation management
+
+## Prompt Caching Frontend Integration
+
+### Overview
+
+The frontend provides a seamless interface for Claude's prompt caching feature, with intelligent UI controls that appear only when Claude models are selected. The system integrates deeply with the existing model configuration and chat management systems.
+
+### UI Components
+
+#### **Cache Control Toggle**
+- **Location**: Model selector controls area
+- **Visibility**: Automatically shown/hidden based on selected model
+- **Persistence**: User preferences saved to localStorage
+- **Integration**: Connected to ModelConfig for state management
+
+#### **Dynamic Visibility**
+```javascript
+// Cache controls appear only for Claude models
+const cacheContainer = document.getElementById('prompt-cache-container');
+if (modelConfig.supportsPromptCaching(selectedModel)) {
+  cacheContainer.style.display = 'flex';
+} else {
+  cacheContainer.style.display = 'none';
+}
+```
+
+### Integration Points
+
+#### **Model Configuration Integration**
+- **Automatic Detection**: Detects Claude models that support caching
+- **Preference Management**: Handles cache enable/disable state
+- **UI Synchronization**: Updates UI controls when models change
+- **Default Handling**: Provides sensible defaults for first-time users
+
+#### **Chat Manager Integration**
+- **Request Enhancement**: Adds cache preferences to API requests
+- **Backward Compatibility**: Works seamlessly with existing chat flow
+- **Graceful Degradation**: Falls back gracefully if caching unavailable
+
+#### **State Management**
+```javascript
+// Cache state is managed alongside other model preferences
+const cacheState = {
+  enabled: localStorage.getItem('promptCacheEnabled') === 'true',
+  preference: localStorage.getItem('promptCachePreference') || 'auto',
+  supported: modelConfig.supportsPromptCaching(currentModel)
+};
+```
+
+### User Experience
+
+#### **Progressive Enhancement**
+- Cache controls only appear for supported models
+- No disruption to existing workflow for non-Claude models
+- Clear visual indicators for cache-enabled conversations
+- Tooltip explanations for new users
+
+#### **Smart Defaults**
+- Caching disabled by default for conservative approach
+- Automatic activation when users select Claude models
+- Persistent preferences across browser sessions
+- Contextual help and explanations
+
+### Data Flow with Caching
+
+#### **Model Selection with Cache Updates**
+```
+User Selects Claude Model
+    ↓
+ModelConfig.selectModel()
+    ↓
+Update Cache Control Visibility
+    ↓
+Load Saved Cache Preferences
+    ↓
+Update UI State
+    ↓
+Ready for Cache-Enabled Conversations
+```
+
+#### **Cache-Enabled Message Flow**
+```
+User Sends Message
+    ↓
+Determine Cache Preference
+    ↓
+Add cachePreference to Payload
+    ↓
+Backend Applies Cache Strategy
+    ↓
+Response with Cache Analytics
+    ↓
+Update UI (potential cost savings indication)
+```
+
+### Performance Considerations
+
+#### **Lightweight Integration**
+- Minimal additional JavaScript overhead
+- Lazy loading of cache-related functionality
+- Efficient state synchronization
+- No impact on non-Claude model performance
+
+#### **Memory Management**
+- Cache preferences stored in localStorage only
+- No client-side content caching
+- Efficient event listener management
+- Proper cleanup on model switches
+
+### Future Enhancements
+
+#### **Cache Analytics UI**
+- Visual indicators for cache hit rates
+- Cost savings summaries in conversation UI
+- Performance metrics dashboard
+- Cache strategy recommendations
+
+#### **Advanced Controls**
+- Per-conversation cache strategy selection
+- Cache breakpoint visualization
+- Manual cache control overrides
+- Advanced analytics and reporting
 
 ## Data Flow Architecture
 
@@ -423,7 +567,9 @@ ChatManager.sendMessage()
     ↓
 MessageHandler.displayMessage() (user)
     ↓
-API Communication
+Cache Preference Determination
+    ↓
+API Communication (with cache controls)
     ↓
 Response Processing
     ↓
@@ -449,6 +595,7 @@ Optional TTS
 - **UI State**: Dropdown visibility, collapsed categories, tooltips
 - **Conversation State**: Message history, current conversation
 - **Context State**: Context window usage, token estimates, model limits
+- **Cache State**: Prompt caching preferences, cache analytics, cache control visibility
 - **Preferences**: User settings, UI preferences, feature flags
 
 ### 2. State Synchronization

@@ -31,6 +31,15 @@ const config = {
     maxTokens: process.env.MAX_TOKENS ? parseInt(process.env.MAX_TOKENS) : 8000
   },
   
+  // Prompt caching configuration
+  promptCache: {
+    enabled: process.env.CLAUDE_CACHE_ENABLED === 'true',
+    strategy: process.env.CLAUDE_CACHE_STRATEGY || 'conservative',
+    analytics: process.env.CLAUDE_CACHE_ANALYTICS !== 'false',
+    maxBreakpoints: process.env.CLAUDE_CACHE_MAX_BREAKPOINTS ? parseInt(process.env.CLAUDE_CACHE_MAX_BREAKPOINTS) : 4,
+    defaultPreference: process.env.CLAUDE_CACHE_DEFAULT_PREFERENCE || 'auto'
+  },
+  
   // File upload configuration
   upload: {
     maxFileSize: 32 * 1024 * 1024, // 32MB
@@ -50,6 +59,11 @@ const validateConfig = () => {
   console.log(`- Port: ${config.port}`);
   console.log(`- Temperature: ${config.model.temperature}`);
   console.log(`- Max Tokens: ${config.model.maxTokens}`);
+  console.log(`- Prompt Caching: ${config.promptCache.enabled ? 'Enabled' : 'Disabled'}`);
+  if (config.promptCache.enabled) {
+    console.log(`  - Strategy: ${config.promptCache.strategy}`);
+    console.log(`  - Analytics: ${config.promptCache.analytics ? 'Enabled' : 'Disabled'}`);
+  }
 };
 
 module.exports = {

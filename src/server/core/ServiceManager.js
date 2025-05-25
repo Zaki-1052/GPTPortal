@@ -7,9 +7,11 @@ const ProviderFactory = require('../services/providers/providerFactory');
 const { initializeAIProviders } = require('../services/aiProviders');
 const modelSyncService = require('../services/modelSyncService');
 const tokenCountService = require('../services/tokenCountService');
+const tokenService = require('../services/tokenService');
 const costService = require('../services/costService');
 const exportService = require('../services/exportService');
 const titleService = require('../services/titleService');
+const PromptCacheService = require('../services/promptCacheService');
 const Logger = require('../utils/Logger');
 
 class ServiceManager {
@@ -35,8 +37,12 @@ class ServiceManager {
       this.aiProviders = initializeAIProviders(this.config.apiKeys);
       this.services.set('aiProviders', this.aiProviders);
 
-      // Initialize provider factory
-      this.providerFactory = new ProviderFactory(this.config.apiKeys);
+      // Initialize prompt cache service with configuration
+      const promptCacheService = new PromptCacheService(tokenService, costService, this.config.promptCache);
+      this.services.set('promptCacheService', promptCacheService);
+
+      // Initialize provider factory with prompt cache service
+      this.providerFactory = new ProviderFactory(this.config.apiKeys, promptCacheService);
       this.services.set('providerFactory', this.providerFactory);
 
       // Initialize model sync service
@@ -48,6 +54,7 @@ class ServiceManager {
 
       // Register other services
       this.services.set('tokenCountService', tokenCountService);
+      this.services.set('tokenService', tokenService);
       this.services.set('costService', costService);
       this.services.set('exportService', exportService);
       this.services.set('titleService', titleService);

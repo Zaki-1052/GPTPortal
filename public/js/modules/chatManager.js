@@ -358,6 +358,11 @@ class ChatManager {
       };
       endpoint = '/gemini';
     } else {
+      // Get cache preference from model config
+      const cachePreference = this.modelConfig && typeof this.modelConfig.getPromptCachePreference === 'function' 
+        ? this.modelConfig.getPromptCachePreference() 
+        : 'auto';
+
       payload = {
         message: message,
         modelID: currentModelID,
@@ -365,7 +370,8 @@ class ChatManager {
         image: imageUrl,
         file: this.fileUrl,
         temperature: window.temperature || 1,
-        tokens: window.tokens || 8000
+        tokens: window.tokens || 8000,
+        cachePreference: cachePreference
       };
       endpoint = '/message';
     }

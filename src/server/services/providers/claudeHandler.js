@@ -5,16 +5,41 @@ class ClaudeHandler {
   constructor(apiKey) {
     this.apiKey = apiKey;
     this.baseURL = 'https://api.anthropic.com/v1';
+    this.promptCacheService = null; // Will be injected by ProviderFactory
   }
 
   /**
-   * Handle Claude chat completion with thinking support
+   * Set the prompt cache service (dependency injection)
+   */
+  setPromptCacheService(promptCacheService) {
+    this.promptCacheService = promptCacheService;
+  }
+
+  /**
+   * Handle Claude chat completion with thinking support and optional prompt caching
    */
   async handleChatCompletion(payload) {
-    const { user_input, modelID, systemMessage, claudeHistory, temperature, tokens } = payload;
+    const { user_input, modelID, systemMessage, claudeHistory, temperature, tokens, cachePreference } = payload;
+    
+    // Apply prompt caching if available and enabled
+    let finalPayload = payload;
+    let cacheStrategy = null;
+    if (this.promptCacheService) {
+      try {
+        cacheStrategy = await this.promptCacheService.analyzeCacheStrategy(payload, { cachePreference });
+        if (cacheStrategy.shouldCache) {
+          finalPayload = await this.promptCacheService.applyCacheControls(payload, cacheStrategy);
+          console.log(`🔄 Applied ${cacheStrategy.type} caching strategy to ${modelID}`);
+        }
+      } catch (error) {
+        console.warn('Failed to apply prompt caching, proceeding without cache:', error.message);
+        // Continue with original payload on caching error (graceful degradation)
+      }
+    }
 
     // Add user input to Claude history
-    claudeHistory.push(user_input);
+    const { systemMessage: finalSystemMessage, claudeHistory: finalClaudeHistory } = finalPayload;
+    finalClaudeHistory.push(user_input);
 
     // Check if this is a Claude 4 model with thinking support
     const isThinkingModel = modelID === 'claude-3-7-sonnet-latest' || 
@@ -32,16 +57,16 @@ class ClaudeHandler {
           budget_tokens: budget
         },
         temperature: temperature,
-        system: systemMessage,
-        messages: claudeHistory,
+        system: finalSystemMessage,
+        messages: finalClaudeHistory,
       };
     } else {
       requestData = {
         model: modelID,
         max_tokens: tokens,
         temperature: temperature,
-        system: systemMessage,
-        messages: claudeHistory,
+        system: finalSystemMessage,
+        messages: finalClaudeHistory,
       };
     }
 
@@ -60,6 +85,11 @@ class ClaudeHandler {
       const response = await axios.post(`${this.baseURL}/messages`, requestData, { headers });
       let messageContent = response.data.content;
       
+      // Track cache performance if caching was attempted
+      if (this.promptCacheService && cacheStrategy?.shouldCache && response.data.usage) {
+        this.promptCacheService.trackCachePerformance(modelID, response.data.usage, true);
+      }
+      
       // Process thinking models response
       if (isThinkingModel && Array.isArray(messageContent)) {
         let thinkingContent = '';
@@ -76,7 +106,7 @@ class ClaudeHandler {
         const formattedContent = `# Thinking:\n${thinkingContent}\n---\n# Response:\n${textContent}`;
         
         // Add to history with original format for API consistency
-        claudeHistory.push({ role: "assistant", content: response.data.content });
+        finalClaudeHistory.push({ role: "assistant", content: response.data.content });
         
         return {
           success: true,
@@ -89,7 +119,7 @@ class ClaudeHandler {
         // Standard Claude response
         const textContent = Array.isArray(messageContent) ? messageContent[0].text : messageContent;
         
-        claudeHistory.push({ role: "assistant", content: response.data.content });
+        finalClaudeHistory.push({ role: "assistant", content: response.data.content });
         
         return {
           success: true,
