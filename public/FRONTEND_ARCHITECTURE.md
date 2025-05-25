@@ -7,23 +7,27 @@ The GPTPortal frontend is a sophisticated multi-LLM chat interface built with va
 ## Architecture Principles
 
 ### 1. **Modular Design**
+
 - **Separation of Concerns**: Each module has a single, well-defined responsibility
 - **Loose Coupling**: Modules communicate through well-defined interfaces
 - **High Cohesion**: Related functionality is grouped together
 - **Dependency Injection**: Dependencies are injected rather than hard-coded
 
 ### 2. **Progressive Enhancement**
+
 - **Graceful Degradation**: Core functionality works even if advanced features fail
 - **Feature Detection**: Capabilities are detected before use
 - **Fallback Mechanisms**: Multiple fallback strategies for critical functionality
 
 ### 3. **Performance Optimization**
+
 - **Lazy Loading**: Modules and features are loaded only when needed
 - **Memory Management**: Proper cleanup and resource management
 - **Caching Strategies**: Intelligent caching of models, preferences, and data
 - **Event Delegation**: Efficient event handling patterns
 
 ### 4. **Maintainability**
+
 - **Clear Documentation**: Comprehensive JSDoc comments and documentation
 - **Consistent Naming**: Standardized naming conventions throughout
 - **Error Handling**: Robust error handling with proper logging
@@ -33,7 +37,7 @@ The GPTPortal frontend is a sophisticated multi-LLM chat interface built with va
 
 ### Module Structure
 
-```
+```text
 public/js/
 ├── app.js                     # Main application orchestrator
 ├── data/
@@ -59,6 +63,7 @@ public/js/
 **Purpose**: Provides real-time context window usage tracking and visualization for all AI models with accurate tiktoken integration.
 
 **Key Responsibilities**:
+
 - Dynamic context window limit retrieval from server API
 - **Accurate token counting** using tiktoken instead of 4-character approximation
 - Real-time token estimation and usage calculation with visual feedback
@@ -67,9 +72,11 @@ public/js/
 - Fallback context window calculation for offline scenarios
 
 **Key Classes**:
+
 - `ContextTracker`: Main context tracking coordinator with tiktoken integration
 
 **API**:
+
 ```javascript
 // Initialize context tracker
 contextTracker.initialize(chatManager, modelConfig);
@@ -91,6 +98,7 @@ const tokens = await contextTracker.estimateTokens(text, modelId);
 ```
 
 **Enhanced Features**:
+
 - **Accurate Token Counting**: Uses tiktoken library for precise token calculations
 - **Visual Accuracy Indicators**: Green checkmark (✓) for accurate counting, orange tilde (~) for estimation
 - **Model-Specific Tokenization**: Uses appropriate encoding for each model (cl100k_base, o200k_base)
@@ -101,29 +109,100 @@ const tokens = await contextTracker.estimateTokens(text, modelId);
 - **Performance Optimized**: Efficient caching and async token counting
 
 **Data Flow**:
+
 1. Server `contextWindowService` reads from `models.json`
 2. Client fetches context limits via `/api/models/:modelId/context-window`
 3. **Accurate tiktoken-based token counting** for conversation history + current input
 4. Visual indicator updates with usage percentage, color coding, and accuracy status
 
-### 2. Portal Initialization Module (`portalInit.js`)
+### 2. Token Counter Client Service (`services/tokenCounterClient.js`)
 
-**Purpose**: Manages application initialization and provides backward compatibility with legacy functions.
+**Purpose**: Provides accurate client-side token counting using tiktoken with graceful fallback mechanisms.
 
 **Key Responsibilities**:
+
+- Browser-compatible tiktoken integration via WASM
+- Model-specific encoding selection (cl100k_base, o200k_base)
+- Accurate token counting for system prompts and user input
+- Cost estimation for different AI providers
+- Graceful fallback when tiktoken is unavailable
+- Performance optimization through encoder caching
+
+**Key Classes**:
+
+- `TokenCounterClient`: Main token counting service
+
+**API**:
+
+```javascript
+// Count tokens accurately
+const tokens = await tokenCounterClient.countTokens(text, 'gpt-4o');
+
+// Format with cost estimation
+const formatted = tokenCounterClient.formatTokenCount(tokens, 'gpt-4o');
+
+// Analyze text for multiple models
+const analysis = await tokenCounterClient.analyzeText(text, ['gpt-4o', 'claude-3-5-sonnet-latest']);
+
+// Check service status
+const status = tokenCounterClient.getStatus();
+```
+
+**Enhanced Features**:
+
+- **Accurate Counting**: Uses tiktoken WASM for precise token calculations
+- **Model-Aware**: Automatically selects appropriate encoding per model
+- **Cost Estimation**: Provides real-time cost calculations
+- **Graceful Fallback**: Enhanced estimation when tiktoken unavailable
+- **Performance Optimized**: Encoder caching and async operations
+- **Browser Compatible**: Full client-side operation without server dependency
+
+**Integration Points**:
+
+- Context Tracker for conversation token counting
+- Setup Controls for system prompt analysis
+- UI components for real-time token displays
+- Model selectors for encoding selection
+
+### 3. Portal Initialization Module (`portalInit.js`)
+
+**Purpose**: Manages application initialization, enhanced setup controls, and provides backward compatibility with legacy functions.
+
+**Key Responsibilities**:
+
 - Application bootstrap and initialization sequence
+- **Enhanced setup controls** with modern modal interfaces
+- **Real-time token counting** integration for setup textareas
 - Legacy function registration for backward compatibility
 - Global variable management
 - Enhanced feature setup (voice, export, keyboard shortcuts)
 - Error handling and fallback initialization
 
 **Key Classes**:
-- `PortalInitializer`: Main initialization coordinator
+
+- `PortalInitializer`: Main initialization coordinator with enhanced UI capabilities
+
+**Enhanced Features**:
+
+- **Modern Setup UI**: Glassmorphism modal interfaces for instructions and environment variables
+- **Live Token Counting**: Real-time token counting with model selector integration
+- **Character/Line Counting**: Enhanced counting with color-coded feedback
+- **Progressive Initialization**: Handles both modular and basic initialization paths
+- **Legacy Compatibility**: Maintains compatibility with original script.js functions
+- **Voice Integration**: Complete voice recording and transcription support
+- **File Upload**: Enhanced file upload with drag-and-drop support
+- **Keyboard Shortcuts**: Advanced keyboard shortcuts for power users
+- **Auto-expanding Textareas**: Dynamic textarea resizing
 
 **API**:
+
 ```javascript
-// Initialize the portal
+// Initialize the portal with enhanced setup controls
 await portalInitializer.initialize();
+
+// Setup enhanced character and token counting
+portalInitializer.updateCharCount('instructions');
+portalInitializer.updateLineCount();
 
 // Check initialization status
 const isReady = portalInitializer.isInitialized();
@@ -135,15 +214,15 @@ const legacyFunctions = portalInitializer.getLegacyFunctions();
 portalInitializer.cleanup();
 ```
 
-**Features**:
-- **Progressive Initialization**: Handles both modular and basic initialization paths
-- **Legacy Compatibility**: Maintains compatibility with original script.js functions
-- **Voice Integration**: Complete voice recording and transcription support
-- **File Upload**: Enhanced file upload with drag-and-drop support
-- **Keyboard Shortcuts**: Advanced keyboard shortcuts for power users
-- **Auto-expanding Textareas**: Dynamic textarea resizing
+**Integration Points**:
 
-### 3. Dynamic Model Manager (`dynamicModelManager.js`)
+- Chat Manager for conversation handling
+- Model Configuration for model selection
+- UI Manager for interface updates
+- Context Tracker for window management
+- **Token Counter Client** for accurate counting in setup controls
+
+### 4. Dynamic Model Manager (`dynamicModelManager.js`)
 
 **Purpose**: Central coordinator for model management, delegating specialized tasks to focused modules.
 
@@ -180,7 +259,7 @@ await modelManager.refreshModels();
 2. **Fallback**: `/api/models` (dynamic API endpoint)
 3. **Emergency**: Hardcoded core models
 
-### 4. Model Search Manager (`modelSearch.js`)
+### 5. Model Search Manager (`modelSearch.js`)
 
 **Purpose**: Handles all model searching, filtering, and categorization logic.
 
@@ -218,7 +297,7 @@ searchManager.loadPreferences();
 - **Keyboard Navigation**: Enter to select first result, Escape to clear
 - **Search Scoring**: Relevance-based result scoring
 
-### 5. Model UI Manager (`modelUI.js`)
+### 6. Model UI Manager (`modelUI.js`)
 
 **Purpose**: Manages all model selector UI interactions, animations, and visual elements.
 
@@ -257,7 +336,7 @@ uiManager.toggleCategoryCollapse('gpt');
 - **Enhanced Styling**: Modern, responsive design with hover effects
 - **Custom Model Ordering**: Intelligent ordering within categories (e.g., GPT-4 → GPT-4 Turbo → GPT-4o for OpenAI models)
 
-### 6. Message Handler (`messageHandler.js`)
+### 7. Message Handler (`messageHandler.js`)
 
 **Purpose**: Manages all message display, rendering, and interaction functionality.
 
@@ -293,7 +372,7 @@ const jsonExport = messageHandler.exportAsJSON();
 - **Visual Feedback**: Smooth animations and copy confirmations
 - **Export Options**: Multiple export formats (text, JSON, HTML)
 
-### 7. Chat Manager (`chatManager.js`)
+### 8. Chat Manager (`chatManager.js`)
 
 **Purpose**: Manages all chat functionality including messaging, file uploads, and conversation state.
 
@@ -337,7 +416,7 @@ chatManager.uploadImageAndGetUrl(imageFile);
 - **Conversation State**: Integrated conversation history management
 - **Export Capabilities**: Chat export to various formats
 
-### 8. Model Configuration (`modelConfig.js`)
+### 9. Model Configuration (`modelConfig.js`)
 
 **Purpose**: Manages model configuration, endpoint determination, provider settings, and prompt caching preferences.
 
@@ -368,7 +447,7 @@ modelConfig.setPromptCachePreference('conservative');
 const preference = modelConfig.getPromptCachePreference();
 ```
 
-### 9. UI Manager (`uiManager.js`)
+### 10. UI Manager (`uiManager.js`)
 
 **Purpose**: General UI management for non-model-specific interactions.
 
