@@ -6093,7 +6093,7 @@
     }
   },
   "thedrummer/unslopnemo-12b": {
-    "name": "Unslopnemo 12B",
+    "name": "TheDrummer: UnslopNemo 12B",
     "provider": "openrouter",
     "category": "other",
     "description": "UnslopNemo v4.1 is the latest addition from the creator of Rocinante, designed for adventure writing and role-play scenarios.",
@@ -6746,7 +6746,7 @@
     }
   },
   "thedrummer/rocinante-12b": {
-    "name": "Rocinante 12B",
+    "name": "TheDrummer: Rocinante 12B",
     "provider": "openrouter",
     "category": "other",
     "description": "Rocinante 12B is designed for engaging storytelling and rich prose.\n\nEarly testers have reported:\n- Expanded vocabulary with unique and expressive word choices\n- Enhanced creativity for vivid narratives\n- Adventure-filled and captivating stories",

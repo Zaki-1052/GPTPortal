@@ -265,6 +265,12 @@ router.post('/message', async (req, res) => {
     res.set('Content-Disposition', 'attachment; filename="chat_history.html"');
     res.send(htmlContent);
     
+    // Gracefully shutdown server after sending response
+    setTimeout(() => {
+      console.log("Server shutting down...");
+      process.exit(0);
+    }, 1000);
+    
     return;
   }
 

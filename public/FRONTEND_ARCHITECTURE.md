@@ -38,20 +38,68 @@ public/js/
 ├── app.js                     # Main application orchestrator
 ├── data/
 │   └── models.json           # Model definitions and metadata
+├── services/
+│   └── contextTracker.js    # Context window tracking service
 └── modules/
     ├── portalInit.js         # Portal initialization and legacy compatibility
-    ├── dynamicModelManager-refactored.js  # Main model management coordinator
+    ├── dynamicModelManager.js # Main model management coordinator
     ├── modelSearch.js        # Model searching and filtering
-    ├── modelUI.js           # Model selector UI management
+    ├── modelUI.js           # Model selector UI management with custom ordering
     ├── messageHandler.js    # Message display and rendering
-    ├── chatManager.js       # Chat functionality (original, to be refactored)
+    ├── chatManager.js       # Chat functionality with context tracking
     ├── modelConfig.js       # Model configuration
     └── uiManager.js         # UI management
 ```
 
 ## Detailed Module Documentation
 
-### 1. Portal Initialization Module (`portalInit.js`)
+### 1. Context Tracker Service (`services/contextTracker.js`)
+
+**Purpose**: Provides real-time context window usage tracking and visualization for all AI models.
+
+**Key Responsibilities**:
+- Dynamic context window limit retrieval from server API
+- Real-time token estimation and usage calculation
+- Context window usage visualization with progress indicators
+- Integration with chat manager and model selection
+- Fallback context window calculation for offline scenarios
+
+**Key Classes**:
+- `ContextTracker`: Main context tracking coordinator
+
+**API**:
+```javascript
+// Initialize context tracker
+contextTracker.initialize(chatManager, modelConfig);
+
+// Get context window for model
+const contextWindow = await contextTracker.getContextWindow('gpt-4o');
+
+// Update indicator with current input
+contextTracker.updateIndicator('Current message text...');
+
+// Set current model
+contextTracker.setCurrentModel('claude-3-5-sonnet-latest');
+
+// Update conversation history
+contextTracker.updateConversationHistory(conversationArray);
+```
+
+**Features**:
+- **Dynamic Context Limits**: Fetches actual context windows from `models.json` via server API
+- **Real-time Tracking**: Updates as user types and conversation progresses
+- **Visual Indicators**: Color-coded progress bar (green → blue → orange → red)
+- **Smart Estimation**: Client-side token estimation with pattern recognition
+- **Model Integration**: Automatically updates when models are changed
+- **Caching**: Intelligent caching of context window data for performance
+
+**Data Flow**:
+1. Server `contextWindowService` reads from `models.json`
+2. Client fetches context limits via `/api/models/:modelId/context-window`
+3. Real-time token estimation using conversation history + current input
+4. Visual indicator updates with usage percentage and color coding
+
+### 2. Portal Initialization Module (`portalInit.js`)
 
 **Purpose**: Manages application initialization and provides backward compatibility with legacy functions.
 
@@ -88,7 +136,7 @@ portalInitializer.cleanup();
 - **Keyboard Shortcuts**: Advanced keyboard shortcuts for power users
 - **Auto-expanding Textareas**: Dynamic textarea resizing
 
-### 2. Dynamic Model Manager (`dynamicModelManager-refactored.js`)
+### 3. Dynamic Model Manager (`dynamicModelManager.js`)
 
 **Purpose**: Central coordinator for model management, delegating specialized tasks to focused modules.
 
@@ -98,6 +146,7 @@ portalInitializer.cleanup();
 - API communication and fallback handling
 - Model selection and state management
 - Token limit management
+- Context tracker integration for model changes
 
 **Key Classes**:
 - `DynamicModelManager`: Main coordinator class
@@ -124,7 +173,7 @@ await modelManager.refreshModels();
 2. **Fallback**: `/api/models` (dynamic API endpoint)
 3. **Emergency**: Hardcoded core models
 
-### 3. Model Search Manager (`modelSearch.js`)
+### 4. Model Search Manager (`modelSearch.js`)
 
 **Purpose**: Handles all model searching, filtering, and categorization logic.
 
@@ -162,7 +211,7 @@ searchManager.loadPreferences();
 - **Keyboard Navigation**: Enter to select first result, Escape to clear
 - **Search Scoring**: Relevance-based result scoring
 
-### 4. Model UI Manager (`modelUI.js`)
+### 5. Model UI Manager (`modelUI.js`)
 
 **Purpose**: Manages all model selector UI interactions, animations, and visual elements.
 
@@ -172,6 +221,7 @@ searchManager.loadPreferences();
 - Category collapsing and expanding
 - Tooltip management
 - Hover effects and visual feedback
+- Custom model ordering within categories
 
 **Key Classes**:
 - `ModelUIManager`: UI coordination and management
@@ -198,8 +248,9 @@ uiManager.toggleCategoryCollapse('gpt');
 - **Feature Badges**: Visual indicators for model capabilities
 - **Category Collapsing**: Collapsible category sections with state persistence
 - **Enhanced Styling**: Modern, responsive design with hover effects
+- **Custom Model Ordering**: Intelligent ordering within categories (e.g., GPT-4 → GPT-4 Turbo → GPT-4o for OpenAI models)
 
-### 5. Message Handler (`messageHandler.js`)
+### 6. Message Handler (`messageHandler.js`)
 
 **Purpose**: Manages all message display, rendering, and interaction functionality.
 
@@ -235,18 +286,51 @@ const jsonExport = messageHandler.exportAsJSON();
 - **Visual Feedback**: Smooth animations and copy confirmations
 - **Export Options**: Multiple export formats (text, JSON, HTML)
 
-### 6. Chat Manager (`chatManager.js`) - *To be refactored*
+### 7. Chat Manager (`chatManager.js`)
 
-**Current Status**: Original large module that needs to be broken down further.
+**Purpose**: Manages all chat functionality including messaging, file uploads, and conversation state.
 
-**Planned Refactoring**:
-- **API Communication Module**: Handle all backend API calls
-- **File Upload Module**: Manage file and image uploads
-- **Voice Integration Module**: Voice recording and transcription
-- **Export Module**: Chat export functionality
-- **Conversation Management Module**: Conversation state and history
+**Key Responsibilities**:
+- Message sending and receiving
+- File and image upload handling
+- Conversation history management
+- Context window tracking integration
+- Auto-expanding textarea functionality
+- Voice integration and transcription
+- Export functionality
 
-### 7. Model Configuration (`modelConfig.js`)
+**Key Classes**:
+- `ChatManager`: Main chat coordination class
+
+**API**:
+```javascript
+// Send messages
+chatManager.sendMessage();
+
+// Display messages
+chatManager.displayMessage('Hello!', 'user');
+chatManager.displayMessage('Response', 'response', true); // with TTS
+
+// Manage conversation
+chatManager.clearChat();
+const history = chatManager.conversationHistory;
+
+// Context tracking
+chatManager.updateCurrentModel('gpt-4o');
+
+// File handling
+chatManager.uploadFile(fileObject);
+chatManager.uploadImageAndGetUrl(imageFile);
+```
+
+**Enhanced Features**:
+- **Context Integration**: Real-time context window tracking via `ContextTracker` service
+- **Auto-expanding Textareas**: Dynamic textarea resizing based on content
+- **Smart File Handling**: Enhanced file upload with proper validation
+- **Conversation State**: Integrated conversation history management
+- **Export Capabilities**: Chat export to various formats
+
+### 8. Model Configuration (`modelConfig.js`)
 
 **Purpose**: Manages model configuration, endpoint determination, and provider settings.
 
@@ -255,7 +339,7 @@ const jsonExport = messageHandler.exportAsJSON();
 - Enhanced provider detection and routing
 - Configuration validation and error handling
 
-### 8. UI Manager (`uiManager.js`)
+### 9. UI Manager (`uiManager.js`)
 
 **Purpose**: General UI management for non-model-specific interactions.
 
@@ -281,6 +365,8 @@ ModelSearchManager.initialize()
     ↓
 ModelUIManager.initialize()
     ↓
+ContextTracker.initialize()
+    ↓
 Model Data Loading
     ↓
 UI Population
@@ -302,6 +388,8 @@ DynamicModelManager.selectModel()
 Update Global State
     ↓
 Update Token Limits
+    ↓
+Update Context Tracker
     ↓
 Hide Dropdown
     ↓
@@ -343,6 +431,8 @@ MessageHandler.displayMessage() (assistant)
     ↓
 History Update
     ↓
+Context Tracker Update
+    ↓
 Optional TTS
 ```
 
@@ -358,6 +448,7 @@ Optional TTS
 - **Search State**: Query, filters, history, preferences
 - **UI State**: Dropdown visibility, collapsed categories, tooltips
 - **Conversation State**: Message history, current conversation
+- **Context State**: Context window usage, token estimates, model limits
 - **Preferences**: User settings, UI preferences, feature flags
 
 ### 2. State Synchronization

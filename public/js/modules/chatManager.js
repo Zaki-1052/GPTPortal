@@ -16,6 +16,9 @@ class ChatManager {
     this.audioChunks = [];
     this.isVoiceTranscription = false;
     
+    // Context tracking
+    this.contextTracker = null;
+    
     this.init();
   }
 
@@ -25,6 +28,9 @@ class ChatManager {
     this.bindEvents();
     this.fetchChatList();
     this.fetchPromptList();
+    
+    // Initialize context tracker
+    this.initializeContextTracker();
   }
 
   setupMarkdown() {
@@ -58,6 +64,14 @@ class ChatManager {
           e.preventDefault();
           this.sendMessage();
           this.resetTextAreaHeight(messageInput);
+        }
+      });
+      
+      // Add input event listener for auto-expansion and context tracking
+      messageInput.addEventListener('input', () => {
+        this.autoExpand(messageInput);
+        if (this.contextTracker) {
+          this.contextTracker.updateIndicator(messageInput.value);
         }
       });
     }
@@ -528,6 +542,11 @@ class ChatManager {
       this.conversationHistory.push({ role: type === 'user' ? 'user' : 'assistant', content: message });
     }
 
+    // Update context indicator after adding message
+    if (this.contextTracker) {
+      this.contextTracker.updateConversationHistory(this.conversationHistory);
+    }
+
     // Voice feedback
     if (type === 'response' && shouldReadAloud && window.callTTSAPI) {
       window.callTTSAPI(message);
@@ -548,6 +567,11 @@ class ChatManager {
       chatBox.innerHTML = '';
     }
     this.conversationHistory = [];
+    
+    // Update context indicator after clearing
+    if (this.contextTracker) {
+      this.contextTracker.updateConversationHistory([]);
+    }
   }
 
   // Export chat functionality (from original script.js)
@@ -726,6 +750,32 @@ class ChatManager {
     
     if (field.scrollHeight > field.clientHeight - paddingTop - paddingBottom - borderTop - borderBottom) {
       field.style.height = `${heightNeeded}px`;
+    }
+  }
+
+  // Context Tracker Integration
+  initializeContextTracker() {
+    if (window.ContextTracker) {
+      this.contextTracker = new window.ContextTracker();
+      this.contextTracker.initialize(this, this.modelConfig);
+      
+      // Initial update after a short delay to ensure DOM is ready
+      setTimeout(() => {
+        if (this.contextTracker) {
+          this.contextTracker.updateIndicator();
+        }
+      }, 100);
+      
+      console.log('Context tracker initialized');
+    } else {
+      console.warn('ContextTracker not available');
+    }
+  }
+
+  // Update current model in context tracker
+  updateCurrentModel(modelId) {
+    if (this.contextTracker) {
+      this.contextTracker.setCurrentModel(modelId);
     }
   }
 

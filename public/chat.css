@@ -125,6 +125,76 @@ body::before {
   opacity: 1;
 }
 
+/* Context Window Usage Indicator */
+.context-indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 16px 16px 0;
+  padding: 8px 12px;
+  background: rgba(13, 17, 23, 0.4);
+  border: 1px solid rgba(48, 54, 61, 0.6);
+  border-radius: 8px;
+  font-size: 12px;
+  color: #8b949e;
+}
+
+.context-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(48, 54, 61, 0.8);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.context-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00d084 0%, #58a6ff 50%, #ff6b35 80%, #ff4757 100%);
+  border-radius: 3px;
+  width: 0%;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.context-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.context-text {
+  min-width: 80px;
+  text-align: right;
+  font-weight: 500;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+#context-used {
+  color: #58a6ff;
+  font-weight: 600;
+}
+
+#context-limit {
+  color: #8b949e;
+}
+
+/* Context indicator color states */
+.context-fill.low { background: linear-gradient(90deg, #00d084 0%, #39ff14 100%); }
+.context-fill.medium { background: linear-gradient(90deg, #58a6ff 0%, #0984ff 100%); }
+.context-fill.high { background: linear-gradient(90deg, #ff9500 0%, #ff6b35 100%); }
+.context-fill.critical { background: linear-gradient(90deg, #ff4757 0%, #c0392b 100%); }
+
 #send-button {
   width: 90px;
   height: 66px;

@@ -107,6 +107,10 @@ class RouteManager {
     // System information endpoints
     this.setupSystemRoutes(app);
     this.routes.set('system', 'System information and diagnostics');
+
+    // Context window API
+    this.setupContextWindowRoutes(app);
+    this.routes.set('context-window', 'Context window information API');
   }
 
   /**
@@ -373,10 +377,62 @@ class RouteManager {
           return statB.mtime - statA.mtime;
         });
         
-        res.json({ success: true, files: sortedFiles });
+        // Parse prompt info for tooltips
+        const promptInfo = {};
+        for (const file of mdFiles) {
+          try {
+            const content = await fs.promises.readFile(path.join(folderPath, file), 'utf8');
+            const fileNameWithoutExt = file.replace('.md', '');
+            const nameMatch = content.match(/## \*\*(.*?)\*\*/);
+            const descriptionMatch = content.match(/### Description\s*\n\s*\*(.*?)\*/s);
+            
+            promptInfo[fileNameWithoutExt] = {
+              name: nameMatch ? nameMatch[1].trim() : fileNameWithoutExt,
+              description: descriptionMatch ? descriptionMatch[1].trim() : 'No description available'
+            };
+          } catch (error) {
+            // If can't parse, use filename as fallback
+            const fileNameWithoutExt = file.replace('.md', '');
+            promptInfo[fileNameWithoutExt] = {
+              name: fileNameWithoutExt,
+              description: 'No description available'
+            };
+          }
+        }
+        
+        res.json({ success: true, files: sortedFiles, promptInfo });
       } catch (error) {
         // If directory doesn't exist, return empty array
-        res.json({ success: true, files: [] });
+        res.json({ success: true, files: [], promptInfo: {} });
+      }
+    }));
+
+    // Set prompt route
+    app.post('/setPrompt', ErrorHandler.asyncHandler(async (req, res) => {
+      const fs = require('fs');
+      const { chosenPrompt } = req.body;
+      
+      if (!chosenPrompt) {
+        throw ErrorHandler.validationError('Prompt name is required');
+      }
+      
+      const promptFile = path.join(__dirname, '../../../public/uploads/prompts', `${chosenPrompt}.md`);
+      
+      try {
+        const content = await fs.promises.readFile(promptFile, 'utf8');
+        const nameMatch = content.match(/## \*\*(.*?)\*\*/);
+        const descriptionMatch = content.match(/### Description\s*\n\s*\*(.*?)\*/s);
+        const bodyMatch = content.match(/#### Instructions\s*\n(.*?)\n##### Conversation starters/s);
+        
+        const prompt = {
+          name: nameMatch ? nameMatch[1].trim() : 'No name found',
+          description: descriptionMatch ? descriptionMatch[1].trim() : 'No description available',
+          body: bodyMatch ? bodyMatch[1].trim() : content // fallback to full content if parsing fails
+        };
+        
+        res.json({ success: true, prompt });
+      } catch (error) {
+        throw ErrorHandler.notFoundError('Prompt file not found');
       }
     }));
 
@@ -469,6 +525,66 @@ class RouteManager {
       
       res.json({ success: true, data: status });
     });
+  }
+
+  /**
+   * Setup context window routes
+   */
+  setupContextWindowRoutes(app) {
+    const contextWindowService = require('../services/contextWindowService');
+
+    // Get context window for specific model
+    app.get('/api/models/:modelId/context-window', ErrorHandler.asyncHandler(async (req, res) => {
+      const { modelId } = req.params;
+      
+      if (!modelId) {
+        throw ErrorHandler.validationError('Model ID is required');
+      }
+
+      const contextWindow = await contextWindowService.getContextWindow(modelId);
+      const usage = req.query.tokens ? 
+        await contextWindowService.calculateContextUsage(parseInt(req.query.tokens), modelId) : 
+        null;
+
+      res.json({
+        success: true,
+        modelId,
+        contextWindow,
+        usage
+      });
+    }));
+
+    // Get context windows for multiple models
+    app.post('/api/models/context-windows', ErrorHandler.asyncHandler(async (req, res) => {
+      const { modelIds } = req.body;
+      
+      if (!Array.isArray(modelIds)) {
+        throw ErrorHandler.validationError('modelIds must be an array');
+      }
+
+      const contextWindows = await contextWindowService.getContextWindows(modelIds);
+
+      res.json({
+        success: true,
+        contextWindows
+      });
+    }));
+
+    // Calculate context usage
+    app.post('/api/context-usage', ErrorHandler.asyncHandler(async (req, res) => {
+      const { modelId, tokens } = req.body;
+      
+      if (!modelId || typeof tokens !== 'number') {
+        throw ErrorHandler.validationError('modelId and tokens are required');
+      }
+
+      const usage = await contextWindowService.calculateContextUsage(tokens, modelId);
+
+      res.json({
+        success: true,
+        usage
+      });
+    }));
   }
 
   /**

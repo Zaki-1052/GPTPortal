@@ -258,10 +258,10 @@ class ModelUIManager {
       }
     });
     
-    // Sort models within each category
-    Object.values(grouped).forEach(category => {
+    // Sort models within each category using custom ordering
+    Object.entries(grouped).forEach(([categoryKey, category]) => {
       category.models.sort((a, b) => {
-        // Sort by search score if available, then by name
+        // Sort by search score if available, then by custom order
         const scoreA = a.searchScore || 0;
         const scoreB = b.searchScore || 0;
         
@@ -269,7 +269,7 @@ class ModelUIManager {
           return scoreB - scoreA; // Higher score first
         }
         
-        return (a.name || a.id).localeCompare(b.name || b.id);
+        return this.getCustomModelOrder(a.id, categoryKey) - this.getCustomModelOrder(b.id, categoryKey);
       });
     });
     
@@ -894,6 +894,87 @@ class ModelUIManager {
     this.modelManager = null;
     
     console.log('Model UI manager cleaned up');
+  }
+
+  /**
+   * Get custom model order for sorting
+   * @param {string} modelId - Model ID
+   * @param {string} categoryKey - Category key
+   * @returns {number} Sort order (lower numbers come first)
+   */
+  getCustomModelOrder(modelId, categoryKey) {
+    // Define custom ordering for each category
+    const categoryOrders = {
+      gpt: {
+        'gpt-4': 1,
+        'gpt-4-turbo': 2,
+        'gpt-4o': 3,
+        'gpt-4.1': 4,
+        'gpt-4o-mini': 5,
+        'gpt-4.1-mini': 6,
+        'gpt-4.1-nano': 7,
+        'gpt-3.5-turbo': 8,
+        'gpt-3.5-turbo-0125': 8
+      },
+      reasoning: {
+        'o4-mini': 1,
+        'o3': 2,
+        'o3-mini': 3,
+        'o1-preview': 4,
+        'o1-mini': 5
+      },
+      claude: {
+        'claude-opus-4-20250514': 1,
+        'claude-4-opus': 1,
+        'claude-sonnet-4-20250514': 2,
+        'claude-4-sonnet': 2,
+        'claude-3-7-sonnet-latest': 3,
+        'claude-3.7-sonnet': 3,
+        'claude-3-5-sonnet-latest': 4,
+        'claude-3-5-sonnet-20241022': 4,
+        'claude-3.5-sonnet': 4,
+        'claude-3-5-haiku-latest': 5,
+        'claude-3-5-haiku-20241022': 5,
+        'claude-3.5-haiku': 5,
+        'claude-3-haiku-20240307': 6,
+        'claude-3-haiku': 6
+      },
+      gemini: {
+        'gemini-2.5-pro': 1,
+        'gemini-2.5-flash': 2,
+        'gemini-2.0-flash-exp': 3,
+        'gemini-2.0-flash': 3,
+        'gemini-2.0-flash-light': 4,
+        'gemini-1.5-flash': 5,
+        'gemini-1.5-flash-8b': 6,
+        'gemini-8b': 6,
+        'gemini-1.5-pro': 7,
+        'gemini-pro': 7
+      },
+      deepseek: {
+        'deepseek-reasoner': 1,
+        'deepseek-r1': 1,
+        'deepseek-chat': 2
+      }
+    };
+
+    // Get the order for this model in this category
+    const categoryOrder = categoryOrders[categoryKey];
+    if (categoryOrder && categoryOrder[modelId] !== undefined) {
+      return categoryOrder[modelId];
+    }
+
+    // Check if model ID contains any of the ordered model patterns
+    if (categoryOrder) {
+      for (const [orderedModelId, order] of Object.entries(categoryOrder)) {
+        if (modelId.includes(orderedModelId) || orderedModelId.includes(modelId)) {
+          return order;
+        }
+      }
+    }
+
+    // Default fallback - put unknown models at the end
+    return 999;
   }
 }
 

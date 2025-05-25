@@ -90,6 +90,16 @@
     <!-- Input Area -->
     <textarea id="message-input" placeholder="Type your message here... (Ctrl+Enter to send)"></textarea>
     
+    <!-- Context Window Usage Indicator -->
+    <div id="context-indicator" class="context-indicator">
+      <div class="context-bar">
+        <div id="context-fill" class="context-fill"></div>
+      </div>
+      <div class="context-text">
+        <span id="context-used">0</span> / <span id="context-limit">8000</span> tokens
+      </div>
+    </div>
+    
     <!-- Control Buttons -->
     <div class="input-controls">
       <button type="button" id="clipboard-button" title="Upload file">📎</button>
@@ -137,6 +147,9 @@
 </div>
 
 <!-- Load Enhanced Modular System -->
+
+<!-- Context Tracker Service -->
+<script src="js/services/contextTracker.js"></script>
 
 <!-- Core Dependencies (load first) -->
 <script>

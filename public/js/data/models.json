@@ -182,7 +182,7 @@
       "description": "Most capable Claude model",
       "pricing": { "input": 15.00, "output": 75.00 },
       "contextWindow": 200000,
-      "maxTokens": 100000,
+      "maxTokens": 32000,
       "supportsVision": true,
       "supportsFunction": true
     },
@@ -195,7 +195,7 @@
       "description": "Balanced Claude model",
       "pricing": { "input": 3.00, "output": 15.00 },
       "contextWindow": 200000,
-      "maxTokens": 100000,
+      "maxTokens": 64000,
       "supportsVision": true,
       "supportsFunction": true
     },

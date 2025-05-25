@@ -339,6 +339,9 @@ class DynamicModelManager {
     // Update token limits based on model
     this.updateTokenLimits(modelId);
 
+    // Update context tracker if available
+    this.updateContextTracker(modelId);
+
     console.log('Model selected successfully:', modelId);
   }
 
@@ -668,6 +671,22 @@ class DynamicModelManager {
     this.uiManager = null;
 
     console.log('Dynamic model manager cleanup completed');
+  }
+
+  /**
+   * Update context tracker with new model
+   * @param {string} modelId - Selected model ID
+   */
+  updateContextTracker(modelId) {
+    // Update chat manager's context tracker
+    if (window.gptPortalApp && window.gptPortalApp.chatManager) {
+      window.gptPortalApp.chatManager.updateCurrentModel(modelId);
+    }
+    
+    // Also update any global context tracker
+    if (window.contextTracker) {
+      window.contextTracker.setCurrentModel(modelId);
+    }
   }
 }
 
