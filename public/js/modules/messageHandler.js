@@ -7,6 +7,8 @@ class MessageHandler {
     this.conversationHistory = [];
     this.markdownRenderer = null;
     this.sanitizer = null;
+    this.latexRenderer = null;
+    this.latexEnabled = false;
     
     this.init();
   }
@@ -16,6 +18,7 @@ class MessageHandler {
    */
   init() {
     this.setupMarkdown();
+    this.setupLaTeX();
     this.setupEventHandlers();
     console.log('Message handler initialized');
   }
@@ -24,6 +27,9 @@ class MessageHandler {
    * Setup markdown rendering
    */
   setupMarkdown() {
+    console.log('=== setupMarkdown called ===');
+    console.log('typeof marked:', typeof marked);
+    
     if (typeof marked !== 'undefined') {
       this.markdownRenderer = marked;
       marked.setOptions({
@@ -36,7 +42,8 @@ class MessageHandler {
           return code;
         }
       });
-      console.log('Markdown renderer configured');
+      console.log('Markdown renderer configured successfully');
+      console.log('this.markdownRenderer:', !!this.markdownRenderer);
     } else {
       console.warn('Marked.js not available - markdown rendering disabled');
     }
@@ -47,6 +54,164 @@ class MessageHandler {
     } else {
       console.warn('DOMPurify not available - HTML sanitization disabled');
     }
+  }
+
+  /**
+   * Setup LaTeX rendering
+   */
+  setupLaTeX() {
+    console.log('=== setupLaTeX called ===');
+    console.log('typeof katex:', typeof katex);
+    
+    if (typeof katex !== 'undefined') {
+      this.latexRenderer = katex;
+      this.latexEnabled = true;
+      console.log('✓ KaTeX LaTeX renderer available');
+      console.log('LaTeX enabled set to:', this.latexEnabled);
+    } else {
+      console.warn('KaTeX not available - LaTeX rendering disabled');
+      this.latexEnabled = false;
+      console.log('LaTeX enabled set to:', this.latexEnabled);
+    }
+  }
+
+  /**
+   * Extract LaTeX expressions and replace with placeholders
+   * @param {string} text - Text containing LaTeX expressions
+   * @returns {Object} Object with processed text and LaTeX map
+   */
+  extractLaTeX(text) {
+    const latexMap = new Map();
+    let counter = 0;
+    let processedText = text;
+    
+    console.log('=== extractLaTeX called ===');
+    console.log('Input text:', text);
+    
+    // Extract \begin{equation}...\end{equation} blocks first
+    processedText = processedText.replace(/\\begin\{equation\}([\s\S]*?)\\end\{equation\}/g, (match, content) => {
+      const placeholder = `%%%LATEX${counter}%%%`;
+      latexMap.set(placeholder, {
+        content: content.trim(),
+        displayMode: true,
+        original: match
+      });
+      counter++;
+      console.log(`Extracted equation environment: ${match} → ${placeholder}`);
+      return placeholder;
+    });
+    
+    // Extract display math \[...\]
+    processedText = processedText.replace(/\\\[([\s\S]*?)\\\]/g, (match, content) => {
+      const placeholder = `%%%LATEX${counter}%%%`;
+      latexMap.set(placeholder, {
+        content: content.trim(),
+        displayMode: true,
+        original: match
+      });
+      counter++;
+      console.log(`Extracted display math \\[...\\]: ${match} → ${placeholder}`);
+      return placeholder;
+    });
+    
+    // Extract display math $$...$$ (ensure the $$ are actually adjacent)
+    processedText = processedText.replace(/\$\$([\s\S]*?)\$\$/g, (match, content) => {
+      const placeholder = `%%%LATEX${counter}%%%`;
+      latexMap.set(placeholder, {
+        content: content.trim(),
+        displayMode: true,
+        original: match
+      });
+      counter++;
+      console.log(`Extracted display math $$...$$: ${match} → ${placeholder}`);
+      return placeholder;
+    });
+    
+    // Extract inline math \(...\)
+    processedText = processedText.replace(/\\\(([\s\S]*?)\\\)/g, (match, content) => {
+      const placeholder = `%%%LATEX${counter}%%%`;
+      latexMap.set(placeholder, {
+        content: content.trim(),
+        displayMode: false,
+        original: match
+      });
+      counter++;
+      console.log(`Extracted inline paren math: ${match} → ${placeholder}`);
+      return placeholder;
+    });
+    
+    // Extract inline math $...$ with more careful pattern
+    // This pattern ensures we don't match $ signs that are not meant for LaTeX
+    processedText = processedText.replace(/(?<!\$)\$(?!\$)([^\$\n]+?)\$(?!\$)/g, (match, content) => {
+      // Additional check: content should look like LaTeX (contains backslash, ^, _, etc.)
+      if (!/[\\^_{}]/.test(content)) {
+        return match; // Not LaTeX, return original
+      }
+      const placeholder = `%%%LATEX${counter}%%%`;
+      latexMap.set(placeholder, {
+        content: content.trim(),
+        displayMode: false,
+        original: match
+      });
+      counter++;
+      console.log(`Extracted inline dollar math: ${match} → ${placeholder}`);
+      return placeholder;
+    });
+    
+    console.log(`Extracted ${counter} LaTeX expressions`);
+    console.log('Processed text:', processedText);
+    
+    return { processedText, latexMap };
+  }
+  
+  /**
+   * Restore LaTeX placeholders with rendered content
+   * @param {string} html - HTML with placeholders
+   * @param {Map} latexMap - Map of placeholders to LaTeX content
+   * @returns {string} HTML with rendered LaTeX
+   */
+  restoreLaTeX(html, latexMap) {
+    if (!this.latexEnabled || latexMap.size === 0) return html;
+    
+    console.log('=== restoreLaTeX called ===');
+    console.log('LaTeX map size:', latexMap.size);
+    
+    let restoredHtml = html;
+    
+    // Replace each placeholder with rendered LaTeX
+    for (const [placeholder, data] of latexMap) {
+      console.log(`Restoring ${placeholder}...`);
+      
+      try {
+        const rendered = katex.renderToString(data.content, {
+          displayMode: data.displayMode,
+          throwOnError: false,
+          trust: false
+        });
+        
+        // Replace all occurrences of this placeholder
+        restoredHtml = restoredHtml.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), rendered);
+        console.log(`Successfully rendered ${data.displayMode ? 'display' : 'inline'} math: ${data.content}`);
+      } catch (error) {
+        console.warn(`LaTeX rendering error for ${placeholder}:`, error.message);
+        // On error, restore the original LaTeX notation
+        restoredHtml = restoredHtml.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), this.escapeHtml(data.original));
+      }
+    }
+    
+    console.log('=== restoreLaTeX completed ===');
+    return restoredHtml;
+  }
+  
+  /**
+   * Escape HTML special characters
+   * @param {string} text - Text to escape
+   * @returns {string} Escaped text
+   */
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 
   /**
@@ -212,6 +377,10 @@ class MessageHandler {
    * @param {string} type - Message type
    */
   renderTextMessage(element, message, type) {
+    console.log('=== renderTextMessage called ===');
+    console.log('Message type:', type);
+    console.log('Message contains code blocks:', message.includes('```'));
+    
     if (message.includes('```')) {
       this.renderMessageWithCodeBlocks(element, message);
     } else {
@@ -229,14 +398,19 @@ class MessageHandler {
    * @param {string} message - Message with code blocks
    */
   renderMessageWithCodeBlocks(element, message) {
+    console.log('=== renderMessageWithCodeBlocks called ===');
+    console.log('Message contains code blocks, splitting...');
+    
     const parts = message.split(/(```[\s\S]+?```)/);
     
     parts.forEach(part => {
       if (part.startsWith('```') && part.endsWith('```')) {
         // Handle code blocks
+        console.log('Rendering code block...');
         this.renderCodeBlock(element, part);
       } else {
         // Handle regular text
+        console.log('Rendering regular text part (will process LaTeX)...');
         this.renderMarkdownText(element, part);
       }
     });
@@ -308,19 +482,51 @@ class MessageHandler {
    * @param {string} text - Text to render
    */
   renderMarkdownText(parent, text) {
+    console.log('=== renderMarkdownText called ===');
+    console.log('LaTeX enabled:', this.latexEnabled);
+    console.log('Input text:', text);
+    console.log('Markdown renderer available:', !!this.markdownRenderer);
+    
     const textSpan = document.createElement('div');
     textSpan.className = 'message-text';
     
-    if (this.markdownRenderer && this.sanitizer) {
-      const rawHtml = this.markdownRenderer.parse(text);
-      const safeHtml = this.sanitizer.sanitize(rawHtml);
-      textSpan.innerHTML = safeHtml;
-    } else if (this.markdownRenderer) {
-      // Markdown without sanitization (less safe)
-      textSpan.innerHTML = this.markdownRenderer.parse(text);
+    let processedHtml = '';
+    let latexMap = new Map();
+    
+    // Extract LaTeX expressions BEFORE markdown processing
+    if (this.latexEnabled) {
+      console.log('Extracting LaTeX expressions before markdown...');
+      const extracted = this.extractLaTeX(text);
+      text = extracted.processedText;
+      latexMap = extracted.latexMap;
+    }
+    
+    // Process markdown on text with placeholders
+    if (this.markdownRenderer) {
+      processedHtml = this.markdownRenderer.parse(text);
+      console.log('Markdown processed, output HTML:', processedHtml);
     } else {
-      // Plain text fallback
-      textSpan.textContent = text;
+      // Fallback to plain text if no markdown renderer
+      console.log('No markdown renderer available, using plain text fallback');
+      processedHtml = this.escapeHtml(text);
+    }
+    
+    // Restore LaTeX expressions after markdown processing
+    if (this.latexEnabled && latexMap.size > 0) {
+      console.log('Restoring LaTeX expressions after markdown...');
+      processedHtml = this.restoreLaTeX(processedHtml, latexMap);
+    }
+    
+    // Finally sanitize the HTML
+    if (this.sanitizer) {
+      const safeHtml = this.sanitizer.sanitize(processedHtml, {
+        ADD_TAGS: ['span'],
+        ADD_ATTR: ['class', 'style'] // Allow KaTeX styling
+      });
+      textSpan.innerHTML = safeHtml;
+    } else {
+      // If no sanitizer, still set the HTML (less safe)
+      textSpan.innerHTML = processedHtml;
     }
     
     parent.appendChild(textSpan);
@@ -332,15 +538,49 @@ class MessageHandler {
    * @param {string} message - Message text
    */
   renderSimpleTextMessage(element, message) {
+    console.log('=== renderSimpleTextMessage called ===');
+    console.log('LaTeX enabled:', this.latexEnabled);
+    console.log('Input message:', message);
+    
     const messageText = document.createElement('div');
     messageText.className = 'message-text';
     
-    if (this.markdownRenderer && this.sanitizer) {
-      const rawHtml = this.markdownRenderer.parse(message);
-      const safeHtml = this.sanitizer.sanitize(rawHtml);
+    let processedHtml = '';
+    let latexMap = new Map();
+    
+    // Extract LaTeX expressions BEFORE markdown processing
+    if (this.latexEnabled) {
+      console.log('Extracting LaTeX expressions before markdown...');
+      const extracted = this.extractLaTeX(message);
+      message = extracted.processedText;
+      latexMap = extracted.latexMap;
+    }
+    
+    // Process markdown on text with placeholders
+    if (this.markdownRenderer) {
+      processedHtml = this.markdownRenderer.parse(message);
+      console.log('Markdown processed');
+    } else {
+      // Fallback to plain text if no markdown renderer
+      processedHtml = this.escapeHtml(message);
+    }
+    
+    // Restore LaTeX expressions after markdown processing
+    if (this.latexEnabled && latexMap.size > 0) {
+      console.log('Restoring LaTeX expressions after markdown...');
+      processedHtml = this.restoreLaTeX(processedHtml, latexMap);
+    }
+    
+    // Finally sanitize the HTML
+    if (this.sanitizer) {
+      const safeHtml = this.sanitizer.sanitize(processedHtml, {
+        ADD_TAGS: ['span'],
+        ADD_ATTR: ['class', 'style'] // Allow KaTeX styling
+      });
       messageText.innerHTML = safeHtml;
     } else {
-      messageText.textContent = message;
+      // If no sanitizer, still set the HTML (less safe)
+      messageText.innerHTML = processedHtml;
     }
 
     element.appendChild(messageText);
@@ -603,12 +843,274 @@ class MessageHandler {
   }
 
   /**
+   * Show copy feedback
+   * @param {HTMLElement} button - Copy button element
+   */
+  showCopyFeedback(button) {
+    const originalText = button.textContent;
+    button.textContent = 'Copied!';
+    button.style.backgroundColor = '#45a049';
+    
+    setTimeout(() => {
+      button.textContent = originalText;
+      button.style.backgroundColor = '#4CAF50';
+    }, 1500);
+  }
+
+  /**
+   * Escape HTML special characters
+   * @param {string} text - Text to escape
+   * @returns {string} Escaped text
+   */
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  /**
+   * Extract LaTeX expressions from text and replace with placeholders
+   * @param {string} text - Input text
+   * @returns {Object} Processed text and LaTeX map
+   */
+  extractLaTeX(text) {
+    console.log('=== extractLaTeX called ===');
+    console.log('Full input text:');
+    console.log(text);
+    console.log('Text length:', text.length);
+    console.log('---');
+    
+    const latexMap = new Map();
+    let processedText = text;
+    let placeholderIndex = 0;
+    
+    // Helper function to check if a match is valid LaTeX
+    const isValidLaTeX = (match, fullText, matchIndex) => {
+      // Check if it's part of a descriptive sentence
+      const beforeMatch = fullText.substring(Math.max(0, matchIndex - 20), matchIndex);
+      const afterMatch = fullText.substring(matchIndex + match.length, matchIndex + match.length + 20);
+      
+      console.log(`Validating match: "${match}"`);
+      console.log(`Before: "${beforeMatch}"`);
+      console.log(`After: "${afterMatch}"`);
+      
+      // Reject if it's part of a description like "double $):" or "single $):"
+      if (beforeMatch.includes('double') || beforeMatch.includes('single') || 
+          beforeMatch.includes('dollar') || beforeMatch.includes('backslash')) {
+        console.log('REJECTED: Part of description');
+        return false;
+      }
+      
+      // Reject if followed by "):" which indicates it's part of descriptive text
+      if (afterMatch.startsWith('):') || afterMatch.startsWith(' ):')) {
+        console.log('REJECTED: Followed by "):" pattern');
+        return false;
+      }
+      
+      return true;
+    };
+    
+    // Store all matches first to avoid re-processing
+    const allMatches = [];
+    
+    // Display math with $$ - must be on line boundaries or surrounded by whitespace
+    console.log('\n--- Checking for $$ display math ---');
+    const displayDollarRegex = /(?:^|\n)\s*\$\$([^\$]+)\$\$\s*(?:\n|$)/gm;
+    let match;
+    
+    while ((match = displayDollarRegex.exec(text)) !== null) {
+      console.log(`Found potential $$ match at index ${match.index}:`, match[0]);
+      if (isValidLaTeX(match[0], text, match.index)) {
+        allMatches.push({
+          type: 'display',
+          match: match[0],
+          content: match[1].trim(),
+          index: match.index
+        });
+        console.log('ACCEPTED: Valid display math');
+      }
+    }
+    
+    // Display math with \[ \] - typically at line start
+    console.log('\n--- Checking for \\[ \\] display math ---');
+    const displayBracketRegex = /(?:^|\n)\s*\\\[([^\]]+)\\\]\s*(?:\n|$)/gm;
+    
+    while ((match = displayBracketRegex.exec(text)) !== null) {
+      console.log(`Found potential \\[ \\] match at index ${match.index}:`, match[0]);
+      if (isValidLaTeX(match[0], text, match.index)) {
+        allMatches.push({
+          type: 'display',
+          match: match[0],
+          content: match[1].trim(),
+          index: match.index
+        });
+        console.log('ACCEPTED: Valid display math');
+      }
+    }
+    
+    // LaTeX environments - must be at line start
+    console.log('\n--- Checking for LaTeX environments ---');
+    const environmentRegex = /(?:^|\n)\s*\\begin\{(\w+)\}([\s\S]*?)\\end\{\1\}/gm;
+    
+    while ((match = environmentRegex.exec(text)) !== null) {
+      console.log(`Found environment at index ${match.index}:`, match[0]);
+      if (isValidLaTeX(match[0], text, match.index)) {
+        allMatches.push({
+          type: 'environment',
+          match: match[0],
+          environment: match[1],
+          content: match[2].trim(),
+          index: match.index
+        });
+        console.log('ACCEPTED: Valid LaTeX environment');
+      }
+    }
+    
+    // Inline math with \( \) - more reliable than $
+    console.log('\n--- Checking for \\( \\) inline math ---');
+    const inlineParenRegex = /\\\(([^)]+)\\\)/g;
+    
+    while ((match = inlineParenRegex.exec(text)) !== null) {
+      console.log(`Found potential \\( \\) match at index ${match.index}:`, match[0]);
+      
+      // Skip if already processed as part of a larger match
+      const alreadyProcessed = allMatches.some(m => 
+        match.index >= m.index && match.index < m.index + m.match.length
+      );
+      
+      if (!alreadyProcessed && isValidLaTeX(match[0], text, match.index)) {
+        allMatches.push({
+          type: 'inline',
+          match: match[0],
+          content: match[1].trim(),
+          index: match.index
+        });
+        console.log('ACCEPTED: Valid inline math');
+      } else if (alreadyProcessed) {
+        console.log('SKIPPED: Already part of larger match');
+      }
+    }
+    
+    // Inline math with $ - very restrictive to avoid false positives
+    console.log('\n--- Checking for $ inline math (restrictive) ---');
+    // Only match $ when surrounded by word boundaries or whitespace, not in descriptions
+    const inlineDollarRegex = /(?:^|[\s,;.!?])\$([^\$\n]{1,100})\$(?=[\s,;.!?]|$)/g;
+    
+    while ((match = inlineDollarRegex.exec(text)) !== null) {
+      console.log(`Found potential $ match at index ${match.index}:`, match[0]);
+      
+      // Skip if already processed
+      const alreadyProcessed = allMatches.some(m => 
+        match.index >= m.index && match.index < m.index + m.match.length
+      );
+      
+      // Additional validation for single $
+      const content = match[1].trim();
+      const containsLaTeXCommands = /\\[a-zA-Z]+|[\^_{}]/.test(content);
+      
+      console.log(`Content: "${content}"`);
+      console.log(`Contains LaTeX commands: ${containsLaTeXCommands}`);
+      
+      if (!alreadyProcessed && containsLaTeXCommands && isValidLaTeX(match[0], text, match.index)) {
+        allMatches.push({
+          type: 'inline',
+          match: match[0].trim(), // Trim the whitespace from match
+          content: content,
+          index: match.index
+        });
+        console.log('ACCEPTED: Valid inline math with LaTeX commands');
+      } else if (!containsLaTeXCommands) {
+        console.log('REJECTED: No LaTeX commands found');
+      }
+    }
+    
+    // Sort matches by index to process in order
+    allMatches.sort((a, b) => a.index - b.index);
+    
+    console.log(`\n--- Total accepted matches: ${allMatches.length} ---`);
+    
+    // Process all matches and create placeholders
+    for (const matchInfo of allMatches) {
+      const placeholder = `__LATEX_PLACEHOLDER_${placeholderIndex}__`;
+      
+      try {
+        console.log(`\nRendering ${matchInfo.type} math:`, matchInfo.content);
+        
+        let rendered;
+        if (matchInfo.type === 'environment') {
+          rendered = katex.renderToString(
+            `\\begin{${matchInfo.environment}}${matchInfo.content}\\end{${matchInfo.environment}}`,
+            {
+              displayMode: true,
+              throwOnError: false,
+              errorColor: '#cc0000',
+              strict: 'warn',
+              trust: false
+            }
+          );
+        } else {
+          rendered = katex.renderToString(matchInfo.content, {
+            displayMode: matchInfo.type === 'display',
+            throwOnError: false,
+            errorColor: '#cc0000',
+            strict: 'warn',
+            trust: false
+          });
+        }
+        
+        latexMap.set(placeholder, rendered);
+        processedText = processedText.replace(matchInfo.match, placeholder);
+        placeholderIndex++;
+        console.log(`Successfully rendered as placeholder: ${placeholder}`);
+      } catch (error) {
+        console.warn('LaTeX rendering error:', error);
+        console.log('Failed to render, keeping original text');
+      }
+    }
+    
+    console.log('\n--- Final results ---');
+    console.log('Processed text:', processedText);
+    console.log('LaTeX map size:', latexMap.size);
+    console.log('LaTeX placeholders:', Array.from(latexMap.keys()));
+    console.log('=== extractLaTeX complete ===\n');
+    
+    return { processedText, latexMap };
+  }
+
+  /**
+   * Restore LaTeX expressions from placeholders
+   * @param {string} html - HTML with placeholders
+   * @param {Map} latexMap - Map of placeholders to rendered LaTeX
+   * @returns {string} HTML with LaTeX restored
+   */
+  restoreLaTeX(html, latexMap) {
+    console.log('=== restoreLaTeX called ===');
+    console.log('Input HTML:', html);
+    console.log('LaTeX map size:', latexMap.size);
+    
+    let restoredHtml = html;
+    
+    // Replace placeholders with rendered LaTeX
+    for (const [placeholder, rendered] of latexMap) {
+      console.log(`Replacing ${placeholder} with rendered LaTeX`);
+      restoredHtml = restoredHtml.replace(placeholder, rendered);
+    }
+    
+    console.log('Restored HTML:', restoredHtml);
+    console.log('=== restoreLaTeX complete ===');
+    
+    return restoredHtml;
+  }
+
+  /**
    * Cleanup message handler
    */
   cleanup() {
     this.clearChat();
     this.markdownRenderer = null;
     this.sanitizer = null;
+    this.latexRenderer = null;
+    this.latexEnabled = false;
     console.log('Message handler cleaned up');
   }
 }

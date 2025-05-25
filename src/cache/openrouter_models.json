@@ -1,4 +1,38 @@
 {
+  "sarvamai/sarvam-m": {
+    "name": "Sarvam AI: Sarvam-M",
+    "provider": "openrouter",
+    "category": "other",
+    "description": "Sarvam-M is a 24 B-parameter, instruction-tuned derivative of Mistral-Small-3.1-24B-Base-2503, post-trained on English plus eleven major Indic languages (bn, hi, kn, gu, mr, ml, or, pa, ta, te). The model introduces a dual-mode interface: “non-think” for low-latency chat and a optional “think” phase that exposes chain-of-thought tokens for more demanding reasoning, math, and coding tasks. \n\nBenchmark reports show solid gains versus similarly sized open models on Indic-language QA, GSM-8K math, and SWE-Bench coding, making Sarvam-M a practical general-purpose choice for multilingual conversational agents as well as analytical workloads that mix English, native Indic scripts, or romanized text.",
+    "pricing": {
+      "input": 0.25,
+      "output": 0.75
+    },
+    "contextWindow": 32768,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 32768,
+      "max_completion_tokens": 32768,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Other",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "sarvamai/sarvam-m",
+      "created": 1748188413,
+      "per_request_limits": null
+    }
+  },
   "thedrummer/valkyrie-49b-v1": {
     "name": "TheDrummer: Valkyrie 49B V1",
     "provider": "openrouter",

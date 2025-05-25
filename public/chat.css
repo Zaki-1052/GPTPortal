@@ -1930,3 +1930,27 @@ body::before {
     animation: none;
   }
 }
+
+/* LaTeX Rendering Styles */
+.katex {
+  color: #e6edf3 !important; /* Dark theme text color */
+}
+
+.katex-display {
+  margin: 1em 0;
+  text-align: center;
+}
+
+.katex-inline {
+  margin: 0 0.1em;
+}
+
+/* Error handling */
+.latex-error {
+  color: #cc0000;
+  background: rgba(204, 0, 0, 0.1);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.9em;
+}

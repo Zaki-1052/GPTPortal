@@ -19,6 +19,9 @@ class ChatManager {
     // Context tracking
     this.contextTracker = null;
     
+    // Message handler for proper message rendering
+    this.messageHandler = null;
+    
     // System prompt caching for accurate token counting
     this.systemPromptCache = new Map();
     this.customPromptCache = new Map();
@@ -32,6 +35,9 @@ class ChatManager {
     this.bindEvents();
     this.fetchChatList();
     this.fetchPromptList();
+    
+    // Initialize message handler
+    this.initializeMessageHandler();
     
     // Initialize context tracker
     this.initializeContextTracker();
@@ -465,6 +471,45 @@ class ChatManager {
   }
 
   displayMessage(message, type, shouldReadAloud = false) {
+    // Debug logging to understand MessageHandler usage
+    console.log('=== ChatManager.displayMessage called ===');
+    console.log('Parameters:', { 
+      message: message.substring(0, 50) + '...', 
+      type, 
+      shouldReadAloud 
+    });
+    console.log('this.messageHandler exists?', this.messageHandler !== undefined && this.messageHandler !== null);
+    console.log('this.messageHandler value:', this.messageHandler);
+    console.log('this.messageHandler type:', typeof this.messageHandler);
+    if (this.messageHandler) {
+      console.log('this.messageHandler has displayMessage?', typeof this.messageHandler.displayMessage === 'function');
+      console.log('this.messageHandler methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(this.messageHandler)));
+    }
+    console.log('=== End debug info ===');
+    
+    // Use MessageHandler if available, otherwise fall back to direct rendering
+    if (this.messageHandler) {
+      this.messageHandler.displayMessage(message, type, shouldReadAloud);
+    } else {
+      this.displayMessageFallback(message, type, shouldReadAloud);
+    }
+    
+    // ChatManager still handles conversation history
+    if (type !== 'error') {
+      this.conversationHistory.push({ 
+        role: type === 'user' ? 'user' : 'assistant', 
+        content: message 
+      });
+    }
+    
+    // ChatManager still handles context tracking
+    if (this.contextTracker) {
+      this.contextTracker.updateConversationHistory(this.conversationHistory);
+    }
+  }
+  
+  displayMessageFallback(message, type, shouldReadAloud = false) {
+    // Fallback implementation when MessageHandler is not available
     const messageElement = document.createElement('div');
     messageElement.classList.add('message', type);
 
@@ -549,16 +594,6 @@ class ChatManager {
     if (chatBox) {
       chatBox.appendChild(messageElement);
       chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    // Add to conversation history
-    if (type !== 'error') {
-      this.conversationHistory.push({ role: type === 'user' ? 'user' : 'assistant', content: message });
-    }
-
-    // Update context indicator after adding message
-    if (this.contextTracker) {
-      this.contextTracker.updateConversationHistory(this.conversationHistory);
     }
 
     // Voice feedback
@@ -791,6 +826,16 @@ class ChatManager {
     field.style.height = `${newHeight}px`;
   }
 
+  // Message Handler Integration
+  initializeMessageHandler() {
+    if (typeof MessageHandler !== 'undefined') {
+      this.messageHandler = new MessageHandler();
+      console.log('✓ MessageHandler initialized');
+    } else {
+      console.warn('MessageHandler not available - using fallback rendering');
+    }
+  }
+  
   // Context Tracker Integration
   initializeContextTracker() {
     if (window.ContextTracker) {

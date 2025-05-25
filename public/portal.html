@@ -11,6 +11,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- KaTeX for LaTeX rendering -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" crossorigin="anonymous">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <div>
@@ -279,7 +282,8 @@
       voice: !(/^((?!chrome|android).)*safari/i.test(navigator.userAgent)),
       markdown: typeof marked !== 'undefined',
       sanitization: typeof DOMPurify !== 'undefined',
-      highlighting: typeof hljs !== 'undefined'
+      highlighting: typeof hljs !== 'undefined',
+      latex: typeof katex !== 'undefined'
     },
     modules: {
       loadTimeout: 10000, // 10 second timeout for module loading
