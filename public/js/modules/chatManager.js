@@ -391,16 +391,20 @@ class ChatManager {
       }
 
       const data = await response.json();
+      console.log('Response data:', data);
+      console.log('Endpoint:', endpoint);
 
       // Determine response format based on endpoint
       let messageContent;
       if (endpoint.includes('gemini')) {
         messageContent = data.text || 'No response received.';
       } else if (endpoint.includes('assistant')) {
-        messageContent = data.text?.text || 'No response received.';
+        messageContent = data.text || 'No response received.';
       } else {
         messageContent = data.text || 'No response received.';
       }
+      
+      console.log('Extracted message content:', messageContent);
 
       const shouldReadAloud = this.isVoiceTranscription || (window.isVoiceTranscription || false);
       this.displayMessage(messageContent, 'response', shouldReadAloud);

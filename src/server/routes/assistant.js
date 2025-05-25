@@ -53,6 +53,11 @@ router.post('/assistant', async (req, res) => {
     if (shouldInitialize === true) {
       console.log("Initializing assistant and thread");
       const systemMessage = await initializeConversationHistory();
+      
+      // Store system message for export functionality
+      req.app.locals.systemMessage = systemMessage;
+      req.app.locals.currentModelID = modelID;
+      
       await openaiHandler.initializeAssistantAndThread(modelID, systemMessage);
       
       const response = await openaiHandler.handleAssistantMessage(userMessage);
@@ -61,6 +66,9 @@ router.post('/assistant', async (req, res) => {
       
     } else if (shouldInitialize === false) {
       console.log("Using existing assistant and thread");
+      
+      // Update current model ID for export
+      req.app.locals.currentModelID = modelID;
       
       const response = await openaiHandler.handleAssistantMessage(userMessage);
       console.log("Assistant Response:", response);

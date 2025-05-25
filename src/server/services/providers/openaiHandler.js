@@ -834,6 +834,31 @@ Enhanced prompt:`;
   }
 
   /**
+   * Fetch all messages from the current thread
+   */
+  async fetchThreadMessages() {
+    try {
+      if (!this.thread) {
+        throw new Error('No thread available. Initialize assistant first.');
+      }
+
+      const messagesResponse = await this.openai.beta.threads.messages.list(this.thread.id);
+      
+      if (messagesResponse && messagesResponse.data) {
+        // Sort messages by created_at in chronological order (oldest first)
+        const sortedMessages = messagesResponse.data.sort((a, b) => a.created_at - b.created_at);
+        return sortedMessages;
+      } else {
+        console.error("Failed to fetch messages or no messages available.");
+        return [];
+      }
+    } catch (error) {
+      console.error("Error fetching thread messages:", error);
+      return [];
+    }
+  }
+
+  /**
    * Attach file to assistant
    */
   async attachFileToAssistant(filePath, filename) {
