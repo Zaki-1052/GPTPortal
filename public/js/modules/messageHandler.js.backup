@@ -883,6 +883,240 @@ class MessageHandler {
   }
 
   /**
+   * Extract LaTeX expressions from text and replace with placeholders
+   * @param {string} text - Input text
+   * @returns {Object} Processed text and LaTeX map
+   */
+  extractLaTeX(text) {
+    console.log('=== extractLaTeX called ===');
+    console.log('Full input text:');
+    console.log(text);
+    console.log('Text length:', text.length);
+    console.log('---');
+    
+    const latexMap = new Map();
+    let processedText = text;
+    let placeholderIndex = 0;
+    
+    // Helper function to check if a match is valid LaTeX
+    const isValidLaTeX = (match, fullText, matchIndex) => {
+      // Check if it's part of a descriptive sentence
+      const beforeMatch = fullText.substring(Math.max(0, matchIndex - 20), matchIndex);
+      const afterMatch = fullText.substring(matchIndex + match.length, matchIndex + match.length + 20);
+      
+      console.log(`Validating match: "${match}"`);
+      console.log(`Before: "${beforeMatch}"`);
+      console.log(`After: "${afterMatch}"`);
+      
+      // Reject if it's part of a description like "double $):" or "single $):"
+      if (beforeMatch.includes('double') || beforeMatch.includes('single') || 
+          beforeMatch.includes('dollar') || beforeMatch.includes('backslash')) {
+        console.log('REJECTED: Part of description');
+        return false;
+      }
+      
+      // Reject if followed by "):" which indicates it's part of descriptive text
+      if (afterMatch.startsWith('):') || afterMatch.startsWith(' ):')) {
+        console.log('REJECTED: Followed by "):" pattern');
+        return false;
+      }
+      
+      return true;
+    };
+    
+    // Store all matches first to avoid re-processing
+    const allMatches = [];
+    
+    // Display math with $$ - must be on line boundaries or surrounded by whitespace
+    console.log('\n--- Checking for $$ display math ---');
+    const displayDollarRegex = /(?:^|\n)\s*\$\$([^\$]+)\$\$\s*(?:\n|$)/gm;
+    let match;
+    
+    while ((match = displayDollarRegex.exec(text)) !== null) {
+      console.log(`Found potential $$ match at index ${match.index}:`, match[0]);
+      if (isValidLaTeX(match[0], text, match.index)) {
+        allMatches.push({
+          type: 'display',
+          match: match[0],
+          content: match[1].trim(),
+          index: match.index
+        });
+        console.log('ACCEPTED: Valid display math');
+      }
+    }
+    
+    // Display math with \[ \] - typically at line start
+    console.log('\n--- Checking for \\[ \\] display math ---');
+    const displayBracketRegex = /(?:^|\n)\s*\\\[([^\]]+)\\\]\s*(?:\n|$)/gm;
+    
+    while ((match = displayBracketRegex.exec(text)) !== null) {
+      console.log(`Found potential \\[ \\] match at index ${match.index}:`, match[0]);
+      if (isValidLaTeX(match[0], text, match.index)) {
+        allMatches.push({
+          type: 'display',
+          match: match[0],
+          content: match[1].trim(),
+          index: match.index
+        });
+        console.log('ACCEPTED: Valid display math');
+      }
+    }
+    
+    // LaTeX environments - must be at line start
+    console.log('\n--- Checking for LaTeX environments ---');
+    const environmentRegex = /(?:^|\n)\s*\\begin\{(\w+)\}([\s\S]*?)\\end\{\1\}/gm;
+    
+    while ((match = environmentRegex.exec(text)) !== null) {
+      console.log(`Found environment at index ${match.index}:`, match[0]);
+      if (isValidLaTeX(match[0], text, match.index)) {
+        allMatches.push({
+          type: 'environment',
+          match: match[0],
+          environment: match[1],
+          content: match[2].trim(),
+          index: match.index
+        });
+        console.log('ACCEPTED: Valid LaTeX environment');
+      }
+    }
+    
+    // Inline math with \( \) - more reliable than $
+    console.log('\n--- Checking for \\( \\) inline math ---');
+    const inlineParenRegex = /\\\(([^)]+)\\\)/g;
+    
+    while ((match = inlineParenRegex.exec(text)) !== null) {
+      console.log(`Found potential \\( \\) match at index ${match.index}:`, match[0]);
+      
+      // Skip if already processed as part of a larger match
+      const alreadyProcessed = allMatches.some(m => 
+        match.index >= m.index && match.index < m.index + m.match.length
+      );
+      
+      if (!alreadyProcessed && isValidLaTeX(match[0], text, match.index)) {
+        allMatches.push({
+          type: 'inline',
+          match: match[0],
+          content: match[1].trim(),
+          index: match.index
+        });
+        console.log('ACCEPTED: Valid inline math');
+      } else if (alreadyProcessed) {
+        console.log('SKIPPED: Already part of larger match');
+      }
+    }
+    
+    // Inline math with $ - very restrictive to avoid false positives
+    console.log('\n--- Checking for $ inline math (restrictive) ---');
+    // Only match $ when surrounded by word boundaries or whitespace, not in descriptions
+    const inlineDollarRegex = /(?:^|[\s,;.!?])\$([^\$\n]{1,100})\$(?=[\s,;.!?]|$)/g;
+    
+    while ((match = inlineDollarRegex.exec(text)) !== null) {
+      console.log(`Found potential $ match at index ${match.index}:`, match[0]);
+      
+      // Skip if already processed
+      const alreadyProcessed = allMatches.some(m => 
+        match.index >= m.index && match.index < m.index + m.match.length
+      );
+      
+      // Additional validation for single $
+      const content = match[1].trim();
+      const containsLaTeXCommands = /\\[a-zA-Z]+|[\^_{}]/.test(content);
+      
+      console.log(`Content: "${content}"`);
+      console.log(`Contains LaTeX commands: ${containsLaTeXCommands}`);
+      
+      if (!alreadyProcessed && containsLaTeXCommands && isValidLaTeX(match[0], text, match.index)) {
+        allMatches.push({
+          type: 'inline',
+          match: match[0].trim(), // Trim the whitespace from match
+          content: content,
+          index: match.index
+        });
+        console.log('ACCEPTED: Valid inline math with LaTeX commands');
+      } else if (!containsLaTeXCommands) {
+        console.log('REJECTED: No LaTeX commands found');
+      }
+    }
+    
+    // Sort matches by index to process in order
+    allMatches.sort((a, b) => a.index - b.index);
+    
+    console.log(`\n--- Total accepted matches: ${allMatches.length} ---`);
+    
+    // Process all matches and create placeholders
+    for (const matchInfo of allMatches) {
+      const placeholder = `__LATEX_PLACEHOLDER_${placeholderIndex}__`;
+      
+      try {
+        console.log(`\nRendering ${matchInfo.type} math:`, matchInfo.content);
+        
+        let rendered;
+        if (matchInfo.type === 'environment') {
+          rendered = katex.renderToString(
+            `\\begin{${matchInfo.environment}}${matchInfo.content}\\end{${matchInfo.environment}}`,
+            {
+              displayMode: true,
+              throwOnError: false,
+              errorColor: '#cc0000',
+              strict: 'warn',
+              trust: false
+            }
+          );
+        } else {
+          rendered = katex.renderToString(matchInfo.content, {
+            displayMode: matchInfo.type === 'display',
+            throwOnError: false,
+            errorColor: '#cc0000',
+            strict: 'warn',
+            trust: false
+          });
+        }
+        
+        latexMap.set(placeholder, rendered);
+        processedText = processedText.replace(matchInfo.match, placeholder);
+        placeholderIndex++;
+        console.log(`Successfully rendered as placeholder: ${placeholder}`);
+      } catch (error) {
+        console.warn('LaTeX rendering error:', error);
+        console.log('Failed to render, keeping original text');
+      }
+    }
+    
+    console.log('\n--- Final results ---');
+    console.log('Processed text:', processedText);
+    console.log('LaTeX map size:', latexMap.size);
+    console.log('LaTeX placeholders:', Array.from(latexMap.keys()));
+    console.log('=== extractLaTeX complete ===\n');
+    
+    return { processedText, latexMap };
+  }
+
+  /**
+   * Restore LaTeX expressions from placeholders
+   * @param {string} html - HTML with placeholders
+   * @param {Map} latexMap - Map of placeholders to rendered LaTeX
+   * @returns {string} HTML with LaTeX restored
+   */
+  restoreLaTeX(html, latexMap) {
+    console.log('=== restoreLaTeX called ===');
+    console.log('Input HTML:', html);
+    console.log('LaTeX map size:', latexMap.size);
+    
+    let restoredHtml = html;
+    
+    // Replace placeholders with rendered LaTeX
+    for (const [placeholder, rendered] of latexMap) {
+      console.log(`Replacing ${placeholder} with rendered LaTeX`);
+      restoredHtml = restoredHtml.replace(placeholder, rendered);
+    }
+    
+    console.log('Restored HTML:', restoredHtml);
+    console.log('=== restoreLaTeX complete ===');
+    
+    return restoredHtml;
+  }
+
+  /**
    * Cleanup message handler
    */
   cleanup() {
