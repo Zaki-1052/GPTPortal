@@ -509,7 +509,103 @@ class RouteManager {
     }));
 
 
-    this.routes.set('admin', 'Administrative endpoints (chat management, export, shutdown)');
+    // Instructions management routes
+    app.get('/get-instructions', ErrorHandler.asyncHandler(async (req, res) => {
+      const fs = require('fs').promises;
+      try {
+        const data = await fs.readFile('./public/instructions.md', 'utf8');
+        res.send(data);
+      } catch (error) {
+        console.error(error);
+        res.status(500).send('Error reading the file');
+      }
+    }));
+
+    app.post('/update-instructions', ErrorHandler.asyncHandler(async (req, res) => {
+      const fs = require('fs').promises;
+      const newContent = req.body.content;
+      try {
+        await fs.writeFile('./public/instructions.md', newContent, 'utf8');
+        res.send({ message: 'File updated successfully' });
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: 'Error saving the file' });
+      }
+    }));
+
+    // Environment management routes
+    app.get('/get-my-env', ErrorHandler.asyncHandler(async (req, res) => {
+      const fs = require('fs').promises;
+      try {
+        const data = await fs.readFile('.env', 'utf8');
+        res.send(data);
+      } catch (error) {
+        console.error(error);
+        res.status(500).send('Error reading the file');
+      }
+    }));
+
+    app.post('/update-my-env', ErrorHandler.asyncHandler(async (req, res) => {
+      const fs = require('fs').promises;
+      const newContent = req.body.content;
+      try {
+        await fs.writeFile('.env', newContent, 'utf8');
+        res.send({ message: 'File updated successfully' });
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: 'Error saving the file' });
+      }
+    }));
+
+    // Upload status checking route
+    app.get('/upload-status/:sessionId', ErrorHandler.asyncHandler(async (req, res) => {
+      const { sessionId } = req.params;
+      const files = req.app.locals.uploadedFiles?.get(sessionId);
+      
+      if (!files) {
+        return res.status(404).json({ error: 'Upload session not found' });
+      }
+      
+      res.json({ 
+        sessionId,
+        files: files.map(file => ({
+          originalName: file.originalName,
+          fileName: file.fileName,
+          mimeType: file.mimeType,
+          size: file.size,
+          pageCount: file.pageCount
+        }))
+      });
+    }));
+
+    // Standalone shutdown server route
+    app.post('/shutdown-server', ErrorHandler.asyncHandler(async (req, res) => {
+      if (req.app.locals.isShuttingDown) {
+        return res.status(503).send('Server is already shutting down');
+      }
+
+      req.app.locals.isShuttingDown = true;
+      res.send('Server shutdown initiated');
+
+      setTimeout(() => {
+        console.log("Sending SIGTERM to self...");
+        
+        const server = req.app.locals.serverInstance || req.app.get('server');
+        
+        if (server) {
+          process.kill(process.pid, 'SIGINT'); // Send SIGINT to self first
+          server.close(() => {
+            console.log('Server successfully shut down.');
+            process.exit(99);
+          });
+        } else {
+          console.log('Server instance not found, forcing exit...');
+          process.exit(99);
+        }
+      }, 1000); // 1-second delay for the response to be sent
+    }));
+
+    this.routes.set('admin', 'Administrative endpoints (chat management, export, shutdown, instructions, environment)');
   }
 
   /**

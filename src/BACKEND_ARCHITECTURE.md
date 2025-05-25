@@ -47,9 +47,10 @@ class Application extends EventEmitter {
 
 **Key Features:**
 - Event-driven architecture
-- Graceful shutdown handling
+- Graceful shutdown handling with multiple shutdown mechanisms
 - Health monitoring
 - Service coordination
+- Server instance management for route access
 
 #### **ServiceManager.js**
 Manages all application services and their dependencies:
@@ -82,6 +83,7 @@ class RouteManager {
     this.setupAPIRoutes(app);
     this.setupAIRoutes(app);
     this.setupFileRoutes(app);
+    this.setupAdminRoutes(app);
   }
 }
 ```
@@ -91,6 +93,7 @@ class RouteManager {
 - API routes (models, health, system)
 - AI service routes (chat, transcription, TTS, image generation)
 - File management routes (upload, processing)
+- Administrative routes (export, shutdown, instructions, environment)
 
 ### 2. Provider System (`src/server/services/providers/`)
 
@@ -224,17 +227,24 @@ class CostService {
 ```
 
 #### **ExportService.js**
-Rich HTML export functionality:
+Rich HTML export functionality with integrated shutdown capabilities:
 
 ```javascript
 class ExportService {
   async exportChat(type, data, providerFactory) {
     // Generate rich HTML exports
-    // Support multiple chat types
-    // Include metadata and styling
+    // Support multiple chat types (conversation, gemini, assistants)
+    // Include metadata, styling, and cost analysis
+    // Automatic title and summary generation
   }
 }
 ```
+
+**Export Features:**
+- **Multi-format Support**: HTML exports with rich styling and metadata
+- **Automatic Titling**: AI-generated titles and summaries for conversations
+- **Cost Analysis**: Token usage and cost calculations included in exports
+- **Shutdown Integration**: Export-and-shutdown functionality for session management
 
 ### 5. Middleware System
 
@@ -351,6 +361,7 @@ class ErrorHandler {
 - `POST /upload-file` - File upload and processing
 - `POST /upload-image` - Image upload
 - `GET /uploads/:filename` - File serving
+- `GET /upload-status/:sessionId` - Check file upload progress and status
 
 ### Model Management
 - `GET /api/models` - Get all available models
@@ -369,6 +380,25 @@ class ErrorHandler {
 - `GET /health` - Basic health check
 - `GET /health/detailed` - Detailed service health
 - `GET /api/system/status` - System information
+
+### Administrative Endpoints
+- `GET /export-chat-html` - Export conversation with automatic server shutdown
+- `POST /shutdown-server` - Standalone server shutdown endpoint
+- `GET /listChats` - List available chat history files
+- `GET /listPrompts` - List available prompt templates
+- `POST /setPrompt` - Configure prompt template settings
+- `GET /getSummary/:chatName` - Retrieve conversation summary
+
+### Configuration Management
+- `GET /get-instructions` - Read system instructions file
+- `POST /update-instructions` - Update system instructions
+- `GET /get-my-env` - Read environment configuration
+- `POST /update-my-env` - Update environment variables
+
+### Context Window API
+- `GET /api/models/:modelId/context-window` - Get context window for specific model
+- `POST /api/models/context-windows` - Get context windows for multiple models
+- `POST /api/context-usage` - Calculate context window usage
 
 ## Configuration
 
