@@ -480,6 +480,9 @@ class PortalInitializer {
         container.style.display = isHidden ? 'block' : 'none';
         
         if (isHidden) {
+          // Add body class to prevent scrolling
+          document.body.style.overflow = 'hidden';
+          
           fetch('/get-instructions', {
             credentials: 'include'
           })
@@ -488,13 +491,29 @@ class PortalInitializer {
               const textarea = document.getElementById('instructions-content');
               if (textarea) {
                 textarea.value = data;
-                container.scrollIntoView({ behavior: 'smooth' });
+                this.updateCharCount('instructions');
+                
+                // Focus the textarea after a short delay to ensure modal is visible
+                setTimeout(() => {
+                  textarea.focus();
+                }, 300);
               }
             })
             .catch(error => {
               console.error('Error:', error);
             });
+        } else {
+          // Restore body scrolling
+          document.body.style.overflow = '';
         }
+      });
+    }
+    
+    // Setup character counting for instructions
+    const instructionsTextarea = document.getElementById('instructions-content');
+    if (instructionsTextarea) {
+      instructionsTextarea.addEventListener('input', () => {
+        this.updateCharCount('instructions');
       });
     }
   }
@@ -513,19 +532,38 @@ class PortalInitializer {
         container.style.display = isHidden ? 'block' : 'none';
         
         if (isHidden) {
+          // Add body class to prevent scrolling
+          document.body.style.overflow = 'hidden';
+          
           fetch('/get-my-env')
             .then(response => response.text())
             .then(data => {
               const textarea = document.getElementById('env-content');
               if (textarea) {
                 textarea.value = data;
-                container.scrollIntoView({ behavior: 'smooth' });
+                this.updateLineCount();
+                
+                // Focus the textarea after a short delay to ensure modal is visible
+                setTimeout(() => {
+                  textarea.focus();
+                }, 300);
               }
             })
             .catch(error => {
               console.error('Error:', error);
             });
+        } else {
+          // Restore body scrolling
+          document.body.style.overflow = '';
         }
+      });
+    }
+    
+    // Setup line counting for environment variables
+    const envTextarea = document.getElementById('env-content');
+    if (envTextarea) {
+      envTextarea.addEventListener('input', () => {
+        this.updateLineCount();
       });
     }
   }
@@ -671,10 +709,92 @@ class PortalInitializer {
   }
 
   /**
+   * Update character count for instructions
+   * @param {string} type - Type of editor ('instructions')
+   */
+  updateCharCount(type) {
+    const textarea = document.getElementById(`${type}-content`);
+    const countElement = document.getElementById(`${type}-char-count`);
+    
+    if (textarea && countElement) {
+      const count = textarea.value.length;
+      countElement.textContent = count.toLocaleString();
+      
+      // Add color coding based on content length
+      if (count > 10000) {
+        countElement.style.color = '#ff6b35';
+      } else if (count > 5000) {
+        countElement.style.color = '#ff9500';
+      } else {
+        countElement.style.color = '#6e7681';
+      }
+    }
+  }
+
+  /**
+   * Update line count for environment variables
+   */
+  updateLineCount() {
+    const textarea = document.getElementById('env-content');
+    const countElement = document.getElementById('env-line-count');
+    
+    if (textarea && countElement) {
+      const lines = textarea.value.split('\n').length;
+      countElement.textContent = lines.toLocaleString();
+      
+      // Add color coding based on line count
+      if (lines > 100) {
+        countElement.style.color = '#ff6b35';
+      } else if (lines > 50) {
+        countElement.style.color = '#ff9500';
+      } else {
+        countElement.style.color = '#6e7681';
+      }
+    }
+  }
+
+  /**
+   * Enhanced save changes with better UX
+   */
+  enhancedSaveChanges() {
+    const content = document.getElementById('instructions-content')?.value;
+    if (!content) return;
+    
+    // Show loading state
+    const saveBtn = document.querySelector('#edit-instructions-container .setup-action-btn.primary');
+    if (saveBtn) {
+      saveBtn.innerHTML = '<span class="action-icon">⏳</span><span>Saving...</span>';
+      saveBtn.disabled = true;
+    }
+    
+    this.saveChanges();
+  }
+
+  /**
+   * Enhanced save env changes with better UX
+   */
+  enhancedSaveEnvChanges() {
+    const content = document.getElementById('env-content')?.value;
+    if (!content) return;
+    
+    // Show loading state
+    const saveBtn = document.querySelector('#edit-env-container .setup-action-btn.primary');
+    if (saveBtn) {
+      saveBtn.innerHTML = '<span class="action-icon">⏳</span><span>Saving...</span>';
+      saveBtn.disabled = true;
+    }
+    
+    this.saveEnvChanges();
+  }
+
+  /**
    * Cleanup function for proper resource management
    */
   cleanup() {
     console.log('Cleaning up portal initializer...');
+    
+    // Restore body scrolling if modals were open
+    document.body.style.overflow = '';
     
     // Remove event listeners
     document.removeEventListener('keydown', this.setupKeyboardShortcuts);

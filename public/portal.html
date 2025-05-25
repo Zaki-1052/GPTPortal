@@ -139,17 +139,104 @@
     </div>
   </div>
 
-  <!-- Setup Controls -->
-  <button id="edit-instructions-btn" class="custom-select">Edit Instructions</button>
-  <div id="edit-instructions-container" style="display:none;">
-    <textarea id="instructions-content" rows="10" cols="80"></textarea>
-    <button onclick="saveChanges()">Save Changes</button>
+  <!-- Enhanced Setup Controls -->
+  <div class="setup-controls-section">
+    <div class="setup-controls-header">
+      <h3>Configuration</h3>
+      <span class="setup-controls-subtitle">Manage your application settings</span>
+    </div>
+    
+    <div class="setup-controls-grid">
+      <button id="edit-instructions-btn" class="setup-control-btn">
+        <div class="setup-btn-icon">📝</div>
+        <div class="setup-btn-content">
+          <span class="setup-btn-title">Edit Instructions</span>
+          <span class="setup-btn-desc">Modify system prompts and behavior</span>
+        </div>
+        <div class="setup-btn-arrow">❯</div>
+      </button>
+      
+      <button id="edit-env-btn" class="setup-control-btn">
+        <div class="setup-btn-icon">🔐</div>
+        <div class="setup-btn-content">
+          <span class="setup-btn-title">Edit Environment Variables</span>
+          <span class="setup-btn-desc">Configure API keys and settings</span>
+        </div>
+        <div class="setup-btn-arrow">❯</div>
+      </button>
+    </div>
   </div>
   
-  <button id="edit-env-btn" class="custom-select">Edit Env Variables</button>
-  <div id="edit-env-container" style="display:none;">
-    <textarea id="env-content" rows="10" cols="80"></textarea>
-    <button onclick="saveEnvChanges()">Save Changes</button>
+  <!-- Enhanced Instructions Editor -->
+  <div id="edit-instructions-container" class="setup-editor-container" style="display:none;">
+    <div class="setup-editor-header">
+      <div class="setup-editor-title">
+        <span class="setup-editor-icon">📝</span>
+        <h4>Instructions Editor</h4>
+      </div>
+      <button class="setup-editor-close" onclick="document.getElementById('edit-instructions-container').style.display='none'; document.body.style.overflow=''">
+        <span>✕</span>
+      </button>
+    </div>
+    <div class="setup-editor-content">
+      <div class="setup-editor-toolbar">
+        <div class="setup-editor-info">
+          <span class="info-badge">System Prompts</span>
+          <span class="info-text">Define how the AI should behave and respond</span>
+        </div>
+      </div>
+      <div class="setup-editor-field">
+        <textarea id="instructions-content" placeholder="Enter your system instructions here..."></textarea>
+        <div class="textarea-footer">
+          <span class="char-count">Characters: <span id="instructions-char-count">0</span></span>
+        </div>
+      </div>
+      <div class="setup-editor-actions">
+        <button class="setup-action-btn secondary" onclick="document.getElementById('edit-instructions-container').style.display='none'; document.body.style.overflow=''">
+          <span>Cancel</span>
+        </button>
+        <button class="setup-action-btn primary" onclick="window.portalInitializer ? window.portalInitializer.enhancedSaveChanges() : saveChanges()">
+          <span class="action-icon">💾</span>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Enhanced Environment Variables Editor -->
+  <div id="edit-env-container" class="setup-editor-container" style="display:none;">
+    <div class="setup-editor-header">
+      <div class="setup-editor-title">
+        <span class="setup-editor-icon">🔐</span>
+        <h4>Environment Variables</h4>
+      </div>
+      <button class="setup-editor-close" onclick="document.getElementById('edit-env-container').style.display='none'; document.body.style.overflow=''">
+        <span>✕</span>
+      </button>
+    </div>
+    <div class="setup-editor-content">
+      <div class="setup-editor-toolbar">
+        <div class="setup-editor-info">
+          <span class="info-badge warning">Sensitive Data</span>
+          <span class="info-text">Store API keys and configuration securely</span>
+        </div>
+      </div>
+      <div class="setup-editor-field">
+        <textarea id="env-content" placeholder="KEY=value\nANOTHER_KEY=another_value"></textarea>
+        <div class="textarea-footer">
+          <span class="char-count">Lines: <span id="env-line-count">0</span></span>
+        </div>
+      </div>
+      <div class="setup-editor-actions">
+        <button class="setup-action-btn secondary" onclick="document.getElementById('edit-env-container').style.display='none'; document.body.style.overflow=''">
+          <span>Cancel</span>
+        </button>
+        <button class="setup-action-btn primary" onclick="window.portalInitializer ? window.portalInitializer.enhancedSaveEnvChanges() : saveEnvChanges()">
+          <span class="action-icon">💾</span>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 

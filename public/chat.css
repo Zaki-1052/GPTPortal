@@ -395,118 +395,423 @@ body::before {
   transition: all 0.2s ease;
 }
 
-#edit-instructions-btn {
-  text-align: center; /* Center align the container */
-  padding: 6px; /* Add some padding */
-  margin-bottom: 70px; /* Space before the chat container */
-  padding: 10px; /* Padding inside the selector */
-  border-radius: 5px; /* Rounded corners */
-  border: 1px solid #5f6368; /* Border color */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Shadow effect */
-  align-content: center; /* Center align the container */
-  display: block; /* Ensure it's a block-level element */
-  width: 12%; /* Or any specific width */
-  margin-left: auto;
-  margin-right: auto;
+/* Enhanced Setup Controls */
+.setup-controls-section {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 24px;
+  background: rgba(22, 27, 34, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(48, 54, 61, 0.8);
+  border-radius: 20px;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: slideInUp 0.6s ease-out;
 }
 
-#edit-instructions-container {
-  background-color: #000; /* Black background */
-  color: #fff; /* White text */
-  font-family: 'Roboto', sans-serif; /* Roboto font */
-  text-align: center; /* Center align content */
-  width: 80%; /* Set a width for the container */
-  margin: 20px auto; /* Center the container on the page with margin */
-  border: none; /* No border */
-  border-radius: 5px; /* Rounded corners */
+.setup-controls-header {
+  text-align: center;
+  margin-bottom: 32px;
 }
 
-#edit-instructions-container textarea {
-  width: calc(100% - 20px); /* Full width of the container minus padding */
-  height: 350px; /* Fixed height for the textarea */
-  margin: 10px; /* Margin around the textarea */
-  padding: 10px; /* Padding inside the textarea */
-  background-color: #121212; /* Slightly lighter black for contrast */
-  color: #fff; /* White text */
-  border: 1px solid #5f6368; /* Border color */
-  border-radius: 5px; /* Rounded corners */
-  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+.setup-controls-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: #f0f6fc;
+  background: linear-gradient(135deg, #58a6ff 0%, #4285f4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-#edit-instructions-container button {
-  display: block; /* Block level for stacking */
-  margin: 10px auto; /* Center the button horizontally */
-  padding: 10px 20px; /* Padding inside the button */
-  font-family: 'Roboto', sans-serif; /* Roboto font */
-  text-transform: uppercase; /* Uppercase text */
-  color: #fff; /* White text */
-  background-color: #1a73e8; /* Blue background for the button */
-  border: none; /* No border */
-  border-radius: 5px; /* Rounded corners */
-  cursor: pointer; /* Pointer cursor on hover */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Shadow effect */
-  transition: background-color 0.3s; /* Transition for the button background */
+.setup-controls-subtitle {
+  color: #8b949e;
+  font-size: 16px;
+  font-weight: 400;
 }
 
-#edit-instructions-container button:hover {
-  background-color: #357ae8; /* Darker blue on hover */
+.setup-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
 }
 
-#edit-env-btn {
-  text-align: center; /* Center align the container */
-  padding: 6px; /* Add some padding */
-  margin-bottom: 70px; /* Space before the chat container */
-  padding: 10px; /* Padding inside the selector */
-  border-radius: 5px; /* Rounded corners */
-  border: 1px solid #5f6368; /* Border color */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Shadow effect */
-  align-content: center; /* Center align the container */
-  display: block; /* Ensure it's a block-level element */
-  width: 12%; /* Or any specific width */
-  margin-left: auto;
-  margin-right: auto;
+.setup-control-btn {
+  display: flex;
+  align-items: center;
+  padding: 20px 24px;
+  background: rgba(13, 17, 23, 0.6);
+  border: 1px solid rgba(48, 54, 61, 0.8);
+  border-radius: 16px;
+  color: #e6edf3;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  font-family: inherit;
+  font-size: 16px;
+  min-height: 80px;
 }
 
-#edit-env-container {
-  background-color: #000; /* Black background */
-  color: #fff; /* White text */
-  font-family: 'Roboto', sans-serif; /* Roboto font */
-  text-align: center; /* Center align content */
-  width: 80%; /* Set a width for the container */
-  margin: 20px auto; /* Center the container on the page with margin */
-  border: none; /* No border */
-  border-radius: 5px; /* Rounded corners */
+.setup-control-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(88, 166, 255, 0.1), transparent);
+  transition: left 0.5s ease;
 }
 
-#edit-env-container textarea {
-  width: calc(100% - 20px); /* Full width of the container minus padding */
-  height: 350px; /* Fixed height for the textarea */
-  margin: 10px; /* Margin around the textarea */
-  padding: 10px; /* Padding inside the textarea */
-  background-color: #121212; /* Slightly lighter black for contrast */
-  color: #fff; /* White text */
-  border: 1px solid #5f6368; /* Border color */
-  border-radius: 5px; /* Rounded corners */
-  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+.setup-control-btn:hover {
+  transform: translateY(-4px);
+  border-color: #58a6ff;
+  background: rgba(13, 17, 23, 0.8);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(88, 166, 255, 0.2);
 }
 
-#edit-env-container button {
-  display: block; /* Block level for stacking */
-  margin: 10px auto; /* Center the button horizontally */
-  padding: 10px 20px; /* Padding inside the button */
-  font-family: 'Roboto', sans-serif; /* Roboto font */
-  text-transform: uppercase; /* Uppercase text */
-  color: #fff; /* White text */
-  background-color: #1a73e8; /* Blue background for the button */
-  border: none; /* No border */
-  border-radius: 5px; /* Rounded corners */
-  cursor: pointer; /* Pointer cursor on hover */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Shadow effect */
-  transition: background-color 0.3s; /* Transition for the button background */
+.setup-control-btn:hover::before {
+  left: 100%;
 }
 
-#edit-env-container button:hover {
-  background-color: #357ae8; /* Darker blue on hover */
+.setup-btn-icon {
+  font-size: 28px;
+  margin-right: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: rgba(88, 166, 255, 0.15);
+  border-radius: 12px;
+  border: 1px solid rgba(88, 166, 255, 0.3);
+}
+
+.setup-btn-content {
+  flex: 1;
+  text-align: left;
+}
+
+.setup-btn-title {
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  color: #f0f6fc;
+  margin-bottom: 4px;
+}
+
+.setup-btn-desc {
+  display: block;
+  font-size: 14px;
+  color: #8b949e;
+  line-height: 1.4;
+}
+
+.setup-btn-arrow {
+  font-size: 20px;
+  color: #58a6ff;
+  margin-left: 12px;
+  transition: transform 0.3s ease;
+}
+
+.setup-control-btn:hover .setup-btn-arrow {
+  transform: translateX(4px);
+}
+
+/* Enhanced Editor Containers */
+.setup-editor-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.setup-editor-container > div:first-child {
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  background: rgba(22, 27, 34, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(48, 54, 61, 0.8);
+  border-radius: 20px;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  animation: slideInScale 0.4s ease-out;
+  overflow: hidden;
+}
+
+@keyframes slideInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.setup-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 28px;
+  background: rgba(13, 17, 23, 0.6);
+  border-bottom: 1px solid rgba(48, 54, 61, 0.8);
+}
+
+.setup-editor-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.setup-editor-icon {
+  font-size: 24px;
+}
+
+.setup-editor-title h4 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #f0f6fc;
+}
+
+.setup-editor-close {
+  width: 40px;
+  height: 40px;
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  border-radius: 12px;
+  color: #f44336;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-size: 16px;
+  font-family: inherit;
+}
+
+.setup-editor-close:hover {
+  background: rgba(244, 67, 54, 0.2);
+  border-color: #f44336;
+  transform: scale(1.05);
+}
+
+.setup-editor-content {
+  padding: 28px;
+  height: calc(90vh - 120px);
+  display: flex;
+  flex-direction: column;
+}
+
+.setup-editor-toolbar {
+  margin-bottom: 20px;
+}
+
+.setup-editor-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.info-badge {
+  padding: 6px 12px;
+  background: rgba(88, 166, 255, 0.15);
+  border: 1px solid rgba(88, 166, 255, 0.3);
+  border-radius: 8px;
+  color: #58a6ff;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-badge.warning {
+  background: rgba(255, 149, 0, 0.15);
+  border-color: rgba(255, 149, 0, 0.3);
+  color: #ff9500;
+}
+
+.info-text {
+  color: #8b949e;
+  font-size: 14px;
+}
+
+.setup-editor-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.setup-editor-field textarea {
+  flex: 1;
+  padding: 20px;
+  background: rgba(13, 17, 23, 0.8);
+  border: 1px solid rgba(48, 54, 61, 0.8);
+  border-radius: 12px;
+  color: #e6edf3;
+  font-size: 14px;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  transition: all 0.2s ease;
+  min-height: 300px;
+}
+
+.setup-editor-field textarea:focus {
+  border-color: #58a6ff;
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+  background: rgba(13, 17, 23, 0.9);
+}
+
+.setup-editor-field textarea::placeholder {
+  color: #6e7681;
+  opacity: 1;
+}
+
+.textarea-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding: 0 4px;
+}
+
+.char-count {
+  font-size: 12px;
+  color: #6e7681;
+  font-family: 'SF Mono', 'Monaco', monospace;
+}
+
+.setup-editor-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(48, 54, 61, 0.5);
+}
+
+.setup-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  font-family: inherit;
+  min-height: 44px;
+}
+
+.setup-action-btn.secondary {
+  background: rgba(48, 54, 61, 0.4);
+  color: #8b949e;
+  border-color: rgba(48, 54, 61, 0.8);
+}
+
+.setup-action-btn.secondary:hover {
+  background: rgba(48, 54, 61, 0.6);
+  color: #e6edf3;
+  transform: translateY(-1px);
+}
+
+.setup-action-btn.primary {
+  background: linear-gradient(135deg, #58a6ff 0%, #4285f4 100%);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3);
+}
+
+.setup-action-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(88, 166, 255, 0.4);
+  background: linear-gradient(135deg, #4285f4 0%, #58a6ff 100%);
+}
+
+.action-icon {
+  font-size: 16px;
+}
+
+/* Responsive Design for Setup Controls */
+@media (max-width: 768px) {
+  .setup-controls-section {
+    margin: 20px 10px;
+    padding: 20px;
+    border-radius: 16px;
+  }
+  
+  .setup-controls-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .setup-control-btn {
+    padding: 16px 20px;
+    min-height: 70px;
+  }
+  
+  .setup-btn-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+  }
+  
+  .setup-btn-title {
+    font-size: 16px;
+  }
+  
+  .setup-editor-container {
+    padding: 10px;
+  }
+  
+  .setup-editor-content {
+    height: calc(90vh - 100px);
+    padding: 20px;
+  }
+  
+  .setup-editor-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .setup-action-btn {
+    justify-content: center;
+  }
 }
 
 .select-options {
@@ -1166,7 +1471,7 @@ body::before {
   display: inline-block;
   width: 40px;
   height: 20px;
-  right-margin: 10px;
+  margin-right: 10px;
 }
 
 .toggle-switch input {
