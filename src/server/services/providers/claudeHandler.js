@@ -1,4 +1,28 @@
-// Claude Provider Handler - Anthropic Claude models with thinking support
+// Claude Provider Handler - Anthropic Claude models with thinking support and web search
+// 
+// Web Search Feature:
+// - Enabled by default for supported models: Claude 3.5 Sonnet, Claude 3.5 Haiku, Claude 3.7 Sonnet, Claude 4 models
+// - Allows Claude to search the web for up-to-date information
+// - Automatically cites sources in responses
+// - Pricing: $10 per 1,000 searches + standard token costs
+//
+// Note: Web search is enabled by default. To disable, uncomment the conditional check in handleChatCompletion
+// and pass webSearchConfig: false in your payload.
+//
+// Future configuration options (currently commented out):
+// {
+//   webSearchConfig: {
+//     maxUses: 5,
+//     allowedDomains: ['docs.example.com', 'api.example.com'],
+//     blockedDomains: ['untrusted.com'],
+//     userLocation: {
+//       type: 'approximate',
+//       city: 'San Francisco',
+//       region: 'California',
+//       country: 'US'
+//     }
+//   }
+// }
 const axios = require('axios');
 
 class ClaudeHandler {
@@ -16,10 +40,29 @@ class ClaudeHandler {
   }
 
   /**
-   * Handle Claude chat completion with thinking support and optional prompt caching
+   * Handle Claude chat completion with thinking support, optional prompt caching, and web search
+   * @param {Object} payload - The request payload
+   * @param {Object} payload.user_input - The user's input message
+   * @param {string} payload.modelID - The Claude model ID to use
+   * @param {string} payload.systemMessage - The system message/instructions
+   * @param {Array} payload.claudeHistory - The conversation history
+   * @param {number} payload.temperature - The temperature for response generation
+   * @param {number} payload.tokens - The maximum tokens for the response
+   * @param {string} [payload.cachePreference] - Optional prompt caching preference
+   * @param {Object} [payload.webSearchConfig] - Optional web search configuration (web search is enabled by default)
+   * // Note: To disable web search, uncomment the conditional in the method and pass webSearchConfig: false
+   * // @param {number} [payload.webSearchConfig.maxUses=5] - Maximum number of web searches (default: 5)
+   * // @param {string[]} [payload.webSearchConfig.allowedDomains] - List of allowed domains for search
+   * // @param {string[]} [payload.webSearchConfig.blockedDomains] - List of blocked domains for search
+   * // @param {Object} [payload.webSearchConfig.userLocation] - User location for localized results
+   * // @param {string} [payload.webSearchConfig.userLocation.type] - Location type (e.g., "approximate")
+   * // @param {string} [payload.webSearchConfig.userLocation.city] - City name
+   * // @param {string} [payload.webSearchConfig.userLocation.region] - Region/state name
+   * // @param {string} [payload.webSearchConfig.userLocation.country] - Country code (e.g., "US")
+   * @returns {Promise<Object>} Response object with success status, content, and usage info
    */
   async handleChatCompletion(payload) {
-    const { user_input, modelID, systemMessage, claudeHistory, temperature, tokens, cachePreference } = payload;
+    const { user_input, modelID, systemMessage, claudeHistory, temperature, tokens, cachePreference, webSearchConfig } = payload;
     
     // Apply prompt caching if available and enabled
     let finalPayload = payload;
@@ -46,6 +89,17 @@ class ClaudeHandler {
                            modelID === 'claude-opus-4-20250514' || 
                            modelID === 'claude-sonnet-4-20250514';
 
+    // Check if web search is supported for this model
+    const supportsWebSearch = [
+      'claude-opus-4-20250514',
+      'claude-sonnet-4-20250514',
+      'claude-3-7-sonnet-latest',
+      'claude-3-5-sonnet-latest',
+      'claude-3-5-sonnet-20241022',
+      'claude-3-5-haiku-latest',
+      'claude-3-5-haiku-20241022'
+    ].includes(modelID);
+
     let requestData;
     if (isThinkingModel) {
       const budget = tokens - 100;
@@ -68,6 +122,35 @@ class ClaudeHandler {
         system: finalSystemMessage,
         messages: finalClaudeHistory,
       };
+    }
+
+    // Add web search tool by default for supported models
+    // Uncomment the condition below to make web search optional
+    // if (webSearchConfig && supportsWebSearch) {
+    if (supportsWebSearch) {
+      const webSearchTool = {
+        type: "web_search_20250305",
+        name: "web_search"
+      };
+
+      // Add optional parameters if provided
+      // if (webSearchConfig.maxUses !== undefined) {
+      //   webSearchTool.max_uses = webSearchConfig.maxUses;
+      // }
+      // if (webSearchConfig.allowedDomains && Array.isArray(webSearchConfig.allowedDomains)) {
+      //   webSearchTool.allowed_domains = webSearchConfig.allowedDomains;
+      // }
+      // if (webSearchConfig.blockedDomains && Array.isArray(webSearchConfig.blockedDomains)) {
+      //   webSearchTool.blocked_domains = webSearchConfig.blockedDomains;
+      // }
+      // if (webSearchConfig.userLocation) {
+      //   webSearchTool.user_location = webSearchConfig.userLocation;
+      // }
+
+      // Add tools array to request data
+      requestData.tools = [webSearchTool];
+      
+      console.log(`🔍 Web search enabled by default for ${modelID}`);
     }
 
     const headers = {
