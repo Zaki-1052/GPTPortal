@@ -227,6 +227,7 @@ portalInitializer.cleanup();
 **Purpose**: Central coordinator for model management, delegating specialized tasks to focused modules.
 
 **Key Responsibilities**:
+
 - Model data loading and caching
 - Coordination between search and UI managers
 - API communication and fallback handling
@@ -235,9 +236,11 @@ portalInitializer.cleanup();
 - Context tracker integration for model changes
 
 **Key Classes**:
+
 - `DynamicModelManager`: Main coordinator class
 
 **API**:
+
 ```javascript
 // Get model data
 const model = modelManager.getModel('gpt-4o');
@@ -255,6 +258,7 @@ await modelManager.refreshModels();
 ```
 
 **Data Sources**:
+
 1. **Primary**: `/js/data/models.json` (comprehensive model definitions)
 2. **Fallback**: `/api/models` (dynamic API endpoint)
 3. **Emergency**: Hardcoded core models
@@ -264,6 +268,7 @@ await modelManager.refreshModels();
 **Purpose**: Handles all model searching, filtering, and categorization logic.
 
 **Key Responsibilities**:
+
 - Real-time search with debouncing
 - Advanced search operators (provider:, category:, etc.)
 - Search history management
@@ -271,9 +276,11 @@ await modelManager.refreshModels();
 - Search suggestions and autocomplete
 
 **Key Classes**:
+
 - `ModelSearchManager`: Search functionality coordinator
 
 **API**:
+
 ```javascript
 // Initialize search
 searchManager.initialize(modelManager);
@@ -291,6 +298,7 @@ searchManager.loadPreferences();
 ```
 
 **Search Features**:
+
 - **Debounced Search**: Optimized search with configurable debouncing
 - **Advanced Operators**: Support for complex search queries
 - **Search History**: Persistent search history with preferences
@@ -302,6 +310,7 @@ searchManager.loadPreferences();
 **Purpose**: Manages all model selector UI interactions, animations, and visual elements.
 
 **Key Responsibilities**:
+
 - Dropdown visibility and animations
 - Model button creation and styling
 - Category collapsing and expanding
@@ -310,9 +319,11 @@ searchManager.loadPreferences();
 - Custom model ordering within categories
 
 **Key Classes**:
+
 - `ModelUIManager`: UI coordination and management
 
 **API**:
+
 ```javascript
 // Initialize UI
 uiManager.initialize(modelManager);
@@ -329,6 +340,7 @@ uiManager.toggleCategoryCollapse('gpt');
 ```
 
 **UI Features**:
+
 - **Animated Dropdowns**: Smooth show/hide animations
 - **Rich Tooltips**: Detailed model information on hover
 - **Feature Badges**: Visual indicators for model capabilities
@@ -341,6 +353,7 @@ uiManager.toggleCategoryCollapse('gpt');
 **Purpose**: Manages all message display, rendering, and interaction functionality.
 
 **Key Responsibilities**:
+
 - Message rendering with markdown support
 - Code block syntax highlighting
 - Copy functionality with visual feedback
@@ -348,9 +361,11 @@ uiManager.toggleCategoryCollapse('gpt');
 - Export capabilities
 
 **Key Classes**:
+
 - `MessageHandler`: Message processing and display
 
 **API**:
+
 ```javascript
 // Display messages
 messageHandler.displayMessage('Hello!', 'user');
@@ -366,6 +381,7 @@ const jsonExport = messageHandler.exportAsJSON();
 ```
 
 **Message Features**:
+
 - **Markdown Rendering**: Full markdown support with syntax highlighting
 - **Code Blocks**: Syntax-highlighted code blocks with copy buttons
 - **Message Types**: Support for user, assistant, error, system, and image messages
@@ -377,6 +393,7 @@ const jsonExport = messageHandler.exportAsJSON();
 **Purpose**: Manages all chat functionality including messaging, file uploads, and conversation state.
 
 **Key Responsibilities**:
+
 - Message sending and receiving
 - File and image upload handling
 - Conversation history management
@@ -386,9 +403,11 @@ const jsonExport = messageHandler.exportAsJSON();
 - Export functionality
 
 **Key Classes**:
+
 - `ChatManager`: Main chat coordination class
 
 **API**:
+
 ```javascript
 // Send messages
 chatManager.sendMessage();
@@ -410,6 +429,7 @@ chatManager.uploadImageAndGetUrl(imageFile);
 ```
 
 **Enhanced Features**:
+
 - **Context Integration**: Real-time context window tracking via `ContextTracker` service
 - **Auto-expanding Textareas**: Dynamic textarea resizing based on content
 - **Smart File Handling**: Enhanced file upload with proper validation
@@ -421,6 +441,7 @@ chatManager.uploadImageAndGetUrl(imageFile);
 **Purpose**: Manages model configuration, endpoint determination, provider settings, and prompt caching preferences.
 
 **Key Responsibilities**:
+
 - Model selection and endpoint routing
 - Prompt caching configuration and preferences
 - Claude model detection and caching support validation
@@ -428,6 +449,7 @@ chatManager.uploadImageAndGetUrl(imageFile);
 - Preference persistence and loading
 
 **Prompt Caching Features**:
+
 - **Claude Model Detection**: Automatically detects Claude models that support caching
 - **Cache Preference Management**: Handles user preferences for caching behavior
 - **UI Integration**: Shows/hides cache controls based on selected model
@@ -435,6 +457,7 @@ chatManager.uploadImageAndGetUrl(imageFile);
 - **Backward Compatibility**: Works seamlessly with existing model configuration
 
 **API**:
+
 ```javascript
 // Check if current model supports caching
 const supported = modelConfig.supportsPromptCaching();
@@ -452,6 +475,7 @@ const preference = modelConfig.getPromptCachePreference();
 **Purpose**: General UI management for non-model-specific interactions.
 
 **Enhancement Opportunities**:
+
 - Better separation of concerns with ModelUIManager
 - Enhanced file upload UI
 - Improved sidebar and navigation management
@@ -465,12 +489,14 @@ The frontend provides a seamless interface for Claude's prompt caching feature, 
 ### UI Components
 
 #### **Cache Control Toggle**
+
 - **Location**: Model selector controls area
 - **Visibility**: Automatically shown/hidden based on selected model
 - **Persistence**: User preferences saved to localStorage
 - **Integration**: Connected to ModelConfig for state management
 
 #### **Dynamic Visibility**
+
 ```javascript
 // Cache controls appear only for Claude models
 const cacheContainer = document.getElementById('prompt-cache-container');
@@ -484,17 +510,20 @@ if (modelConfig.supportsPromptCaching(selectedModel)) {
 ### Integration Points
 
 #### **Model Configuration Integration**
+
 - **Automatic Detection**: Detects Claude models that support caching
 - **Preference Management**: Handles cache enable/disable state
 - **UI Synchronization**: Updates UI controls when models change
 - **Default Handling**: Provides sensible defaults for first-time users
 
 #### **Chat Manager Integration**
+
 - **Request Enhancement**: Adds cache preferences to API requests
 - **Backward Compatibility**: Works seamlessly with existing chat flow
 - **Graceful Degradation**: Falls back gracefully if caching unavailable
 
 #### **State Management**
+
 ```javascript
 // Cache state is managed alongside other model preferences
 const cacheState = {
@@ -507,12 +536,14 @@ const cacheState = {
 ### User Experience
 
 #### **Progressive Enhancement**
+
 - Cache controls only appear for supported models
 - No disruption to existing workflow for non-Claude models
 - Clear visual indicators for cache-enabled conversations
 - Tooltip explanations for new users
 
 #### **Smart Defaults**
+
 - Caching disabled by default for conservative approach
 - Automatic activation when users select Claude models
 - Persistent preferences across browser sessions
@@ -521,6 +552,7 @@ const cacheState = {
 ### Data Flow with Caching
 
 #### **Model Selection with Cache Updates**
+
 ```
 User Selects Claude Model
     ↓
@@ -536,6 +568,7 @@ Ready for Cache-Enabled Conversations
 ```
 
 #### **Cache-Enabled Message Flow**
+
 ```
 User Sends Message
     ↓
@@ -553,12 +586,14 @@ Update UI (potential cost savings indication)
 ### Performance Considerations
 
 #### **Lightweight Integration**
+
 - Minimal additional JavaScript overhead
 - Lazy loading of cache-related functionality
 - Efficient state synchronization
 - No impact on non-Claude model performance
 
 #### **Memory Management**
+
 - Cache preferences stored in localStorage only
 - No client-side content caching
 - Efficient event listener management
@@ -567,12 +602,14 @@ Update UI (potential cost savings indication)
 ### Future Enhancements
 
 #### **Cache Analytics UI**
+
 - Visual indicators for cache hit rates
 - Cost savings summaries in conversation UI
 - Performance metrics dashboard
 - Cache strategy recommendations
 
 #### **Advanced Controls**
+
 - Per-conversation cache strategy selection
 - Cache breakpoint visualization
 - Manual cache control overrides
@@ -676,6 +713,7 @@ Optional TTS
 **Persistence**: LocalStorage for preferences, memory for session data
 
 **State Categories**:
+
 - **Model State**: Current selection, available models, categories
 - **Search State**: Query, filters, history, preferences
 - **UI State**: Dropdown visibility, collapsed categories, tooltips
@@ -687,6 +725,7 @@ Optional TTS
 ### 2. State Synchronization
 
 **Patterns Used**:
+
 - **Observer Pattern**: Components observe relevant state changes
 - **Event-Driven Updates**: State changes trigger UI updates
 - **Centralized Coordination**: Main managers coordinate state changes
@@ -695,6 +734,7 @@ Optional TTS
 ### 3. State Recovery
 
 **Mechanisms**:
+
 - **Graceful Degradation**: Fallback states for failed initializations
 - **Preference Loading**: Restore user preferences on startup
 - **Session Recovery**: Maintain state across page refreshes
