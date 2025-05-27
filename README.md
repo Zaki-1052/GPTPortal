@@ -31,7 +31,8 @@ From here you can actually just run:
 npm start
 ```
 
-And it'll take you through the set up.
+And it'll take you through the set up. 
+No need for any of the other stuff I did them already so just put in Anthropic API key.
 
 
 ---
