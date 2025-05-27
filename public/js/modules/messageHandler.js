@@ -80,7 +80,10 @@ class MessageHandler {
    * @param {HTMLElement} element - DOM element to process
    */
   processLaTeXInDOM(element) {
-    // Get all text nodes in the element
+    // First, handle multi-line environments that might be split across text nodes
+    this.processMultiLineEnvironments(element);
+    
+    // Then process remaining single-node LaTeX expressions
     const walker = document.createTreeWalker(
       element,
       NodeFilter.SHOW_TEXT,
@@ -101,29 +104,33 @@ class MessageHandler {
       textNodes.push(node);
     }
     
-    // Process each text node
+    // Process each text node for single-node LaTeX
     textNodes.forEach(textNode => {
       const text = textNode.textContent;
       if (!text) return;
       
-      // Check for LaTeX patterns
+      // Check for LaTeX patterns (but not environments, which we handled above)
       const hasLaTeX = 
         /\$\$[\s\S]+?\$\$/.test(text) ||  // Display math $$...$$
         /\$[^$\n]+?\$/.test(text) ||       // Inline math $...$
         /\\\[[\s\S]+?\\\]/.test(text) ||   // Display math \[...\]
-        /\\\([\s\S]+?\\\)/.test(text) ||   // Inline math \(...\)
-        /\\begin\{equation\}[\s\S]+?\\end\{equation\}/.test(text); // Equation environment
+        /\\\([\s\S]+?\\\)/.test(text);     // Inline math \(...\)
       
       if (!hasLaTeX) return;
       
       console.log('Found LaTeX in text node:', text);
+      console.log('Text node parent tag:', textNode.parentNode.tagName);
+      console.log('Text node parent class:', textNode.parentNode.className);
       
       // Create a temporary container to process the text
       const tempDiv = document.createElement('div');
       let processedText = text;
       
       // Process display math $$...$$ first
-      processedText = processedText.replace(/\$\$([^$]+)\$\$/g, (match, content) => {
+      // Use [\s\S] to match across newlines instead of [^$]
+      processedText = processedText.replace(/\$\$([\s\S]+?)\$\$/g, (match, content) => {
+        console.log('Processing $$ display math:', match);
+        console.log('Content:', content);
         try {
           return katex.renderToString(content.trim(), {
             displayMode: true,
@@ -137,32 +144,6 @@ class MessageHandler {
       
       // Process display math \[...\]
       processedText = processedText.replace(/\\\[([^\]]+)\\\]/g, (match, content) => {
-        try {
-          return katex.renderToString(content.trim(), {
-            displayMode: true,
-            throwOnError: false
-          });
-        } catch (e) {
-          console.warn('LaTeX error:', e);
-          return match;
-        }
-      });
-      
-      // Process equation environments
-      processedText = processedText.replace(/\\begin\{equation\}([\s\S]*?)\\end\{equation\}/g, (match, content) => {
-        try {
-          return katex.renderToString(content.trim(), {
-            displayMode: true,
-            throwOnError: false
-          });
-        } catch (e) {
-          console.warn('LaTeX error:', e);
-          return match;
-        }
-      });
-      
-      // Process displaymath environments
-      processedText = processedText.replace(/\\begin\{displaymath\}([\s\S]*?)\\end\{displaymath\}/g, (match, content) => {
         try {
           return katex.renderToString(content.trim(), {
             displayMode: true,
@@ -214,6 +195,112 @@ class MessageHandler {
           parent.insertBefore(tempDiv.firstChild, textNode);
         }
         parent.removeChild(textNode);
+      }
+    });
+  }
+  
+  /**
+   * Process multi-line LaTeX environments that might be split across text nodes
+   * @param {HTMLElement} element - DOM element to process
+   */
+  processMultiLineEnvironments(element) {
+    // Find all paragraph elements that might contain environments
+    const paragraphs = element.querySelectorAll('p');
+    
+    paragraphs.forEach(p => {
+      // Skip if inside code blocks
+      if (p.closest('code, pre')) return;
+      
+      // Get the full text content including across <br> tags
+      let html = p.innerHTML;
+      
+      // Check if this paragraph contains environment markers
+      if (!html.includes('\\begin{equation}') && !html.includes('\\begin{displaymath}')) {
+        return;
+      }
+      
+      console.log('Found paragraph with LaTeX environment:', html);
+      console.log('HTML charCodes around \\begin:', 
+        html.indexOf('\\begin') > -1 ? 
+        html.substring(html.indexOf('\\begin') - 5, html.indexOf('\\begin') + 20).split('').map(c => c.charCodeAt(0)) : 
+        'not found'
+      );
+      
+      // Test regex pattern
+      const testPattern = /(?:^|<br\s*\/?>)\s*\\begin\{equation\}([\s\S]*?)\\end\{equation\}/g;
+      const testMatches = html.match(testPattern);
+      console.log('Test pattern matches:', testMatches);
+      console.log('Number of matches:', testMatches ? testMatches.length : 0);
+      
+      // Process equation environments
+      const originalHtml = html;
+      let replacementCount = 0;
+      
+      // More specific pattern that doesn't capture text before the actual environment
+      // Look for \begin{equation} that appears after a <br> or at start of line
+      html = html.replace(/(?:^|<br\s*\/?>)\s*\\begin\{equation\}([\s\S]*?)\\end\{equation\}/g, (match, content) => {
+        console.log('=== Processing equation environment ===');
+        console.log('Full match:', match);
+        console.log('Captured content:', content);
+        
+        try {
+          // Remove <br> tags from the content
+          const cleanContent = content.replace(/<br\s*\/?>/gi, '\n').trim();
+          console.log('Clean content for KaTeX:', cleanContent);
+          
+          // Render just the content, not the environment tags
+          const rendered = katex.renderToString(cleanContent, {
+            displayMode: true,
+            throwOnError: false
+          });
+          
+          console.log('KaTeX rendered output:', rendered);
+          replacementCount++;
+          
+          return rendered;
+        } catch (e) {
+          console.error('LaTeX rendering error:', e);
+          return match;
+        }
+      });
+      
+      console.log(`Replacements made: ${replacementCount}`);
+      console.log('HTML changed?', html !== originalHtml);
+      
+      // Process displaymath environments
+      html = html.replace(/(?:^|<br\s*\/?>)\s*\\begin\{displaymath\}([\s\S]*?)\\end\{displaymath\}/g, (match, content) => {
+        console.log('=== Processing displaymath environment ===');
+        console.log('Full match:', match);
+        console.log('Captured content:', content);
+        
+        try {
+          // Remove <br> tags from the content
+          const cleanContent = content.replace(/<br\s*\/?>/gi, '\n').trim();
+          console.log('Clean content for KaTeX (displaymath):', cleanContent);
+          
+          const rendered = katex.renderToString(cleanContent, {
+            displayMode: true,
+            throwOnError: false
+          });
+          
+          console.log('KaTeX rendered output (displaymath):', rendered);
+          
+          return rendered;
+        } catch (e) {
+          console.error('LaTeX rendering error (displaymath):', e);
+          return match;
+        }
+      });
+      
+      // Only update if we made changes
+      if (html !== p.innerHTML) {
+        console.log('Updating paragraph innerHTML');
+        console.log('Original innerHTML:', p.innerHTML);
+        console.log('New innerHTML:', html);
+        p.innerHTML = html;
+        console.log('Updated successfully');
+      } else {
+        console.log('No changes to innerHTML detected');
       }
     });
   }

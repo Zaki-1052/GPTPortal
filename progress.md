@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document details the attempted implementation of LaTeX mathematical notation support in GPTPortal's frontend. After multiple iterations, the core issue remains: the interaction between markdown processing and LaTeX delimiters creates complex edge cases that are difficult to handle robustly.
+This document details the attempted implementation of LaTeX mathematical notation support in GPTPortal's frontend. After multiple iterations culminating in a hybrid approach, significant progress has been made but some issues remain with multi-line LaTeX environments.
 
 ## Original Requirements
 
@@ -65,30 +65,105 @@ Text → Extract LaTeX → Replace with %%%LATEX0%%% → Markdown → Restore La
 ```
 **Result**: Too restrictive - valid LaTeX rejected as "part of description"
 
-## Current Issues
+### Attempt 6: Unicode Markers with DOM Processing
+**Approach**: Use Unicode private use area characters as placeholders
+```javascript
+Text → Replace LaTeX with \uE000LATEX0\uE001 → Markdown → Restore in DOM
+```
+**Result**: Better but still had issues with markdown removing backslashes from `\[`
 
-### 1. Regex Pattern Matching
-The fundamental challenge is distinguishing between:
-- Descriptive text: "wrapped with single $):"
-- Actual LaTeX: `$x = \frac{...}$`
+### Attempt 7: HTML Comments Approach
+**Approach**: Use HTML comments as placeholders
+```javascript
+Text → Replace LaTeX with <!--LATEX0--> → Markdown → Restore LaTeX
+```
+**Result**: Abandoned - DOMPurify strips HTML comments
 
-Current regex incorrectly matches across boundaries, e.g.:
-- Input: "single $):\n$x = ..."
-- Match: "$):\n$" (wrong!)
+### Attempt 8: Alphanumeric Placeholders
+**Approach**: Use simple alphanumeric placeholders
+```javascript
+Text → Replace LaTeX with LATEXPLACEHOLDER0ENDLATEX → Markdown → Restore
+```
+**Result**: Partially working but complex regex still causing issues
 
-### 2. Placeholder Corruption
-Any placeholder system must survive markdown processing:
-- `__TEXT__` → `<strong>TEXT</strong>`
-- `**TEXT**` → `<strong>TEXT</strong>` 
-- `_TEXT_` → `<em>TEXT</em>`
-- Need truly neutral delimiters
+### Attempt 9: Post-Markdown DOM Processing (Solution A Implementation)
+**Approach**: Let markdown process first, then walk DOM tree
+```javascript
+Text → Markdown → HTML → Walk DOM text nodes → Process LaTeX in each node
+```
+**Result**: Much better! But markdown was still escaping backslashes in `\[...\]`
 
-### 3. Context Sensitivity
-LaTeX appears in different contexts:
-- Standalone on lines (display math)
-- Inline within sentences
-- Inside descriptive text (should not render)
-- Inside code blocks (should not render)
+### Attempt 10: Hybrid Approach - Current Implementation
+**Approach**: Protect LaTeX delimiters + DOM processing
+```javascript
+1. Replace \[, \], \begin{equation}, etc. with safe placeholders (@@LEFTBRACKET@@, etc.)
+2. Process markdown
+3. Restore the LaTeX delimiters
+4. Walk DOM and process LaTeX in text nodes
+5. Special handling for multi-line environments
+```
+**Result**: Mostly working! Inline and single-line display math work perfectly
+
+## Current State
+
+### What's Working
+1. **Inline math `$...$`**: ✓ Rendering correctly
+2. **Display math `\[...\]`**: ✓ Rendering correctly after delimiter protection
+3. **Inline math `\(...\)`**: ✓ Should work (uses same approach as `\[...\]`)
+4. **Display math `$$...$$`**: ✓ Should work for single-line cases
+5. **Architecture fix**: ✓ ChatManager properly delegates to MessageHandler
+6. **Security**: ✓ DOMPurify still sanitizes all output
+
+### What's Not Working
+1. **Multi-line `\begin{equation}...\end{equation}`**: ✗ Not rendering
+   - The environment is being detected (logs show "Found paragraph with LaTeX environment")
+   - But the rendering is not happening - possibly due to the `<br>` tags interfering
+2. **Multi-line `$$...$$`**: ? Untested but likely has same issue
+3. **Nested environments**: ? Untested
+
+### Key Implementation Details
+
+#### Current Architecture
+```javascript
+renderMarkdownText(parent, text) {
+  // 1. Protect LaTeX delimiters from markdown
+  text = text.replace(/\\\[/g, '@@LEFTBRACKET@@')
+             .replace(/\\\]/g, '@@RIGHTBRACKET@@')
+             // ... etc for other delimiters
+  
+  // 2. Process markdown
+  html = marked.parse(text);
+  
+  // 3. Restore LaTeX delimiters
+  html = html.replace(/@@LEFTBRACKET@@/g, '\\[')
+             .replace(/@@RIGHTBRACKET@@/g, '\\]')
+             // ... etc
+  
+  // 4. Set HTML in DOM
+  element.innerHTML = sanitized(html);
+  
+  // 5. Process LaTeX in DOM
+  this.processLaTeXInDOM(element);
+}
+
+processLaTeXInDOM(element) {
+  // Handle multi-line environments first
+  this.processMultiLineEnvironments(element);
+  
+  // Then handle single-node LaTeX
+  // Walk text nodes and process LaTeX patterns
+}
+```
+
+#### Delimiter Protection Map
+- `\[` → `@@LEFTBRACKET@@`
+- `\]` → `@@RIGHTBRACKET@@`
+- `\(` → `@@LEFTPAREN@@`
+- `\)` → `@@RIGHTPAREN@@`
+- `\begin{equation}` → `@@BEGINEQUATION@@`
+- `\end{equation}` → `@@ENDEQUATION@@`
+- `\begin{displaymath}` → `@@BEGINDISPLAYMATH@@`
+- `\end{displaymath}` → `@@ENDDISPLAYMATH@@`
 
 ## Possible Solutions
 
