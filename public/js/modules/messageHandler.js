@@ -60,18 +60,14 @@ class MessageHandler {
    * Setup LaTeX rendering
    */
   setupLaTeX() {
-    console.log('=== setupLaTeX called ===');
-    console.log('typeof katex:', typeof katex);
     
     if (typeof katex !== 'undefined') {
       this.latexRenderer = katex;
       this.latexEnabled = true;
       console.log('✓ KaTeX LaTeX renderer available');
-      console.log('LaTeX enabled set to:', this.latexEnabled);
     } else {
       console.warn('KaTeX not available - LaTeX rendering disabled');
       this.latexEnabled = false;
-      console.log('LaTeX enabled set to:', this.latexEnabled);
     }
   }
 
@@ -118,9 +114,6 @@ class MessageHandler {
       
       if (!hasLaTeX) return;
       
-      console.log('Found LaTeX in text node:', text);
-      console.log('Text node parent tag:', textNode.parentNode.tagName);
-      console.log('Text node parent class:', textNode.parentNode.className);
       
       // Create a temporary container to process the text
       const tempDiv = document.createElement('div');
@@ -129,8 +122,6 @@ class MessageHandler {
       // Process display math $$...$$ first
       // Use [\s\S] to match across newlines instead of [^$]
       processedText = processedText.replace(/\$\$([\s\S]+?)\$\$/g, (match, content) => {
-        console.log('Processing $$ display math:', match);
-        console.log('Content:', content);
         try {
           return katex.renderToString(content.trim(), {
             displayMode: true,
@@ -219,34 +210,14 @@ class MessageHandler {
         return;
       }
       
-      console.log('Found paragraph with LaTeX environment:', html);
-      console.log('HTML charCodes around \\begin:', 
-        html.indexOf('\\begin') > -1 ? 
-        html.substring(html.indexOf('\\begin') - 5, html.indexOf('\\begin') + 20).split('').map(c => c.charCodeAt(0)) : 
-        'not found'
-      );
-      
-      // Test regex pattern
-      const testPattern = /(?:^|<br\s*\/?>)\s*\\begin\{equation\}([\s\S]*?)\\end\{equation\}/g;
-      const testMatches = html.match(testPattern);
-      console.log('Test pattern matches:', testMatches);
-      console.log('Number of matches:', testMatches ? testMatches.length : 0);
       
       // Process equation environments
-      const originalHtml = html;
-      let replacementCount = 0;
-      
       // More specific pattern that doesn't capture text before the actual environment
       // Look for \begin{equation} that appears after a <br> or at start of line
       html = html.replace(/(?:^|<br\s*\/?>)\s*\\begin\{equation\}([\s\S]*?)\\end\{equation\}/g, (match, content) => {
-        console.log('=== Processing equation environment ===');
-        console.log('Full match:', match);
-        console.log('Captured content:', content);
-        
         try {
           // Remove <br> tags from the content
           const cleanContent = content.replace(/<br\s*\/?>/gi, '\n').trim();
-          console.log('Clean content for KaTeX:', cleanContent);
           
           // Render just the content, not the environment tags
           const rendered = katex.renderToString(cleanContent, {
@@ -254,53 +225,34 @@ class MessageHandler {
             throwOnError: false
           });
           
-          console.log('KaTeX rendered output:', rendered);
-          replacementCount++;
-          
           return rendered;
         } catch (e) {
-          console.error('LaTeX rendering error:', e);
+          console.warn('LaTeX rendering error:', e);
           return match;
         }
       });
       
-      console.log(`Replacements made: ${replacementCount}`);
-      console.log('HTML changed?', html !== originalHtml);
-      
       // Process displaymath environments
       html = html.replace(/(?:^|<br\s*\/?>)\s*\\begin\{displaymath\}([\s\S]*?)\\end\{displaymath\}/g, (match, content) => {
-        console.log('=== Processing displaymath environment ===');
-        console.log('Full match:', match);
-        console.log('Captured content:', content);
-        
         try {
           // Remove <br> tags from the content
           const cleanContent = content.replace(/<br\s*\/?>/gi, '\n').trim();
-          console.log('Clean content for KaTeX (displaymath):', cleanContent);
           
           const rendered = katex.renderToString(cleanContent, {
             displayMode: true,
             throwOnError: false
           });
           
-          console.log('KaTeX rendered output (displaymath):', rendered);
-          
           return rendered;
         } catch (e) {
-          console.error('LaTeX rendering error (displaymath):', e);
+          console.warn('LaTeX rendering error (displaymath):', e);
           return match;
         }
       });
       
       // Only update if we made changes
       if (html !== p.innerHTML) {
-        console.log('Updating paragraph innerHTML');
-        console.log('Original innerHTML:', p.innerHTML);
-        console.log('New innerHTML:', html);
         p.innerHTML = html;
-        console.log('Updated successfully');
-      } else {
-        console.log('No changes to innerHTML detected');
       }
     });
   }
@@ -628,9 +580,6 @@ class MessageHandler {
    * @param {string} type - Message type
    */
   renderTextMessage(element, message, type) {
-    console.log('=== renderTextMessage called ===');
-    console.log('Message type:', type);
-    console.log('Message contains code blocks:', message.includes('```'));
     
     if (message.includes('```')) {
       this.renderMessageWithCodeBlocks(element, message);
@@ -649,19 +598,15 @@ class MessageHandler {
    * @param {string} message - Message with code blocks
    */
   renderMessageWithCodeBlocks(element, message) {
-    console.log('=== renderMessageWithCodeBlocks called ===');
-    console.log('Message contains code blocks, splitting...');
     
     const parts = message.split(/(```[\s\S]+?```)/);
     
     parts.forEach(part => {
       if (part.startsWith('```') && part.endsWith('```')) {
         // Handle code blocks
-        console.log('Rendering code block...');
         this.renderCodeBlock(element, part);
       } else {
         // Handle regular text
-        console.log('Rendering regular text part (will process LaTeX)...');
         this.renderMarkdownText(element, part);
       }
     });
@@ -733,10 +678,6 @@ class MessageHandler {
    * @param {string} text - Text to render
    */
   renderMarkdownText(parent, text) {
-    console.log('=== renderMarkdownText called ===');
-    console.log('LaTeX enabled:', this.latexEnabled);
-    console.log('Input text:', text);
-    console.log('Markdown renderer available:', !!this.markdownRenderer);
     
     const textSpan = document.createElement('div');
     textSpan.className = 'message-text';
@@ -761,10 +702,8 @@ class MessageHandler {
     // Process markdown
     if (this.markdownRenderer) {
       processedHtml = this.markdownRenderer.parse(processedText);
-      console.log('Markdown processed, output HTML:', processedHtml);
     } else {
       // Fallback to plain text if no markdown renderer
-      console.log('No markdown renderer available, using plain text fallback');
       processedHtml = this.escapeHtml(processedText);
     }
     
@@ -794,7 +733,6 @@ class MessageHandler {
     
     // Now process LaTeX in the DOM if enabled
     if (this.latexEnabled && this.latexRenderer) {
-      console.log('Processing LaTeX in DOM...');
       this.processLaTeXInDOM(textSpan);
     }
     
@@ -807,9 +745,6 @@ class MessageHandler {
    * @param {string} message - Message text
    */
   renderSimpleTextMessage(element, message) {
-    console.log('=== renderSimpleTextMessage called ===');
-    console.log('LaTeX enabled:', this.latexEnabled);
-    console.log('Input message:', message);
     
     const messageText = document.createElement('div');
     messageText.className = 'message-text';
@@ -834,7 +769,6 @@ class MessageHandler {
     // Process markdown
     if (this.markdownRenderer) {
       processedHtml = this.markdownRenderer.parse(processedText);
-      console.log('Markdown processed');
     } else {
       // Fallback to plain text if no markdown renderer
       processedHtml = this.escapeHtml(processedText);
@@ -866,7 +800,6 @@ class MessageHandler {
     
     // Process LaTeX in the DOM if enabled
     if (this.latexEnabled && this.latexRenderer) {
-      console.log('Processing LaTeX in DOM...');
       this.processLaTeXInDOM(messageText);
     }
 
