@@ -1107,7 +1107,7 @@ body::before {
 }
 
 
-.message span {
+.message span:not(.katex):not(.katex-display):not(.katex-html):not(.katex-mathml):not([class*="katex"]) {
   display: block; /* Make the span a block element to allow for margins */
   margin-bottom: 5px; /* Add space below the message text */
 }
