@@ -20,9 +20,21 @@ Before installing GPTPortal, ensure you have the following installed on your sys
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/GPTPortal.git
+git clone https://github.com/Zaki-1052/GPTPortal.git
 cd GPTPortal
 ```
+
+
+From here you can actually just run:
+
+```bash
+npm start
+```
+
+And it'll take you through the set up.
+
+
+---
 
 ### Step 2: Install Dependencies
 
