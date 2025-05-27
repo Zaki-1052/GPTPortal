@@ -161,6 +161,19 @@ class MessageHandler {
         }
       });
       
+      // Process displaymath environments
+      processedText = processedText.replace(/\\begin\{displaymath\}([\s\S]*?)\\end\{displaymath\}/g, (match, content) => {
+        try {
+          return katex.renderToString(content.trim(), {
+            displayMode: true,
+            throwOnError: false
+          });
+        } catch (e) {
+          console.warn('LaTeX error:', e);
+          return match;
+        }
+      });
+      
       // Process inline math \(...\)
       processedText = processedText.replace(/\\\(([^)]+)\\\)/g, (match, content) => {
         try {
@@ -641,16 +654,44 @@ class MessageHandler {
     const textSpan = document.createElement('div');
     textSpan.className = 'message-text';
     
+    let processedText = text;
     let processedHtml = '';
     
-    // Process markdown first
+    // Protect LaTeX delimiters from markdown processing
+    if (this.latexEnabled) {
+      // Temporarily escape LaTeX delimiters so markdown doesn't process them
+      processedText = processedText
+        .replace(/\\\[/g, '@@LEFTBRACKET@@')
+        .replace(/\\\]/g, '@@RIGHTBRACKET@@')
+        .replace(/\\\(/g, '@@LEFTPAREN@@')
+        .replace(/\\\)/g, '@@RIGHTPAREN@@')
+        .replace(/\\begin\{equation\}/g, '@@BEGINEQUATION@@')
+        .replace(/\\end\{equation\}/g, '@@ENDEQUATION@@')
+        .replace(/\\begin\{displaymath\}/g, '@@BEGINDISPLAYMATH@@')
+        .replace(/\\end\{displaymath\}/g, '@@ENDDISPLAYMATH@@');
+    }
+    
+    // Process markdown
     if (this.markdownRenderer) {
-      processedHtml = this.markdownRenderer.parse(text);
+      processedHtml = this.markdownRenderer.parse(processedText);
       console.log('Markdown processed, output HTML:', processedHtml);
     } else {
       // Fallback to plain text if no markdown renderer
       console.log('No markdown renderer available, using plain text fallback');
-      processedHtml = this.escapeHtml(text);
+      processedHtml = this.escapeHtml(processedText);
+    }
+    
+    // Restore LaTeX delimiters
+    if (this.latexEnabled) {
+      processedHtml = processedHtml
+        .replace(/@@LEFTBRACKET@@/g, '\\[')
+        .replace(/@@RIGHTBRACKET@@/g, '\\]')
+        .replace(/@@LEFTPAREN@@/g, '\\(')
+        .replace(/@@RIGHTPAREN@@/g, '\\)')
+        .replace(/@@BEGINEQUATION@@/g, '\\begin{equation}')
+        .replace(/@@ENDEQUATION@@/g, '\\end{equation}')
+        .replace(/@@BEGINDISPLAYMATH@@/g, '\\begin{displaymath}')
+        .replace(/@@ENDDISPLAYMATH@@/g, '\\end{displaymath}');
     }
     
     // Set the HTML first
@@ -686,15 +727,43 @@ class MessageHandler {
     const messageText = document.createElement('div');
     messageText.className = 'message-text';
     
+    let processedText = message;
     let processedHtml = '';
     
-    // Process markdown first
+    // Protect LaTeX delimiters from markdown processing
+    if (this.latexEnabled) {
+      // Temporarily escape LaTeX delimiters so markdown doesn't process them
+      processedText = processedText
+        .replace(/\\\[/g, '@@LEFTBRACKET@@')
+        .replace(/\\\]/g, '@@RIGHTBRACKET@@')
+        .replace(/\\\(/g, '@@LEFTPAREN@@')
+        .replace(/\\\)/g, '@@RIGHTPAREN@@')
+        .replace(/\\begin\{equation\}/g, '@@BEGINEQUATION@@')
+        .replace(/\\end\{equation\}/g, '@@ENDEQUATION@@')
+        .replace(/\\begin\{displaymath\}/g, '@@BEGINDISPLAYMATH@@')
+        .replace(/\\end\{displaymath\}/g, '@@ENDDISPLAYMATH@@');
+    }
+    
+    // Process markdown
     if (this.markdownRenderer) {
-      processedHtml = this.markdownRenderer.parse(message);
+      processedHtml = this.markdownRenderer.parse(processedText);
       console.log('Markdown processed');
     } else {
       // Fallback to plain text if no markdown renderer
-      processedHtml = this.escapeHtml(message);
+      processedHtml = this.escapeHtml(processedText);
+    }
+    
+    // Restore LaTeX delimiters
+    if (this.latexEnabled) {
+      processedHtml = processedHtml
+        .replace(/@@LEFTBRACKET@@/g, '\\[')
+        .replace(/@@RIGHTBRACKET@@/g, '\\]')
+        .replace(/@@LEFTPAREN@@/g, '\\(')
+        .replace(/@@RIGHTPAREN@@/g, '\\)')
+        .replace(/@@BEGINEQUATION@@/g, '\\begin{equation}')
+        .replace(/@@ENDEQUATION@@/g, '\\end{equation}')
+        .replace(/@@BEGINDISPLAYMATH@@/g, '\\begin{displaymath}')
+        .replace(/@@ENDDISPLAYMATH@@/g, '\\end{displaymath}');
     }
     
     // Set the HTML
