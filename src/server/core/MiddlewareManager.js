@@ -112,11 +112,11 @@ class MiddlewareManager {
       // Content Security Policy (basic)
       res.set('Content-Security-Policy', 
         "default-src 'self'; " +
-        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://esm.sh; " +
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " +
         "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; " +
         "img-src 'self' data: https:; " +
-        "connect-src 'self' https: https://tiktoken.pages.dev;"
+        "connect-src 'self' https: https://tiktoken.pages.dev https://esm.sh;"
       );
 
       next();

@@ -121,7 +121,7 @@ const tokens = await contextTracker.estimateTokens(text, modelId);
 
 **Key Responsibilities**:
 
-- Browser-compatible tiktoken integration via WASM
+- Browser-compatible tiktoken integration via js-tiktoken (pure JavaScript)
 - Model-specific encoding selection (cl100k_base, o200k_base)
 - Accurate token counting for system prompts and user input
 - Cost estimation for different AI providers
@@ -150,12 +150,13 @@ const status = tokenCounterClient.getStatus();
 
 **Enhanced Features**:
 
-- **Accurate Counting**: Uses tiktoken WASM for precise token calculations
+- **Accurate Counting**: Uses js-tiktoken for precise token calculations
 - **Model-Aware**: Automatically selects appropriate encoding per model
 - **Cost Estimation**: Provides real-time cost calculations
 - **Graceful Fallback**: Enhanced estimation when tiktoken unavailable
 - **Performance Optimized**: Encoder caching and async operations
-- **Browser Compatible**: Full client-side operation without server dependency
+- **Browser Compatible**: Full client-side operation using CDN-hosted modules
+- **Dynamic Loading**: Encodings loaded on-demand from Cloudflare CDN
 
 **Integration Points**:
 

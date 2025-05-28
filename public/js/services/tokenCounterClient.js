@@ -30,8 +30,8 @@ class TokenCounterClient {
    */
   async _loadTiktoken() {
     try {
-      // Import js-tiktoken lite from jsDelivr CDN
-      const { Tiktoken } = await import('https://cdn.jsdelivr.net/npm/js-tiktoken@1.0.20/dist/lite.js');
+      // Import js-tiktoken lite from esm.sh which handles dependencies better
+      const { Tiktoken } = await import('https://esm.sh/js-tiktoken@1.0.20/lite');
       
       // Store Tiktoken class for later use
       this.Tiktoken = Tiktoken;
