@@ -3,7 +3,6 @@
 
 class TokenCounterClient {
   constructor() {
-    this.tiktoken = null;
     this.encoders = new Map();
     this.initPromise = null;
     this.fallbackMode = false;
@@ -31,41 +30,52 @@ class TokenCounterClient {
    */
   async _loadTiktoken() {
     try {
-      // Try to import tiktoken dynamically
-      const module = await import('/node_modules/tiktoken/tiktoken.js');
-      this.tiktoken = module;
-      console.log('✓ Tiktoken loaded successfully for accurate token counting');
+      // Import js-tiktoken lite from jsDelivr CDN
+      const { Tiktoken } = await import('https://cdn.jsdelivr.net/npm/js-tiktoken@1.0.20/dist/lite.js');
       
-      // Pre-load common encoders
-      await this._preloadEncoders();
+      // Store Tiktoken class for later use
+      this.Tiktoken = Tiktoken;
       
-    } catch (error) {
-      console.warn('Tiktoken not available in browser, using fallback estimation:', error);
-      this.fallbackMode = true;
-    }
-  }
-
-  /**
-   * Pre-load commonly used encoders
-   * @private
-   */
-  async _preloadEncoders() {
-    try {
-      // Load cl100k_base for GPT-4 models
-      const cl100k = await this.tiktoken.get_encoding('cl100k_base');
-      this.encoders.set('cl100k_base', cl100k);
+      // Load encodings dynamically from Cloudflare CDN
+      const encodingsToLoad = [
+        { name: 'cl100k_base', url: 'https://tiktoken.pages.dev/js/cl100k_base.json' },
+        { name: 'o200k_base', url: 'https://tiktoken.pages.dev/js/o200k_base.json' }
+      ];
       
-      // Load o200k_base for newer models if available
-      try {
-        const o200k = await this.tiktoken.get_encoding('o200k_base');
-        this.encoders.set('o200k_base', o200k);
-      } catch (e) {
-        // o200k_base might not be available in older versions
-        console.log('o200k_base encoder not available, using cl100k_base for all models');
+      // Load all encodings in parallel
+      const loadPromises = encodingsToLoad.map(async ({ name, url }) => {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch ${name}: ${response.statusText}`);
+          }
+          const encodingData = await response.json();
+          
+          // Create encoder instance
+          const encoder = new Tiktoken(encodingData);
+          this.encoders.set(name, encoder);
+          
+          console.log(`✓ Loaded ${name} encoder`);
+          return { name, success: true };
+        } catch (error) {
+          console.warn(`Failed to load ${name} encoder:`, error);
+          return { name, success: false, error };
+        }
+      });
+      
+      const results = await Promise.all(loadPromises);
+      const successCount = results.filter(r => r.success).length;
+      
+      if (successCount === 0) {
+        throw new Error('Failed to load any encoders');
       }
       
+      console.log(`✓ js-tiktoken loaded successfully with ${successCount}/${encodingsToLoad.length} encoders`);
+      console.log('Available encoders:', Array.from(this.encoders.keys()));
+      
     } catch (error) {
-      console.warn('Failed to preload encoders:', error);
+      console.warn('js-tiktoken not available in browser, using fallback estimation:', error);
+      this.fallbackMode = true;
     }
   }
 
@@ -118,15 +128,14 @@ class TokenCounterClient {
         encodingName = 'cl100k_base';
       }
 
-      // Try to get from cache first
+      // Get from pre-loaded encoders
       if (this.encoders.has(encodingName)) {
         return this.encoders.get(encodingName);
       }
 
-      // Load encoding
-      const encoding = await this.tiktoken.get_encoding(encodingName);
-      this.encoders.set(encodingName, encoding);
-      return encoding;
+      // If encoder not available, return null to use fallback
+      console.warn(`Encoder ${encodingName} not available for model ${modelId}`);
+      return null;
 
     } catch (error) {
       console.warn(`Failed to get encoding for model ${modelId}:`, error);
@@ -210,7 +219,7 @@ class TokenCounterClient {
   getStatus() {
     return {
       initialized: !!this.initPromise,
-      tiktoken: !!this.tiktoken && !this.fallbackMode,
+      tiktoken: !!this.Tiktoken && !this.fallbackMode,
       fallbackMode: this.fallbackMode,
       encoders: Array.from(this.encoders.keys())
     };

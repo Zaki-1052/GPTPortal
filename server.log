@@ -1,0 +1,58 @@
+
+> gptportal@1.0.0 start
+> node server.js
+
+Started automatic OpenRouter model refresh (every hour)
+Initializing Model Registry...
+Model Registry initialized successfully
+Tiktoken initialized for OpenAI token counting
+2025-05-28T12:00:04.859Z [INFO ] [Server         ] 🚀 Starting GPTPortal Server...
+2025-05-28T12:00:04.872Z [INFO ] [Server         ] Node.js version: v23.11.0
+2025-05-28T12:00:04.872Z [INFO ] [Server         ] Environment: development
+2025-05-28T12:00:04.873Z [INFO ] [Application    ] Initializing GPTPortal Application...
+Server configuration loaded:
+- Port: 3018
+- Temperature: 1
+- Max Tokens: 8000
+- Prompt Caching: Disabled
+2025-05-28T12:00:04.875Z [INFO ] [ServiceManager ] Initializing services...
+OpenAI provider initialized
+Google Gemini provider initialized
+Claude provider configured
+Mistral provider configured
+Groq provider configured
+2025-05-28T12:00:04.878Z [INFO ] [PromptCacheService] PromptCacheService initialized {"enabled":false,"strategy":"conservative"}
+✅ OpenAI handler initialized
+✅ Claude handler initialized
+✅ Groq handler initialized
+✅ Mistral handler initialized
+✅ Gemini handler initialized
+✅ DeepSeek handler initialized
+Starting model sync service (24h interval)
+2025-05-28T12:00:04.880Z [INFO ] [ServiceManager ] ✅ All services initialized successfully
+2025-05-28T12:00:04.893Z [INFO ] [Application    ] 🚀 GPTPortal server running at http://0.0.0.0:3018
+2025-05-28T12:00:04.893Z [INFO ] [Application    ] ✅ All systems operational
+2025-05-28T12:00:04.893Z [INFO ] [Application    ] 📊 Available providers: openai, claude, groq, mistral, gemini, deepseek
+2025-05-28T12:00:04.894Z [INFO ] [Server         ] ✅ Server started successfully
+2025-05-28T12:00:04.894Z [INFO ] [Server         ] 📝 Access the application at the configured URL
+2025-05-28T12:00:04.894Z [INFO ] [MiddlewareManager] Setting up middleware...
+2025-05-28T12:00:04.896Z [INFO ] [MiddlewareManager] ✅ Middleware setup completed
+2025-05-28T12:00:04.896Z [INFO ] [RouteManager   ] Setting up routes...
+✅ Chat routes initialized with provider factory
+✅ Assistant routes initialized with provider factory
+2025-05-28T12:00:04.904Z [INFO ] [RouteManager   ] ✅ 13 route groups registered
+2025-05-28T12:00:04.905Z [INFO ] [Application    ] ✅ Application initialized successfully
+2025-05-28T12:00:04.905Z [INFO ] [Server         ] ✅ Application initialized successfully
+Loaded 319 OpenRouter models from cache
+Cache is stale, refreshing models...
+Fetching models from OpenRouter API...
+Fetched 319 models from OpenRouter API
+Cached 319 OpenRouter models
+Successfully processed 319 OpenRouter models
+2025-05-28T12:01:14.164Z [INFO ] [Application    ] Received SIGTERM, initiating graceful shutdown...
+2025-05-28T12:01:14.178Z [INFO ] [ServiceManager ] Shutting down services...
+Stopping model sync service
+2025-05-28T12:01:14.184Z [INFO ] [PromptCacheService] PromptCacheService shutting down {"analytics":{"overall":{"requests":0,"cacheAttempts":0,"cacheHits":0,"cacheMisses":0,"hitRate":0,"tokensSaved":0,"costSavingsUSD":0},"byModel":{},"timestamp":"2025-05-28T12:01:14.184Z"}}
+2025-05-28T12:01:14.185Z [INFO ] [ServiceManager ] ✅ promptCacheService shut down cleanly
+2025-05-28T12:01:14.187Z [INFO ] [ServiceManager ] ✅ All services shut down
+2025-05-28T12:01:14.187Z [INFO ] [Application    ] ✅ Graceful shutdown completed
