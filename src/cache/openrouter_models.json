@@ -8361,8 +8361,8 @@
     "category": "gemini",
     "description": "Gemma 2 9B by Google is an advanced, open-source language model that sets a new standard for efficiency and performance in its size class.\n\nDesigned for a wide variety of tasks, it empowers developers and researchers to build innovative applications, while maintaining accessibility, safety, and cost-effectiveness.\n\nSee the [launch announcement](https://blog.google/technology/developers/google-gemma-2/) for more details. Usage of Gemma is subject to Google's [Gemma Terms of Use](https://ai.google.dev/gemma/terms).",
     "pricing": {
-      "input": 0.08,
-      "output": 0.08
+      "input": 0.02,
+      "output": 0.06
     },
     "contextWindow": 8192,
     "supportsVision": false,
