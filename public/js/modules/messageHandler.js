@@ -339,6 +339,20 @@ class MessageHandler {
   }
 
   /**
+   * Escape LaTeX delimiters to prevent marked.js from treating them as escaped characters
+   * @param {string} text - Text to process
+   * @returns {string} Text with escaped LaTeX delimiters
+   */
+  escapeLatexDelimiters(text) {
+    // Escape backslash-bracket delimiters so marked doesn't convert \[ to [
+    return text
+      .replace(/\\\[/g, '\\\\[')
+      .replace(/\\\]/g, '\\\\]')
+      .replace(/\\\(/g, '\\\\(')
+      .replace(/\\\)/g, '\\\\)');
+  }
+
+  /**
    * Render markdown text with LaTeX support
    * @param {HTMLElement} parent - Parent element
    * @param {string} text - Text to render
@@ -349,11 +363,14 @@ class MessageHandler {
     
     let processedHtml = '';
     
+    // Escape LaTeX delimiters before markdown processing
+    const escapedText = this.escapeLatexDelimiters(text);
+    
     // Process with marked (which now includes LaTeX support via markedKatex)
     if (this.markdownRenderer) {
-      processedHtml = this.markdownRenderer.parse(text);
+      processedHtml = this.markdownRenderer.parse(escapedText);
     } else {
-      processedHtml = this.escapeHtml(text);
+      processedHtml = this.escapeHtml(escapedText);
     }
     
     // Sanitize HTML
@@ -373,7 +390,6 @@ class MessageHandler {
     // Need to use requestAnimationFrame to ensure DOM is updated
     if (typeof renderMathInElement !== 'undefined') {
       requestAnimationFrame(() => {
-        console.log('Applying renderMathInElement to handle additional delimiters');
         renderMathInElement(textSpan, {
           delimiters: [
             {left: '\\[', right: '\\]', display: true},
@@ -401,11 +417,14 @@ class MessageHandler {
     
     let processedHtml = '';
     
+    // Escape LaTeX delimiters before markdown processing
+    const escapedMessage = this.escapeLatexDelimiters(message);
+    
     // Process with marked (which now includes LaTeX support via markedKatex)
     if (this.markdownRenderer) {
-      processedHtml = this.markdownRenderer.parse(message);
+      processedHtml = this.markdownRenderer.parse(escapedMessage);
     } else {
-      processedHtml = this.escapeHtml(message);
+      processedHtml = this.escapeHtml(escapedMessage);
     }
     
     // Sanitize HTML
@@ -425,7 +444,6 @@ class MessageHandler {
     // Need to use requestAnimationFrame to ensure DOM is updated
     if (typeof renderMathInElement !== 'undefined') {
       requestAnimationFrame(() => {
-        console.log('Applying renderMathInElement in renderSimpleTextMessage');
         renderMathInElement(messageText, {
           delimiters: [
             {left: '\\[', right: '\\]', display: true},
@@ -646,11 +664,14 @@ class MessageHandler {
       if (textElement) {
         let processedHtml = '';
         
+        // Escape LaTeX delimiters before markdown processing
+        const escapedContent = this.escapeLatexDelimiters(newContent);
+        
         // Process with marked (which now includes LaTeX support via markedKatex)
         if (this.markdownRenderer) {
-          processedHtml = this.markdownRenderer.parse(newContent);
+          processedHtml = this.markdownRenderer.parse(escapedContent);
         } else {
-          processedHtml = this.escapeHtml(newContent);
+          processedHtml = this.escapeHtml(escapedContent);
         }
         
         // Sanitize HTML
@@ -668,7 +689,7 @@ class MessageHandler {
         // Need to use requestAnimationFrame to ensure DOM is updated
         if (typeof renderMathInElement !== 'undefined') {
           requestAnimationFrame(() => {
-            console.log('Applying renderMathInElement in updateMessage');
+                console.log('HTML content before renderMathInElement:', textElement.innerHTML);
             renderMathInElement(textElement, {
               delimiters: [
                 {left: '\\[', right: '\\]', display: true},
