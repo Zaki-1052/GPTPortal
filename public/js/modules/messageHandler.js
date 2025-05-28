@@ -7,8 +7,6 @@ class MessageHandler {
     this.conversationHistory = [];
     this.markdownRenderer = null;
     this.sanitizer = null;
-    this.latexRenderer = null;
-    this.latexEnabled = false;
     
     this.init();
   }
@@ -17,8 +15,18 @@ class MessageHandler {
    * Initialize message handler
    */
   init() {
-    this.setupMarkdown();
-    this.setupLaTeX();
+    // Delay markdown setup to ensure all scripts are loaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        this.setupMarkdown();
+      });
+    } else {
+      // DOM is already loaded, but wait a tick for scripts to initialize
+      setTimeout(() => {
+        this.setupMarkdown();
+      }, 0);
+    }
+    
     this.setupEventHandlers();
     console.log('Message handler initialized');
   }
@@ -28,10 +36,11 @@ class MessageHandler {
    */
   setupMarkdown() {
     console.log('=== setupMarkdown called ===');
-    console.log('typeof marked:', typeof marked);
     
     if (typeof marked !== 'undefined') {
       this.markdownRenderer = marked;
+      
+      // Basic markdown configuration
       marked.setOptions({
         breaks: true,
         highlight: function(code, lang) {
@@ -42,8 +51,8 @@ class MessageHandler {
           return code;
         }
       });
-      console.log('Markdown renderer configured successfully');
-      console.log('this.markdownRenderer:', !!this.markdownRenderer);
+      
+      console.log('Markdown renderer configured');
     } else {
       console.warn('Marked.js not available - markdown rendering disabled');
     }
@@ -56,385 +65,6 @@ class MessageHandler {
     }
   }
 
-  /**
-   * Setup LaTeX rendering
-   */
-  setupLaTeX() {
-    
-    if (typeof katex !== 'undefined') {
-      this.latexRenderer = katex;
-      this.latexEnabled = true;
-      console.log('✓ KaTeX LaTeX renderer available');
-    } else {
-      console.warn('KaTeX not available - LaTeX rendering disabled');
-      this.latexEnabled = false;
-    }
-  }
-
-  /**
-   * Process LaTeX expressions in DOM elements
-   * @param {HTMLElement} element - DOM element to process
-   */
-  processLaTeXInDOM(element) {
-    // First, handle multi-line environments that might be split across text nodes
-    this.processMultiLineEnvironments(element);
-    
-    // Then process remaining single-node LaTeX expressions
-    const walker = document.createTreeWalker(
-      element,
-      NodeFilter.SHOW_TEXT,
-      {
-        acceptNode: (node) => {
-          // Skip text nodes inside code blocks and pre elements
-          if (node.parentElement.closest('code, pre')) {
-            return NodeFilter.FILTER_REJECT;
-          }
-          return NodeFilter.FILTER_ACCEPT;
-        }
-      }
-    );
-    
-    const textNodes = [];
-    let node;
-    while (node = walker.nextNode()) {
-      textNodes.push(node);
-    }
-    
-    // Process each text node for single-node LaTeX
-    textNodes.forEach(textNode => {
-      const text = textNode.textContent;
-      if (!text) return;
-      
-      // Check for LaTeX patterns (but not environments, which we handled above)
-      const hasLaTeX = 
-        /\$\$[\s\S]+?\$\$/.test(text) ||  // Display math $$...$$
-        /\$[^$\n]+?\$/.test(text) ||       // Inline math $...$
-        /\\\[[\s\S]+?\\\]/.test(text) ||   // Display math \[...\]
-        /\\\([\s\S]+?\\\)/.test(text);     // Inline math \(...\)
-      
-      if (!hasLaTeX) return;
-      
-      
-      // Create a temporary container to process the text
-      const tempDiv = document.createElement('div');
-      let processedText = text;
-      
-      // Process display math $$...$$ first - improved regex to handle newlines
-      processedText = processedText.replace(/\$\$([\s\S]+?)\$\$/g, (match, content) => {
-        try {
-          const rendered = katex.renderToString(content.trim(), {
-            displayMode: true,
-            throwOnError: false,
-            trust: false,
-            strict: 'warn'
-          });
-          console.log('Rendered display math $$:', content.trim());
-          return rendered;
-        } catch (e) {
-          console.warn('LaTeX error ($$):', e.message, 'Content:', content);
-          return match;
-        }
-      });
-      
-      // Process display math \[...\] - improved to handle multi-line
-      processedText = processedText.replace(/\\\[([\s\S]+?)\\\]/g, (match, content) => {
-        try {
-          const rendered = katex.renderToString(content.trim(), {
-            displayMode: true,
-            throwOnError: false,
-            trust: false,
-            strict: 'warn'
-          });
-          console.log('Rendered display math \\[\\]:', content.trim());
-          return rendered;
-        } catch (e) {
-          console.warn('LaTeX error (\\[\\]):', e.message, 'Content:', content);
-          return match;
-        }
-      });
-      
-      // Process inline math \(...\)
-      processedText = processedText.replace(/\\\(([\s\S]+?)\\\)/g, (match, content) => {
-        try {
-          const rendered = katex.renderToString(content.trim(), {
-            displayMode: false,
-            throwOnError: false,
-            trust: false,
-            strict: 'warn'
-          });
-          console.log('Rendered inline math \\(\\):', content.trim());
-          return rendered;
-        } catch (e) {
-          console.warn('LaTeX error (\\(\\)):', e.message, 'Content:', content);
-          return match;
-        }
-      });
-      
-      // Process inline math $...$ - more robust pattern
-      processedText = processedText.replace(/(?<!\$)\$([^$\n]+?)\$(?!\$)/g, (match, content) => {
-        // Check if it looks like LaTeX
-        if (!/[\\^_{}]/.test(content)) {
-          return match;
-        }
-        try {
-          const rendered = katex.renderToString(content.trim(), {
-            displayMode: false,
-            throwOnError: false,
-            trust: false,
-            strict: 'warn'
-          });
-          console.log('Rendered inline math $:', content.trim());
-          return rendered;
-        } catch (e) {
-          console.warn('LaTeX error ($):', e.message, 'Content:', content);
-          return match;
-        }
-      });
-      
-      // If text changed, replace the text node with processed HTML
-      if (processedText !== text) {
-        tempDiv.innerHTML = processedText;
-        
-        // Replace the text node with the new nodes
-        const parent = textNode.parentNode;
-        while (tempDiv.firstChild) {
-          parent.insertBefore(tempDiv.firstChild, textNode);
-        }
-        parent.removeChild(textNode);
-      }
-    });
-  }
-  
-  /**
-   * Process multi-line LaTeX environments that might be split across text nodes
-   * @param {HTMLElement} element - DOM element to process
-   */
-  processMultiLineEnvironments(element) {
-    // Find all paragraph elements that might contain environments
-    const paragraphs = element.querySelectorAll('p');
-    
-    paragraphs.forEach(p => {
-      // Skip if inside code blocks
-      if (p.closest('code, pre')) return;
-      
-      // Get the full text content including across <br> tags
-      let html = p.innerHTML;
-      
-      // Check if this paragraph contains environment markers
-      if (!html.includes('\\begin{equation}') && !html.includes('\\begin{displaymath}')) {
-        return;
-      }
-      
-      
-      // Process equation environments - fixed regex to capture content properly
-      html = html.replace(/\\begin\{equation\}([\s\S]*?)\\end\{equation\}/g, (match, content) => {
-        try {
-          // Remove <br> tags from the content and clean it up
-          const cleanContent = content.replace(/<br\s*\/?>/gi, '').replace(/\s+/g, ' ').trim();
-          
-          console.log('Processing equation environment:', cleanContent);
-          
-          // Render just the content, not the environment tags
-          const rendered = katex.renderToString(cleanContent, {
-            displayMode: true,
-            throwOnError: false
-          });
-          
-          return rendered;
-        } catch (e) {
-          console.warn('LaTeX rendering error for equation:', e.message);
-          // Return the original LaTeX on error
-          return `\\begin{equation}${content}\\end{equation}`;
-        }
-      });
-      
-      // Process displaymath environments
-      html = html.replace(/\\begin\{displaymath\}([\s\S]*?)\\end\{displaymath\}/g, (match, content) => {
-        try {
-          // Remove <br> tags from the content and clean it up
-          const cleanContent = content.replace(/<br\s*\/?>/gi, '').replace(/\s+/g, ' ').trim();
-          
-          console.log('Processing displaymath environment:', cleanContent);
-          
-          const rendered = katex.renderToString(cleanContent, {
-            displayMode: true,
-            throwOnError: false
-          });
-          
-          return rendered;
-        } catch (e) {
-          console.warn('LaTeX rendering error (displaymath):', e.message);
-          // Return the original LaTeX on error
-          return `\\begin{displaymath}${content}\\end{displaymath}`;
-        }
-      });
-      
-      // Only update if we made changes
-      if (html !== p.innerHTML) {
-        p.innerHTML = html;
-      }
-    });
-  }
-  
-  /**
-   * Extract LaTeX expressions and replace with placeholders
-   * @param {string} text - Text containing LaTeX expressions
-   * @returns {Object} Object with processed text and LaTeX map
-   */
-  extractLaTeX(text) {
-    const latexMap = new Map();
-    let counter = 0;
-    let processedText = text;
-    
-    console.log('=== extractLaTeX called ===');
-    console.log('Input text:', text);
-    
-    // Extract \begin{equation}...\end{equation} blocks first
-    processedText = processedText.replace(/\\begin\{equation\}([\s\S]*?)\\end\{equation\}/g, (match, content) => {
-      const placeholder = `LATEXPLACEHOLDER${counter}ENDLATEX`;
-      latexMap.set(placeholder, {
-        content: content.trim(),
-        displayMode: true,
-        original: match
-      });
-      counter++;
-      console.log(`Extracted equation environment: ${match} → ${placeholder}`);
-      return placeholder;
-    });
-    
-    // Extract display math \[...\] - must have content
-    processedText = processedText.replace(/\\\[([^\]]+)\\\]/g, (match, content) => {
-      const placeholder = `LATEXPLACEHOLDER${counter}ENDLATEX`;
-      latexMap.set(placeholder, {
-        content: content.trim(),
-        displayMode: true,
-        original: match
-      });
-      counter++;
-      console.log(`Extracted display math \\[...\\]: ${match} → ${placeholder}`);
-      return placeholder;
-    });
-    
-    // Extract display math $$...$$ - don't require newlines
-    processedText = processedText.replace(/\$\$([^$]+)\$\$/g, (match, content) => {
-      const placeholder = `LATEXPLACEHOLDER${counter}ENDLATEX`;
-      latexMap.set(placeholder, {
-        content: content.trim(),
-        displayMode: true,
-        original: match
-      });
-      counter++;
-      console.log(`Extracted display math $$...$$: ${match} → ${placeholder}`);
-      return placeholder;
-    });
-    
-    // Extract inline math \(...\)
-    processedText = processedText.replace(/\\\(([^)]+)\\\)/g, (match, content) => {
-      const placeholder = `LATEXPLACEHOLDER${counter}ENDLATEX`;
-      latexMap.set(placeholder, {
-        content: content.trim(),
-        displayMode: false,
-        original: match
-      });
-      counter++;
-      console.log(`Extracted inline paren math: ${match} → ${placeholder}`);
-      return placeholder;
-    });
-    
-    // Extract inline math $...$ - simpler pattern
-    // Process from end to beginning to avoid issues with offset-based validation
-    const dollarMatches = [];
-    let dollarRegex = /\$([^$\n]+)\$/g;
-    let match;
-    
-    while ((match = dollarRegex.exec(processedText)) !== null) {
-      // Check if it's actually LaTeX (contains backslash, ^, _, or braces)
-      if (/[\\^_{}]/.test(match[1])) {
-        dollarMatches.push({
-          start: match.index,
-          end: match.index + match[0].length,
-          content: match[1],
-          original: match[0]
-        });
-      }
-    }
-    
-    // Replace from end to beginning to maintain string positions
-    for (let i = dollarMatches.length - 1; i >= 0; i--) {
-      const m = dollarMatches[i];
-      const placeholder = `LATEXPLACEHOLDER${counter}ENDLATEX`;
-      latexMap.set(placeholder, {
-        content: m.content.trim(),
-        displayMode: false,
-        original: m.original
-      });
-      counter++;
-      processedText = processedText.substring(0, m.start) + placeholder + processedText.substring(m.end);
-      console.log(`Extracted inline dollar math: ${m.original} → ${placeholder}`);
-    }
-    
-    console.log(`Extracted ${counter} LaTeX expressions`);
-    console.log('Processed text:', processedText);
-    
-    return { processedText, latexMap };
-  }
-  
-  /**
-   * Restore LaTeX placeholders with rendered content
-   * @param {string} html - HTML with placeholders
-   * @param {Map} latexMap - Map of placeholders to LaTeX content
-   * @returns {string} HTML with rendered LaTeX
-   */
-  restoreLaTeX(html, latexMap) {
-    if (!this.latexEnabled || latexMap.size === 0) return html;
-    
-    console.log('=== restoreLaTeX called ===');
-    console.log('LaTeX map size:', latexMap.size);
-    console.log('Input HTML:', html);
-    
-    let restoredHtml = html;
-    
-    // Replace each placeholder with rendered LaTeX
-    for (const [placeholder, data] of latexMap) {
-      console.log(`Restoring placeholder: "${placeholder}"`);
-      console.log(`HTML contains placeholder? ${restoredHtml.includes(placeholder)}`);
-      
-      try {
-        const rendered = katex.renderToString(data.content, {
-          displayMode: data.displayMode,
-          throwOnError: false,
-          trust: false,
-          strict: 'warn',
-          errorColor: '#cc0000'
-        });
-        
-        // Simple string replacement - the placeholder should be unique enough
-        restoredHtml = restoredHtml.replace(new RegExp(placeholder, 'g'), rendered);
-        
-        console.log(`Successfully rendered ${data.displayMode ? 'display' : 'inline'} math: ${data.content}`);
-      } catch (error) {
-        console.warn(`LaTeX rendering error for ${placeholder}:`, error.message);
-        // On error, show the original LaTeX notation with error styling
-        const errorHtml = `<span class="latex-error" title="LaTeX Error: ${error.message}">${this.escapeHtml(data.original)}</span>`;
-        restoredHtml = restoredHtml.replace(new RegExp(placeholder, 'g'), errorHtml);
-      }
-    }
-    
-    console.log('Final restored HTML:', restoredHtml);
-    console.log('=== restoreLaTeX completed ===');
-    return restoredHtml;
-  }
-  
-  /**
-   * Escape HTML special characters
-   * @param {string} text - Text to escape
-   * @returns {string} Escaped text
-   */
-  escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
 
   /**
    * Setup event handlers
@@ -696,62 +326,24 @@ class MessageHandler {
    * @param {string} text - Text to render
    */
   renderMarkdownText(parent, text) {
-    
     const textSpan = document.createElement('div');
     textSpan.className = 'message-text';
     
-    let processedText = text;
     let processedHtml = '';
-    
-    // Protect LaTeX delimiters from markdown processing
-    if (this.latexEnabled) {
-      // Temporarily escape LaTeX delimiters so markdown doesn't process them
-      processedText = processedText
-        .replace(/\\\[/g, '@@LEFTBRACKET@@')
-        .replace(/\\\]/g, '@@RIGHTBRACKET@@')
-        .replace(/\\\(/g, '@@LEFTPAREN@@')
-        .replace(/\\\)/g, '@@RIGHTPAREN@@')
-        .replace(/\\begin\{equation\}/g, '@@BEGINEQUATION@@')
-        .replace(/\\end\{equation\}/g, '@@ENDEQUATION@@')
-        .replace(/\\begin\{displaymath\}/g, '@@BEGINDISPLAYMATH@@')
-        .replace(/\\end\{displaymath\}/g, '@@ENDDISPLAYMATH@@');
-    }
     
     // Process markdown
     if (this.markdownRenderer) {
-      processedHtml = this.markdownRenderer.parse(processedText);
+      processedHtml = this.markdownRenderer.parse(text);
     } else {
-      // Fallback to plain text if no markdown renderer
-      processedHtml = this.escapeHtml(processedText);
+      processedHtml = this.escapeHtml(text);
     }
     
-    // Restore LaTeX delimiters
-    if (this.latexEnabled) {
-      processedHtml = processedHtml
-        .replace(/@@LEFTBRACKET@@/g, '\\[')
-        .replace(/@@RIGHTBRACKET@@/g, '\\]')
-        .replace(/@@LEFTPAREN@@/g, '\\(')
-        .replace(/@@RIGHTPAREN@@/g, '\\)')
-        .replace(/@@BEGINEQUATION@@/g, '\\begin{equation}')
-        .replace(/@@ENDEQUATION@@/g, '\\end{equation}')
-        .replace(/@@BEGINDISPLAYMATH@@/g, '\\begin{displaymath}')
-        .replace(/@@ENDDISPLAYMATH@@/g, '\\end{displaymath}');
-    }
-    
-    // Set the HTML first
+    // Sanitize HTML
     if (this.sanitizer) {
-      const safeHtml = this.sanitizer.sanitize(processedHtml, {
-        ADD_TAGS: ['span'],
-        ADD_ATTR: ['class', 'style'] // Allow KaTeX styling
-      });
+      const safeHtml = this.sanitizer.sanitize(processedHtml);
       textSpan.innerHTML = safeHtml;
     } else {
       textSpan.innerHTML = processedHtml;
-    }
-    
-    // Now process LaTeX in the DOM if enabled
-    if (this.latexEnabled && this.latexRenderer) {
-      this.processLaTeXInDOM(textSpan);
     }
     
     parent.appendChild(textSpan);
@@ -763,62 +355,24 @@ class MessageHandler {
    * @param {string} message - Message text
    */
   renderSimpleTextMessage(element, message) {
-    
     const messageText = document.createElement('div');
     messageText.className = 'message-text';
     
-    let processedText = message;
     let processedHtml = '';
-    
-    // Protect LaTeX delimiters from markdown processing
-    if (this.latexEnabled) {
-      // Temporarily escape LaTeX delimiters so markdown doesn't process them
-      processedText = processedText
-        .replace(/\\\[/g, '@@LEFTBRACKET@@')
-        .replace(/\\\]/g, '@@RIGHTBRACKET@@')
-        .replace(/\\\(/g, '@@LEFTPAREN@@')
-        .replace(/\\\)/g, '@@RIGHTPAREN@@')
-        .replace(/\\begin\{equation\}/g, '@@BEGINEQUATION@@')
-        .replace(/\\end\{equation\}/g, '@@ENDEQUATION@@')
-        .replace(/\\begin\{displaymath\}/g, '@@BEGINDISPLAYMATH@@')
-        .replace(/\\end\{displaymath\}/g, '@@ENDDISPLAYMATH@@');
-    }
     
     // Process markdown
     if (this.markdownRenderer) {
-      processedHtml = this.markdownRenderer.parse(processedText);
+      processedHtml = this.markdownRenderer.parse(message);
     } else {
-      // Fallback to plain text if no markdown renderer
-      processedHtml = this.escapeHtml(processedText);
+      processedHtml = this.escapeHtml(message);
     }
     
-    // Restore LaTeX delimiters
-    if (this.latexEnabled) {
-      processedHtml = processedHtml
-        .replace(/@@LEFTBRACKET@@/g, '\\[')
-        .replace(/@@RIGHTBRACKET@@/g, '\\]')
-        .replace(/@@LEFTPAREN@@/g, '\\(')
-        .replace(/@@RIGHTPAREN@@/g, '\\)')
-        .replace(/@@BEGINEQUATION@@/g, '\\begin{equation}')
-        .replace(/@@ENDEQUATION@@/g, '\\end{equation}')
-        .replace(/@@BEGINDISPLAYMATH@@/g, '\\begin{displaymath}')
-        .replace(/@@ENDDISPLAYMATH@@/g, '\\end{displaymath}');
-    }
-    
-    // Set the HTML
+    // Sanitize HTML
     if (this.sanitizer) {
-      const safeHtml = this.sanitizer.sanitize(processedHtml, {
-        ADD_TAGS: ['span'],
-        ADD_ATTR: ['class', 'style'] // Allow KaTeX styling
-      });
+      const safeHtml = this.sanitizer.sanitize(processedHtml);
       messageText.innerHTML = safeHtml;
     } else {
       messageText.innerHTML = processedHtml;
-    }
-    
-    // Process LaTeX in the DOM if enabled
-    if (this.latexEnabled && this.latexRenderer) {
-      this.processLaTeXInDOM(messageText);
     }
 
     element.appendChild(messageText);
@@ -1113,8 +667,6 @@ class MessageHandler {
     this.clearChat();
     this.markdownRenderer = null;
     this.sanitizer = null;
-    this.latexRenderer = null;
-    this.latexEnabled = false;
     console.log('Message handler cleaned up');
   }
 }

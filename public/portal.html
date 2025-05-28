@@ -14,6 +14,16 @@
   <!-- KaTeX for LaTeX rendering -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" crossorigin="anonymous">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js" crossorigin="anonymous"></script>
+  <!-- marked-katex-extension for LaTeX integration -->
+  <script src="https://cdn.jsdelivr.net/npm/marked-katex-extension@5.1.4/lib/index.umd.js"></script>
+  <script>
+    // Debug: Check what's available after marked-katex-extension loads
+    console.log('After marked-katex-extension script:');
+    console.log('- typeof markedKatex:', typeof markedKatex);
+    console.log('- typeof markedKatexExtension:', typeof markedKatexExtension);
+    console.log('- window.markedKatex:', window.markedKatex);
+    console.log('- typeof katex:', typeof katex);
+  </script>
 </head>
 <body>
 <div>

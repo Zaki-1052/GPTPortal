@@ -44,19 +44,9 @@ class ChatManager {
   }
 
   setupMarkdown() {
-    // Configure marked.js for markdown rendering (from original script.js)
-    if (typeof marked !== 'undefined') {
-      marked.setOptions({
-        breaks: true,
-        highlight: function(code, lang) {
-          if (typeof hljs !== 'undefined') {
-            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-            return hljs.highlight(code, { language }).value;
-          }
-          return code;
-        }
-      });
-    }
+    // Skip markdown setup since MessageHandler handles it properly
+    // This prevents resetting the marked configuration and losing KaTeX extension
+    console.log('ChatManager.setupMarkdown: Skipping - MessageHandler handles markdown setup');
   }
 
   bindEvents() {
