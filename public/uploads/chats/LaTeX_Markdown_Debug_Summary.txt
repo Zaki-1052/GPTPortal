@@ -1,0 +1,1534 @@
+User: You are an expert at LaTeX frontend tasked with debugging my implementation. 
+
+
+# GPTPortal LaTeX Implementation - COMPREHENSIVE FAILURE DOCUMENTATION
+
+## Status: COMPLETELY BROKEN - Multiple Implementation Attempts Failed
+
+**Current State**: LaTeX rendering is completely non-functional in GPTPortal after numerous technical approaches.
+
+## Technical Environment
+
+### Core Architecture
+- **Frontend**: Vanilla JavaScript with modular ES6 class-based architecture
+- **Message Rendering Pipeline**: `chatManager.js` → `messageHandler.js` → DOM rendering
+- **Markdown Processing**: `marked.js` v4.x with extensibility support
+- **LaTeX Engine**: KaTeX v0.16.9 (mathematical expression renderer)
+- **Security**: DOMPurify HTML sanitization with configurable allowlists
+
+### Library Versions & CDN Sources
+```html
+<!-- KaTeX Core -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+<!-- Marked.js -->
+<script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+
+<!-- marked-katex-extension -->
+<script src="https://cdn.jsdelivr.net/npm/marked-katex-extension@5.1.4/lib/index.umd.js"></script>
+
+<!-- DOMPurify -->
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
+```
+
+### Runtime Environment Verification
+Console diagnostics consistently show:
+```javascript
+typeof marked: "function"
+typeof katex: "object"  
+typeof window.markedKatex: "function"
+typeof DOMPurify: "object"
+```
+
+## DETAILED FAILURE ANALYSIS
+
+### Core Problem: Rendering Pipeline Conflicts
+
+The fundamental issue is a **processing order conflict** between markdown parsing and LaTeX rendering, exacerbated by line break handling requirements.
+
+#### Pipeline Flow:
+1. **Input**: Raw text with mixed markdown and LaTeX
+2. **Line Break Processing**: Manual `\n` → `'  \n'` replacement (required because `breaks: true` breaks LaTeX)
+3. **Markdown Processing**: `marked.parse()` with `markedKatex` extension
+4. **HTML Sanitization**: DOMPurify with math element allowlist
+5. **DOM Insertion**: `innerHTML` assignment
+
+#### The Fatal Flaw:
+The manual line break processing (`text.replace(/\n/g, '  \n')`) **fragments KaTeX-generated HTML**, causing individual math symbols to appear on separate lines.
+
+## COMPREHENSIVE ATTEMPT DOCUMENTATION
+
+### ATTEMPT 1: marked-katex-extension Integration (FAILED)
+
+**Implementation**:
+```javascript
+// messageHandler.js setupMarkdown()
+if (typeof window.markedKatex !== 'undefined') {
+  marked.use(window.markedKatex({
+    throwOnError: false,
+    output: 'html'
+  }));
+}
+
+marked.setOptions({
+  breaks: false,  // Critical: prevents <br> injection into LaTeX
+  gfm: true
+});
+```
+
+**Configuration Tested**:
+- Extension loaded before `setOptions()`
+- Extension loaded after `setOptions()`
+- `output: 'html'` vs `output: 'htmlAndMathml'`
+- `throwOnError: false` vs `throwOnError: true`
+
+**Results**:
+- ✗ Block LaTeX (`$$...$$`, `\[...\]`) completely non-functional
+- ✗ Inline LaTeX (`$...$`) shows raw LaTeX source
+- ✗ `\(...\)` syntax unrecognized
+- ✗ LaTeX appears as plain text in final output
+
+**Technical Diagnosis**:
+The `markedKatex` extension is called during `marked.parse()` but its output is immediately corrupted by subsequent line break processing.
+
+### ATTEMPT 2: Configuration Order Manipulation (FAILED)
+
+**Theory**: Extension registration timing affects LaTeX processing
+
+**Variations Tested**:
+```javascript
+// Variation A: Extension first
+marked.use(markedKatexExtension);
+marked.setOptions({...});
+
+// Variation B: Options first  
+marked.setOptions({...});
+marked.use(markedKatexExtension);
+
+// Variation C: Isolated instance
+const customMarked = new marked.Marked();
+customMarked.use(markedKatexExtension);
+```
+
+**Results**: No variation produced functional LaTeX rendering.
+
+### ATTEMPT 3: DOMPurify Comprehensive Configuration (FAILED)
+
+**Theory**: HTML sanitization removing KaTeX elements
+
+**Implementation**:
+```javascript
+// Basic configuration
+ADD_TAGS: ['span', 'math', 'semantics', 'mrow', 'mi', 'mo', 'mn', 'msup', 'msub', 'mfrac', 'mroot', 'msqrt', 'mtext', 'annotation', 'annotation-xml']
+
+// Comprehensive configuration (102 elements)
+ADD_TAGS: ['math', 'maction', 'maligngroup', 'malignmark', 'menclose', 'merror', 'mfenced', 'mfrac', 'mi', 'mlongdiv', 'mmultiscripts', 'mn', 'mo', 'mover', 'mpadded', 'mphantom', 'mroot', 'mrow', 'ms', 'mscarries', 'mscarry', 'msgroup', 'msline', 'mspace', 'msqrt', 'msrow', 'mstack', 'mstyle', 'msub', 'msubsup', 'msup', 'mtable', 'mtd', 'mtext', 'mtr', 'munder', 'munderover', 'semantics', 'annotation', 'annotation-xml', 'span']
+
+ADD_ATTR: ['actiontype', 'align', 'alignmentscope', 'alttext', 'background', 'charalign', 'close', 'columnalign', 'columnlines', 'columnspacing', 'columnspan', 'columnwidth', 'definitionurl', 'depth', 'dir', 'display', 'displaystyle', 'edge', 'encoding', 'equalcolumns', 'equalrows', 'fence', 'fontfamily', 'fontsize', 'fontstyle', 'fontweight', 'form', 'frame', 'framespacing', 'groupalign', 'height', 'href', 'id', 'indentalign', 'indentalignfirst', 'indentalignlast', 'indentshift', 'indentshiftfirst', 'indentshiftlast', 'indenttarget', 'linethickness', 'lspace', 'mathbackground', 'mathcolor', 'mathsize', 'mathvariant', 'maxsize', 'minsize', 'notation', 'numalign', 'open', 'overflow', 'rowalign', 'rowlines', 'rowspacing', 'rowspan', 'rspace', 'scriptlevel', 'selection', 'separator', 'separators', 'shift', 'side', 'src', 'stackalign', 'stretchy', 'style', 'symmetric', 'variant', 'width', 'xmlns', 'xlink:href', 'xml:space', 'class', 'aria-hidden', 'role', 'color']
+```
+
+**Results**: DOMPurify was NOT the issue. KaTeX HTML elements survive sanitization but LaTeX still renders as plain text.
+
+### ATTEMPT 4: Explicit Delimiter Configuration (FAILED)
+
+**Theory**: markedKatex needs explicit delimiter specification
+
+**Implementation**:
+```javascript
+marked.use(window.markedKatex({
+  throwOnError: false,
+  output: 'html',
+  delimiters: [
+    { left: "$$", right: "$$", display: true },
+    { left: "\\[", right: "\\]", display: true },
+    { left: "\\begin{equation}", right: "\\end{equation}", display: true },
+    { left: "\\begin{align}", right: "\\end{align}", display: true },
+    { left: "$", right: "$", display: false },
+    { left: "\\(", right: "\\)", display: false }
+  ]
+}));
+```
+
+**Results**: No improvement in LaTeX recognition or rendering.
+
+### ATTEMPT 5: Pre-extraction/Post-restoration Pipeline (FAILED)
+
+**Theory**: Extract LaTeX before markdown processing, restore after
+
+**Implementation**: Complex placeholder system:
+```javascript
+// Step 1: Extract LaTeX with regex patterns
+extractLatex(text) {
+  const patterns = [
+    { regex: /\$\$([\s\S]*?)\$\$/g, display: true },
+    { regex: /\\\[([\s\S]*?)\\\]/g, display: true },
+    { regex: /\\begin\{equation\}([\s\S]*?)\\end\{equation\}/g, display: true },
+    { regex: /\\begin\{align\}([\s\S]*?)\\end\{align\}/g, display: true },
+    { regex: /(?<!\$)\$(?!\$)([^\$\n]+?)\$(?!\$)/g, display: false },
+    { regex: /\\\(([^\)]+?)\\\)/g, display: false }
+  ];
+  
+  patterns.forEach(({ regex, display }) => {
+    processedText = processedText.replace(regex, (match, latex) => {
+      const placeholder = `${this.placeholderPrefix}${this.placeholderCounter++}__`;
+      this.latexPlaceholders.set(placeholder, { latex: latex.trim(), display, original: match });
+      return placeholder;
+    });
+  });
+}
+
+// Step 2: Process markdown with placeholders
+// Step 3: Restore LaTeX with KaTeX rendering
+restoreAndRenderLatex(html) {
+  this.latexPlaceholders.forEach((data, placeholder) => {
+    const { latex, display } = data;
+    const rendered = katex.renderToString(latex, {
+      throwOnError: false,
+      displayMode: display,
+      trust: false,
+      strict: 'warn',
+      output: 'htmlAndMathml'
+    });
+    processedHtml = processedHtml.replace(placeholder, rendered);
+  });
+}
+```
+
+**Results**: 
+- Placeholders were correctly extracted and restored
+- KaTeX rendering executed without errors
+- **CRITICAL FAILURE**: Final output showed raw LaTeX text instead of rendered math
+- Line breaks still completely broken (text running together)
+
+### ATTEMPT 6: Line Break Handling Removal (CATASTROPHIC)
+
+**Theory**: Manual line break processing conflicts with LaTeX rendering
+
+**Implementation**:
+```javascript
+// REMOVED: const textWithBreaks = text.replace(/\n/g, '  \n');
+// Direct processing: processedHtml = this.markdownRenderer.parse(text);
+```
+
+**Results**:
+- ✗ **Total line break failure**: All text runs together in single lines
+- ✗ LaTeX still renders as plain text
+- ✗ Markdown paragraphs collapse into single blocks
+- **REVERTED**: This broke basic text formatting entirely
+
+## TECHNICAL ROOT CAUSE ANALYSIS
+
+### The Fundamental Conflict
+
+**Issue 1: marked.js `breaks: true` Incompatibility**
+- `breaks: true` is required for proper line break handling in chat messages
+- `breaks: true` injects `<br>` tags into LaTeX expressions BEFORE the KaTeX extension processes them
+- This breaks block LaTeX: `$$\nlatex\n$$` becomes `$$<br>latex<br>$$`
+
+**Issue 2: Manual Line Break Processing Interference**
+- To avoid `breaks: true`, we implemented manual replacement: `text.replace(/\n/g, '  \n')`
+- This happens AFTER KaTeX extension has processed and generated HTML
+- The replacement corrupts the KaTeX HTML structure, fragmenting math expressions
+
+**Issue 3: Processing Pipeline Order**
+```
+Input Text → Manual Line Breaks → marked.parse() → KaTeX Extension → HTML Output → Line Break Corruption
+```
+
+The line break processing happens at the WRONG stage - it should happen BEFORE markdown processing, but it needs to avoid LaTeX expressions.
+
+### Browser Console Evidence
+
+**Expected behavior test**:
+```javascript
+// Direct KaTeX test (works)
+katex.renderToString("x = \\frac{a}{b}", {displayMode: true});
+// Returns: "<span class="katex-display">...</span>"
+
+// marked-katex test (fails)
+marked.parse("$$x = \\frac{a}{b}$$");
+// Returns: "<p>$$x = \frac{a}{b}$$</p>" (raw LaTeX)
+```
+
+**Extension detection**:
+```javascript
+console.log('markedKatex found, configuring...');
+// ✓ Extension loads successfully
+
+console.log('markedKatex extension loaded');
+// ✓ Configuration completes without errors
+```
+
+**Runtime state**:
+```javascript
+typeof window.markedKatex: "function"  // ✓ Available
+typeof katex: "object"                 // ✓ Available  
+marked._extensions                      // ✓ Shows markedKatex in extensions array
+```
+
+## WHY EVERY APPROACH FAILED
+
+### marked-katex-extension Fundamental Issues
+
+1. **Extension doesn't activate**: Despite successful loading and configuration, the extension fails to process LaTeX expressions during `marked.parse()`
+
+2. **Delimiter recognition failure**: Even with explicit delimiter configuration, the extension doesn't recognize `$$`, `\[`, or other LaTeX markers
+
+3. **Processing order conflicts**: The extension runs during markdown parsing, but line break handling happens both before and after, corrupting the output
+
+### Alternative Approaches Considered but Not Implemented
+
+1. **KaTeX auto-render**: Would require post-processing DOM after innerHTML assignment
+2. **Custom markdown renderer**: Would require reimplementing entire markdown parsing
+3. **MathJax**: Different library, but same fundamental processing pipeline issues
+4. **Server-side LaTeX rendering**: Would require backend modifications
+
+## CURRENT CODE STATE
+
+**Reverted to working baseline**: 
+- Basic markdown functionality preserved
+- Manual line break handling: `text.replace(/\n/g, '  \n')`
+- No LaTeX processing attempted
+- All LaTeX-specific code removed or commented out
+
+**Why this baseline works**:
+```javascript
+// Simple, reliable pipeline
+if (this.markdownRenderer) {
+  const textWithBreaks = text.replace(/\n/g, '  \n');
+  processedHtml = this.markdownRenderer.parse(textWithBreaks);
+} else {
+  processedHtml = this.escapeHtml(text);
+}
+```
+
+## EVIDENCE FOR GPT
+
+### Screenshot Analysis
+Latest screenshot shows LaTeX rendered as **plain text**: 
+- `x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}` appears as raw LaTeX string
+- No mathematical formatting
+- Line breaks working correctly for non-LaTeX content
+- ACTUALLY I REVERTED IT SO IT RENDERS BROKEN UP
+
+### Console Logs
+```
+markedKatex found, configuring...
+markedKatex extension loaded with explicit delimiters
+Markdown renderer configured for LaTeX compatibility  
+DOMPurify sanitizer configured for KaTeX
+```
+All initialization succeeds, but LaTeX processing fails.
+
+### Technical Specifications for GPT
+
+**Required Constraints**:
+1. Must preserve existing markdown functionality (bold, italic, code blocks, links)
+2. Must handle line breaks properly in chat messages (current: `\n` → `'  \n'`)
+3. Must work with existing DOMPurify sanitization pipeline
+4. Must integrate with current message rendering architecture (`renderTextMessage`, `renderSimpleTextMessage`, `renderMarkdownText`)
+5. Must support both inline (`$...$`, `\(...\)`) and display (`$$...$$`, `\[...\]`) LaTeX
+
+**Architecture Constraints**:
+- Frontend-only solution (no backend modifications)
+  WAIT NO --- IF BACKEND WOULD HELP YOU CAN USE IT!
+- Class-based ES6 architecture in `MessageHandler`
+- DOM manipulation via `innerHTML` assignment
+- Existing CDN library versions must be preserved
+
+**Success Criteria**:
+- Inline LaTeX: `$x^2$` renders as mathematical notation
+- Display LaTeX: `$$\frac{a}{b}$$` renders as centered mathematical display
+- Mixed content: Markdown with embedded LaTeX expressions
+- Line breaks: Preserved in non-LaTeX content
+- Security: No XSS vulnerabilities through math expressions
+
+
+Take the above description with a grain of salt, AI hallucinated some of it. But here's the logs:
+
+
+                
+          
+          
+          
+         Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.
+portal:21 After marked-katex-extension script:
+portal:22 - typeof markedKatex: function
+portal:23 - typeof markedKatexExtension: undefined
+portal:24 - window.markedKatex: ƒ index(options = {}) {
+    return {
+      extensions: [
+        inlineKatex(options, createRenderer(options, false)),
+        blockKatex(options, createRenderer(options, true)),
+      ],
+    };
+  }
+portal:25 - typeof katex: object
+tokenCounterClient.js:271 🔢 Token Counter Client loaded
+portalInit.js:961 GPTPortal Enhanced Frontend initialized
+portal:604 📋 GPTPortal Enhanced Frontend loading complete
+tokenCounterClient.js:35 
+            
+            
+           GET http://localhost:3018/node_modules/tiktoken/tiktoken.js net::ERR_ABORTED 404 (Not Found)
+_loadTiktoken @ tokenCounterClient.js:35
+init @ tokenCounterClient.js:24
+TokenCounterClient @ tokenCounterClient.js:12
+(anonymous) @ tokenCounterClient.js:260
+app.js:797 DOM loaded, initializing GPTPortal Enhanced...
+app.js:15 Initializing Enhanced GPTPortal Application...
+app.js:48 Initializing model configuration...
+portalInit.js:941 DOM loaded, initializing GPTPortal Enhanced...
+portalInit.js:36 Initializing GPTPortal Enhanced System...
+portalInit.js:40 Modular system loaded successfully
+portalInit.js:74 Initializing legacy compatibility functions...
+portalInit.js:100 Registered 13 legacy functions
+portalInit.js:417 Setting up enhanced features...
+portalInit.js:434 Enhanced features setup completed
+portalInit.js:60 Portal initialization completed successfully
+portal:382 🎯 GPTPortal Enhanced System Starting...
+portal:442 ✓ All required modules available
+portalInit.js:18 Portal already initialized
+portal:397 🎉 GPTPortal Enhanced System ready in 0ms
+tokenCounterClient.js:43 Tiktoken not available in browser, using fallback estimation: TypeError: Failed to fetch dynamically imported module: http://localhost:3018/node_modules/tiktoken/tiktoken.js
+_loadTiktoken @ tokenCounterClient.js:43
+await in _loadTiktoken
+init @ tokenCounterClient.js:24
+TokenCounterClient @ tokenCounterClient.js:12
+(anonymous) @ tokenCounterClient.js:260
+portal:581 Long task detected: 76ms
+(anonymous) @ portal:581
+(anonymous) @ portal:579
+portal:581 Long task detected: 124ms
+(anonymous) @ portal:581
+(anonymous) @ portal:579
+portal:581 Long task detected: 51ms
+(anonymous) @ portal:581
+(anonymous) @ portal:579
+modelConfig.js:43 Base URL set to: http://localhost:3018
+modelConfig.js:43 Base URL set to: http://localhost:3018
+contentscript-webapp.js:1 [tick extension] script execute
+contentscript-webapp.js:1 [tick extension] init update
+dynamicModelManager.js:36 Initializing Enhanced Dynamic Model Manager...
+dynamicModelManager.js:68 Initializing specialized managers...
+dynamicModelManager.js:73 Search manager created
+dynamicModelManager.js:81 UI manager created
+dynamicModelManager.js:132 Loading complete model list...
+modelConfig.js:26 Dynamic model system enabled
+dynamicModelManager.js:8 DynamicModelManager instance already exists, returning existing instance
+modelConfig.js:26 Dynamic model system enabled
+app.js:66 Model configuration initialized
+app.js:70 Initializing dynamic model manager...
+dynamicModelManager.js:8 DynamicModelManager instance already exists, returning existing instance
+app.js:80 Dynamic model manager initialized
+app.js:87 Initializing chat manager...
+chatManager.js:49 ChatManager.setupMarkdown: Skipping - MessageHandler handles markdown setup
+messageHandler.js:34 Message handler initialized
+chatManager.js:823 ✓ MessageHandler initialized
+contextTracker.js:31 Context tracker initialized
+chatManager.js:842 Context tracker initialized
+app.js:91 Chat manager initialized
+app.js:103 Initializing UI manager...
+app.js:107 UI manager initialized
+app.js:763 Setting up prompt cache controls...
+app.js:791 Prompt cache controls initialized
+app.js:731 🔧 fixModelSelector() called
+app.js:737 🔧 Before fixModelSelector - display: none
+app.js:757 🔧 After fixModelSelector - display set to none
+app.js:758 🔧 After fixModelSelector - computed display: none
+app.js:33 GPTPortal Enhanced Application initialized successfully
+app.js:315 Temperature updated: 1
+app.js:546 GPTPortal is ready!
+messageHandler.js:41 === setupMarkdown called ===
+messageHandler.js:48 markedKatex found, configuring...
+messageHandler.js:53 markedKatex extension loaded
+messageHandler.js:70 Markdown renderer configured for LaTeX compatibility
+messageHandler.js:88 DOMPurify sanitizer configured for KaTeX
+favicon.ico:1 
+            
+            
+           GET http://localhost:3018/favicon.ico 404 (Not Found)
+dynamicModelManager.js:231 Model data processed successfully
+dynamicModelManager.js:143 Loaded 49 models from JSON file
+dynamicModelManager.js:91 Initializing managers with model data...
+modelSearch.js:35 Binding search input events
+modelSearch.js:43 Binding OpenRouter toggle events
+modelSearch.js:25 Model search manager initialized
+modelUI.js:213 Populating model selector with 49 models
+modelUI.js:234 Created 9 category sections
+modelSearch.js:409 Loaded search preferences: {showOpenRouter: false}
+modelUI.js:849 Loaded UI preferences: {}
+modelUI.js:56 Model UI events bound successfully
+modelUI.js:192 Dropdown styling configured
+modelUI.js:28 Model UI manager initialized
+dynamicModelManager.js:102 Managers initialized with data
+modelUI.js:213 Populating model selector with 49 models
+modelUI.js:234 Created 9 category sections
+dynamicModelManager.js:51 Enhanced Dynamic Model Manager initialized successfully
+modelUI.js:156 Dropdown hidden
+chatManager.js:465 === ChatManager.displayMessage called ===
+chatManager.js:466 Parameters: {message: 'hi there! im trying to test the latex rendering on...', type: 'user', shouldReadAloud: false}
+chatManager.js:471 this.messageHandler exists? true
+chatManager.js:472 this.messageHandler value: MessageHandler {messageCounter: 0, conversationHistory: Array(0), markdownRenderer: {…}, latexPlaceholders: Map(0), sanitizer: ƒ, …}
+chatManager.js:473 this.messageHandler type: object
+chatManager.js:475 this.messageHandler has displayMessage? true
+chatManager.js:476 this.messageHandler methods: (36) ['constructor', 'init', 'setupMarkdown', 'setupEventHandlers', 'handleCopyClick', 'extractLatex', 'restoreAndRenderLatex', 'processTextWithLatex', 'showCopyFeedback', 'displayMessage', 'renderImageMessage', 'renderErrorMessage', 'renderSystemMessage', 'renderTextMessage', 'renderMessageWithCodeBlocks', 'renderCodeBlock', 'renderMarkdownText', 'renderSimpleTextMessage', 'createCopyButton', 'createButton', 'appendToChat', 'addToHistory', 'getConversationHistory', 'clearHistory', 'clearChat', 'copyToClipboard', 'fallbackCopyToClipboard', 'downloadImage', 'formatTimestamp', 'getMessageById', 'updateMessage', 'removeMessage', 'exportAsText', 'exportAsJSON', 'escapeHtml', 'cleanup']
+chatManager.js:478 === End debug info ===
+chatManager.js:376 Sending to: /message {message: 'hi there! im trying to test the latex rendering on… so i can see if they all render properly. thanks', modelID: 'claude-3-5-sonnet-latest', instructions: "# Instructions\n\n## Role\n\n**You are an advanced *La…ontext.\n\n*The User's first message begins here:*\n", image: null, file: null, …}
+modelUI.js:156 Dropdown hidden
+modelUI.js:156 Dropdown hidden
+modelUI.js:156 Dropdown hidden
+modelUI.js:156 Dropdown hidden
+modelUI.js:156 Dropdown hidden
+chatManager.js:390 Response data: {text: "I'll help you test LaTeX rendering with a simple q… a more complex equation to verify the rendering.", usage: {…}}
+chatManager.js:391 Endpoint: /message
+chatManager.js:403 Extracted message content: I'll help you test LaTeX rendering with a simple quadratic formula equation. I'll show it in different display styles:
+
+1. In a code block (raw LaTeX):
+```latex
+x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+```
+
+2. Inline LaTeX style (usually wrapped with single $):
+$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$
+
+3. Display/Block LaTeX style (usually wrapped with double $$):
+$$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
+
+4. Alternative display style using \[ \]:
+\[x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}\]
+
+5. Equation environment style:
+\begin{equation}
+x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+\end{equation}
+
+This should help you test if all common LaTeX display modes are rendering correctly in your UI. Let me know if you'd like to test any other LaTeX features or if you need a more complex equation to verify the rendering.
+chatManager.js:465 === ChatManager.displayMessage called ===
+chatManager.js:466 Parameters: {message: "I'll help you test LaTeX rendering with a simple q...", type: 'response', shouldReadAloud: false}
+chatManager.js:471 this.messageHandler exists? true
+chatManager.js:472 this.messageHandler value: MessageHandler {messageCounter: 1, conversationHistory: Array(1), markdownRenderer: {…}, latexPlaceholders: Map(0), sanitizer: ƒ, …}
+chatManager.js:473 this.messageHandler type: object
+chatManager.js:475 this.messageHandler has displayMessage? true
+chatManager.js:476 this.messageHandler methods: (36) ['constructor', 'init', 'setupMarkdown', 'setupEventHandlers', 'handleCopyClick', 'extractLatex', 'restoreAndRenderLatex', 'processTextWithLatex', 'showCopyFeedback', 'displayMessage', 'renderImageMessage', 'renderErrorMessage', 'renderSystemMessage', 'renderTextMessage', 'renderMessageWithCodeBlocks', 'renderCodeBlock', 'renderMarkdownText', 'renderSimpleTextMessage', 'createCopyButton', 'createButton', 'appendToChat', 'addToHistory', 'getConversationHistory', 'clearHistory', 'clearChat', 'copyToClipboard', 'fallbackCopyToClipboard', 'downloadImage', 'formatTimestamp', 'getMessageById', 'updateMessage', 'removeMessage', 'exportAsText', 'exportAsJSON', 'escapeHtml', 'cleanup']0: "constructor"1: "init"2: "setupMarkdown"3: "setupEventHandlers"4: "handleCopyClick"5: "extractLatex"6: "restoreAndRenderLatex"7: "processTextWithLatex"8: "showCopyFeedback"9: "displayMessage"10: "renderImageMessage"11: "renderErrorMessage"12: "renderSystemMessage"13: "renderTextMessage"14: "renderMessageWithCodeBlocks"15: "renderCodeBlock"16: "renderMarkdownText"17: "renderSimpleTextMessage"18: "createCopyButton"19: "createButton"20: "appendToChat"21: "addToHistory"22: "getConversationHistory"23: "clearHistory"24: "clearChat"25: "copyToClipboard"26: "fallbackCopyToClipboard"27: "downloadImage"28: "formatTimestamp"29: "getMessageById"30: "updateMessage"31: "removeMessage"32: "exportAsText"33: "exportAsJSON"34: "escapeHtml"35: "cleanup"length: 36[[Prototype]]: Array(0)
+chatManager.js:478 === End debug info ===
+portal:581 Long task detected: 71ms
+(anonymous) @ portal:581
+(anonymous) @ portal:579
+modelUI.js:156 Dropdown hidden
+modelUI.js:156 Dropdown hidden
+
+
+
+This is the code:
+
+
+```js
+// Message Handling Module
+// Manages message display, rendering, and interactions
+
+class MessageHandler {
+  constructor() {
+    this.messageCounter = 0;
+    this.conversationHistory = [];
+    this.markdownRenderer = null;
+    this.sanitizer = null;
+    this.latexPlaceholders = new Map();
+    this.placeholderPrefix = '__LATEX_PLACEHOLDER_';
+    this.placeholderCounter = 0;
+    
+    this.init();
+  }
+
+  /**
+   * Initialize message handler
+   */
+  init() {
+    // Delay markdown setup to ensure all scripts are loaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        this.setupMarkdown();
+      });
+    } else {
+      // DOM is already loaded, but wait a tick for scripts to initialize
+      setTimeout(() => {
+        this.setupMarkdown();
+      }, 0);
+    }
+    
+    this.setupEventHandlers();
+    console.log('Message handler initialized');
+  }
+
+  /**
+   * Setup markdown rendering
+   */
+  setupMarkdown() {
+    console.log('=== setupMarkdown called ===');
+    
+    if (typeof marked !== 'undefined') {
+      this.markdownRenderer = marked;
+      
+      // Check if markedKatex is available and use it
+      if (typeof window.markedKatex !== 'undefined') {
+        console.log('markedKatex found, configuring...');
+        marked.use(window.markedKatex({
+          throwOnError: false,
+          output: 'html' // Use HTML output for better compatibility
+        }));
+        console.log('markedKatex extension loaded');
+      }
+      
+      // Basic markdown configuration WITHOUT breaks: true to avoid LaTeX interference
+      marked.setOptions({
+        // DO NOT use breaks: true - it interferes with LaTeX
+        breaks: false,
+        gfm: true,
+        highlight: function(code, lang) {
+          if (typeof hljs !== 'undefined') {
+            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+            return hljs.highlight(code, { language }).value;
+          }
+          return code;
+        }
+      });
+      
+      console.log('Markdown renderer configured for LaTeX compatibility');
+    } else {
+      console.warn('Marked.js not available - markdown rendering disabled');
+    }
+
+    if (typeof DOMPurify !== 'undefined') {
+      this.sanitizer = DOMPurify;
+      // Configure DOMPurify to allow KaTeX elements
+      this.sanitizer.addHook('afterSanitizeAttributes', (node) => {
+        // Allow KaTeX classes
+        if (node.hasAttribute('class')) {
+          const classes = node.getAttribute('class');
+          if (classes && classes.includes('katex')) {
+            // Keep KaTeX classes
+            return;
+          }
+        }
+      });
+      console.log('DOMPurify sanitizer configured for KaTeX');
+    } else {
+      console.warn('DOMPurify not available - HTML sanitization disabled');
+    }
+  }
+
+
+  /**
+   * Setup event handlers
+   */
+  setupEventHandlers() {
+    // Listen for copy button clicks
+    document.addEventListener('click', (e) => {
+      if (e.target.matches('.copy-btn, .copy-code-btn')) {
+        this.handleCopyClick(e);
+      }
+    });
+  }
+
+  /**
+   * Handle copy button clicks
+   * @param {Event} event - Click event
+   */
+  handleCopyClick(event) {
+    const button = event.target;
+    const textToCopy = button.dataset.copyText || button.previousElementSibling?.textContent;
+    
+    if (textToCopy) {
+      this.copyToClipboard(textToCopy);
+      this.showCopyFeedback(button);
+    }
+  }
+
+  /**
+   * Extract LaTeX expressions and replace with placeholders
+   * @param {string} text - Text containing LaTeX
+   * @returns {string} Text with placeholders
+   */
+  extractLatex(text) {
+    this.latexPlaceholders.clear();
+    this.placeholderCounter = 0;
+
+    // Define LaTeX patterns with proper regex
+    const patterns = [
+      // Display math with $$...$$ (multiline support)
+      { regex: /\$\$([\s\S]*?)\$\$/g, display: true },
+      // Display math with \[...\] (multiline support)
+      { regex: /\\\[([\s\S]*?)\\\]/g, display: true },
+      // Display math with \begin{equation}...\end{equation}
+      { regex: /\\begin\{equation\}([\s\S]*?)\\end\{equation\}/g, display: true },
+      // Display math with \begin{align}...\end{align}
+      { regex: /\\begin\{align\}([\s\S]*?)\\end\{align\}/g, display: true },
+      // Inline math with $...$ (single line)
+      { regex: /(?<!\$)\$(?!\$)([^\$\n]+?)\$(?!\$)/g, display: false },
+      // Inline math with \(...\) (single line)
+      { regex: /\\\(([^\)]+?)\\\)/g, display: false }
+    ];
+
+    let processedText = text;
+
+    // Process each pattern
+    patterns.forEach(({ regex, display }) => {
+      processedText = processedText.replace(regex, (match, latex) => {
+        const placeholder = `${this.placeholderPrefix}${this.placeholderCounter++}__`;
+        this.latexPlaceholders.set(placeholder, { latex: latex.trim(), display, original: match });
+        return placeholder;
+      });
+    });
+
+    return processedText;
+  }
+
+  /**
+   * Restore LaTeX expressions and render with KaTeX
+   * @param {string} html - HTML with placeholders
+   * @returns {string} HTML with rendered LaTeX
+   */
+  restoreAndRenderLatex(html) {
+    let processedHtml = html;
+
+    // Replace placeholders with rendered LaTeX
+    this.latexPlaceholders.forEach((data, placeholder) => {
+      const { latex, display, original } = data;
+      
+      try {
+        if (typeof katex !== 'undefined') {
+          const rendered = katex.renderToString(latex, {
+            throwOnError: false,
+            displayMode: display,
+            trust: false,
+            strict: 'warn',
+            output: 'htmlAndMathml' // For accessibility
+          });
+          processedHtml = processedHtml.replace(placeholder, rendered);
+        } else {
+          // Fallback: restore original if KaTeX not available
+          console.warn('KaTeX not available, restoring original LaTeX');
+          processedHtml = processedHtml.replace(placeholder, original);
+        }
+      } catch (error) {
+        console.error('KaTeX rendering error:', error);
+        // On error, show the LaTeX source in a styled span
+        const errorHtml = `<span class="katex-error" style="color: #cc0000; font-family: monospace;">${this.escapeHtml(original)}</span>`;
+        processedHtml = processedHtml.replace(placeholder, errorHtml);
+      }
+    });
+
+    return processedHtml;
+  }
+
+  /**
+   * Process text with LaTeX and markdown
+   * @param {string} text - Raw text
+   * @returns {string} Processed HTML
+   */
+  processTextWithLatex(text) {
+    // Step 1: Extract LaTeX expressions
+    const textWithPlaceholders = this.extractLatex(text);
+    
+    // Step 2: Process line breaks manually (since we can't use breaks: true)
+    const textWithBreaks = textWithPlaceholders.replace(/\n/g, '  \n'); // Two spaces before newline for markdown line breaks
+    
+    // Step 3: Process markdown
+    let html = '';
+    if (this.markdownRenderer) {
+      html = this.markdownRenderer.parse(textWithBreaks);
+    } else {
+      html = this.escapeHtml(textWithBreaks).replace(/\n/g, '<br>');
+    }
+    
+    // Step 4: Restore and render LaTeX
+    html = this.restoreAndRenderLatex(html);
+    
+    // Step 5: Sanitize HTML (KaTeX output should survive)
+    if (this.sanitizer) {
+      html = this.sanitizer.sanitize(html, {
+        ADD_TAGS: ['span', 'math', 'semantics', 'mrow', 'mi', 'mo', 'mn', 'msup', 'msub', 'mfrac', 'mroot', 'msqrt', 'mtext', 'annotation'],
+        ADD_ATTR: ['class', 'style', 'encoding']
+      });
+    }
+    
+    return html;
+  }
+
+  /**
+   * Show copy feedback on button
+   * @param {HTMLElement} button - Copy button
+   */
+  showCopyFeedback(button) {
+    const originalText = button.textContent;
+    button.textContent = 'Copied!';
+    button.style.backgroundColor = '#4CAF50';
+    
+    setTimeout(() => {
+      button.textContent = originalText;
+      button.style.backgroundColor = '';
+    }, 1500);
+  }
+
+  /**
+   * Display a message in the chat
+   * @param {string} message - Message content
+   * @param {string} type - Message type ('user', 'response', 'error', 'system')
+   * @param {boolean} shouldReadAloud - Whether to read message aloud
+   * @returns {HTMLElement} Created message element
+   */
+  displayMessage(message, type, shouldReadAloud = false) {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message', type);
+    messageElement.dataset.messageId = `msg-${this.messageCounter++}`;
+    messageElement.dataset.timestamp = new Date().toISOString();
+
+    // Handle different message types
+    switch (type) {
+      case 'image':
+        this.renderImageMessage(messageElement, message);
+        break;
+      case 'error':
+        this.renderErrorMessage(messageElement, message);
+        break;
+      case 'system':
+        this.renderSystemMessage(messageElement, message);
+        break;
+      default:
+        this.renderTextMessage(messageElement, message);
+        break;
+    }
+
+    // Add message to chat box
+    this.appendToChat(messageElement);
+
+    // Add to conversation history
+    if (type !== 'error' && type !== 'system') {
+      this.addToHistory(type === 'user' ? 'user' : 'assistant', message);
+    }
+
+    // Voice feedback
+    if (type === 'response' && shouldReadAloud && window.callTTSAPI) {
+      window.callTTSAPI(message);
+    }
+
+    return messageElement;
+  }
+
+  /**
+   * Render image message
+   * @param {HTMLElement} element - Message element
+   * @param {string} imageSrc - Image source URL
+   */
+  renderImageMessage(element, imageSrc) {
+    const imageElement = document.createElement('img');
+    imageElement.src = imageSrc;
+    imageElement.alt = "Generated Image";
+    imageElement.classList.add('generated-image');
+    imageElement.style.cssText = 'max-width: 100%; height: auto; border-radius: 8px;';
+    
+    element.appendChild(imageElement);
+    
+    // Add download button
+    const downloadBtn = this.createButton('Download', () => {
+      this.downloadImage(imageSrc);
+    });
+    downloadBtn.style.marginTop = '10px';
+    element.appendChild(downloadBtn);
+  }
+
+  /**
+   * Render error message
+   * @param {HTMLElement} element - Message element
+   * @param {string} message - Error message
+   */
+  renderErrorMessage(element, message) {
+    element.style.color = '#e66767';
+    element.style.backgroundColor = '#2a1f1f';
+    element.style.border = '1px solid #e66767';
+    element.style.borderRadius = '8px';
+    element.style.padding = '12px';
+    
+    const icon = document.createElement('span');
+    icon.textContent = '⚠️ ';
+    icon.style.marginRight = '8px';
+    
+    const text = document.createElement('span');
+    text.textContent = message;
+    
+    element.appendChild(icon);
+    element.appendChild(text);
+  }
+
+  /**
+   * Render system message
+   * @param {HTMLElement} element - Message element
+   * @param {string} message - System message
+   */
+  renderSystemMessage(element, message) {
+    element.style.color = '#888';
+    element.style.backgroundColor = '#1a1a1a';
+    element.style.border = '1px solid #333';
+    element.style.borderRadius = '8px';
+    element.style.padding = '8px 12px';
+    element.style.fontStyle = 'italic';
+    element.style.fontSize = '14px';
+    
+    const icon = document.createElement('span');
+    icon.textContent = 'ℹ️ ';
+    icon.style.marginRight = '6px';
+    
+    const text = document.createElement('span');
+    text.textContent = message;
+    
+    element.appendChild(icon);
+    element.appendChild(text);
+  }
+
+  /**
+   * Render text message with markdown and code blocks
+   * @param {HTMLElement} element - Message element
+   * @param {string} message - Message content
+   */
+  renderTextMessage(element, message) {
+    
+    if (message.includes('```')) {
+      this.renderMessageWithCodeBlocks(element, message);
+    } else {
+      this.renderSimpleTextMessage(element, message);
+    }
+
+    // Add main copy button
+    const copyButton = this.createCopyButton(message);
+    element.appendChild(copyButton);
+  }
+
+  /**
+   * Render message with code blocks
+   * @param {HTMLElement} element - Message element
+   * @param {string} message - Message with code blocks
+   */
+  renderMessageWithCodeBlocks(element, message) {
+    
+    const parts = message.split(/(```[\s\S]+?```)/);
+    
+    parts.forEach(part => {
+      if (part.startsWith('```') && part.endsWith('```')) {
+        // Handle code blocks
+        this.renderCodeBlock(element, part);
+      } else {
+        // Handle regular text
+        this.renderMarkdownText(element, part);
+      }
+    });
+  }
+
+  /**
+   * Render code block
+   * @param {HTMLElement} parent - Parent element
+   * @param {string} codeBlock - Code block text
+   */
+  renderCodeBlock(parent, codeBlock) {
+    const codeContent = codeBlock.substring(3, codeBlock.length - 3);
+    const languageMatch = codeContent.match(/^[^\n]+/);
+    const language = languageMatch ? languageMatch[0].trim() : '';
+    const actualCode = codeContent.replace(/^[^\n]+/, '').trim();
+
+    // Create code container
+    const codeContainer = document.createElement('div');
+    codeContainer.className = 'code-block';
+    codeContainer.style.cssText = 'position: relative; margin: 10px 0; background-color: #1e1e1e; border-radius: 8px; overflow: hidden;';
+
+    // Add language label if present
+    if (language) {
+      const langLabel = document.createElement('div');
+      langLabel.className = 'code-language';
+      langLabel.textContent = language;
+      langLabel.style.cssText = 'background-color: #333; color: #888; padding: 6px 12px; font-size: 12px; border-bottom: 1px solid #444;';
+      codeContainer.appendChild(langLabel);
+    }
+
+    // Create pre/code elements
+    const pre = document.createElement('pre');
+    pre.style.cssText = 'margin: 0; padding: 16px; overflow-x: auto; background-color: transparent;';
+    
+    const codeElement = document.createElement('code');
+    codeElement.textContent = actualCode;
+    codeElement.className = language ? `language-${language}` : '';
+    
+    // Apply syntax highlighting if available
+    if (typeof hljs !== 'undefined' && language) {
+      try {
+        const highlighted = hljs.highlight(actualCode, { language: hljs.getLanguage(language) ? language : 'plaintext' });
+        codeElement.innerHTML = highlighted.value;
+      } catch (e) {
+        console.warn('Syntax highlighting failed:', e);
+      }
+    }
+    
+    pre.appendChild(codeElement);
+    codeContainer.appendChild(pre);
+
+    // Add copy code button
+    const copyCodeButton = this.createCopyButton(actualCode, 'Copy Code');
+    copyCodeButton.style.cssText = 'position: absolute; top: 8px; right: 8px; background-color: #444; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;';
+    copyCodeButton.addEventListener('mouseenter', () => {
+      copyCodeButton.style.backgroundColor = '#555';
+    });
+    copyCodeButton.addEventListener('mouseleave', () => {
+      copyCodeButton.style.backgroundColor = '#444';
+    });
+    
+    codeContainer.appendChild(copyCodeButton);
+    parent.appendChild(codeContainer);
+  }
+
+  /**
+   * Render markdown text with LaTeX support
+   * @param {HTMLElement} parent - Parent element
+   * @param {string} text - Text to render
+   */
+  renderMarkdownText(parent, text) {
+    const textSpan = document.createElement('div');
+    textSpan.className = 'message-text';
+    
+    let processedHtml = '';
+    
+    // Process with marked (which now includes LaTeX support via markedKatex)
+    if (this.markdownRenderer) {
+      // Add two spaces before newlines for proper line breaks
+      const textWithBreaks = text.replace(/\n/g, '  \n');
+      processedHtml = this.markdownRenderer.parse(textWithBreaks);
+    } else {
+      processedHtml = this.escapeHtml(text);
+    }
+    
+    // Sanitize HTML
+    if (this.sanitizer) {
+      const safeHtml = this.sanitizer.sanitize(processedHtml, {
+        ADD_TAGS: ['span', 'math', 'semantics', 'mrow', 'mi', 'mo', 'mn', 'msup', 'msub', 'mfrac', 'mroot', 'msqrt', 'mtext', 'annotation', 'annotation-xml'],
+        ADD_ATTR: ['class', 'style', 'encoding', 'mathvariant', 'display']
+      });
+      textSpan.innerHTML = safeHtml;
+    } else {
+      textSpan.innerHTML = processedHtml;
+    }
+    
+    parent.appendChild(textSpan);
+  }
+
+  /**
+   * Render simple text message with LaTeX support
+   * @param {HTMLElement} element - Message element
+   * @param {string} message - Message text
+   */
+  renderSimpleTextMessage(element, message) {
+    const messageText = document.createElement('div');
+    messageText.className = 'message-text';
+    
+    let processedHtml = '';
+    
+    // Process with marked (which now includes LaTeX support via markedKatex)
+    if (this.markdownRenderer) {
+      // Add two spaces before newlines for proper line breaks
+      const messageWithBreaks = message.replace(/\n/g, '  \n');
+      processedHtml = this.markdownRenderer.parse(messageWithBreaks);
+    } else {
+      processedHtml = this.escapeHtml(message);
+    }
+    
+    // Sanitize HTML
+    if (this.sanitizer) {
+      const safeHtml = this.sanitizer.sanitize(processedHtml, {
+        ADD_TAGS: ['span', 'math', 'semantics', 'mrow', 'mi', 'mo', 'mn', 'msup', 'msub', 'mfrac', 'mroot', 'msqrt', 'mtext', 'annotation', 'annotation-xml'],
+        ADD_ATTR: ['class', 'style', 'encoding', 'mathvariant', 'display']
+      });
+      messageText.innerHTML = safeHtml;
+    } else {
+      messageText.innerHTML = processedHtml;
+    }
+
+    element.appendChild(messageText);
+  }
+
+  /**
+   * Create copy button
+   * @param {string} textToCopy - Text to copy
+   * @param {string} buttonText - Button text
+   * @returns {HTMLElement} Copy button
+   */
+  createCopyButton(textToCopy, buttonText = 'Copy') {
+    const button = this.createButton(buttonText, () => {
+      this.copyToClipboard(textToCopy);
+      this.showCopyFeedback(button);
+    });
+    
+    button.className = 'copy-btn';
+    button.dataset.copyText = textToCopy;
+    
+    return button;
+  }
+
+  /**
+   * Create button element
+   * @param {string} text - Button text
+   * @param {Function} onClick - Click handler
+   * @returns {HTMLElement} Button element
+   */
+  createButton(text, onClick) {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.style.cssText = `
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      margin: 4px 4px 0 0;
+      transition: background-color 0.2s;
+    `;
+    
+    button.addEventListener('click', onClick);
+    
+    button.addEventListener('mouseenter', () => {
+      button.style.backgroundColor = '#45a049';
+    });
+    
+    button.addEventListener('mouseleave', () => {
+      button.style.backgroundColor = '#4CAF50';
+    });
+    
+    return button;
+  }
+
+  /**
+   * Append message to chat box
+   * @param {HTMLElement} messageElement - Message element to append
+   */
+  appendToChat(messageElement) {
+    const chatBox = document.getElementById('chat-box');
+    if (chatBox) {
+      chatBox.appendChild(messageElement);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      
+      // Add entrance animation
+      messageElement.style.opacity = '0';
+      messageElement.style.transform = 'translateY(20px)';
+      
+      requestAnimationFrame(() => {
+        messageElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        messageElement.style.opacity = '1';
+        messageElement.style.transform = 'translateY(0)';
+      });
+    }
+  }
+
+  /**
+   * Add message to conversation history
+   * @param {string} role - Role ('user' or 'assistant')
+   * @param {string} content - Message content
+   */
+  addToHistory(role, content) {
+    this.conversationHistory.push({
+      role: role,
+      content: content,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Limit history size to prevent memory issues
+    const maxHistorySize = 100;
+    if (this.conversationHistory.length > maxHistorySize) {
+      this.conversationHistory = this.conversationHistory.slice(-maxHistorySize);
+    }
+  }
+
+  /**
+   * Get conversation history
+   * @returns {Array} Conversation history
+   */
+  getConversationHistory() {
+    return [...this.conversationHistory];
+  }
+
+  /**
+   * Clear conversation history
+   */
+  clearHistory() {
+    this.conversationHistory = [];
+    console.log('Conversation history cleared');
+  }
+
+  /**
+   * Clear chat display
+   */
+  clearChat() {
+    const chatBox = document.getElementById('chat-box');
+    if (chatBox) {
+      chatBox.innerHTML = '';
+    }
+    this.clearHistory();
+    this.messageCounter = 0;
+    console.log('Chat cleared');
+  }
+
+  /**
+   * Copy text to clipboard
+   * @param {string} text - Text to copy
+   */
+  copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      console.log('Text copied to clipboard!');
+    }).catch(err => {
+      console.error('Error copying text: ', err);
+      // Fallback for older browsers
+      this.fallbackCopyToClipboard(text);
+    });
+  }
+
+  /**
+   * Fallback copy method for older browsers
+   * @param {string} text - Text to copy
+   */
+  fallbackCopyToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+      document.execCommand('copy');
+      console.log('Text copied using fallback method');
+    } catch (err) {
+      console.error('Fallback copy failed:', err);
+    }
+    
+    document.body.removeChild(textArea);
+  }
+
+  /**
+   * Download image
+   * @param {string} imageSrc - Image source URL
+   */
+  downloadImage(imageSrc) {
+    const link = document.createElement('a');
+    link.href = imageSrc;
+    link.download = `generated-image-${Date.now()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  /**
+   * Format message timestamp
+   * @param {string} timestamp - ISO timestamp
+   * @returns {string} Formatted timestamp
+   */
+  formatTimestamp(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  /**
+   * Get message by ID
+   * @param {string} messageId - Message ID
+   * @returns {HTMLElement|null} Message element or null
+   */
+  getMessageById(messageId) {
+    return document.querySelector(`[data-message-id="${messageId}"]`);
+  }
+
+  /**
+   * Update message content with LaTeX support
+   * @param {string} messageId - Message ID
+   * @param {string} newContent - New content
+   */
+  updateMessage(messageId, newContent) {
+    const messageElement = this.getMessageById(messageId);
+    if (messageElement) {
+      const textElement = messageElement.querySelector('.message-text');
+      if (textElement) {
+        let processedHtml = '';
+        
+        // Process with marked (which now includes LaTeX support via markedKatex)
+        if (this.markdownRenderer) {
+          // Add two spaces before newlines for proper line breaks
+          const contentWithBreaks = newContent.replace(/\n/g, '  \n');
+          processedHtml = this.markdownRenderer.parse(contentWithBreaks);
+        } else {
+          processedHtml = this.escapeHtml(newContent);
+        }
+        
+        // Sanitize HTML
+        if (this.sanitizer) {
+          const safeHtml = this.sanitizer.sanitize(processedHtml, {
+            ADD_TAGS: ['span', 'math', 'semantics', 'mrow', 'mi', 'mo', 'mn', 'msup', 'msub', 'mfrac', 'mroot', 'msqrt', 'mtext', 'annotation', 'annotation-xml'],
+            ADD_ATTR: ['class', 'style', 'encoding', 'mathvariant', 'display']
+          });
+          textElement.innerHTML = safeHtml;
+        } else {
+          textElement.innerHTML = processedHtml;
+        }
+      }
+    }
+  }
+
+  /**
+   * Remove message by ID
+   * @param {string} messageId - Message ID
+   */
+  removeMessage(messageId) {
+    const messageElement = this.getMessageById(messageId);
+    if (messageElement) {
+      messageElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      messageElement.style.opacity = '0';
+      messageElement.style.transform = 'translateX(-100%)';
+      
+      setTimeout(() => {
+        if (messageElement.parentNode) {
+          messageElement.parentNode.removeChild(messageElement);
+        }
+      }, 300);
+    }
+  }
+
+  /**
+   * Export conversation as text
+   * @returns {string} Conversation text
+   */
+  exportAsText() {
+    return this.conversationHistory.map(msg => {
+      const role = msg.role === 'user' ? 'You' : 'Assistant';
+      const timestamp = this.formatTimestamp(msg.timestamp);
+      return `[${timestamp}] ${role}: ${msg.content}`;
+    }).join('\n\n');
+  }
+
+  /**
+   * Export conversation as JSON
+   * @returns {string} Conversation JSON
+   */
+  exportAsJSON() {
+    return JSON.stringify({
+      conversation: this.conversationHistory,
+      exportedAt: new Date().toISOString(),
+      messageCount: this.conversationHistory.length
+    }, null, 2);
+  }
+
+  /**
+   * Show copy feedback
+   * @param {HTMLElement} button - Copy button element
+   */
+  showCopyFeedback(button) {
+    const originalText = button.textContent;
+    button.textContent = 'Copied!';
+    button.style.backgroundColor = '#45a049';
+    
+    setTimeout(() => {
+      button.textContent = originalText;
+      button.style.backgroundColor = '#4CAF50';
+    }, 1500);
+  }
+
+  /**
+   * Escape HTML special characters
+   * @param {string} text - Text to escape
+   * @returns {string} Escaped text
+   */
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  /**
+   * Cleanup message handler
+   */
+  cleanup() {
+    this.clearChat();
+    this.markdownRenderer = null;
+    this.sanitizer = null;
+    console.log('Message handler cleaned up');
+  }
+}
+
+// Export for use in other modules
+window.MessageHandler = MessageHandler;
+```
+
+
+Thinking very deeply step by step, please debug this latex implementation and determine what is wrong, as well as how to fix it.
+
+Assistant: 
+# Thinking:
+**Configuring KaTeX Properly**
+
+I'm focusing on registering the KaTeX plugin correctly and ensuring options are set up properly. It’s essential not to manually tamper with line breaks inside KaTeX, to keep everything running smoothly. I also need to sanitize inputs and provide an appropriate configuration. There are some edge cases to consider, but I'm ready now to craft the final answer effectively! Let’s make sure everything is clear and error-free.
+
+---
+# Response:
+────────────────────────
+Root-cause in one sentence
+────────────────────────
+The KaTeX extension is never reached because you “erase” the extension list with `marked.setOptions( … )`, then the string mutilates every remaining math fragment with your global “add two spaces before every \n” replacement, so the lexer never sees a valid delimiter.
+
+────────────────────────
+Why it happens – step by step
+────────────────────────
+1. `marked.use( window.markedKatex( … ) )`  
+   • `marked.defaults.extensions` now contains the two KaTeX tokenisers  
+     (`block-katex`, `inline-katex`).
+
+2. `marked.setOptions({ breaks:false, gfm:true, highlight: …})` **afterwards**  
+   • Internally Marked does  
+     `marked.defaults = { …marked.defaults, …options }`  
+   • Because your `options` object has **no `extensions` key**, the spread
+     operation overwrites the previously populated value with `undefined`.  
+   • From now on `marked.defaults.extensions === undefined`, i.e. the KaTeX
+     tokenisers are gone.
+
+3. When you later call  
+   `marked.parse( " … $$x = \\frac{a}{b}$$ … " )`  
+   the lexer no longer owns a rule that recognises
+   `$ … $`, `$$ … $$`, `\[…\]`, … → the whole string is emitted as an
+   ordinary paragraph, so the browser shows raw LaTeX.
+
+4. On top of that, every message string is run through  
+
+      text.replace(/\n/g,'  \n');
+
+   **before** it reaches Marked.  
+   This injects two literal spaces in front of *every* newline, including the
+   ones that lie inside display math.  
+   If by chance a KaTeX rule survived (e.g. after you changed the order
+   during your tests) the added spaces would still corrupt the `$$\n…\n$$`
+   layout that KaTeX expects.
+
+────────────────────────
+The minimal fix
+────────────────────────
+A. Register your general options **before** (or together with) the KaTeX
+   extension so they do **not** overwrite `extensions`.
+
+```javascript
+// 1 ─ general options FIRST
+marked.setOptions({
+  gfm:   true,
+  breaks:false,          // we’ll handle line breaks with CSS, see below
+  highlight(code, lang) {
+    return typeof hljs !== 'undefined'
+           ? hljs.highlight(code,{language:hljs.getLanguage(lang)||'plaintext'}).value
+           : code;
+  }
+});
+
+// 2 ─ THEN add KaTeX
+if (window.markedKatex) {
+  marked.use( window.markedKatex({
+    throwOnError : false,
+    output       : 'html',           // html or htmlAndMathml
+    delimiters   : [                 // optional – defaults are already OK
+      {left:'$$', right:'$$', display:true},
+      {left:'\\[', right:'\\]', display:true},
+      {left:'$',  right:'$',  display:false},
+      {left:'\\(',right:'\\)',display:false}
+    ]
+  }));
+}
+this.markdownRenderer = marked;
+```
+
+B. **Stop touching every newline**.  
+   The simplest, completely safe alternative is a CSS rule:
+
+```css
+.message-text { white-space: pre-wrap; }
+```
+
+   Because the browser itself turns a raw line-feed into a visible break,
+   you no longer need the fragile
+
+```javascript
+text.replace(/\n/g, '  \n');
+```
+
+   Remove that line everywhere you added it.
+
+That’s literally all that is necessary – KaTeX will now render in both inline
+and display mode, Markdown keeps working, and ordinary text retains its
+line-breaks via CSS.
+
+────────────────────────
+Optional clean-ups (recommended)
+────────────────────────
+1. Delete the whole `extractLatex / restoreAndRenderLatex` placeholder code
+   tree.  It was only introduced to work around the breakage caused by the
+   two problems above and is no longer needed (Marked + marked-katex +
+   DOMPurify already handle everything).
+
+2. If you want single line-feeds to become `<br>` *outside* of math but keep
+   CSS based breaks inside math, you can let Marked do it for you:
+
+   • `breaks:true` in `setOptions`  
+   • **But** wrap the lexer call with a simple pre-processor that strips
+     all line-feeds that are inside recognised math delimiters.  A
+     five-line state-machine does the trick; details omitted for brevity
+     because the CSS solution above is usually good enough.
+
+3. Sanitisation  
+   DOMPurify needs only one extra tag and two attributes for KaTeX:
+
+```javascript
+DOMPurify.setConfig({
+  ADD_TAGS : ['math'],
+  ADD_ATTR : ['data-mathml', 'aria-label']
+});
+```
+
+   KaTeX already emits plain `<span class="katex">…</span>` containers that
+   Pass the default allow-list; the huge custom lists you tried are
+   overkill.
+
+────────────────────────
+Quick smoke-test
+────────────────────────
+After the two-line change and the CSS rule, open the console:
+
+```js
+marked.parse('Inline $e^{i\\pi}+1=0$ is famous.');
+```
+
+→ “… Inline <span class="katex">…</span> is famous.”
+
+```js
+marked.parse('$$\\int_0^\\infty e^{-x^2}\\,dx = \\frac{\\sqrt\\pi}{2}$$');
+```
+
+→ Returns a `<div class="katex-display">…</div>` block.
+
+────────────────────────
+Result
+────────────────────────
+• Markdown remains intact.  
+• `$…$`, `$$…$$`, `\(\)`, `\[\]` all render correctly.  
+• No more manual newline surgery; ordinary text keeps its layout.  
+• DOMPurify stays in place and XSS surface is unchanged.
+
+Enjoy your fully-functional LaTeX support!
+
+---
+Total Tokens: 13981
+Total Cost: ¢19.807720
+
+-----
+
+CONTEXT: Above, you may be shown a conversation between the User -- a Human -- and an AI Assistant (yourself). If not, a summary of said conversation is below for you to reference. INSTRUCTION: The User will send a message/prompt with the expectation that you will pick up where you left off and seamlessly continue the conversation. Do not give any indication that the conversation had paused or resumed; simply answer the User's next query in the context of the above Chat, inferring the Context and asking for additional information if necessary.
+---
+Conversation Summary: The user provided detailed documentation of a failed KaTeX integration for LaTeX rendering in a JavaScript chat app using the marked (Markdown) and marked-katex-extension libraries, with DOMPurify for sanitization. The assistant reviewed the full pipeline and source code, and pinpointed two key issues: (1) calling `marked.setOptions()` after `marked.use(window.markedKatex(...))` wipes out the KaTeX extension by overwriting the `extensions` property; (2) manual replacement of every newline with two spaces (`text.replace(/\n/g, '  \n')`) before parsing destroys proper LaTeX and Markdown recognition. To fix this, the assistant suggested (a) always call `marked.setOptions` for the general options before calling `marked.use` with the KaTeX extension, and (b) stop manually editing newlines, instead using CSS (`white-space: pre-wrap;`) to preserve line breaks. The assistant also recommended dropping the unnecessary

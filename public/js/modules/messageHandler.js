@@ -7,9 +7,6 @@ class MessageHandler {
     this.conversationHistory = [];
     this.markdownRenderer = null;
     this.sanitizer = null;
-    this.latexPlaceholders = new Map();
-    this.placeholderPrefix = '__LATEX_PLACEHOLDER_';
-    this.placeholderCounter = 0;
     
     this.init();
   }
@@ -43,21 +40,10 @@ class MessageHandler {
     if (typeof marked !== 'undefined') {
       this.markdownRenderer = marked;
       
-      // Check if markedKatex is available and use it
-      if (typeof window.markedKatex !== 'undefined') {
-        console.log('markedKatex found, configuring...');
-        marked.use(window.markedKatex({
-          throwOnError: false,
-          output: 'html' // Use HTML output for better compatibility
-        }));
-        console.log('markedKatex extension loaded');
-      }
-      
-      // Basic markdown configuration WITHOUT breaks: true to avoid LaTeX interference
+      // Configure general options FIRST (before extensions)
       marked.setOptions({
-        // DO NOT use breaks: true - it interferes with LaTeX
-        breaks: false,
         gfm: true,
+        breaks: true, // We'll handle line breaks with CSS
         highlight: function(code, lang) {
           if (typeof hljs !== 'undefined') {
             const language = hljs.getLanguage(lang) ? lang : 'plaintext';
@@ -67,6 +53,22 @@ class MessageHandler {
         }
       });
       
+      // THEN add KaTeX extension
+      if (typeof window.markedKatex !== 'undefined') {
+        console.log('markedKatex found, configuring...');
+        marked.use(window.markedKatex({
+          throwOnError: false,
+          output: 'html',
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '\\[', right: '\\]', display: true},
+            {left: '$', right: '$', display: false},
+            {left: '\\(', right: '\\)', display: false}
+          ]
+        }));
+        console.log('markedKatex extension loaded');
+      }
+      
       console.log('Markdown renderer configured for LaTeX compatibility');
     } else {
       console.warn('Marked.js not available - markdown rendering disabled');
@@ -74,17 +76,6 @@ class MessageHandler {
 
     if (typeof DOMPurify !== 'undefined') {
       this.sanitizer = DOMPurify;
-      // Configure DOMPurify to allow KaTeX elements
-      this.sanitizer.addHook('afterSanitizeAttributes', (node) => {
-        // Allow KaTeX classes
-        if (node.hasAttribute('class')) {
-          const classes = node.getAttribute('class');
-          if (classes && classes.includes('katex')) {
-            // Keep KaTeX classes
-            return;
-          }
-        }
-      });
       console.log('DOMPurify sanitizer configured for KaTeX');
     } else {
       console.warn('DOMPurify not available - HTML sanitization disabled');
@@ -118,116 +109,6 @@ class MessageHandler {
     }
   }
 
-  /**
-   * Extract LaTeX expressions and replace with placeholders
-   * @param {string} text - Text containing LaTeX
-   * @returns {string} Text with placeholders
-   */
-  extractLatex(text) {
-    this.latexPlaceholders.clear();
-    this.placeholderCounter = 0;
-
-    // Define LaTeX patterns with proper regex
-    const patterns = [
-      // Display math with $$...$$ (multiline support)
-      { regex: /\$\$([\s\S]*?)\$\$/g, display: true },
-      // Display math with \[...\] (multiline support)
-      { regex: /\\\[([\s\S]*?)\\\]/g, display: true },
-      // Display math with \begin{equation}...\end{equation}
-      { regex: /\\begin\{equation\}([\s\S]*?)\\end\{equation\}/g, display: true },
-      // Display math with \begin{align}...\end{align}
-      { regex: /\\begin\{align\}([\s\S]*?)\\end\{align\}/g, display: true },
-      // Inline math with $...$ (single line)
-      { regex: /(?<!\$)\$(?!\$)([^\$\n]+?)\$(?!\$)/g, display: false },
-      // Inline math with \(...\) (single line)
-      { regex: /\\\(([^\)]+?)\\\)/g, display: false }
-    ];
-
-    let processedText = text;
-
-    // Process each pattern
-    patterns.forEach(({ regex, display }) => {
-      processedText = processedText.replace(regex, (match, latex) => {
-        const placeholder = `${this.placeholderPrefix}${this.placeholderCounter++}__`;
-        this.latexPlaceholders.set(placeholder, { latex: latex.trim(), display, original: match });
-        return placeholder;
-      });
-    });
-
-    return processedText;
-  }
-
-  /**
-   * Restore LaTeX expressions and render with KaTeX
-   * @param {string} html - HTML with placeholders
-   * @returns {string} HTML with rendered LaTeX
-   */
-  restoreAndRenderLatex(html) {
-    let processedHtml = html;
-
-    // Replace placeholders with rendered LaTeX
-    this.latexPlaceholders.forEach((data, placeholder) => {
-      const { latex, display, original } = data;
-      
-      try {
-        if (typeof katex !== 'undefined') {
-          const rendered = katex.renderToString(latex, {
-            throwOnError: false,
-            displayMode: display,
-            trust: false,
-            strict: 'warn',
-            output: 'htmlAndMathml' // For accessibility
-          });
-          processedHtml = processedHtml.replace(placeholder, rendered);
-        } else {
-          // Fallback: restore original if KaTeX not available
-          console.warn('KaTeX not available, restoring original LaTeX');
-          processedHtml = processedHtml.replace(placeholder, original);
-        }
-      } catch (error) {
-        console.error('KaTeX rendering error:', error);
-        // On error, show the LaTeX source in a styled span
-        const errorHtml = `<span class="katex-error" style="color: #cc0000; font-family: monospace;">${this.escapeHtml(original)}</span>`;
-        processedHtml = processedHtml.replace(placeholder, errorHtml);
-      }
-    });
-
-    return processedHtml;
-  }
-
-  /**
-   * Process text with LaTeX and markdown
-   * @param {string} text - Raw text
-   * @returns {string} Processed HTML
-   */
-  processTextWithLatex(text) {
-    // Step 1: Extract LaTeX expressions
-    const textWithPlaceholders = this.extractLatex(text);
-    
-    // Step 2: Process line breaks manually (since we can't use breaks: true)
-    const textWithBreaks = textWithPlaceholders.replace(/\n/g, '  \n'); // Two spaces before newline for markdown line breaks
-    
-    // Step 3: Process markdown
-    let html = '';
-    if (this.markdownRenderer) {
-      html = this.markdownRenderer.parse(textWithBreaks);
-    } else {
-      html = this.escapeHtml(textWithBreaks).replace(/\n/g, '<br>');
-    }
-    
-    // Step 4: Restore and render LaTeX
-    html = this.restoreAndRenderLatex(html);
-    
-    // Step 5: Sanitize HTML (KaTeX output should survive)
-    if (this.sanitizer) {
-      html = this.sanitizer.sanitize(html, {
-        ADD_TAGS: ['span', 'math', 'semantics', 'mrow', 'mi', 'mo', 'mn', 'msup', 'msub', 'mfrac', 'mroot', 'msqrt', 'mtext', 'annotation'],
-        ADD_ATTR: ['class', 'style', 'encoding']
-      });
-    }
-    
-    return html;
-  }
 
   /**
    * Show copy feedback on button
@@ -470,9 +351,7 @@ class MessageHandler {
     
     // Process with marked (which now includes LaTeX support via markedKatex)
     if (this.markdownRenderer) {
-      // Add two spaces before newlines for proper line breaks
-      const textWithBreaks = text.replace(/\n/g, '  \n');
-      processedHtml = this.markdownRenderer.parse(textWithBreaks);
+      processedHtml = this.markdownRenderer.parse(text);
     } else {
       processedHtml = this.escapeHtml(text);
     }
@@ -480,8 +359,8 @@ class MessageHandler {
     // Sanitize HTML
     if (this.sanitizer) {
       const safeHtml = this.sanitizer.sanitize(processedHtml, {
-        ADD_TAGS: ['span', 'math', 'semantics', 'mrow', 'mi', 'mo', 'mn', 'msup', 'msub', 'mfrac', 'mroot', 'msqrt', 'mtext', 'annotation', 'annotation-xml'],
-        ADD_ATTR: ['class', 'style', 'encoding', 'mathvariant', 'display']
+        ADD_TAGS: ['math'],
+        ADD_ATTR: ['data-mathml', 'aria-label']
       });
       textSpan.innerHTML = safeHtml;
     } else {
@@ -504,9 +383,7 @@ class MessageHandler {
     
     // Process with marked (which now includes LaTeX support via markedKatex)
     if (this.markdownRenderer) {
-      // Add two spaces before newlines for proper line breaks
-      const messageWithBreaks = message.replace(/\n/g, '  \n');
-      processedHtml = this.markdownRenderer.parse(messageWithBreaks);
+      processedHtml = this.markdownRenderer.parse(message);
     } else {
       processedHtml = this.escapeHtml(message);
     }
@@ -514,8 +391,8 @@ class MessageHandler {
     // Sanitize HTML
     if (this.sanitizer) {
       const safeHtml = this.sanitizer.sanitize(processedHtml, {
-        ADD_TAGS: ['span', 'math', 'semantics', 'mrow', 'mi', 'mo', 'mn', 'msup', 'msub', 'mfrac', 'mroot', 'msqrt', 'mtext', 'annotation', 'annotation-xml'],
-        ADD_ATTR: ['class', 'style', 'encoding', 'mathvariant', 'display']
+        ADD_TAGS: ['math'],
+        ADD_ATTR: ['data-mathml', 'aria-label']
       });
       messageText.innerHTML = safeHtml;
     } else {
@@ -731,9 +608,7 @@ class MessageHandler {
         
         // Process with marked (which now includes LaTeX support via markedKatex)
         if (this.markdownRenderer) {
-          // Add two spaces before newlines for proper line breaks
-          const contentWithBreaks = newContent.replace(/\n/g, '  \n');
-          processedHtml = this.markdownRenderer.parse(contentWithBreaks);
+          processedHtml = this.markdownRenderer.parse(newContent);
         } else {
           processedHtml = this.escapeHtml(newContent);
         }
@@ -741,8 +616,8 @@ class MessageHandler {
         // Sanitize HTML
         if (this.sanitizer) {
           const safeHtml = this.sanitizer.sanitize(processedHtml, {
-            ADD_TAGS: ['span', 'math', 'semantics', 'mrow', 'mi', 'mo', 'mn', 'msup', 'msub', 'mfrac', 'mroot', 'msqrt', 'mtext', 'annotation', 'annotation-xml'],
-            ADD_ATTR: ['class', 'style', 'encoding', 'mathvariant', 'display']
+            ADD_TAGS: ['math'],
+            ADD_ATTR: ['data-mathml', 'aria-label']
           });
           textElement.innerHTML = safeHtml;
         } else {

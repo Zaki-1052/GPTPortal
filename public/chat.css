@@ -1107,10 +1107,6 @@ body::before {
 }
 
 
-.message span:not(.katex):not(.katex-display):not(.katex-html):not(.katex-mathml):not([class*="katex"]) {
-  display: block; /* Make the span a block element to allow for margins */
-  margin-bottom: 5px; /* Add space below the message text */
-}
 
 .message.error {
   color: #e66767; /* Error color */

@@ -64,7 +64,23 @@ class OpenAIHandler {
    * Handle o1/o3 reasoning models
    */
   async handleReasoningCompletion(payload) {
-    const { user_input, modelID } = payload;
+    const { user_input, modelID, o1History = [] } = payload;
+
+    // Add user input to o1History (like original implementation)
+    o1History.push(user_input);
+
+    // Transform content types for Responses API
+    const transformedUserInput = {
+      role: user_input.role,
+      content: user_input.content.map(item => {
+        if (item.type === 'text') {
+          return { type: 'input_text', text: item.text };
+        } else if (item.type === 'image_url') {
+          return { type: 'input_image', image_url: item.image_url };
+        }
+        return item;
+      })
+    };
 
     let requestData;
     if (this.oCount > 0 && this.lastResponseId) {
@@ -72,14 +88,14 @@ class OpenAIHandler {
         model: modelID,
         previous_response_id: this.lastResponseId,
         reasoning: { effort: "high", summary: "auto" },
-        input: user_input.content,
+        input: [transformedUserInput],
         store: true,
       };
     } else {
       requestData = {
         model: modelID,
         reasoning: { effort: "high", summary: "auto" },
-        input: user_input.content,
+        input: [transformedUserInput],
         store: true,
       };
     }
@@ -145,6 +161,9 @@ class OpenAIHandler {
       const formattedContent = reasoningContent ? 
         `# Thinking:\n${reasoningContent.trim()}\n\n---\n# Response:\n${assistantContent.trim()}` : 
         assistantContent.trim();
+      
+      // Add assistant response to o1History (like original implementation)
+      o1History.push({ role: "assistant", content: formattedContent });
       
       return {
         success: true,
