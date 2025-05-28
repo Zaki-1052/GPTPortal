@@ -14,15 +14,25 @@
   <!-- KaTeX for LaTeX rendering -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" crossorigin="anonymous">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js" crossorigin="anonymous"></script>
+  <!-- KaTeX auto-render for additional delimiter support -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js" crossorigin="anonymous"></script>
   <!-- marked-katex-extension for LaTeX integration -->
   <script src="https://cdn.jsdelivr.net/npm/marked-katex-extension@5.1.4/lib/index.umd.js"></script>
   <script>
-    // Debug: Check what's available after marked-katex-extension loads
-    console.log('After marked-katex-extension script:');
-    console.log('- typeof markedKatex:', typeof markedKatex);
-    console.log('- typeof markedKatexExtension:', typeof markedKatexExtension);
-    console.log('- window.markedKatex:', window.markedKatex);
-    console.log('- typeof katex:', typeof katex);
+    // Debug: Check what's available after all scripts load
+    window.addEventListener('load', () => {
+      console.log('=== All scripts loaded - checking availability ===');
+      console.log('- typeof markedKatex:', typeof markedKatex);
+      console.log('- typeof katex:', typeof katex);
+      console.log('- typeof renderMathInElement:', typeof renderMathInElement);
+      console.log('- window.renderMathInElement:', window.renderMathInElement);
+      
+      // Try to find it in different places
+      if (typeof katex !== 'undefined') {
+        console.log('- katex.renderMathInElement:', katex.renderMathInElement);
+        console.log('- katex.contrib:', katex.contrib);
+      }
+    });
   </script>
 </head>
 <body>

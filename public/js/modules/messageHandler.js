@@ -359,8 +359,8 @@ class MessageHandler {
     // Sanitize HTML
     if (this.sanitizer) {
       const safeHtml = this.sanitizer.sanitize(processedHtml, {
-        ADD_TAGS: ['math'],
-        ADD_ATTR: ['data-mathml', 'aria-label']
+        ADD_TAGS: ['math', 'annotation', 'semantics', 'mtext', 'mn', 'mo', 'mi', 'mrow', 'msub', 'msup', 'mfrac', 'mroot', 'msqrt'],
+        ADD_ATTR: ['data-mathml', 'aria-label', 'href', 'mathvariant', 'encoding']
       });
       textSpan.innerHTML = safeHtml;
     } else {
@@ -368,6 +368,26 @@ class MessageHandler {
     }
     
     parent.appendChild(textSpan);
+    
+    // Apply KaTeX auto-render to handle additional delimiters
+    // Need to use requestAnimationFrame to ensure DOM is updated
+    if (typeof renderMathInElement !== 'undefined') {
+      requestAnimationFrame(() => {
+        console.log('Applying renderMathInElement to handle additional delimiters');
+        renderMathInElement(textSpan, {
+          delimiters: [
+            {left: '\\[', right: '\\]', display: true},
+            {left: '\\(', right: '\\)', display: false},
+            {left: '\\begin{equation}', right: '\\end{equation}', display: true},
+            {left: '\\begin{align}', right: '\\end{align}', display: true},
+            {left: '\\begin{alignat}', right: '\\end{alignat}', display: true},
+            {left: '\\begin{gather}', right: '\\end{gather}', display: true},
+            {left: '\\begin{displaymath}', right: '\\end{displaymath}', display: true}
+          ],
+          throwOnError: false
+        });
+      });
+    }
   }
 
   /**
@@ -391,8 +411,8 @@ class MessageHandler {
     // Sanitize HTML
     if (this.sanitizer) {
       const safeHtml = this.sanitizer.sanitize(processedHtml, {
-        ADD_TAGS: ['math'],
-        ADD_ATTR: ['data-mathml', 'aria-label']
+        ADD_TAGS: ['math', 'annotation', 'semantics', 'mtext', 'mn', 'mo', 'mi', 'mrow', 'msub', 'msup', 'mfrac', 'mroot', 'msqrt'],
+        ADD_ATTR: ['data-mathml', 'aria-label', 'href', 'mathvariant', 'encoding']
       });
       messageText.innerHTML = safeHtml;
     } else {
@@ -400,6 +420,26 @@ class MessageHandler {
     }
 
     element.appendChild(messageText);
+    
+    // Apply KaTeX auto-render to handle additional delimiters
+    // Need to use requestAnimationFrame to ensure DOM is updated
+    if (typeof renderMathInElement !== 'undefined') {
+      requestAnimationFrame(() => {
+        console.log('Applying renderMathInElement in renderSimpleTextMessage');
+        renderMathInElement(messageText, {
+          delimiters: [
+            {left: '\\[', right: '\\]', display: true},
+            {left: '\\(', right: '\\)', display: false},
+            {left: '\\begin{equation}', right: '\\end{equation}', display: true},
+            {left: '\\begin{align}', right: '\\end{align}', display: true},
+            {left: '\\begin{alignat}', right: '\\end{alignat}', display: true},
+            {left: '\\begin{gather}', right: '\\end{gather}', display: true},
+            {left: '\\begin{displaymath}', right: '\\end{displaymath}', display: true}
+          ],
+          throwOnError: false
+        });
+      });
+    }
   }
 
   /**
@@ -616,12 +656,32 @@ class MessageHandler {
         // Sanitize HTML
         if (this.sanitizer) {
           const safeHtml = this.sanitizer.sanitize(processedHtml, {
-            ADD_TAGS: ['math'],
-            ADD_ATTR: ['data-mathml', 'aria-label']
+            ADD_TAGS: ['math', 'annotation', 'semantics', 'mtext', 'mn', 'mo', 'mi', 'mrow', 'msub', 'msup', 'mfrac', 'mroot', 'msqrt'],
+            ADD_ATTR: ['data-mathml', 'aria-label', 'href', 'mathvariant', 'encoding']
           });
           textElement.innerHTML = safeHtml;
         } else {
           textElement.innerHTML = processedHtml;
+        }
+        
+        // Apply KaTeX auto-render to handle additional delimiters
+        // Need to use requestAnimationFrame to ensure DOM is updated
+        if (typeof renderMathInElement !== 'undefined') {
+          requestAnimationFrame(() => {
+            console.log('Applying renderMathInElement in updateMessage');
+            renderMathInElement(textElement, {
+              delimiters: [
+                {left: '\\[', right: '\\]', display: true},
+                {left: '\\(', right: '\\)', display: false},
+                {left: '\\begin{equation}', right: '\\end{equation}', display: true},
+                {left: '\\begin{align}', right: '\\end{align}', display: true},
+                {left: '\\begin{alignat}', right: '\\end{alignat}', display: true},
+                {left: '\\begin{gather}', right: '\\end{gather}', display: true},
+                {left: '\\begin{displaymath}', right: '\\end{displaymath}', display: true}
+              ],
+              throwOnError: false
+            });
+          });
         }
       }
     }
