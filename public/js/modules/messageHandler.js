@@ -469,13 +469,13 @@ class MessageHandler {
     let processedHtml = '';
     
     // Process with marked (which now includes LaTeX support via markedKatex)
-    // if (this.markdownRenderer) {
-    //   // Add two spaces before newlines for proper line breaks
-    //   const textWithBreaks = text.replace(/\n/g, '  \n');
-    //   processedHtml = this.markdownRenderer.parse(textWithBreaks);
-    // } else {
-    //   processedHtml = this.escapeHtml(text);
-    // }
+    if (this.markdownRenderer) {
+      // Add two spaces before newlines for proper line breaks
+      const textWithBreaks = text.replace(/\n/g, '  \n');
+      processedHtml = this.markdownRenderer.parse(textWithBreaks);
+    } else {
+      processedHtml = this.escapeHtml(text);
+    }
     
     // Sanitize HTML
     if (this.sanitizer) {
