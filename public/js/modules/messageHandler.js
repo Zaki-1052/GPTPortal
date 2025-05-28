@@ -119,59 +119,74 @@ class MessageHandler {
       const tempDiv = document.createElement('div');
       let processedText = text;
       
-      // Process display math $$...$$ first
-      // Use [\s\S] to match across newlines instead of [^$]
+      // Process display math $$...$$ first - improved regex to handle newlines
       processedText = processedText.replace(/\$\$([\s\S]+?)\$\$/g, (match, content) => {
         try {
-          return katex.renderToString(content.trim(), {
+          const rendered = katex.renderToString(content.trim(), {
             displayMode: true,
-            throwOnError: false
+            throwOnError: false,
+            trust: false,
+            strict: 'warn'
           });
+          console.log('Rendered display math $$:', content.trim());
+          return rendered;
         } catch (e) {
-          console.warn('LaTeX error:', e);
+          console.warn('LaTeX error ($$):', e.message, 'Content:', content);
           return match;
         }
       });
       
-      // Process display math \[...\]
-      processedText = processedText.replace(/\\\[([^\]]+)\\\]/g, (match, content) => {
+      // Process display math \[...\] - improved to handle multi-line
+      processedText = processedText.replace(/\\\[([\s\S]+?)\\\]/g, (match, content) => {
         try {
-          return katex.renderToString(content.trim(), {
+          const rendered = katex.renderToString(content.trim(), {
             displayMode: true,
-            throwOnError: false
+            throwOnError: false,
+            trust: false,
+            strict: 'warn'
           });
+          console.log('Rendered display math \\[\\]:', content.trim());
+          return rendered;
         } catch (e) {
-          console.warn('LaTeX error:', e);
+          console.warn('LaTeX error (\\[\\]):', e.message, 'Content:', content);
           return match;
         }
       });
       
       // Process inline math \(...\)
-      processedText = processedText.replace(/\\\(([^)]+)\\\)/g, (match, content) => {
+      processedText = processedText.replace(/\\\(([\s\S]+?)\\\)/g, (match, content) => {
         try {
-          return katex.renderToString(content.trim(), {
+          const rendered = katex.renderToString(content.trim(), {
             displayMode: false,
-            throwOnError: false
+            throwOnError: false,
+            trust: false,
+            strict: 'warn'
           });
+          console.log('Rendered inline math \\(\\):', content.trim());
+          return rendered;
         } catch (e) {
-          console.warn('LaTeX error:', e);
+          console.warn('LaTeX error (\\(\\)):', e.message, 'Content:', content);
           return match;
         }
       });
       
-      // Process inline math $...$ (be careful not to match $$)
-      processedText = processedText.replace(/(?<!\$)\$(?!\$)([^$\n]+?)\$(?!\$)/g, (match, content) => {
+      // Process inline math $...$ - more robust pattern
+      processedText = processedText.replace(/(?<!\$)\$([^$\n]+?)\$(?!\$)/g, (match, content) => {
         // Check if it looks like LaTeX
         if (!/[\\^_{}]/.test(content)) {
           return match;
         }
         try {
-          return katex.renderToString(content.trim(), {
+          const rendered = katex.renderToString(content.trim(), {
             displayMode: false,
-            throwOnError: false
+            throwOnError: false,
+            trust: false,
+            strict: 'warn'
           });
+          console.log('Rendered inline math $:', content.trim());
+          return rendered;
         } catch (e) {
-          console.warn('LaTeX error:', e);
+          console.warn('LaTeX error ($):', e.message, 'Content:', content);
           return match;
         }
       });
@@ -211,13 +226,13 @@ class MessageHandler {
       }
       
       
-      // Process equation environments
-      // More specific pattern that doesn't capture text before the actual environment
-      // Look for \begin{equation} that appears after a <br> or at start of line
-      html = html.replace(/(?:^|<br\s*\/?>)\s*\\begin\{equation\}([\s\S]*?)\\end\{equation\}/g, (match, content) => {
+      // Process equation environments - fixed regex to capture content properly
+      html = html.replace(/\\begin\{equation\}([\s\S]*?)\\end\{equation\}/g, (match, content) => {
         try {
-          // Remove <br> tags from the content
-          const cleanContent = content.replace(/<br\s*\/?>/gi, '\n').trim();
+          // Remove <br> tags from the content and clean it up
+          const cleanContent = content.replace(/<br\s*\/?>/gi, '').replace(/\s+/g, ' ').trim();
+          
+          console.log('Processing equation environment:', cleanContent);
           
           // Render just the content, not the environment tags
           const rendered = katex.renderToString(cleanContent, {
@@ -227,16 +242,19 @@ class MessageHandler {
           
           return rendered;
         } catch (e) {
-          console.warn('LaTeX rendering error:', e);
-          return match;
+          console.warn('LaTeX rendering error for equation:', e.message);
+          // Return the original LaTeX on error
+          return `\\begin{equation}${content}\\end{equation}`;
         }
       });
       
       // Process displaymath environments
-      html = html.replace(/(?:^|<br\s*\/?>)\s*\\begin\{displaymath\}([\s\S]*?)\\end\{displaymath\}/g, (match, content) => {
+      html = html.replace(/\\begin\{displaymath\}([\s\S]*?)\\end\{displaymath\}/g, (match, content) => {
         try {
-          // Remove <br> tags from the content
-          const cleanContent = content.replace(/<br\s*\/?>/gi, '\n').trim();
+          // Remove <br> tags from the content and clean it up
+          const cleanContent = content.replace(/<br\s*\/?>/gi, '').replace(/\s+/g, ' ').trim();
+          
+          console.log('Processing displaymath environment:', cleanContent);
           
           const rendered = katex.renderToString(cleanContent, {
             displayMode: true,
@@ -245,8 +263,9 @@ class MessageHandler {
           
           return rendered;
         } catch (e) {
-          console.warn('LaTeX rendering error (displaymath):', e);
-          return match;
+          console.warn('LaTeX rendering error (displaymath):', e.message);
+          // Return the original LaTeX on error
+          return `\\begin{displaymath}${content}\\end{displaymath}`;
         }
       });
       
@@ -483,7 +502,7 @@ class MessageHandler {
         this.renderSystemMessage(messageElement, message);
         break;
       default:
-        this.renderTextMessage(messageElement, message, type);
+        this.renderTextMessage(messageElement, message);
         break;
     }
 
@@ -577,9 +596,8 @@ class MessageHandler {
    * Render text message with markdown and code blocks
    * @param {HTMLElement} element - Message element
    * @param {string} message - Message content
-   * @param {string} type - Message type
    */
-  renderTextMessage(element, message, type) {
+  renderTextMessage(element, message) {
     
     if (message.includes('```')) {
       this.renderMessageWithCodeBlocks(element, message);
