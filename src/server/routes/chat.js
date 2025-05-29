@@ -359,6 +359,15 @@ router.post('/message', async (req, res) => {
       console.log('base64Image from upload result:', base64Image ? 'SUCCESS (length: ' + base64Image.length + ')' : 'FAILED');
     }
     
+    // Debug logging for image data
+    console.log('=== Image Processing Debug ===');
+    console.log('imageName:', imageName);
+    console.log('uploadedImagePath:', uploadedImagePath);
+    console.log('base64Image exists:', !!base64Image);
+    console.log('base64Image length:', base64Image ? base64Image.length : 0);
+    console.log('base64Image starts with:', base64Image ? base64Image.substring(0, 50) : 'N/A');
+    console.log('============================')
+    
     // Clean up uploaded image after processing
     if (uploadedImagePath) {
       fs.unlink(uploadedImagePath, (err) => {

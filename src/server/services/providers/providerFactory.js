@@ -206,6 +206,18 @@ class ProviderFactory {
     const provider = this.getProviderForModel(modelID);
     const handler = this.getHandler(provider);
 
+    console.log('=== ProviderFactory.formatUserInput Debug ===');
+    console.log('modelID:', modelID);
+    console.log('provider:', provider);
+    console.log('userMessage:', userMessage ? userMessage.substring(0, 100) + '...' : 'N/A');
+    console.log('fileContents exists:', !!fileContents);
+    console.log('fileId:', fileId);
+    console.log('imageName:', imageName);
+    console.log('base64Image exists:', !!base64Image);
+    console.log('base64Image length:', base64Image ? base64Image.length : 0);
+    console.log('uploadedFiles:', uploadedFiles);
+    console.log('=========================================');
+
     if (provider === 'claude') {
       return handler.formatUserInput(userMessage, fileContents, fileId, imageName, base64Image, uploadedFiles);
     } else if (provider === 'openai') {

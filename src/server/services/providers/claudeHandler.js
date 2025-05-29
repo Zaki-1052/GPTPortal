@@ -82,6 +82,13 @@ class ClaudeHandler {
 
     // Add user input to Claude history
     const { systemMessage: finalSystemMessage, claudeHistory: finalClaudeHistory } = finalPayload;
+    
+    console.log('=== About to push user_input to Claude history ===');
+    console.log('user_input:', JSON.stringify(user_input, null, 2));
+    console.log('user_input.content length:', user_input.content?.length);
+    console.log('user_input.content has image:', user_input.content?.some(item => item.type === 'image'));
+    console.log('================================================');
+    
     finalClaudeHistory.push(user_input);
 
     // Check if this is a Claude 4 model with thinking support
@@ -220,6 +227,17 @@ class ClaudeHandler {
    * Format user input for Claude models with XML structure
    */
   formatUserInput(userMessage, fileContents = null, fileId = null, imageName = null, base64Image = null, uploadedFiles = null) {
+    console.log('=== ClaudeHandler.formatUserInput Debug ===');
+    console.log('userMessage:', userMessage ? userMessage.substring(0, 100) + '...' : 'N/A');
+    console.log('fileContents exists:', !!fileContents);
+    console.log('fileId:', fileId);
+    console.log('imageName:', imageName);
+    console.log('base64Image exists:', !!base64Image);
+    console.log('base64Image length:', base64Image ? base64Image.length : 0);
+    console.log('base64Image starts with:', base64Image ? base64Image.substring(0, 50) : 'N/A');
+    console.log('uploadedFiles:', uploadedFiles);
+    console.log('==========================================');
+    
     const user_input = {
       role: "user",
       content: []
@@ -280,8 +298,11 @@ class ClaudeHandler {
 
     // Add image with XML structure
     if (base64Image) {
+      console.log('=== Processing base64Image in ClaudeHandler ===');
       const [mediaPart, base64Data] = base64Image.split(';base64,');
       const mediaType = mediaPart.split(':')[1];
+      console.log('mediaType:', mediaType);
+      console.log('base64Data length:', base64Data ? base64Data.length : 0);
       
       user_input.content.push({ type: "text", text: "<image_name>" });
       user_input.content.push({ type: "text", text: imageName || "uploaded_image" });
@@ -296,7 +317,13 @@ class ClaudeHandler {
         }
       });
       user_input.content.push({ type: "text", text: "</image_content>" });
+      console.log('Image added to user_input.content');
     }
+
+    console.log('=== Final user_input structure ===');
+    console.log('user_input.content length:', user_input.content.length);
+    console.log('user_input.content types:', user_input.content.map(item => item.type));
+    console.log('================================');
 
     return user_input;
   }
