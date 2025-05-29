@@ -314,8 +314,14 @@ class ChatManager {
     let imageFilename = null;
     
     if (this.selectedImage) {
-      imageUrl = await this.uploadImageAndGetUrl(this.selectedImage);
-      imageFilename = imageUrl.split('/').pop();
+      // FIX: Construct URL path directly instead of re-uploading filename as File
+      imageUrl = `/uploads/${this.selectedImage}`;
+      imageFilename = this.selectedImage;
+      console.log('=== Image Upload Fix Applied ===');
+      console.log('selectedImage (filename):', this.selectedImage);
+      console.log('constructed imageUrl:', imageUrl);
+      console.log('imageFilename:', imageFilename);
+      console.log('===============================');
     }
     
     if (this.fileUrl) {
@@ -370,6 +376,14 @@ class ChatManager {
         cachePreference: cachePreference
       };
       endpoint = '/message';
+      
+      // Debug logging for image fix verification
+      if (imageUrl) {
+        console.log('=== Payload Image Debug ===');
+        console.log('payload.image:', payload.image);
+        console.log('image URL valid:', imageUrl.startsWith('/uploads/'));
+        console.log('========================');
+      }
     }
 
     try {
@@ -409,6 +423,17 @@ class ChatManager {
         window.isVoiceTranscription = false;
       }
       
+      // Clean up selected image after successful send
+      if (this.selectedImage) {
+        console.log('Clearing selectedImage after successful send:', this.selectedImage);
+        this.selectedImage = null;
+        // Clear image preview if it exists
+        const preview = document.getElementById('image-preview');
+        if (preview) {
+          preview.innerHTML = '';
+        }
+      }
+      
     } catch (error) {
       console.error('Error sending message to server:', error);
       this.displayMessage('Error sending message. Please try again.', 'error');
@@ -428,7 +453,14 @@ class ChatManager {
     }
   }
 
+  /**
+   * @deprecated This method is no longer used after image upload fix.
+   * Previously attempted to re-upload filename as File object, which failed.
+   * Now we construct URL paths directly in sendMessageToServer().
+   * Kept for backward compatibility but should not be used.
+   */
   async uploadImageAndGetUrl(imageFile) {
+    console.warn('uploadImageAndGetUrl is deprecated and no longer used. URL paths are constructed directly.');
     const formData = new FormData();
     formData.append('image', imageFile);
 
