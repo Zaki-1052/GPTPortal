@@ -78,49 +78,57 @@ class ChatManager {
 
     // File input handling
     const fileInput = document.getElementById('file-input');
-    const clipboardButton = document.getElementById('clipboard-button');
     
     if (fileInput) {
-      fileInput.addEventListener('change', async (event) => {
-        console.log('=== File input change event triggered ===');
-        let file = event.target.files[0];
-        console.log('Selected file:', file ? file.name : 'None');
-        console.log('File type:', file ? file.type : 'N/A');
+      // Store reference to prevent multiple event listeners
+      if (!fileInput.hasAttribute('data-listener-attached')) {
+        fileInput.setAttribute('data-listener-attached', 'true');
         
-        if (file && file.type.startsWith('image/')) {
-          console.log('Processing as image file');
-          // Upload the image immediately and store the result
-          const uploadResult = await this.uploadImageFile(file);
-          if (uploadResult) {
-            this.selectedImage = uploadResult.filename;
-            console.log('Image uploaded, filename:', this.selectedImage);
-            // Show preview if available
-            if (this.uiManager && this.uiManager.showImagePreview) {
-              this.uiManager.showImagePreview(this.selectedImage);
-            }
-            // Show upload message
-            if (this.uiManager && this.uiManager.showUploadMessage) {
-              this.uiManager.showUploadMessage(`Image Uploaded: ${file.name}`);
-            }
+        fileInput.addEventListener('change', async (event) => {
+          console.log('=== File input change event triggered ===');
+          console.log('Timestamp:', new Date().toISOString());
+          
+          // Prevent processing if no files
+          if (!event.target.files || event.target.files.length === 0) {
+            console.log('No files selected');
+            return;
           }
-          file = null;
-        } else if (file) {
-          console.log('Processing as non-image file');
-          this.fileUrl = await this.uploadFile(file);
-          console.log('File uploaded, URL:', this.fileUrl);
-        }
-        
-        // Clear the file input to allow re-uploading the same file
-        event.target.value = '';
-        console.log('File input cleared');
-      });
+          
+          let file = event.target.files[0];
+          console.log('Selected file:', file ? file.name : 'None');
+          console.log('File type:', file ? file.type : 'N/A');
+          
+          if (file && file.type.startsWith('image/')) {
+            console.log('Processing as image file');
+            // Upload the image immediately and store the result
+            const uploadResult = await this.uploadImageFile(file);
+            if (uploadResult) {
+              this.selectedImage = uploadResult.filename;
+              console.log('Image uploaded, filename:', this.selectedImage);
+              // Show preview if available
+              if (this.uiManager && this.uiManager.showImagePreview) {
+                this.uiManager.showImagePreview(this.selectedImage);
+              }
+              // Show upload message
+              if (this.uiManager && this.uiManager.showUploadMessage) {
+                this.uiManager.showUploadMessage(`Image Uploaded: ${file.name}`);
+              }
+            }
+            file = null;
+          } else if (file) {
+            console.log('Processing as non-image file');
+            this.fileUrl = await this.uploadFile(file);
+            console.log('File uploaded, URL:', this.fileUrl);
+          }
+          
+          // Clear the file input to allow re-uploading the same file
+          event.target.value = '';
+          console.log('File input cleared');
+        });
+      }
     }
 
-    if (clipboardButton) {
-      clipboardButton.addEventListener('click', () => {
-        if (fileInput) fileInput.click();
-      });
-    }
+    // Clipboard button event listener removed - handled by UIManager to prevent duplicates
 
     // Sidebar and prompt bar handling
     this.setupSidebarEvents();
@@ -707,6 +715,9 @@ class ChatManager {
 
   // Export chat functionality (from original script.js)
   exportChatHistory() {
+    console.log('=== exportChatHistory called ===');
+    console.log('Timestamp:', new Date().toISOString());
+    
     let historyType = 'conversation';
     if (this.modelConfig) {
       if (this.modelConfig.isGemini) {
@@ -746,6 +757,9 @@ class ChatManager {
 
   // Alias for compatibility with frontend calls
   exportChat() {
+    console.log('=== exportChat called ===');
+    console.log('Timestamp:', new Date().toISOString());
+    console.log('Call stack:', new Error().stack);
     return this.exportChatHistory();
   }
 

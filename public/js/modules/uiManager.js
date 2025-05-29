@@ -141,15 +141,22 @@ class UIManager {
     const fileInput = document.getElementById('file-input');
     const clipboardButton = document.getElementById('clipboard-button');
 
-    if (fileInput) {
-      fileInput.addEventListener('change', (e) => {
-        this.handleFileUpload(e.target.files[0]);
-      });
-    }
+    // File input change handler removed - handled by ChatManager to prevent duplicates
 
-    if (clipboardButton) {
-      clipboardButton.addEventListener('click', () => {
-        fileInput?.click();
+    if (clipboardButton && fileInput) {
+      // Remove any existing listeners first by cloning
+      const newClipboardButton = clipboardButton.cloneNode(true);
+      clipboardButton.parentNode.replaceChild(newClipboardButton, clipboardButton);
+      
+      newClipboardButton.addEventListener('click', (e) => {
+        console.log('=== Clipboard button clicked ===');
+        console.log('Timestamp:', new Date().toISOString());
+        e.stopPropagation();
+        e.preventDefault();
+        
+        if (fileInput) {
+          fileInput.click();
+        }
       });
     }
   }

@@ -450,7 +450,19 @@ class PortalInitializer {
   setupExportButton() {
     const exportButton = document.getElementById('export-button');
     if (exportButton) {
-      exportButton.addEventListener('click', () => {
+      // Remove any existing listeners first
+      const newExportButton = exportButton.cloneNode(true);
+      exportButton.parentNode.replaceChild(newExportButton, exportButton);
+      
+      newExportButton.addEventListener('click', (e) => {
+        console.log('=== Export button clicked ===');
+        console.log('Event:', e);
+        console.log('Timestamp:', new Date().toISOString());
+        
+        // Prevent any bubbling or default action
+        e.stopPropagation();
+        e.preventDefault();
+        
         if (window.gptPortalApp && window.gptPortalApp.chatManager) {
           window.gptPortalApp.chatManager.exportChat();
         }

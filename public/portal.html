@@ -498,15 +498,8 @@ function initializeBasicFunctionality() {
     });
   }
   
-  // Basic file input
-  const fileInput = document.getElementById('file-input');
-  const clipboardButton = document.getElementById('clipboard-button');
-  
-  if (clipboardButton && fileInput) {
-    clipboardButton.addEventListener('click', () => {
-      fileInput.click();
-    });
-  }
+  // Basic file input - removed to prevent duplicate listeners
+  // Event handling is managed by UIManager module
   
   console.log('✓ Basic functionality initialized');
 }
