@@ -104,6 +104,12 @@ class GPTPortalApp {
     
     if (window.UIManager) {
       this.uiManager = new window.UIManager(this.modelConfig, this.chatManager);
+      
+      // Give chatManager a reference to uiManager for two-way communication
+      if (this.chatManager) {
+        this.chatManager.uiManager = this.uiManager;
+      }
+      
       console.log('UI manager initialized');
     } else {
       console.warn('UIManager not available, using basic UI functionality');

@@ -82,13 +82,37 @@ class ChatManager {
     
     if (fileInput) {
       fileInput.addEventListener('change', async (event) => {
+        console.log('=== File input change event triggered ===');
         let file = event.target.files[0];
+        console.log('Selected file:', file ? file.name : 'None');
+        console.log('File type:', file ? file.type : 'N/A');
+        
         if (file && file.type.startsWith('image/')) {
-          this.selectedImage = file;
+          console.log('Processing as image file');
+          // Upload the image immediately and store the result
+          const uploadResult = await this.uploadImageFile(file);
+          if (uploadResult) {
+            this.selectedImage = uploadResult.filename;
+            console.log('Image uploaded, filename:', this.selectedImage);
+            // Show preview if available
+            if (this.uiManager && this.uiManager.showImagePreview) {
+              this.uiManager.showImagePreview(this.selectedImage);
+            }
+            // Show upload message
+            if (this.uiManager && this.uiManager.showUploadMessage) {
+              this.uiManager.showUploadMessage(`Image Uploaded: ${file.name}`);
+            }
+          }
           file = null;
         } else if (file) {
+          console.log('Processing as non-image file');
           this.fileUrl = await this.uploadFile(file);
+          console.log('File uploaded, URL:', this.fileUrl);
         }
+        
+        // Clear the file input to allow re-uploading the same file
+        event.target.value = '';
+        console.log('File input cleared');
       });
     }
 
@@ -477,6 +501,10 @@ class ChatManager {
   }
 
   async uploadFile(file) {
+    console.log('=== uploadFile called ===');
+    console.log('File name:', file.name);
+    console.log('File type:', file.type);
+    
     const formData = new FormData();
     formData.append('file', file);
 
@@ -486,9 +514,41 @@ class ChatManager {
         body: formData,
       });
       const data = await response.json();
+      console.log('Upload response:', data);
       return data.fileId;
     } catch (error) {
       console.error('Error uploading file:', error);
+    }
+  }
+
+  async uploadImageFile(file) {
+    console.log('=== uploadImageFile called ===');
+    console.log('Image file name:', file.name);
+    console.log('Image file type:', file.type);
+    
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/upload-file', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      console.log('Image upload response:', data);
+      
+      if (data.success && data.files && data.files.length > 0) {
+        // Return the first file info for images
+        return {
+          filename: data.files[0].id,
+          originalName: data.files[0].originalName,
+          url: `/uploads/${data.files[0].id}`
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error('Error uploading image file:', error);
+      return null;
     }
   }
 
