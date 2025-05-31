@@ -476,8 +476,8 @@ class RouteManager {
       
       const result = await exportService.exportChat(type, exportData, providerFactory);
       
-      res.set('Content-Type', 'text/html');
-      res.set('Content-Disposition', `attachment; filename="${result.title}.html"`);
+      res.type('html');
+      res.attachment(`${result.title}.html`);
       res.send(result.htmlContent);
 
       console.log("Chat history sent to client, initiating shutdown...");
