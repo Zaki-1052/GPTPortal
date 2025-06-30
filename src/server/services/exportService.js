@@ -141,32 +141,35 @@ class ExportService {
     const cost = await costService.calculateCost(tokens, modelID);
 
     // Format history for title generation
-    const savedHistory = titleService.formatHistoryForTitleGeneration(chatHistory, chatType);
+    // const savedHistory = titleService.formatHistoryForTitleGeneration(chatHistory, chatType);
 
-    // Generate title and summary
-    let title, summary;
-    try {
-      const openaiHandler = providerFactory.isProviderAvailable('openai') ? 
-        providerFactory.getHandler('openai') : null;
-      
-      console.log('OpenAI handler available:', !!openaiHandler);
-      
-      if (openaiHandler) {
-        console.log('Generating title with OpenAI...');
-        const result = await titleService.titleChat(savedHistory, tokens, cost, openaiHandler);
-        console.log('Title generation result:', result);
-        title = result.title;
-        summary = result.summary;
-      } else {
-        console.log('OpenAI handler not available, using default title');
-        title = 'Chat Export';
-        summary = 'Chat conversation export';
-      }
-    } catch (error) {
-      console.error('Error generating title/summary:', error);
-      title = 'Chat Export';
-      summary = 'Chat conversation export';
-    }
+    // Generate title and summary - COMMENTED OUT to prevent duplicate title generation
+    // This function is called by exportChatToHTMLWithTitle which already handles title generation
+    let title = 'Chat Export';
+    let summary = 'Chat conversation export';
+    
+    // try {
+    //   const openaiHandler = providerFactory.isProviderAvailable('openai') ? 
+    //     providerFactory.getHandler('openai') : null;
+    //   
+    //   console.log('OpenAI handler available:', !!openaiHandler);
+    //   
+    //   if (openaiHandler) {
+    //     console.log('Generating title with OpenAI...');
+    //     const result = await titleService.titleChat(savedHistory, tokens, cost, openaiHandler);
+    //     console.log('Title generation result:', result);
+    //     title = result.title;
+    //     summary = result.summary;
+    //   } else {
+    //     console.log('OpenAI handler not available, using default title');
+    //     title = 'Chat Export';
+    //     summary = 'Chat conversation export';
+    //   }
+    // } catch (error) {
+    //   console.error('Error generating title/summary:', error);
+    //   title = 'Chat Export';
+    //   summary = 'Chat conversation export';
+    // }
 
     // Simplify system prompt for HTML display if it's Claude
     if (isClaudeChat) {
