@@ -15,6 +15,7 @@ const {
   CHAT_MODELS, 
   WEB_SEARCH_CHAT_MODELS,
   REASONING_MODELS, 
+  DEEP_RESEARCH_MODELS,
   WEB_SEARCH_RESPONSES_MODELS,
   CODE_INTERPRETER_MODELS,
   IMAGE_MODELS, 
@@ -47,6 +48,11 @@ class OpenAIHandler {
     const { modelID } = payload;
     
     try {
+      // Route to deep research models via Responses API (highest priority)
+      if (this.isDeepResearchModel(modelID)) {
+        return await this.responsesHandler.handleRequest(payload);
+      }
+
       // Route to reasoning models via Responses API
       if (this.isReasoningModel(modelID)) {
         return await this.responsesHandler.handleRequest(payload);
@@ -185,12 +191,17 @@ class OpenAIHandler {
     return REASONING_MODELS.some(pattern => modelId.includes(pattern));
   }
 
+  isDeepResearchModel(modelId) {
+    return DEEP_RESEARCH_MODELS.includes(modelId);
+  }
+
   /**
    * Determine if model should use Responses API by default
    * Consolidates routing logic for models that support enhanced features
    */
   shouldUseResponsesAPI(modelId) {
     return this.isReasoningModel(modelId) || 
+           this.isDeepResearchModel(modelId) ||
            this.isCodeInterpreterModel(modelId) ||
            this.webSearchService.supportsResponsesWebSearch(modelId);
   }
@@ -210,6 +221,7 @@ class OpenAIHandler {
     const capabilities = {
       chat: this.isChatModel(modelId) || this.webSearchService.supportsChatWebSearch(modelId),
       reasoning: this.isReasoningModel(modelId),
+      deepResearch: this.isDeepResearchModel(modelId),
       webSearch: this.isWebSearchModel(modelId),
       codeInterpreter: this.isCodeInterpreterModel(modelId),
       image: this.isImageModel(modelId),
@@ -229,8 +241,16 @@ class OpenAIHandler {
         supportsWebSearch: true
       });
     }
-    if (capabilities.reasoning || (capabilities.webSearch && this.webSearchService.supportsResponsesWebSearch(modelId))) {
+    if (capabilities.reasoning || capabilities.deepResearch || (capabilities.webSearch && this.webSearchService.supportsResponsesWebSearch(modelId))) {
       Object.assign(capabilities, this.responsesHandler.getModelCapabilities(modelId));
+    }
+    if (capabilities.deepResearch) {
+      Object.assign(capabilities, {
+        webSearchType: 'responses',
+        supportsWebSearch: true,
+        supportsReasoningTokens: true,
+        maxDuration: '20 minutes'
+      });
     }
     if (capabilities.image) {
       Object.assign(capabilities, this.imageHandler.getModelCapabilities(modelId));

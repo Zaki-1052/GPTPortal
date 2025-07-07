@@ -79,11 +79,18 @@ class Application extends EventEmitter {
           return;
         }
 
+        // Configure server timeouts for long-running requests (deep research)
+        // 35 minutes for server timeout (5 minutes more than client timeout)
+        this.server.timeout = 35 * 60 * 1000; // 35 minutes
+        this.server.keepAliveTimeout = 35 * 60 * 1000; // 35 minutes
+        this.server.headersTimeout = 35 * 60 * 1000 + 1000; // 35 minutes + 1 second
+
         // Store server instance for routes to access
         this.app.locals.serverInstance = this.server;
         this.app.set('server', this.server);
 
         this.logger.info(`🚀 GPTPortal server running at http://${HOST}:${PORT}`);
+        this.logger.info('⏱️ Server timeout configured for 35 minutes (deep research support)');
         this.logger.info('✅ All systems operational');
         this.logger.info(`📊 Available providers: ${this.serviceManager.getAvailableProviders().join(', ')}`);
         

@@ -1,7 +1,7 @@
 // src/server/services/providers/openai/handlers/responsesHandler.js
 // Responses API handler for OpenAI reasoning models and web search
 
-const { REASONING_MODELS, WEB_SEARCH_RESPONSES_MODELS, CODE_INTERPRETER_MODELS, DEFAULTS } = require('../utils/constants');
+const { REASONING_MODELS, DEEP_RESEARCH_MODELS, WEB_SEARCH_RESPONSES_MODELS, CODE_INTERPRETER_MODELS, DEFAULTS } = require('../utils/constants');
 const { 
   formatUserInputForResponses, 
   extractResponseContent, 
@@ -22,6 +22,7 @@ class ResponsesHandler {
    */
   supportsModel(modelId) {
     return REASONING_MODELS.some(pattern => modelId.includes(pattern)) || 
+           DEEP_RESEARCH_MODELS.includes(modelId) ||
            WEB_SEARCH_RESPONSES_MODELS.includes(modelId) ||
            CODE_INTERPRETER_MODELS.some(pattern => modelId.includes(pattern));
   }
@@ -31,6 +32,13 @@ class ResponsesHandler {
    */
   isReasoningModel(modelId) {
     return REASONING_MODELS.some(pattern => modelId.includes(pattern));
+  }
+
+  /**
+   * Check if model is a deep research model
+   */
+  isDeepResearchModel(modelId) {
+    return DEEP_RESEARCH_MODELS.includes(modelId);
   }
 
   /**
@@ -171,6 +179,152 @@ class ResponsesHandler {
   /**
    * Handle standard completion with web search
    */
+  /**
+   * Handle deep research completion request
+   */
+  async handleDeepResearchCompletion(payload) {
+    const { 
+      user_input, 
+      modelID, 
+      webSearchConfig = null,
+      codeInterpreterConfig = null
+    } = payload;
+
+    if (!this.supportsModel(modelID)) {
+      throw new Error(`Model ${modelID} not supported by Responses handler`);
+    }
+
+    console.log(`🔬 Starting deep research with ${modelID}`);
+
+    try {
+      // Convert user_input to input format for deep research
+      const inputText = this.extractTextFromUserInput(user_input);
+
+      // Build request data for deep research
+      let requestData = {
+        model: modelID,
+        input: inputText,
+        store: true,
+        tools: []
+      };
+
+      // Deep research requires at least one data source - web search and/or code interpreter
+      // Auto-enable web search for deep research models
+      if (webSearchConfig !== false) {
+        const webSearchTool = this.webSearchService.formatWebSearchTool({
+          maxUses: 20, // Deep research needs more searches
+          ...webSearchConfig
+        });
+        requestData.tools.push(webSearchTool);
+        console.log('🔍 Web search enabled for deep research');
+      }
+
+      // Auto-enable code interpreter for analysis
+      if (codeInterpreterConfig !== false) {
+        const codeInterpreterTool = this.codeInterpreterService.formatCodeInterpreterTool({
+          container: { type: 'auto' },
+          ...codeInterpreterConfig
+        });
+        requestData.tools.push(codeInterpreterTool);
+        console.log('💻 Code interpreter enabled for deep research');
+      }
+
+      // Ensure at least one tool is enabled
+      if (requestData.tools.length === 0) {
+        // Default to web search if no tools specified
+        const defaultWebSearchTool = this.webSearchService.formatWebSearchTool({ maxUses: 20 });
+        requestData.tools.push(defaultWebSearchTool);
+        console.log('🔍 Default web search enabled - deep research requires data sources');
+      }
+
+      // Add reasoning configuration for deep research
+      requestData.reasoning = {
+        effort: "high",
+        summary: "auto"
+      };
+
+      // Set background mode for long-running requests (optional)
+      // requestData.background = true; // Can be enabled if needed
+
+      console.log(`🚀 Sending deep research request to OpenAI with ${requestData.tools.length} tools`);
+      
+      const response = await this.apiClient.responses(requestData);
+      
+      console.log('✅ Deep research response received');
+      
+      return this.processDeepResearchOutput(response);
+      
+    } catch (error) {
+      console.error(`❌ Deep research error for model ${modelID}:`, error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Extract text from user_input object for deep research input format
+   */
+  extractTextFromUserInput(user_input) {
+    if (typeof user_input === 'string') {
+      return user_input;
+    }
+    
+    if (user_input && user_input.content) {
+      if (Array.isArray(user_input.content)) {
+        return user_input.content
+          .filter(item => item.type === 'text')
+          .map(item => item.text)
+          .join('\n');
+      }
+      return user_input.content;
+    }
+
+    if (user_input && user_input.role === 'user' && user_input.content) {
+      return user_input.content;
+    }
+
+    return JSON.stringify(user_input);
+  }
+
+  /**
+   * Process deep research output with special handling for web_search_call and code_interpreter_call
+   */
+  processDeepResearchOutput(response) {
+    console.log('Processing deep research output...');
+
+    const processedResponse = this.processResponsesOutput(response);
+    
+    // Extract deep research specific information
+    const deepResearchInfo = {
+      webSearchCalls: [],
+      codeInterpreterCalls: [],
+      mcpToolCalls: [],
+      totalToolCalls: 0
+    };
+
+    if (response.output && Array.isArray(response.output)) {
+      response.output.forEach(item => {
+        if (item.type === 'web_search_call') {
+          deepResearchInfo.webSearchCalls.push(item);
+          deepResearchInfo.totalToolCalls++;
+        } else if (item.type === 'code_interpreter_call') {
+          deepResearchInfo.codeInterpreterCalls.push(item);
+          deepResearchInfo.totalToolCalls++;
+        } else if (item.type === 'mcp_tool_call') {
+          deepResearchInfo.mcpToolCalls.push(item);
+          deepResearchInfo.totalToolCalls++;
+        }
+      });
+    }
+
+    // Add deep research metadata to response
+    processedResponse.deepResearch = deepResearchInfo;
+    processedResponse.isDeepResearch = true;
+    
+    console.log(`✅ Deep research complete: ${deepResearchInfo.totalToolCalls} tool calls made`);
+    
+    return processedResponse;
+  }
+
   async handleCompletionWithWebSearch(payload) {
     const { 
       user_input, 
@@ -309,6 +463,11 @@ class ResponsesHandler {
    */
   async handleRequest(payload) {
     const { modelID } = payload;
+
+    // Check if this is a deep research model (highest priority - combines reasoning + web search)
+    if (this.isDeepResearchModel(modelID)) {
+      return this.handleDeepResearchCompletion(payload);
+    }
 
     // Check if this is a reasoning model
     if (this.isReasoningModel(modelID)) {

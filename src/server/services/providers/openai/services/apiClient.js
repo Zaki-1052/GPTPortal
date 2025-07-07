@@ -36,18 +36,44 @@ class OpenAIApiClient {
   async post(endpoint, data, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
     const headers = options.headers || this.getDefaultHeaders();
+    
+    // Set timeout based on endpoint and model type
+    const timeout = this.getTimeoutForRequest(endpoint, data);
+    
     const config = {
       headers,
+      timeout,
       ...options
     };
 
     try {
-      console.log(`🔗 OpenAI API Request: ${endpoint}`);
+      console.log(`🔗 OpenAI API Request: ${endpoint} (timeout: ${timeout}ms)`);
       const response = await axios.post(url, data, config);
       return response;
     } catch (error) {
       this.handleError(error, endpoint);
     }
+  }
+
+  /**
+   * Determine appropriate timeout based on request type
+   */
+  getTimeoutForRequest(endpoint, data) {
+    // Deep research models need extended timeout (30 minutes)
+    if (endpoint === API_ENDPOINTS.RESPONSES && data && data.model) {
+      const isDeepResearch = data.model === 'o3-deep-research' || data.model === 'o4-mini-deep-research';
+      if (isDeepResearch) {
+        return 30 * 60 * 1000; // 30 minutes for deep research
+      }
+    }
+    
+    // Responses API generally needs longer timeout (10 minutes)
+    if (endpoint === API_ENDPOINTS.RESPONSES) {
+      return 10 * 60 * 1000; // 10 minutes for reasoning models
+    }
+    
+    // Default timeout for other requests (2 minutes)
+    return 2 * 60 * 1000; // 2 minutes
   }
 
   /**

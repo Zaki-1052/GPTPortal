@@ -54,12 +54,20 @@ const REASONING_MODELS = [
   'o3-pro'
 ];
 
+// Deep research models (use Responses API with web search)
+const DEEP_RESEARCH_MODELS = [
+  'o3-deep-research',
+  'o4-mini-deep-research'
+];
+
 // Models that support web search via Responses API
 const WEB_SEARCH_RESPONSES_MODELS = [
   'gpt-4.1',
   'gpt-4o',
   'gpt-4o-mini',
-  'gpt-4.1-mini'
+  'gpt-4.1-mini',
+  'o3-deep-research',
+  'o4-mini-deep-research'
 ];
 
 // Models that support Code Interpreter via Responses API
@@ -171,6 +179,7 @@ module.exports = {
   CHAT_MODELS,
   WEB_SEARCH_CHAT_MODELS,
   REASONING_MODELS,
+  DEEP_RESEARCH_MODELS,
   WEB_SEARCH_RESPONSES_MODELS,
   CODE_INTERPRETER_MODELS,
   IMAGE_MODELS,

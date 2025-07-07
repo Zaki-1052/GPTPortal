@@ -785,6 +785,44 @@
       "supportsFunction": true,
       "supportsWebSearch": true,
       "webSearchType": "chat_completions"
+    },
+
+    "o3-deep-research": {
+      "id": "o3-deep-research",
+      "name": "o3 Deep Research: Advanced Research",
+      "provider": "openai",
+      "category": "search",
+      "source": "core",
+      "description": "Our most powerful deep research model for complex, multi-step research tasks with web search and data synthesis",
+      "pricing": { "input": 10.00, "output": 40.00, "cached": 2.50 },
+      "contextWindow": 200000,
+      "maxTokens": 100000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsWebSearch": true,
+      "supportsDeepResearch": true,
+      "supportsReasoningTokens": true,
+      "webSearchType": "responses",
+      "knowledgeCutoff": "2024-05-31"
+    },
+
+    "o4-mini-deep-research": {
+      "id": "o4-mini-deep-research",
+      "name": "o4 Mini Deep Research: Fast Research",
+      "provider": "openai",
+      "category": "search",
+      "source": "core",
+      "description": "Faster, more affordable deep research model for complex, multi-step research tasks with web search",
+      "pricing": { "input": 2.00, "output": 8.00, "cached": 0.50 },
+      "contextWindow": 200000,
+      "maxTokens": 100000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsWebSearch": true,
+      "supportsDeepResearch": true,
+      "supportsReasoningTokens": true,
+      "webSearchType": "responses",
+      "knowledgeCutoff": "2024-05-31"
     }
   },
   
@@ -827,7 +865,7 @@
     },
     "search": {
       "name": "Web Search Models",
-      "models": ["gpt-4o-search-preview", "gpt-4o-mini-search-preview"]
+      "models": ["o3-deep-research", "o4-mini-deep-research", "gpt-4o-search-preview", "gpt-4o-mini-search-preview"]
     }
   }
 }

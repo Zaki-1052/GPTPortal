@@ -418,15 +418,42 @@ class ChatManager {
       }
     }
 
+    // Create AbortController for timeout handling
+    const controller = new AbortController();
+    const timeoutDuration = this.getTimeoutForModel(currentModelID);
+    let timeoutId;
+
     try {
       console.log('Sending to:', endpoint, payload);
+      
+      // Set timeout
+      timeoutId = setTimeout(() => {
+        controller.abort();
+      }, timeoutDuration);
+      
+      console.log(`⏱️ Request timeout set to ${timeoutDuration / 1000}s for model ${currentModelID}`);
+      
+      // Show progress indicator for deep research models
+      if (currentModelID === 'o3-deep-research' || currentModelID === 'o4-mini-deep-research') {
+        this.showDeepResearchProgress();
+      }
+      
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: controller.signal
       });
+      
+      // Clear timeout if request completes successfully
+      clearTimeout(timeoutId);
+
+      // Hide progress indicator for deep research models
+      if (currentModelID === 'o3-deep-research' || currentModelID === 'o4-mini-deep-research') {
+        this.hideDeepResearchProgress();
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -467,8 +494,131 @@ class ChatManager {
       }
       
     } catch (error) {
-      console.error('Error sending message to server:', error);
-      this.displayMessage('Error sending message. Please try again.', 'error');
+      // Clear timeout if it exists
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      
+      if (error.name === 'AbortError') {
+        console.error('Request timeout:', error);
+        this.displayMessage('⏱️ Request timed out. Deep research queries can take up to 20 minutes - please try again or use a smaller scope.', 'error');
+      } else {
+        console.error('Error sending message to server:', error);
+        this.displayMessage('Error sending message. Please try again.', 'error');
+      }
+    }
+  }
+
+  /**
+   * Get timeout duration based on model type
+   */
+  getTimeoutForModel(modelID) {
+    // Deep research models need extended timeout (30 minutes)
+    if (modelID === 'o3-deep-research' || modelID === 'o4-mini-deep-research') {
+      return 30 * 60 * 1000; // 30 minutes
+    }
+    
+    // Reasoning models need longer timeout (10 minutes)
+    if (modelID && (modelID.includes('o1') || modelID.includes('o3') || modelID.includes('o4'))) {
+      return 10 * 60 * 1000; // 10 minutes
+    }
+    
+    // Default timeout for other models (2 minutes)
+    return 2 * 60 * 1000; // 2 minutes
+  }
+
+  /**
+   * Show progress indicator for deep research
+   */
+  showDeepResearchProgress() {
+    const progressMessage = `
+      🔬 **Deep Research in Progress**
+      
+      This may take 5-20 minutes as the model:
+      - 🔍 Searches the web for information
+      - 📊 Analyzes data with code interpreter
+      - 📝 Synthesizes comprehensive research
+      
+      You'll receive a browser notification when complete.
+    `;
+    
+    this.displayMessage(progressMessage, 'system');
+    
+    // Request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+    
+    // Start progress animation
+    this.startProgressAnimation();
+  }
+
+  /**
+   * Hide deep research progress indicator
+   */
+  hideDeepResearchProgress() {
+    this.stopProgressAnimation();
+    
+    // Show browser notification if permission granted
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('Deep Research Complete', {
+        body: 'Your research results are ready!',
+        icon: '/favicon.ico'
+      });
+    }
+  }
+
+  /**
+   * Start progress animation
+   */
+  startProgressAnimation() {
+    if (this.progressInterval) {
+      clearInterval(this.progressInterval);
+    }
+    
+    const phases = [
+      '🔍 Searching web sources...',
+      '📊 Analyzing data...',
+      '💻 Running calculations...',
+      '📝 Synthesizing findings...'
+    ];
+    
+    let phaseIndex = 0;
+    let dots = '';
+    
+    this.progressInterval = setInterval(() => {
+      dots = dots.length >= 3 ? '' : dots + '.';
+      const currentPhase = phases[phaseIndex % phases.length];
+      
+      // Update the last system message with progress
+      const chatBox = document.getElementById('chat-box');
+      const systemMessages = chatBox.querySelectorAll('.system-message');
+      if (systemMessages.length > 0) {
+        const lastSystemMessage = systemMessages[systemMessages.length - 1];
+        if (lastSystemMessage && lastSystemMessage.textContent.includes('Deep Research in Progress')) {
+          const progressLine = lastSystemMessage.querySelector('.progress-line') || 
+                               lastSystemMessage.appendChild(document.createElement('div'));
+          progressLine.className = 'progress-line';
+          progressLine.style.marginTop = '10px';
+          progressLine.style.fontWeight = 'normal';
+          progressLine.textContent = currentPhase + dots;
+        }
+      }
+      
+      // Change phase every 15 seconds
+      if (dots === '') {
+        phaseIndex++;
+      }
+    }, 1000);
+  }
+
+  /**
+   * Stop progress animation
+   */
+  stopProgressAnimation() {
+    if (this.progressInterval) {
+      clearInterval(this.progressInterval);
+      this.progressInterval = null;
     }
   }
 
