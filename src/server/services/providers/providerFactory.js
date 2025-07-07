@@ -1,5 +1,5 @@
 // Provider Factory - Manages all AI provider handlers
-const OpenAIHandler = require('./openaiHandler');
+const OpenAIHandler = require('./openai/index');
 const ClaudeHandler = require('./claudeHandler');
 const GroqHandler = require('./groqHandler');
 const DeepSeekHandler = require('./deepseekHandler');

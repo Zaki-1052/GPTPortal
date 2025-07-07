@@ -7,22 +7,26 @@ GPTPortal is a sophisticated multi-LLM chat interface built with Node.js and Exp
 ## Architecture Principles
 
 ### 1. **Modular Design**
+
 - **Separation of Concerns**: Each component has a single responsibility
 - **Provider Pattern**: Unified interface for different AI providers
 - **Service Layer**: Business logic separated from routing
 - **Middleware Pipeline**: Configurable request/response processing
 
 ### 2. **Scalability**
+
 - **Service Manager**: Centralized service lifecycle management
 - **Caching Strategies**: Token counting and model metadata caching
 - **Resource Management**: Memory-efficient model loading and cleanup
 
 ### 3. **Reliability**
+
 - **Error Handling**: Comprehensive error management with proper logging
 - **Graceful Degradation**: Fallback mechanisms for AI providers
 - **Health Checks**: Service monitoring and diagnostics
 
 ### 4. **Security**
+
 - **Input Validation**: Comprehensive request validation and sanitization
 - **Rate Limiting**: Multi-tier rate limiting for different endpoints
 - **Security Headers**: Helmet.js integration for security headers
@@ -32,6 +36,7 @@ GPTPortal is a sophisticated multi-LLM chat interface built with Node.js and Exp
 ### 1. Application Core (`src/server/core/`)
 
 #### **Application.js**
+
 Central application orchestrator that manages the entire lifecycle:
 
 ```javascript
@@ -46,6 +51,7 @@ class Application extends EventEmitter {
 ```
 
 **Key Features:**
+
 - Event-driven architecture
 - Graceful shutdown handling with multiple shutdown mechanisms
 - Health monitoring
@@ -53,6 +59,7 @@ class Application extends EventEmitter {
 - Server instance management for route access
 
 #### **ServiceManager.js**
+
 Manages all application services and their dependencies:
 
 ```javascript
@@ -66,6 +73,7 @@ class ServiceManager {
 ```
 
 **Services Managed:**
+
 - AI Provider Factory
 - Prompt Cache Service
 - Model Sync Service
@@ -75,6 +83,7 @@ class ServiceManager {
 - Title Generation Service
 
 #### **RouteManager.js**
+
 Centralized route registration and management:
 
 ```javascript
@@ -90,6 +99,7 @@ class RouteManager {
 ```
 
 **Route Categories:**
+
 - Core application routes (auth, config, setup)
 - API routes (models, health, system)
 - AI service routes (chat, transcription, TTS, image generation)
@@ -99,6 +109,7 @@ class RouteManager {
 ### 2. Provider System (`src/server/services/providers/`)
 
 #### **ProviderFactory.js**
+
 Central orchestrator for all AI provider handlers:
 
 ```javascript
@@ -119,6 +130,7 @@ class ProviderFactory {
 ```
 
 **Provider Implementations:**
+
 - **OpenAIHandler**: GPT models, o1/o3 reasoning, DALL-E, Whisper, TTS
 - **ClaudeHandler**: Anthropic Claude models with thinking support and prompt caching
 - **GeminiHandler**: Google Generative AI models
@@ -128,6 +140,7 @@ class ProviderFactory {
 - **OpenRouterHandler**: OpenRouter model proxy
 
 #### **Provider Features:**
+
 - **Intelligent Routing**: Automatic provider selection based on model ID
 - **Fallback Mechanisms**: Graceful degradation when providers fail
 - **Format Normalization**: Consistent response format across providers
@@ -137,6 +150,7 @@ class ProviderFactory {
 ### 3. Model Management System
 
 #### **ModelLoader.js** (`src/shared/modelLoader.js`)
+
 Unified model data management:
 
 ```javascript
@@ -156,12 +170,14 @@ class ModelLoader {
 ```
 
 **Features:**
+
 - Single source of truth for model data
 - Dynamic model discovery from provider APIs
 - Automatic pricing and capability detection
 - Caching and performance optimization
 
 #### **ModelRegistry.js**
+
 Combines core models with OpenRouter models:
 
 ```javascript
@@ -177,6 +193,7 @@ class ModelRegistry {
 ```
 
 #### **ModelSyncService.js**
+
 Automated model synchronization:
 
 ```javascript
@@ -192,6 +209,7 @@ class ModelSyncService {
 ### 4. Services Layer (`src/server/services/`)
 
 #### **PromptCacheService.js**
+
 Intelligent prompt caching system for Claude models:
 
 ```javascript
@@ -218,6 +236,7 @@ class PromptCacheService {
 ```
 
 **Features:**
+
 - **Intelligent Strategy Detection**: Analyzes content to determine optimal caching approach
 - **Multiple Cache Strategies**: Conservative, aggressive, system-only, and force modes
 - **Token Minimum Validation**: Ensures content meets Claude's minimum token requirements
@@ -226,12 +245,14 @@ class PromptCacheService {
 - **Analytics Tracking**: Comprehensive caching performance metrics
 
 **Cache Strategies:**
+
 - **Conservative** (default): Cache only system messages meeting token minimums
 - **Aggressive**: Cache system messages and conversation history with multiple breakpoints
 - **System Only**: Cache only system/instruction content
 - **Force**: Override minimums and cache all available content
 
 #### **TokenService.js**
+
 Enhanced token counting with caching:
 
 ```javascript
@@ -251,12 +272,14 @@ class TokenService {
 ```
 
 **Features:**
+
 - Accurate token counting with tiktoken
 - Multi-level caching (encoder + token cache)
 - Cache cleanup and memory management
 - Performance monitoring
 
 #### **CostService.js**
+
 Unified cost calculation across providers:
 
 ```javascript
@@ -269,6 +292,7 @@ class CostService {
 ```
 
 #### **ExportService.js**
+
 Rich HTML export functionality with integrated shutdown capabilities:
 
 ```javascript
@@ -283,6 +307,7 @@ class ExportService {
 ```
 
 **Export Features:**
+
 - **Multi-format Support**: HTML exports with rich styling and metadata
 - **Automatic Titling**: AI-generated titles and summaries for conversations
 - **Cost Analysis**: Token usage and cost calculations included in exports
@@ -291,6 +316,7 @@ class ExportService {
 ### 5. Middleware System
 
 #### **MiddlewareManager.js**
+
 Centralized middleware configuration:
 
 - **Security Middleware**: Headers, CORS, rate limiting
@@ -300,6 +326,7 @@ Centralized middleware configuration:
 - **Authentication**: Basic auth and session management
 
 #### **SecurityMiddleware.js**
+
 Comprehensive security measures:
 
 ```javascript
@@ -314,6 +341,7 @@ class SecurityMiddleware {
 ```
 
 **Security Features:**
+
 - **Rate Limiting**: Different limits for general, AI, and image endpoints
 - **Request Validation**: Pattern detection for common attacks
 - **Security Headers**: CSP, XSS protection, frame options
@@ -322,6 +350,7 @@ class SecurityMiddleware {
 ### 6. Utilities (`src/server/utils/`)
 
 #### **Logger.js**
+
 Structured logging system:
 
 ```javascript
@@ -342,6 +371,7 @@ class Logger {
 ```
 
 #### **ValidationUtils.js**
+
 Comprehensive input validation:
 
 ```javascript
@@ -363,6 +393,7 @@ class ValidationUtils {
 ### 7. Error Handling
 
 #### **ErrorHandler.js**
+
 Centralized error management:
 
 ```javascript
@@ -380,6 +411,7 @@ class ErrorHandler {
 ```
 
 **Error Types:**
+
 - Validation errors
 - Authentication/authorization errors
 - Provider errors
@@ -389,23 +421,27 @@ class ErrorHandler {
 ## API Endpoints
 
 ### Chat Endpoints
+
 - `POST /message` - Main chat interface for all providers
 - `POST /gemini` - Google Gemini specific endpoint
 - `POST /assistant` - OpenAI Assistants API
 - `POST /reset` - Reset conversation state
 
 ### AI Services
+
 - `POST /transcribe` - Audio transcription (OpenAI/Groq)
 - `POST /tts` - Text-to-speech generation
 - `POST /generate-image` - Image generation (DALL-E/GPT Image)
 
 ### File Management
+
 - `POST /upload-file` - File upload and processing
 - `POST /upload-image` - Image upload
 - `GET /uploads/:filename` - File serving
 - `GET /upload-status/:sessionId` - Check file upload progress and status
 
 ### Model Management
+
 - `GET /api/models` - Get all available models
 - `GET /api/models/core` - Get core models only
 - `GET /api/models/openrouter` - Get OpenRouter models
@@ -414,16 +450,19 @@ class ErrorHandler {
 - `POST /api/models/sync` - Sync with provider APIs
 
 ### Token Analysis
+
 - `POST /api/models/tokens/count` - Count tokens for specific model
 - `POST /api/models/tokens/analyze` - Analyze text across multiple models
 - `POST /api/models/tokens/calculate-cost` - Calculate usage cost
 
 ### System Endpoints
+
 - `GET /health` - Basic health check
 - `GET /health/detailed` - Detailed service health
 - `GET /api/system/status` - System information
 
 ### Administrative Endpoints
+
 - `GET /export-chat-html` - Export conversation with automatic server shutdown
 - `POST /shutdown-server` - Standalone server shutdown endpoint
 - `GET /listChats` - List available chat history files
@@ -432,17 +471,20 @@ class ErrorHandler {
 - `GET /getSummary/:chatName` - Retrieve conversation summary
 
 ### Configuration Management
+
 - `GET /get-instructions` - Read system instructions file
 - `POST /update-instructions` - Update system instructions
 - `GET /get-my-env` - Read environment configuration
 - `POST /update-my-env` - Update environment variables
 
 ### Context Window API
+
 - `GET /api/models/:modelId/context-window` - Get context window for specific model
 - `POST /api/models/context-windows` - Get context windows for multiple models
 - `POST /api/context-usage` - Calculate context window usage
 
 ### Prompt Caching API
+
 - `GET /api/cache/analytics` - Get prompt caching performance analytics
 - `POST /api/cache/strategy` - Analyze optimal caching strategy for content
 - `PUT /api/cache/config` - Update prompt caching configuration
@@ -457,11 +499,13 @@ The Prompt Caching System is a modular service that implements Anthropic's promp
 ### Key Components
 
 #### **PromptCacheService**
+
 - **Location**: `src/server/services/promptCacheService.js`
 - **Purpose**: Core caching logic and strategy determination
 - **Dependencies**: TokenService, CostService
 
 #### **Cache Integration**
+
 - **ClaudeHandler Integration**: Seamless integration with existing Claude provider
 - **ServiceManager Registration**: Managed as a first-class service
 - **Configuration System**: Environment-based configuration with runtime updates
@@ -469,6 +513,7 @@ The Prompt Caching System is a modular service that implements Anthropic's promp
 ### Supported Models
 
 All Claude models support prompt caching with specific token minimums:
+
 - **Claude 4 Models** (Opus, Sonnet): 1024 token minimum
 - **Claude 3.x Models** (3.5 Sonnet, 3.7 Sonnet): 1024 token minimum  
 - **Claude Haiku Models** (3.5, 3): 2048 token minimum
@@ -476,31 +521,37 @@ All Claude models support prompt caching with specific token minimums:
 ### Cache Strategies
 
 #### **Conservative Strategy** (Default)
+
 - Caches only system messages/instructions
 - Safest approach with predictable performance
 - Ideal for conversations with stable system prompts
 
 #### **Aggressive Strategy**
+
 - Caches system messages and conversation history
 - Uses multiple cache breakpoints (up to 4)
 - Maximum cost savings but requires careful content analysis
 
 #### **System-Only Strategy**
+
 - Only caches system/instruction content
 - Equivalent to conservative but explicit
 
 #### **Force Strategy**
+
 - Overrides token minimums and caches all content
 - Used for testing or specific optimization scenarios
 
 ### Performance Benefits
 
 #### **Cost Reduction**
+
 - **Cache Hits**: 90% cost reduction (10% of normal input token cost)
 - **Cache Writes**: 25% overhead (125% of normal input token cost)
 - **Break-even**: Achieved after 1.4 cache hits per cache write
 
 #### **Latency Reduction**
+
 - **Cache Hits**: Up to 80% latency reduction
 - **Instant Context**: Previously cached content loads instantly
 - **Streaming Benefits**: Faster response initiation
@@ -508,12 +559,14 @@ All Claude models support prompt caching with specific token minimums:
 ### Analytics and Monitoring
 
 #### **Real-time Metrics**
+
 - Cache hit/miss rates by model
 - Token savings and cost analysis
 - Performance impact measurement
 - Strategy effectiveness tracking
 
 #### **Cost Analysis**
+
 ```javascript
 {
   overall: {
@@ -537,6 +590,7 @@ All Claude models support prompt caching with specific token minimums:
 ### Configuration Options
 
 #### **Environment Variables**
+
 ```bash
 # Enable/disable prompt caching
 CLAUDE_CACHE_ENABLED=true
@@ -555,6 +609,7 @@ CLAUDE_CACHE_DEFAULT_PREFERENCE=auto
 ```
 
 #### **Runtime Configuration**
+
 - Dynamic strategy updates
 - Per-request cache preferences
 - Analytics enable/disable
@@ -563,6 +618,7 @@ CLAUDE_CACHE_DEFAULT_PREFERENCE=auto
 ### Integration Architecture
 
 #### **Request Flow with Caching**
+
 ```
 1. Chat Request → ClaudeHandler
 2. Cache Strategy Analysis → PromptCacheService
@@ -574,6 +630,7 @@ CLAUDE_CACHE_DEFAULT_PREFERENCE=auto
 ```
 
 #### **Fallback Mechanisms**
+
 - **Service Unavailable**: Falls back to standard requests
 - **Analysis Errors**: Continues without caching
 - **Token Minimum Not Met**: Skips caching gracefully
@@ -582,17 +639,20 @@ CLAUDE_CACHE_DEFAULT_PREFERENCE=auto
 ### Best Practices
 
 #### **Content Optimization**
+
 - Structure system prompts to exceed token minimums
 - Place stable content at prompt beginning
 - Use consistent instruction formatting
 - Minimize dynamic content in cached sections
 
 #### **Strategy Selection**
+
 - **Conservative**: Production environments, cost-sensitive applications
 - **Aggressive**: High-volume applications with stable conversation patterns
 - **System-Only**: Applications with minimal system prompt changes
 
 #### **Monitoring**
+
 - Track cache hit rates for optimization opportunities
 - Monitor cost savings to validate caching effectiveness
 - Analyze token distribution for strategy tuning
@@ -601,11 +661,13 @@ CLAUDE_CACHE_DEFAULT_PREFERENCE=auto
 ### Security Considerations
 
 #### **Content Safety**
+
 - No sensitive data cached without explicit consent
 - Cache content follows same security policies as regular requests
 - Analytics data excludes actual content, only metadata
 
 #### **Configuration Security**
+
 - Environment variable validation
 - Secure default configurations
 - Runtime configuration access controls
@@ -613,6 +675,7 @@ CLAUDE_CACHE_DEFAULT_PREFERENCE=auto
 ## Configuration
 
 ### Environment Variables
+
 ```bash
 # Authentication
 USER_USERNAME=admin
@@ -647,6 +710,7 @@ CLAUDE_CACHE_DEFAULT_PREFERENCE=auto
 ```
 
 ### Configuration Management
+
 - **Environment Validation**: Startup validation of required configuration
 - **Dynamic Configuration**: Runtime configuration updates
 - **Security**: Sensitive data protection and sanitization
@@ -654,6 +718,7 @@ CLAUDE_CACHE_DEFAULT_PREFERENCE=auto
 ## Performance Optimizations
 
 ### Caching Strategies
+
 1. **Token Counting Cache**: Hash-based caching of token calculations
 2. **Model Metadata Cache**: Cached model information and pricing
 3. **Prompt Caching**: Claude-specific prompt caching for cost and latency reduction
@@ -661,11 +726,13 @@ CLAUDE_CACHE_DEFAULT_PREFERENCE=auto
 5. **Static Asset Caching**: CDN-ready static file serving
 
 ### Memory Management
+
 1. **Token Encoder Caching**: Reuse tiktoken encoders across requests
 2. **Automatic Cleanup**: Periodic cache cleanup to prevent memory leaks
 3. **Resource Monitoring**: Memory usage tracking and alerts
 
 ### Request Optimization
+
 1. **Connection Pooling**: HTTP connection reuse for provider APIs
 2. **Streaming Responses**: Support for streaming AI responses
 3. **Compression**: Gzip compression for API responses
@@ -673,16 +740,19 @@ CLAUDE_CACHE_DEFAULT_PREFERENCE=auto
 ## Security Features
 
 ### Input Validation
+
 - **Payload Validation**: Comprehensive request validation
 - **File Upload Security**: Type, size, and content validation
 - **Sanitization**: XSS and injection prevention
 
 ### Rate Limiting
+
 - **Multi-Tier Limits**: Different limits for different endpoint types
 - **IP-Based Tracking**: Per-IP rate limiting with fingerprinting
 - **Adaptive Limiting**: Dynamic rate adjustment based on load
 
 ### Security Headers
+
 - **CSP**: Content Security Policy for XSS prevention
 - **HSTS**: HTTP Strict Transport Security
 - **Frame Options**: Clickjacking prevention
@@ -691,16 +761,19 @@ CLAUDE_CACHE_DEFAULT_PREFERENCE=auto
 ## Monitoring and Observability
 
 ### Logging
+
 - **Structured Logging**: JSON-formatted logs with metadata
 - **Request Tracking**: Request ID propagation
 - **Performance Metrics**: Response time and resource usage tracking
 
 ### Health Checks
+
 - **Service Health**: Individual service health monitoring
 - **Dependency Checks**: External service availability
 - **Resource Monitoring**: Memory, CPU, and disk usage
 
 ### Metrics
+
 - **Provider Usage**: AI provider request/response metrics
 - **Prompt Caching**: Cache hit rates, cost savings, and performance metrics
 - **Error Rates**: Error frequency and categorization
@@ -709,16 +782,19 @@ CLAUDE_CACHE_DEFAULT_PREFERENCE=auto
 ## Deployment Considerations
 
 ### Environment Support
+
 - **Development**: Local development with hot reloading
 - **Production**: Optimized production deployment
 - **Vercel**: Serverless deployment support
 
 ### Scaling
+
 - **Horizontal Scaling**: Multi-instance deployment support
 - **Load Balancing**: Request distribution across instances
 - **Database Integration**: Ready for external database integration
 
 ### Monitoring
+
 - **Health Endpoints**: Built-in health check endpoints
 - **Logging Integration**: Compatible with log aggregation services
 - **Metrics Export**: Prometheus-compatible metrics (future)
@@ -735,6 +811,7 @@ The refactored architecture maintains full backward compatibility while providin
 6. **Observability**: Structured logging and monitoring
 
 ### Migration Steps
+
 1. **Gradual Migration**: Run both servers in parallel during transition
 2. **Feature Parity**: Ensure all original features are preserved
 3. **Configuration Transfer**: Migrate environment variables and settings

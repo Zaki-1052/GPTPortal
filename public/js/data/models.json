@@ -728,6 +728,37 @@
         "size": ["256x256", "512x512", "1024x1024"],
         "style": ["vivid", "natural"]
       }
+    },
+
+    "gpt-4o-search-preview": {
+      "id": "gpt-4o-search-preview",
+      "name": "GPT-4o Search: Web-Enabled",
+      "provider": "openai",
+      "category": "search",
+      "source": "core",
+      "description": "GPT-4o with integrated web search capabilities",
+      "pricing": { "input": 5.00, "output": 15.00, "search": 10.00 },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsWebSearch": true,
+      "webSearchType": "chat_completions"
+    },
+    "gpt-4o-mini-search-preview": {
+      "id": "gpt-4o-mini-search-preview",
+      "name": "GPT-4o Mini Search: Fast Web",
+      "provider": "openai",
+      "category": "search",
+      "source": "core",
+      "description": "GPT-4o Mini with integrated web search capabilities",
+      "pricing": { "input": 0.15, "output": 0.60, "search": 10.00 },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsWebSearch": true,
+      "webSearchType": "chat_completions"
     }
   },
   
@@ -767,6 +798,10 @@
     "image": {
       "name": "Image Models",
       "models": ["gpt-image-1", "dall-e-3", "dall-e-2"]
+    },
+    "search": {
+      "name": "Web Search Models",
+      "models": ["gpt-4o-search-preview", "gpt-4o-mini-search-preview"]
     }
   }
 }
