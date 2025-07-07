@@ -62,6 +62,24 @@ const WEB_SEARCH_RESPONSES_MODELS = [
   'gpt-4.1-mini'
 ];
 
+// Models that support Code Interpreter via Responses API
+const CODE_INTERPRETER_MODELS = [
+  'gpt-4.1',
+  'gpt-4o', 
+  'gpt-4o-mini',
+  'gpt-4.1-mini',
+  'gpt-4.1-nano',
+  'o1',
+  'o1-preview',
+  'o1-mini',
+  'o3',
+  'o3-mini',
+  'o4',
+  'o4-mini',
+  'o1-pro',
+  'o3-pro'
+];
+
 // Image generation models
 const IMAGE_MODELS = [
   'gpt-image-1',
@@ -89,6 +107,17 @@ const WEB_SEARCH_CONFIG = {
   CONTEXT_SIZES: ['low', 'medium', 'high'],
   DEFAULT_CONTEXT_SIZE: 'medium',
   SUPPORTED_LOCATION_FIELDS: ['country', 'city', 'region', 'timezone']
+};
+
+// Code Interpreter configuration
+const CODE_INTERPRETER_CONFIG = {
+  TOOL_TYPE: 'code_interpreter',
+  CONTAINER_TYPES: ['auto', 'explicit'],
+  DEFAULT_CONTAINER_TYPE: 'auto',
+  SUPPORTED_FILE_FORMATS: [
+    'txt', 'csv', 'json', 'py', 'ipynb', 'md', 'html', 'xml',
+    'jpg', 'jpeg', 'png', 'gif', 'pdf', 'xlsx', 'docx', 'zip'
+  ]
 };
 
 // Default parameters
@@ -143,9 +172,11 @@ module.exports = {
   WEB_SEARCH_CHAT_MODELS,
   REASONING_MODELS,
   WEB_SEARCH_RESPONSES_MODELS,
+  CODE_INTERPRETER_MODELS,
   IMAGE_MODELS,
   AUDIO_MODELS,
   WEB_SEARCH_CONFIG,
+  CODE_INTERPRETER_CONFIG,
   DEFAULTS,
   AUDIO_CONFIG,
   CONTENT_TYPES,

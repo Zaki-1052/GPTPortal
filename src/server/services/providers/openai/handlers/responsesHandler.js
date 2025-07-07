@@ -1,7 +1,7 @@
 // src/server/services/providers/openai/handlers/responsesHandler.js
 // Responses API handler for OpenAI reasoning models and web search
 
-const { REASONING_MODELS, WEB_SEARCH_RESPONSES_MODELS, DEFAULTS } = require('../utils/constants');
+const { REASONING_MODELS, WEB_SEARCH_RESPONSES_MODELS, CODE_INTERPRETER_MODELS, DEFAULTS } = require('../utils/constants');
 const { 
   formatUserInputForResponses, 
   extractResponseContent, 
@@ -9,9 +9,10 @@ const {
 } = require('../utils/formatters');
 
 class ResponsesHandler {
-  constructor(apiClient, webSearchService) {
+  constructor(apiClient, webSearchService, codeInterpreterService) {
     this.apiClient = apiClient;
     this.webSearchService = webSearchService;
+    this.codeInterpreterService = codeInterpreterService;
     this.responseCount = 0;
     this.lastResponseId = null;
   }
@@ -21,7 +22,8 @@ class ResponsesHandler {
    */
   supportsModel(modelId) {
     return REASONING_MODELS.some(pattern => modelId.includes(pattern)) || 
-           WEB_SEARCH_RESPONSES_MODELS.includes(modelId);
+           WEB_SEARCH_RESPONSES_MODELS.includes(modelId) ||
+           CODE_INTERPRETER_MODELS.some(pattern => modelId.includes(pattern));
   }
 
   /**
@@ -89,6 +91,15 @@ class ResponsesHandler {
       }
     }
 
+    // Auto-enable Code Interpreter for supported models
+    if (this.codeInterpreterService.supportsCodeInterpreter(modelID)) {
+      if (payload.codeInterpreterConfig !== false) { // Allow explicit disable with false
+        const codeConfig = payload.codeInterpreterConfig || {};
+        requestData = this.codeInterpreterService.addCodeInterpreterToResponses(requestData, codeConfig);
+        console.log(`🐍 Code Interpreter enabled by default for ${modelID}`);
+      }
+    }
+
     try {
       const response = await this.apiClient.responses(requestData);
       this.responseCount++;
@@ -106,6 +117,18 @@ class ResponsesHandler {
         const citationData = this.webSearchService.extractResponsesCitations(outputArray);
         webSearchUsed = citationData.webSearchUsed;
         citations = citationData.citations;
+      }
+
+      // Check for Code Interpreter usage
+      let codeInterpreterUsed = false;
+      let codeExecutions = [];
+      let generatedFiles = [];
+      
+      if (this.codeInterpreterService.supportsCodeInterpreter(modelID) && payload.codeInterpreterConfig !== false) {
+        const codeResults = this.codeInterpreterService.extractCodeInterpreterResults(outputArray);
+        codeInterpreterUsed = codeResults.hasCodeExecution;
+        codeExecutions = codeResults.codeExecutions;
+        generatedFiles = codeResults.generatedFiles;
       }
       
       // Format the complete message with reasoning if available
@@ -129,6 +152,13 @@ class ResponsesHandler {
       if (webSearchUsed) {
         result.webSearchUsed = true;
         result.citations = citations;
+      }
+
+      // Add Code Interpreter information if used
+      if (codeInterpreterUsed) {
+        result.codeInterpreterUsed = true;
+        result.codeExecutions = codeExecutions;
+        result.generatedFiles = generatedFiles;
       }
 
       return result;
@@ -198,6 +228,15 @@ class ResponsesHandler {
       console.log(`🔍 Web search enabled by default for ${modelID}`);
     }
 
+    // Auto-enable Code Interpreter for supported models
+    if (this.codeInterpreterService.supportsCodeInterpreter(modelID)) {
+      if (payload.codeInterpreterConfig !== false) { // Allow explicit disable with false
+        const codeConfig = payload.codeInterpreterConfig || {};
+        requestData = this.codeInterpreterService.addCodeInterpreterToResponses(requestData, codeConfig);
+        console.log(`🐍 Code Interpreter enabled by default for ${modelID}`);
+      }
+    }
+
     try {
       const response = await this.apiClient.responses(requestData);
       
@@ -213,6 +252,18 @@ class ResponsesHandler {
         const citationData = this.webSearchService.extractResponsesCitations(outputArray);
         webSearchUsed = citationData.webSearchUsed;
         citations = citationData.citations;
+      }
+
+      // Extract Code Interpreter information (if enabled)
+      let codeInterpreterUsed = false;
+      let codeExecutions = [];
+      let generatedFiles = [];
+      
+      if (this.codeInterpreterService.supportsCodeInterpreter(modelID) && payload.codeInterpreterConfig !== false) {
+        const codeResults = this.codeInterpreterService.extractCodeInterpreterResults(outputArray);
+        codeInterpreterUsed = codeResults.hasCodeExecution;
+        codeExecutions = codeResults.codeExecutions;
+        generatedFiles = codeResults.generatedFiles;
       }
       
       // Use assistant content directly for non-reasoning models
@@ -237,6 +288,13 @@ class ResponsesHandler {
       // Add reasoning if available
       if (reasoning) {
         result.reasoning = reasoning;
+      }
+
+      // Add Code Interpreter information if used
+      if (codeInterpreterUsed) {
+        result.codeInterpreterUsed = true;
+        result.codeExecutions = codeExecutions;
+        result.generatedFiles = generatedFiles;
       }
 
       return result;
@@ -279,7 +337,8 @@ class ResponsesHandler {
     return {
       reasoning: REASONING_MODELS,
       webSearch: WEB_SEARCH_RESPONSES_MODELS,
-      all: [...REASONING_MODELS, ...WEB_SEARCH_RESPONSES_MODELS]
+      codeInterpreter: CODE_INTERPRETER_MODELS,
+      all: [...new Set([...REASONING_MODELS, ...WEB_SEARCH_RESPONSES_MODELS, ...CODE_INTERPRETER_MODELS])]
     };
   }
 
@@ -290,6 +349,7 @@ class ResponsesHandler {
     const capabilities = {
       reasoning: this.isReasoningModel(modelId),
       webSearch: this.webSearchService.supportsResponsesWebSearch(modelId),
+      codeInterpreter: this.codeInterpreterService.supportsCodeInterpreter(modelId),
       stateful: true, // Responses API maintains state
       previousResponse: true // Supports previous_response_id
     };
@@ -324,6 +384,7 @@ class ResponsesHandler {
       supportedModels: this.getSupportedModels().all.length,
       reasoningModels: REASONING_MODELS.length,
       webSearchModels: WEB_SEARCH_RESPONSES_MODELS.length,
+      codeInterpreterModels: CODE_INTERPRETER_MODELS.length,
       apiType: 'Responses',
       currentState: this.getCurrentState()
     };

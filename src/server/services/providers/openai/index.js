@@ -3,6 +3,7 @@
 
 const OpenAIApiClient = require('./services/apiClient');
 const WebSearchService = require('./services/webSearchService');
+const CodeInterpreterService = require('./services/codeInterpreterService');
 const ChatHandler = require('./handlers/chatHandler');
 const ResponsesHandler = require('./handlers/responsesHandler');
 const ImageHandler = require('./handlers/imageHandler');
@@ -15,6 +16,7 @@ const {
   WEB_SEARCH_CHAT_MODELS,
   REASONING_MODELS, 
   WEB_SEARCH_RESPONSES_MODELS,
+  CODE_INTERPRETER_MODELS,
   IMAGE_MODELS, 
   AUDIO_MODELS 
 } = require('./utils/constants');
@@ -26,10 +28,11 @@ class OpenAIHandler {
     // Initialize core services
     this.apiClient = new OpenAIApiClient(apiKey);
     this.webSearchService = new WebSearchService();
+    this.codeInterpreterService = new CodeInterpreterService();
     
     // Initialize specialized handlers
     this.chatHandler = new ChatHandler(this.apiClient, this.webSearchService);
-    this.responsesHandler = new ResponsesHandler(this.apiClient, this.webSearchService);
+    this.responsesHandler = new ResponsesHandler(this.apiClient, this.webSearchService, this.codeInterpreterService);
     this.imageHandler = new ImageHandler(this.apiClient);
     this.audioHandler = new AudioHandler(this.apiClient);
     this.assistantsHandler = new AssistantsHandler(this.apiClient);
@@ -49,6 +52,11 @@ class OpenAIHandler {
         return await this.responsesHandler.handleRequest(payload);
       }
 
+      // Route Code Interpreter models to Responses API by default
+      if (this.isCodeInterpreterModel(modelID)) {
+        return await this.responsesHandler.handleRequest(payload);
+      }
+
       // Route to web search models
       if (this.isWebSearchModel(modelID)) {
         if (this.webSearchService.supportsChatWebSearch(modelID)) {
@@ -56,6 +64,11 @@ class OpenAIHandler {
         } else if (this.webSearchService.supportsResponsesWebSearch(modelID)) {
           return await this.responsesHandler.handleRequest(payload);
         }
+      }
+
+      // Route supported models to Responses API by default (gpt-4.1, gpt-4o, etc.)
+      if (this.shouldUseResponsesAPI(modelID)) {
+        return await this.responsesHandler.handleRequest(payload);
       }
 
       // Route to standard chat models
@@ -164,8 +177,22 @@ class OpenAIHandler {
            WEB_SEARCH_RESPONSES_MODELS.includes(modelId);
   }
 
+  isCodeInterpreterModel(modelId) {
+    return CODE_INTERPRETER_MODELS.some(pattern => modelId.includes(pattern));
+  }
+
   isReasoningModel(modelId) {
     return REASONING_MODELS.some(pattern => modelId.includes(pattern));
+  }
+
+  /**
+   * Determine if model should use Responses API by default
+   * Consolidates routing logic for models that support enhanced features
+   */
+  shouldUseResponsesAPI(modelId) {
+    return this.isReasoningModel(modelId) || 
+           this.isCodeInterpreterModel(modelId) ||
+           this.webSearchService.supportsResponsesWebSearch(modelId);
   }
 
   isImageModel(modelId) {
@@ -184,6 +211,7 @@ class OpenAIHandler {
       chat: this.isChatModel(modelId) || this.webSearchService.supportsChatWebSearch(modelId),
       reasoning: this.isReasoningModel(modelId),
       webSearch: this.isWebSearchModel(modelId),
+      codeInterpreter: this.isCodeInterpreterModel(modelId),
       image: this.isImageModel(modelId),
       audio: this.isAudioModel(modelId),
       vision: this.supportsVision(modelId),
@@ -284,7 +312,8 @@ class OpenAIHandler {
           imageHandler: true,
           audioHandler: true,
           assistantsHandler: true,
-          webSearchService: true
+          webSearchService: true,
+          codeInterpreterService: true
         },
         supportedModels: this.getSupportedModels(),
         error: apiHealth.error

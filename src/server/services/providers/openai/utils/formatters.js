@@ -125,6 +125,36 @@ function formatWebSearchTool(options = {}) {
 }
 
 /**
+ * Format Code Interpreter tool for Responses API
+ */
+function formatCodeInterpreterTool(options = {}) {
+  const tool = {
+    type: "code_interpreter"
+  };
+
+  // Handle container configuration
+  if (options.containerId) {
+    // Use explicit container ID
+    tool.container = options.containerId;
+  } else if (options.container && typeof options.container === 'object') {
+    // Use provided container object
+    tool.container = options.container;
+  } else {
+    // Default to auto mode for simplicity
+    tool.container = { type: "auto" };
+  }
+
+  // Add files to container if specified
+  if (options.files && Array.isArray(options.files)) {
+    if (tool.container.type === "auto") {
+      tool.container.files = options.files;
+    }
+  }
+
+  return tool;
+}
+
+/**
  * Extract reasoning and response content from Responses API output
  */
 function extractResponseContent(outputArray) {
@@ -269,6 +299,7 @@ module.exports = {
   transformContentForResponses,
   formatWebSearchOptions,
   formatWebSearchTool,
+  formatCodeInterpreterTool,
   extractResponseContent,
   formatReasoningResponse,
   processCitations,
