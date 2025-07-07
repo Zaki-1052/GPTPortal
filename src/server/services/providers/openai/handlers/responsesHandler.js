@@ -80,11 +80,12 @@ class ResponsesHandler {
       };
     }
 
-    // Add web search if supported and configured
+    // Auto-enable web search for supported models (like Claude implementation)
     if (this.webSearchService.supportsResponsesWebSearch(modelID)) {
       if (webSearchConfig !== false) { // Allow explicit disable with false
         const processedConfig = this.webSearchService.processWebSearchConfig(webSearchConfig || {});
         requestData = this.webSearchService.addWebSearchToResponses(requestData, processedConfig);
+        console.log(`🔍 Web search enabled by default for ${modelID}`);
       }
     }
 
@@ -148,7 +149,7 @@ class ResponsesHandler {
       conversationHistory = [],
       temperature = DEFAULTS.TEMPERATURE,
       tokens = DEFAULTS.MAX_TOKENS,
-      webSearchConfig = {}
+      webSearchConfig = null
     } = payload;
 
     if (!this.webSearchService.supportsResponsesWebSearch(modelID)) {
@@ -190,9 +191,12 @@ class ResponsesHandler {
       store: true
     };
 
-    // Add web search tool
-    const processedConfig = this.webSearchService.processWebSearchConfig(webSearchConfig);
-    requestData = this.webSearchService.addWebSearchToResponses(requestData, processedConfig);
+    // Auto-enable web search by default (allow explicit disable with false)
+    if (webSearchConfig !== false) {
+      const processedConfig = this.webSearchService.processWebSearchConfig(webSearchConfig || {});
+      requestData = this.webSearchService.addWebSearchToResponses(requestData, processedConfig);
+      console.log(`🔍 Web search enabled by default for ${modelID}`);
+    }
 
     try {
       const response = await this.apiClient.responses(requestData);
@@ -201,8 +205,15 @@ class ResponsesHandler {
       const outputArray = response.data.output;
       const { reasoning, response: assistantContent } = extractResponseContent(outputArray);
       
-      // Extract web search information
-      const citationData = this.webSearchService.extractResponsesCitations(outputArray);
+      // Extract web search information (if enabled)
+      let webSearchUsed = false;
+      let citations = [];
+      
+      if (webSearchConfig !== false) {
+        const citationData = this.webSearchService.extractResponsesCitations(outputArray);
+        webSearchUsed = citationData.webSearchUsed;
+        citations = citationData.citations;
+      }
       
       // Use assistant content directly for non-reasoning models
       const finalContent = reasoning ? formatReasoningResponse(reasoning, assistantContent) : assistantContent;
@@ -214,10 +225,14 @@ class ResponsesHandler {
         responseId: response.data.id,
         model: modelID,
         type: 'responses',
-        usage: response.data.usage,
-        webSearchUsed: citationData.webSearchUsed,
-        citations: citationData.citations
+        usage: response.data.usage
       };
+
+      // Add web search information if enabled and used
+      if (webSearchUsed) {
+        result.webSearchUsed = true;
+        result.citations = citations;
+      }
 
       // Add reasoning if available
       if (reasoning) {
@@ -235,15 +250,15 @@ class ResponsesHandler {
    * Route request to appropriate method
    */
   async handleRequest(payload) {
-    const { modelID, webSearchConfig } = payload;
+    const { modelID } = payload;
 
     // Check if this is a reasoning model
     if (this.isReasoningModel(modelID)) {
       return this.handleReasoningCompletion(payload);
     }
     
-    // Check if web search is requested for supported model
-    if (this.webSearchService.supportsResponsesWebSearch(modelID) && webSearchConfig !== false) {
+    // Auto-enable web search for supported standard models (like Claude implementation)
+    if (this.webSearchService.supportsResponsesWebSearch(modelID)) {
       return this.handleCompletionWithWebSearch(payload);
     }
     

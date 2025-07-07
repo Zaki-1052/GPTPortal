@@ -548,6 +548,7 @@ class ModelLoader {
       
       // Reasoning models
       if (modelId.includes('o4-mini')) return { input: 1.10, output: 4.40, cached: 0.275 };
+      if (modelId.includes('o3-pro')) return { input: 20.00, output: 80.00 };
       if (modelId.includes('o3-mini')) return { input: 1.10, output: 4.40, cached: 0.55 };
       if (modelId.includes('o3')) return { input: 10.00, output: 40.00, cached: 2.50 };
       if (modelId.includes('o1-pro')) return { input: 150.00, output: 600.00 };
@@ -572,6 +573,7 @@ class ModelLoader {
   }
 
   inferContextWindow(modelId) {
+    if (modelId.includes('o3-pro') || modelId.includes('o1-pro')) return 200000;
     if (modelId.includes('gpt-4o') || modelId.includes('gpt-4-turbo')) return 128000;
     if (modelId.includes('gpt-4')) return 8192;
     if (modelId.includes('claude')) return 200000;
@@ -580,6 +582,7 @@ class ModelLoader {
   }
 
   inferMaxTokens(modelId) {
+    if (modelId.includes('o3-pro') || modelId.includes('o1-pro')) return 100000;
     if (modelId.includes('gpt-4o')) return 16000;
     if (modelId.includes('claude') && modelId.includes('sonnet')) return 8000;
     if (modelId.includes('claude')) return 100000;
@@ -588,6 +591,7 @@ class ModelLoader {
   }
 
   inferVisionSupport(modelId) {
+    if (modelId.includes('o3-pro') || modelId.includes('o1-pro')) return true;
     if (modelId.includes('gpt-4o')) return true;
     if (modelId.includes('gpt-4-turbo')) return true;
     if (modelId.includes('claude-3')) return true;

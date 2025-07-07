@@ -49,7 +49,9 @@ const REASONING_MODELS = [
   'o3',
   'o3-mini',
   'o4',
-  'o4-mini'
+  'o4-mini',
+  'o1-pro',
+  'o3-pro'
 ];
 
 // Models that support web search via Responses API
