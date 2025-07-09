@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google/genai": "^1.8.0",
     "@google/generative-ai": "^0.3.0",
     "axios": "^1.7.4",
     "basic-auth": "^2.0.1",
