@@ -78,8 +78,8 @@ class ProviderFactory {
       'gpt-image-1', 
       'dall-e-3', 
       'dall-e-2',
-      // TODO: Add Gemini image models when available
-      // 'gemini-image-1'
+      'gemini-2.0-flash-preview-image-generation',
+      'imagen-4.0-generate-preview'
     ];
     return imageModelIds.includes(modelID);
   }
@@ -93,8 +93,7 @@ class ProviderFactory {
       if (modelID.startsWith('gpt-image') || modelID.startsWith('dall-e')) {
         return 'openai';
       }
-      // TODO: Add Gemini image model routing when implemented
-      if (modelID.startsWith('gemini-image')) {
+      if (modelID.startsWith('gemini-2.0-flash-preview-image-generation') || modelID.startsWith('imagen-')) {
         return 'gemini';
       }
     }

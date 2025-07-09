@@ -1,5 +1,6 @@
 // Gemini Provider Handler - Google Generative AI models
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenAI, Modality } = require('@google/genai');
 const fs = require('fs');
 const path = require('path');
 
@@ -7,6 +8,7 @@ class GeminiHandler {
   constructor(apiKey) {
     this.apiKey = apiKey;
     this.genAI = new GoogleGenerativeAI(apiKey);
+    this.genAINew = new GoogleGenAI({});
     this.setupSafetySettings();
     this.setupDefaultConfig();
   }
@@ -246,39 +248,231 @@ class GeminiHandler {
   }
 
   /**
-   * Handle image generation with Gemini models
-   * TODO: Implement Google's image generation API integration
+   * Enhance image prompt using Gemini Flash model
    */
-  async generateImage(prompt, options = {}) {
-    // TODO: Implement Gemini image generation
-    // This will need to be replaced with actual Google image generation API calls
-    // when Google releases their image generation models
-    
-    throw new Error('Gemini image generation not yet implemented. TODO: Add Google image generation API integration');
-    
-    // Placeholder for future implementation:
-    /*
-    const { enhancePrompt = true, quality = 'standard', size = '1024x1024' } = options;
+  async enhanceImagePrompt(originalPrompt, skipEnhancement = false) {
+    if (skipEnhancement) {
+      return originalPrompt;
+    }
+
+    try {
+      const enhancementPrompt = `Enhance this image generation prompt to be more detailed and specific while maintaining the original intent. Focus on visual details, style, composition, and artistic elements. Return only the enhanced prompt without explanations:
+
+Original: ${originalPrompt}
+
+Enhanced:`;
+
+      const model = this.genAI.getGenerativeModel({ 
+        model: 'gemini-1.5-flash',
+        generationConfig: { max_output_tokens: 200, temperature: 0.7 },
+        safetySettings: this.safetySettings
+      });
+
+      const result = await model.generateContent(enhancementPrompt);
+      const enhancedPrompt = result.response.text().trim();
+      
+      return enhancedPrompt || originalPrompt;
+    } catch (error) {
+      console.error('Prompt enhancement failed:', error.message);
+      return originalPrompt;
+    }
+  }
+
+  /**
+   * Generate image using Gemini 2.0 Flash Preview Image Generation
+   */
+  async generateImageWithGeminiFlash(prompt, options = {}) {
+    const { enhancePrompt = true } = options;
     
     try {
-      // TODO: Use Google's image generation API
-      const result = await this.genAI.generateImage({
-        prompt: prompt,
-        quality: quality,
-        size: size
-      });
+      const finalPrompt = await this.enhanceImagePrompt(prompt, !enhancePrompt);
       
-      return {
-        success: true,
-        imageData: result.imageData,
-        model: 'gemini-image-1',
-        originalPrompt: prompt
-      };
+      const response = await this.genAINew.models.generateContent({
+        model: 'gemini-2.0-flash-preview-image-generation',
+        contents: finalPrompt,
+        config: {
+          responseModalities: [Modality.TEXT, Modality.IMAGE],
+        },
+      });
+
+      // Extract image data from response
+      for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData) {
+          return {
+            success: true,
+            imageData: part.inlineData.data,
+            model: 'gemini-2.0-flash-preview-image-generation',
+            originalPrompt: prompt,
+            enhancedPrompt: finalPrompt !== prompt ? finalPrompt : null,
+            revisedPrompt: null
+          };
+        }
+      }
+      
+      throw new Error('No image data found in response');
     } catch (error) {
-      console.error('Gemini image generation error:', error);
-      throw new Error(`Gemini image generation failed: ${error.message}`);
+      console.error('Gemini Flash image generation error:', error.message);
+      throw error;
     }
-    */
+  }
+
+  /**
+   * Generate image using Imagen 4.0
+   */
+  async generateImageWithImagen(prompt, options = {}) {
+    const { enhancePrompt = true, numberOfImages = 1, aspectRatio = '1:1' } = options;
+    
+    try {
+      const finalPrompt = await this.enhanceImagePrompt(prompt, !enhancePrompt);
+      
+      const response = await this.genAINew.models.generateImages({
+        model: 'imagen-4.0-generate-preview',
+        prompt: finalPrompt,
+        config: {
+          numberOfImages,
+          aspectRatio,
+          personGeneration: 'allow_adult'
+        },
+      });
+
+      if (response.generatedImages && response.generatedImages.length > 0) {
+        return {
+          success: true,
+          imageData: response.generatedImages[0].image.imageBytes,
+          model: 'imagen-4.0-generate-preview',
+          originalPrompt: prompt,
+          enhancedPrompt: finalPrompt !== prompt ? finalPrompt : null,
+          revisedPrompt: null
+        };
+      }
+      
+      throw new Error('No image data found in response');
+    } catch (error) {
+      console.error('Imagen image generation error:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Determine which image model to use based on model ID
+   */
+  getImageModelCapabilities(modelID) {
+    const capabilities = {
+      'gemini-2.0-flash-preview-image-generation': {
+        supportsConversational: true,
+        supportsTextAndImage: true,
+        maxImages: 1,
+        supportedSizes: ['1:1'],
+        supportedQualities: ['standard']
+      },
+      'imagen-4.0-generate-preview': {
+        supportsConversational: false,
+        supportsTextAndImage: false,
+        maxImages: 4,
+        supportedSizes: ['1:1', '3:4', '4:3', '9:16', '16:9'],
+        supportedQualities: ['standard']
+      }
+    };
+    
+    return capabilities[modelID] || null;
+  }
+
+  /**
+   * Validate image generation options
+   */
+  validateImageOptions(options, modelID) {
+    const capabilities = this.getImageModelCapabilities(modelID);
+    if (!capabilities) {
+      throw new Error(`Unsupported image model: ${modelID}`);
+    }
+
+    const { numberOfImages = 1, aspectRatio = '1:1' } = options;
+    
+    if (numberOfImages > capabilities.maxImages) {
+      throw new Error(`Model ${modelID} supports maximum ${capabilities.maxImages} images`);
+    }
+    
+    if (!capabilities.supportedSizes.includes(aspectRatio)) {
+      throw new Error(`Model ${modelID} does not support aspect ratio ${aspectRatio}`);
+    }
+    
+    return true;
+  }
+
+  /**
+   * Handle image generation with Gemini models
+   */
+  async generateImage(prompt, options = {}) {
+    const { 
+      preferredModel = 'gemini-2.0-flash-preview-image-generation',
+      enhancePrompt = true,
+      quality = 'standard',
+      numberOfImages = 1,
+      aspectRatio = '1:1'
+    } = options;
+
+    const imageOptions = { enhancePrompt, quality, numberOfImages, aspectRatio };
+    
+    // Validate options for the preferred model
+    try {
+      this.validateImageOptions(imageOptions, preferredModel);
+    } catch (validationError) {
+      throw new Error(`Image generation validation failed: ${validationError.message}`);
+    }
+
+    let lastError = null;
+    let fallbackReason = null;
+
+    // Try preferred model first
+    try {
+      console.log(`Attempting image generation with ${preferredModel}`);
+      
+      if (preferredModel === 'gemini-2.0-flash-preview-image-generation') {
+        return await this.generateImageWithGeminiFlash(prompt, imageOptions);
+      } else if (preferredModel === 'imagen-4.0-generate-preview') {
+        return await this.generateImageWithImagen(prompt, imageOptions);
+      } else {
+        throw new Error(`Unsupported image model: ${preferredModel}`);
+      }
+    } catch (error) {
+      console.error(`${preferredModel} failed:`, error.message);
+      lastError = error;
+      fallbackReason = error.message;
+    }
+
+    // Try fallback models
+    const fallbackModels = preferredModel === 'gemini-2.0-flash-preview-image-generation' 
+      ? ['imagen-4.0-generate-preview']
+      : ['gemini-2.0-flash-preview-image-generation'];
+
+    for (const fallbackModel of fallbackModels) {
+      try {
+        console.log(`Trying fallback model: ${fallbackModel}`);
+        
+        // Validate options for fallback model
+        this.validateImageOptions(imageOptions, fallbackModel);
+        
+        let result;
+        if (fallbackModel === 'gemini-2.0-flash-preview-image-generation') {
+          result = await this.generateImageWithGeminiFlash(prompt, imageOptions);
+        } else if (fallbackModel === 'imagen-4.0-generate-preview') {
+          result = await this.generateImageWithImagen(prompt, imageOptions);
+        }
+        
+        // Add fallback information to result
+        result.usedFallback = true;
+        result.fallbackReason = fallbackReason;
+        result.originalModel = preferredModel;
+        
+        return result;
+      } catch (fallbackError) {
+        console.error(`Fallback ${fallbackModel} failed:`, fallbackError.message);
+        lastError = fallbackError;
+      }
+    }
+
+    // If all models failed, throw the last error
+    throw new Error(`All Gemini image generation models failed. Last error: ${lastError.message}`);
   }
 
   /**

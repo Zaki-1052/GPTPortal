@@ -756,6 +756,50 @@
       }
     },
 
+    "gemini-2.0-flash-preview-image-generation": {
+      "id": "gemini-2.0-flash-preview-image-generation",
+      "name": "Gemini 2.0 Flash: Image Generation",
+      "provider": "google",
+      "category": "image",
+      "source": "core",
+      "description": "Native Gemini conversational image generation with text and image outputs",
+      "pricing": { "input": 0, "output": 0 },
+      "contextWindow": 1000000,
+      "maxTokens": 8000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsImageGeneration": true,
+      "imageConfig": {
+        "quality": ["standard"],
+        "size": ["1:1"],
+        "maxImages": 1,
+        "supportsConversational": true,
+        "supportsPromptEnhancement": true
+      }
+    },
+    "imagen-4.0-generate-preview": {
+      "id": "imagen-4.0-generate-preview",
+      "name": "Imagen 4.0: Specialized Art",
+      "provider": "google",
+      "category": "image",
+      "source": "core",
+      "description": "Google's specialized image generation model optimized for photorealism and artistic detail",
+      "pricing": { "input": 0, "output": 0 },
+      "contextWindow": 1000,
+      "maxTokens": 1000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "supportsImageGeneration": true,
+      "imageConfig": {
+        "quality": ["standard"],
+        "size": ["1:1", "3:4", "4:3", "9:16", "16:9"],
+        "maxImages": 4,
+        "supportsConversational": false,
+        "supportsPromptEnhancement": true,
+        "personGeneration": ["dont_allow", "allow_adult", "allow_all"]
+      }
+    },
+
     "gpt-4o-search-preview": {
       "id": "gpt-4o-search-preview",
       "name": "GPT-4o Search: Web-Enabled",
@@ -861,7 +905,7 @@
     },
     "image": {
       "name": "Image Models",
-      "models": ["gpt-image-1", "dall-e-3", "dall-e-2"]
+      "models": ["gpt-image-1", "dall-e-3", "dall-e-2", "gemini-2.0-flash-preview-image-generation", "imagen-4.0-generate-preview"]
     },
     "search": {
       "name": "Web Search Models",
