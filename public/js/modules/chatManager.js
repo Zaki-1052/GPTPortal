@@ -216,8 +216,8 @@ class ChatManager {
     if (message) {
       this.displayMessage(message, 'user');
       
-      // Check if it's an image generation request
-      if (this.isImageGenerationRequest(message)) {
+      // Check if it's an image generation request OR if image model is selected
+      if (this.isImageGenerationRequest(message) || this.isImageModel()) {
         await this.handleImageGenerationRequest(message);
       } else {
         // Send regular message
@@ -263,11 +263,35 @@ class ChatManager {
     return message.startsWith("Generate:");
   }
 
-  async handleImageGenerationRequest(message) {
-    const prompt = message.substring("Generate:".length).trim();
+  /**
+   * Check if selected model is an image generation model
+   */
+  isImageModel(modelID = null) {
+    const currentModelID = modelID || (this.modelConfig ? this.modelConfig.currentModelID : null);
+    
+    if (!currentModelID) return false;
+    
+    // Get model info from dynamic model manager
+    if (this.modelConfig && this.modelConfig.dynamicModelManager) {
+      const model = this.modelConfig.dynamicModelManager.getModel(currentModelID);
+      return model && (model.supportsImageGeneration === true || model.category === 'image');
+    }
+    
+    // Fallback: check against known image model IDs
+    const imageModelIds = ['gpt-image-1', 'dall-e-3', 'dall-e-2'];
+    return imageModelIds.includes(currentModelID);
+  }
 
-    // Show loading message
-    this.displayMessage(`🎨 Generating image with GPT Image 1: "${prompt}"`, 'system');
+  async handleImageGenerationRequest(message) {
+    const isGenerateCommand = this.isImageGenerationRequest(message);
+    const prompt = isGenerateCommand ? message.substring("Generate:".length).trim() : message;
+    const currentModelID = this.modelConfig ? this.modelConfig.currentModelID : 'gpt-image-1';
+    
+    // Use selected model if it's an image model, otherwise fallback to gpt-image-1
+    const selectedModel = this.isImageModel() ? currentModelID : 'gpt-image-1';
+
+    // Show loading message with selected model
+    this.displayMessage(`🎨 Generating image with ${selectedModel}: "${prompt}"`, 'system');
 
     try {
       const response = await fetch('/generate-image', {
@@ -275,9 +299,10 @@ class ChatManager {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           prompt: prompt,
+          modelID: selectedModel,
           options: {
-            preferredModel: 'gpt-image-1',
-            enhancePrompt: true,
+            preferredModel: selectedModel,
+            enhancePrompt: !isGenerateCommand, // Skip enhancement for Generate: prefix
             quality: 'auto',
             size: 'auto'
           }

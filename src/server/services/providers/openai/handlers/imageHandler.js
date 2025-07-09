@@ -59,7 +59,7 @@ Enhanced prompt:`;
     } = options;
 
     try {
-      // Enhance prompt for better results
+      // Enhance prompt for better results (skip if enhancePrompt is false)
       const enhancedPrompt = enhancePrompt ? await this.enhanceImagePrompt(prompt) : prompt;
       
       const requestData = {
@@ -123,16 +123,21 @@ Enhanced prompt:`;
   async generateImage(prompt, options = {}) {
     const {
       preferredModel = 'gpt-image-1',
+      modelID = 'gpt-image-1',
       enhancePrompt = true,
       quality = 'auto',
       size = 'auto'
     } = options;
 
-    console.log(`🎨 Starting image generation with prompt: "${prompt}"`);
+    // Use modelID if provided, otherwise use preferredModel
+    const selectedModel = modelID || preferredModel;
+
+    console.log(`🎨 Starting image generation with model: ${selectedModel}, prompt: "${prompt}"`);
+    console.log(`🎚️ Enhancement: ${enhancePrompt ? 'enabled' : 'disabled'}`);
 
     try {
       // Try GPT Image 1 first (default)
-      if (preferredModel === 'gpt-image-1') {
+      if (selectedModel === 'gpt-image-1') {
         console.log('📸 Attempting GPT Image 1...');
         try {
           const result = await this.generateImageWithGPTImage(prompt, { 
@@ -163,9 +168,12 @@ Enhanced prompt:`;
             };
           }
         }
-      } else {
+      } else if (selectedModel === 'dall-e-3' || selectedModel === 'dall-e-2') {
         // Direct DALL-E generation if specifically requested
-        return await this.generateImageWithDALLE(prompt, preferredModel);
+        console.log(`📸 Using ${selectedModel} directly`);
+        return await this.generateImageWithDALLE(prompt, selectedModel);
+      } else {
+        throw new Error(`Unsupported image model: ${selectedModel}`);
       }
     } catch (error) {
       console.error('🚨 All image generation methods failed:', error.message);
