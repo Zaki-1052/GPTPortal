@@ -867,6 +867,130 @@
       "supportsReasoningTokens": true,
       "webSearchType": "responses",
       "knowledgeCutoff": "2024-05-31"
+    },
+
+    "grok-4": {
+      "id": "grok-4",
+      "name": "Grok 4: Advanced Reasoning",
+      "provider": "grok",
+      "category": "grok",
+      "source": "core",
+      "description": "Most advanced Grok model with built-in reasoning, vision, and function calling",
+      "pricing": { "input": 3.00, "output": 15.00 },
+      "contextWindow": 256000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsReasoning": true,
+      "supportsStructuredOutputs": true
+    },
+    "grok-4-0709": {
+      "id": "grok-4-0709",
+      "name": "Grok 4 (0709): Reasoning Model",
+      "provider": "grok",
+      "category": "grok",
+      "source": "core",
+      "description": "Specific version of Grok 4 with enhanced reasoning capabilities",
+      "pricing": { "input": 3.00, "output": 15.00 },
+      "contextWindow": 256000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsReasoning": true,
+      "supportsStructuredOutputs": true
+    },
+    "grok-3": {
+      "id": "grok-3",
+      "name": "Grok 3: Flagship Model",
+      "provider": "grok",
+      "category": "grok",
+      "source": "core",
+      "description": "High-performance Grok model for general-purpose tasks",
+      "pricing": { "input": 3.00, "output": 15.00 },
+      "contextWindow": 131072,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "supportsReasoning": false,
+      "supportsStructuredOutputs": true
+    },
+    "grok-3-mini": {
+      "id": "grok-3-mini",
+      "name": "Grok 3 Mini: Affordable",
+      "provider": "grok",
+      "category": "grok",
+      "source": "core",
+      "description": "Most affordable Grok model for cost-effective AI applications",
+      "pricing": { "input": 0.30, "output": 0.50 },
+      "contextWindow": 131072,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "supportsReasoning": false,
+      "supportsStructuredOutputs": true
+    },
+    "grok-3-fast": {
+      "id": "grok-3-fast",
+      "name": "Grok 3 Fast: High Speed",
+      "provider": "grok",
+      "category": "grok",
+      "source": "core",
+      "description": "Fast Grok model optimized for low latency applications",
+      "pricing": { "input": 5.00, "output": 25.00 },
+      "contextWindow": 131072,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "supportsReasoning": false,
+      "supportsStructuredOutputs": true
+    },
+    "grok-3-mini-fast": {
+      "id": "grok-3-mini-fast",
+      "name": "Grok 3 Mini Fast: Budget Speed",
+      "provider": "grok",
+      "category": "grok",
+      "source": "core",
+      "description": "Affordable fast Grok model balancing cost and speed",
+      "pricing": { "input": 0.60, "output": 4.00 },
+      "contextWindow": 131072,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "supportsReasoning": false,
+      "supportsStructuredOutputs": true
+    },
+    "grok-2-vision-1212": {
+      "id": "grok-2-vision-1212",
+      "name": "Grok 2 Vision: Multimodal",
+      "provider": "grok",
+      "category": "grok",
+      "source": "core",
+      "description": "Grok model with vision capabilities for image understanding",
+      "pricing": { "input": 2.00, "output": 10.00 },
+      "contextWindow": 32768,
+      "maxTokens": 4000,
+      "supportsVision": true,
+      "supportsFunction": false,
+      "supportsReasoning": false,
+      "supportsStructuredOutputs": false
+    },
+    "grok-2-image-1212": {
+      "id": "grok-2-image-1212",
+      "name": "Grok 2 Image: Generation",
+      "provider": "grok",
+      "category": "image",
+      "source": "core",
+      "description": "Grok model specialized for image generation tasks",
+      "pricing": { "input": 0, "output": 0.07 },
+      "contextWindow": 1000,
+      "maxTokens": 1000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "supportsImageGeneration": true,
+      "imageConfig": {
+        "response_format": ["url", "b64_json"],
+        "n": { "min": 1, "max": 10 }
+      }
     }
   },
   
@@ -905,11 +1029,15 @@
     },
     "image": {
       "name": "Image Models",
-      "models": ["gpt-image-1", "dall-e-3", "dall-e-2", "gemini-2.0-flash-preview-image-generation", "imagen-4.0-generate-preview"]
+      "models": ["gpt-image-1", "dall-e-3", "dall-e-2", "gemini-2.0-flash-preview-image-generation", "imagen-4.0-generate-preview", "grok-2-image-1212"]
     },
     "search": {
       "name": "Web Search Models",
       "models": ["o3-deep-research", "o4-mini-deep-research", "gpt-4o-search-preview", "gpt-4o-mini-search-preview"]
+    },
+    "grok": {
+      "name": "Grok Models",
+      "models": ["grok-4", "grok-4-0709", "grok-3", "grok-3-mini", "grok-3-fast", "grok-3-mini-fast", "grok-2-vision-1212"]
     }
   }
 }

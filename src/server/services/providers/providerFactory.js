@@ -6,6 +6,7 @@ const DeepSeekHandler = require('./deepseekHandler');
 const MistralHandler = require('./mistralHandler');
 const OpenRouterHandler = require('./openrouterHandler');
 const GeminiHandler = require('./geminiHandler');
+const GrokHandler = require('./grokHandler');
 
 class ProviderFactory {
   constructor(apiKeys, promptCacheService = null) {
@@ -68,6 +69,11 @@ class ProviderFactory {
       this.handlers.deepseek = new DeepSeekHandler(this.apiKeys.deepseek);
       console.log('✅ DeepSeek handler initialized');
     }
+
+    if (this.apiKeys.grok) {
+      this.handlers.grok = new GrokHandler(this.apiKeys.grok);
+      console.log('✅ Grok handler initialized');
+    }
   }
 
   /**
@@ -79,7 +85,8 @@ class ProviderFactory {
       'dall-e-3', 
       'dall-e-2',
       'gemini-2.0-flash-preview-image-generation',
-      'imagen-4.0-generate-preview'
+      'imagen-4.0-generate-preview',
+      'grok-2-image-1212'
     ];
     return imageModelIds.includes(modelID);
   }
@@ -95,6 +102,9 @@ class ProviderFactory {
       }
       if (modelID.startsWith('gemini-2.0-flash-preview-image-generation') || modelID.startsWith('imagen-')) {
         return 'gemini';
+      }
+      if (modelID.startsWith('grok-2-image')) {
+        return 'grok';
       }
     }
 
@@ -131,6 +141,11 @@ class ProviderFactory {
     // Gemini models
     if (modelID.startsWith('gemini')) {
       return 'gemini';
+    }
+
+    // Grok models
+    if (modelID.startsWith('grok')) {
+      return 'grok';
     }
 
     // Default to OpenRouter for unknown models
@@ -182,6 +197,11 @@ class ProviderFactory {
         throw new Error('Google API key required for Gemini image generation');
       }
       return await this.handlers.gemini.generateImage(prompt, options);
+    } else if (provider === 'grok') {
+      if (!this.handlers.grok) {
+        throw new Error('Grok API key required for Grok image generation');
+      }
+      return await this.handlers.grok.generateImage(prompt, options);
     } else {
       throw new Error(`Image generation not supported for provider: ${provider}`);
     }
@@ -262,6 +282,8 @@ class ProviderFactory {
       return handler.formatUserInput(userMessage, fileContents, fileId, imageName, base64Image);
     } else if (provider === 'gemini') {
       return handler.formatUserInput(userMessage, fileContents, fileId);
+    } else if (provider === 'grok') {
+      return handler.formatUserInput(userMessage, fileContents, fileId, imageName, base64Image);
     } else {
       // For other providers (Groq, Mistral, DeepSeek, OpenRouter)
       return handler.formatUserInput(userMessage, fileContents, fileId);

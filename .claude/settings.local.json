@@ -4,7 +4,10 @@
       "Bash(mkdir:*)",
       "Bash(rg:*)",
       "Bash(grep:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "WebFetch(domain:docs.x.ai)",
+      "WebFetch(domain:docs.x.ai)",
+      "WebFetch(domain:docs.x.ai)"
     ],
     "deny": []
   },
