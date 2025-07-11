@@ -1,5 +1,29 @@
 # Changelog
 
+# [1.10.0](https://github.com/axios/axios/compare/v1.9.0...v1.10.0) (2025-06-14)
+
+
+### Bug Fixes
+
+* **adapter:** pass fetchOptions to fetch function ([#6883](https://github.com/axios/axios/issues/6883)) ([0f50af8](https://github.com/axios/axios/commit/0f50af8e076b7fb403844789bd5e812dedcaf4ed))
+* **form-data:** convert boolean values to strings in FormData serialization ([#6917](https://github.com/axios/axios/issues/6917)) ([5064b10](https://github.com/axios/axios/commit/5064b108de336ff34862650709761b8a96d26be0))
+* **package:** add module entry point for React Native; ([#6933](https://github.com/axios/axios/issues/6933)) ([3d343b8](https://github.com/axios/axios/commit/3d343b86dc4fd0eea0987059c5af04327c7ae304))
+
+
+### Features
+
+* **types:** improved fetchOptions interface ([#6867](https://github.com/axios/axios/issues/6867)) ([63f1fce](https://github.com/axios/axios/commit/63f1fce233009f5db1abf2586c145825ac98c3d7))
+
+### Contributors to this release
+
+- <img src="https://avatars.githubusercontent.com/u/12586868?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Dmitriy Mozgovoy](https://github.com/DigitalBrainJS "+30/-19 (#6933 #6920 #6893 #6892 )")
+- <img src="https://avatars.githubusercontent.com/u/189505037?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Noritaka Kobayashi](https://github.com/noritaka1166 "+2/-6 (#6922 #6923 )")
+- <img src="https://avatars.githubusercontent.com/u/48370490?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Dimitrios Lazanas](https://github.com/dimitry-lzs "+4/-0 (#6917 )")
+- <img src="https://avatars.githubusercontent.com/u/71047946?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Adrian Knapp](https://github.com/AdrianKnapp "+2/-2 (#6867 )")
+- <img src="https://avatars.githubusercontent.com/u/16129206?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Howie Zhao](https://github.com/howiezhao "+3/-1 (#6872 )")
+- <img src="https://avatars.githubusercontent.com/u/6788611?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Uhyeon Park](https://github.com/warpdev "+1/-1 (#6883 )")
+- <img src="https://avatars.githubusercontent.com/u/20028934?v&#x3D;4&amp;s&#x3D;18" alt="avatar" width="18"/> [Sampo Silvennoinen](https://github.com/stscoundrel "+1/-1 (#6913 )")
+
 # [1.9.0](https://github.com/axios/axios/compare/v1.8.4...v1.9.0) (2025-04-24)
 
 

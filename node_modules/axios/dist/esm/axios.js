@@ -1,4 +1,4 @@
-/*! Axios v1.9.0 Copyright (c) 2025 Matt Zabriskie and contributors */
+/*! Axios v1.10.0 Copyright (c) 2025 Matt Zabriskie and contributors */
 function bind(fn, thisArg) {
   return function wrap() {
     return fn.apply(thisArg, arguments);
@@ -960,6 +960,10 @@ function toFormData$1(obj, formData, options) {
 
     if (utils$1.isDate(value)) {
       return value.toISOString();
+    }
+
+    if (utils$1.isBoolean(value)) {
+      return value.toString();
     }
 
     if (!useBlob && utils$1.isBlob(value)) {
@@ -2878,7 +2882,7 @@ const fetchAdapter = isFetchSupported && (async (config) => {
       credentials: isCredentialsSupported ? withCredentials : undefined
     });
 
-    let response = await fetch(request);
+    let response = await fetch(request, fetchOptions);
 
     const isStreamResponse = supportsResponseStream && (responseType === 'stream' || responseType === 'response');
 
@@ -3084,7 +3088,7 @@ function dispatchRequest(config) {
   });
 }
 
-const VERSION$1 = "1.9.0";
+const VERSION$1 = "1.10.0";
 
 const validators$1 = {};
 

@@ -1,6 +1,6 @@
 {
   "name": "axios",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "description": "Promise based HTTP client for the browser and node.js",
   "main": "index.js",
   "exports": {
@@ -8,6 +8,10 @@
       "types": {
         "require": "./index.d.cts",
         "default": "./index.d.ts"
+      },
+      "react-native": {
+        "require": "./dist/browser/axios.cjs",
+        "default": "./dist/esm/axios.js"
       },
       "browser": {
         "require": "./dist/browser/axios.cjs",
@@ -139,6 +143,11 @@
     "@rollup/plugin-alias": "^5.1.0"
   },
   "browser": {
+    "./lib/adapters/http.js": "./lib/helpers/null.js",
+    "./lib/platform/node/index.js": "./lib/platform/browser/index.js",
+    "./lib/platform/node/classes/FormData.js": "./lib/helpers/null.js"
+  },
+  "react-native": {
     "./lib/adapters/http.js": "./lib/helpers/null.js",
     "./lib/platform/node/index.js": "./lib/platform/browser/index.js",
     "./lib/platform/node/classes/FormData.js": "./lib/helpers/null.js"
