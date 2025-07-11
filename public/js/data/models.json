@@ -159,6 +159,32 @@
       "supportsVision": false,
       "supportsFunction": false
     },
+    "o3-pro": {
+      "id": "o3-pro",
+      "name": "GPT-o3 Pro: Maximum Reasoning",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "core",
+      "description": "Version of o3 with more compute for better responses",
+      "pricing": { "input": 20.00, "output": 80.00 },
+      "contextWindow": 200000,
+      "maxTokens": 100000,
+      "supportsVision": true,
+      "supportsFunction": false
+    },
+    "o1-pro": {
+      "id": "o1-pro",
+      "name": "GPT-o1 Pro: Advanced Reasoning",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "core",
+      "description": "Version of o1 with more compute for better responses",
+      "pricing": { "input": 150.00, "output": 600.00 },
+      "contextWindow": 200000,
+      "maxTokens": 100000,
+      "supportsVision": true,
+      "supportsFunction": false
+    },
     "o4-mini": {
       "id": "o4-mini",
       "name": "GPT-o4 Mini: Next-Gen Reasoning",
@@ -728,6 +754,119 @@
         "size": ["256x256", "512x512", "1024x1024"],
         "style": ["vivid", "natural"]
       }
+    },
+
+    "gemini-2.0-flash-preview-image-generation": {
+      "id": "gemini-2.0-flash-preview-image-generation",
+      "name": "Gemini 2.0 Flash: Image Generation",
+      "provider": "google",
+      "category": "image",
+      "source": "core",
+      "description": "Native Gemini conversational image generation with text and image outputs",
+      "pricing": { "input": 0, "output": 0 },
+      "contextWindow": 1000000,
+      "maxTokens": 8000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsImageGeneration": true,
+      "imageConfig": {
+        "quality": ["standard"],
+        "size": ["1:1"],
+        "maxImages": 1,
+        "supportsConversational": true,
+        "supportsPromptEnhancement": true
+      }
+    },
+    "imagen-4.0-generate-preview": {
+      "id": "imagen-4.0-generate-preview",
+      "name": "Imagen 4.0: Specialized Art",
+      "provider": "google",
+      "category": "image",
+      "source": "core",
+      "description": "Google's specialized image generation model optimized for photorealism and artistic detail",
+      "pricing": { "input": 0, "output": 0 },
+      "contextWindow": 1000,
+      "maxTokens": 1000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "supportsImageGeneration": true,
+      "imageConfig": {
+        "quality": ["standard"],
+        "size": ["1:1", "3:4", "4:3", "9:16", "16:9"],
+        "maxImages": 4,
+        "supportsConversational": false,
+        "supportsPromptEnhancement": true,
+        "personGeneration": ["dont_allow", "allow_adult", "allow_all"]
+      }
+    },
+
+    "gpt-4o-search-preview": {
+      "id": "gpt-4o-search-preview",
+      "name": "GPT-4o Search: Web-Enabled",
+      "provider": "openai",
+      "category": "search",
+      "source": "core",
+      "description": "GPT-4o with integrated web search capabilities",
+      "pricing": { "input": 5.00, "output": 15.00, "search": 10.00 },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsWebSearch": true,
+      "webSearchType": "chat_completions"
+    },
+    "gpt-4o-mini-search-preview": {
+      "id": "gpt-4o-mini-search-preview",
+      "name": "GPT-4o Mini Search: Fast Web",
+      "provider": "openai",
+      "category": "search",
+      "source": "core",
+      "description": "GPT-4o Mini with integrated web search capabilities",
+      "pricing": { "input": 0.15, "output": 0.60, "search": 10.00 },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsWebSearch": true,
+      "webSearchType": "chat_completions"
+    },
+
+    "o3-deep-research": {
+      "id": "o3-deep-research",
+      "name": "o3 Deep Research: Advanced Research",
+      "provider": "openai",
+      "category": "search",
+      "source": "core",
+      "description": "Our most powerful deep research model for complex, multi-step research tasks with web search and data synthesis",
+      "pricing": { "input": 10.00, "output": 40.00, "cached": 2.50 },
+      "contextWindow": 200000,
+      "maxTokens": 100000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsWebSearch": true,
+      "supportsDeepResearch": true,
+      "supportsReasoningTokens": true,
+      "webSearchType": "responses",
+      "knowledgeCutoff": "2024-05-31"
+    },
+
+    "o4-mini-deep-research": {
+      "id": "o4-mini-deep-research",
+      "name": "o4 Mini Deep Research: Fast Research",
+      "provider": "openai",
+      "category": "search",
+      "source": "core",
+      "description": "Faster, more affordable deep research model for complex, multi-step research tasks with web search",
+      "pricing": { "input": 2.00, "output": 8.00, "cached": 0.50 },
+      "contextWindow": 200000,
+      "maxTokens": 100000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsWebSearch": true,
+      "supportsDeepResearch": true,
+      "supportsReasoningTokens": true,
+      "webSearchType": "responses",
+      "knowledgeCutoff": "2024-05-31"
     }
   },
   
@@ -750,7 +889,7 @@
     },
     "reasoning": {
       "name": "Reasoning Models",
-      "models": ["o4-mini", "o3", "o3-mini", "o1-preview", "o1-mini"]
+      "models": ["o4-mini", "o3-pro", "o3", "o3-mini", "o1-pro", "o1-preview", "o1-mini"]
     },
     "mistral": {
       "name": "Mistral Models",
@@ -766,7 +905,11 @@
     },
     "image": {
       "name": "Image Models",
-      "models": ["gpt-image-1", "dall-e-3", "dall-e-2"]
+      "models": ["gpt-image-1", "dall-e-3", "dall-e-2", "gemini-2.0-flash-preview-image-generation", "imagen-4.0-generate-preview"]
+    },
+    "search": {
+      "name": "Web Search Models",
+      "models": ["o3-deep-research", "o4-mini-deep-research", "gpt-4o-search-preview", "gpt-4o-mini-search-preview"]
     }
   }
 }

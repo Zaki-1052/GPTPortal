@@ -1,5 +1,5 @@
 // Provider Factory - Manages all AI provider handlers
-const OpenAIHandler = require('./openaiHandler');
+const OpenAIHandler = require('./openai/index');
 const ClaudeHandler = require('./claudeHandler');
 const GroqHandler = require('./groqHandler');
 const DeepSeekHandler = require('./deepseekHandler');
@@ -71,9 +71,33 @@ class ProviderFactory {
   }
 
   /**
+   * Check if model is an image generation model
+   */
+  isImageModel(modelID) {
+    const imageModelIds = [
+      'gpt-image-1', 
+      'dall-e-3', 
+      'dall-e-2',
+      'gemini-2.0-flash-preview-image-generation',
+      'imagen-4.0-generate-preview'
+    ];
+    return imageModelIds.includes(modelID);
+  }
+
+  /**
    * Get appropriate provider for a model ID
    */
   getProviderForModel(modelID) {
+    // Image models have specific provider routing
+    if (this.isImageModel(modelID)) {
+      if (modelID.startsWith('gpt-image') || modelID.startsWith('dall-e')) {
+        return 'openai';
+      }
+      if (modelID.startsWith('gemini-2.0-flash-preview-image-generation') || modelID.startsWith('imagen-')) {
+        return 'gemini';
+      }
+    }
+
     // OpenRouter models (contain slash)
     if (modelID.includes('/')) {
       return 'openrouter';
@@ -140,13 +164,27 @@ class ProviderFactory {
   }
 
   /**
-   * Handle image generation (OpenAI only)
+   * Handle image generation with multi-provider support
    */
   async generateImage(prompt, options = {}) {
-    if (!this.handlers.openai) {
-      throw new Error('OpenAI API key required for image generation');
+    const { modelID = 'gpt-image-1' } = options;
+    
+    // Determine which provider to use based on model
+    const provider = this.getProviderForModel(modelID);
+    
+    if (provider === 'openai') {
+      if (!this.handlers.openai) {
+        throw new Error('OpenAI API key required for image generation');
+      }
+      return await this.handlers.openai.generateImage(prompt, options);
+    } else if (provider === 'gemini') {
+      if (!this.handlers.gemini) {
+        throw new Error('Google API key required for Gemini image generation');
+      }
+      return await this.handlers.gemini.generateImage(prompt, options);
+    } else {
+      throw new Error(`Image generation not supported for provider: ${provider}`);
     }
-    return await this.handlers.openai.generateImage(prompt, options);
   }
 
   /**

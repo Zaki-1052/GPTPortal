@@ -110,7 +110,8 @@ class ExportService {
   /**
    * Export standard chat to HTML
    */
-  async exportChatToHTML(conversationHistory, claudeHistory, o1History, deepseekHistory, claudeInstructions, modelID, providerFactory) {
+  async exportChatToHTML(conversationHistory, claudeHistory, o1History, deepseekHistory, claudeInstructions, modelID, providerFactory, title = null, summary = null) {
+    console.log('🔍 [ExportService] Starting exportChatToHTML with title:', title, 'summary:', summary);
     // Determine which history to use
     let containsAssistantMessage = conversationHistory.some(entry => entry.role === 'assistant');
     let chatHistory;
@@ -141,32 +142,39 @@ class ExportService {
     const cost = await costService.calculateCost(tokens, modelID);
 
     // Format history for title generation
-    const savedHistory = titleService.formatHistoryForTitleGeneration(chatHistory, chatType);
+    // const savedHistory = titleService.formatHistoryForTitleGeneration(chatHistory, chatType);
 
-    // Generate title and summary
-    let title, summary;
-    try {
-      const openaiHandler = providerFactory.isProviderAvailable('openai') ? 
-        providerFactory.getHandler('openai') : null;
-      
-      console.log('OpenAI handler available:', !!openaiHandler);
-      
-      if (openaiHandler) {
-        console.log('Generating title with OpenAI...');
-        const result = await titleService.titleChat(savedHistory, tokens, cost, openaiHandler);
-        console.log('Title generation result:', result);
-        title = result.title;
-        summary = result.summary;
-      } else {
-        console.log('OpenAI handler not available, using default title');
-        title = 'Chat Export';
-        summary = 'Chat conversation export';
-      }
-    } catch (error) {
-      console.error('Error generating title/summary:', error);
+    // Use provided title and summary, or fall back to defaults
+    if (!title) {
       title = 'Chat Export';
+    }
+    if (!summary) {
       summary = 'Chat conversation export';
     }
+    console.log('🎯 [ExportService] Using title:', title, 'summary:', summary);
+    
+    // try {
+    //   const openaiHandler = providerFactory.isProviderAvailable('openai') ? 
+    //     providerFactory.getHandler('openai') : null;
+    //   
+    //   console.log('OpenAI handler available:', !!openaiHandler);
+    //   
+    //   if (openaiHandler) {
+    //     console.log('Generating title with OpenAI...');
+    //     const result = await titleService.titleChat(savedHistory, tokens, cost, openaiHandler);
+    //     console.log('Title generation result:', result);
+    //     title = result.title;
+    //     summary = result.summary;
+    //   } else {
+    //     console.log('OpenAI handler not available, using default title');
+    //     title = 'Chat Export';
+    //     summary = 'Chat conversation export';
+    //   }
+    // } catch (error) {
+    //   console.error('Error generating title/summary:', error);
+    //   title = 'Chat Export';
+    //   summary = 'Chat conversation export';
+    // }
 
     // Simplify system prompt for HTML display if it's Claude
     if (isClaudeChat) {
@@ -249,6 +257,7 @@ class ExportService {
     });
 
     // Add summary section
+    console.log('📝 [ExportService] Adding summary section with summary:', summary);
     htmlContent += `
       <div class="summary">
         <h3>📊 Conversation Summary</h3>
@@ -270,6 +279,7 @@ class ExportService {
    * Export chat to HTML with title (wrapper that returns both HTML and title)
    */
   async exportChatToHTMLWithTitle(conversationHistory, claudeHistory, o1History, deepseekHistory, claudeInstructions, modelID, providerFactory) {
+    console.log('🔍 [ExportService] Starting exportChatToHTMLWithTitle...');
     // Determine which history to use
     let containsAssistantMessage = conversationHistory.some(entry => entry.role === 'assistant');
     let chatHistory;
@@ -316,6 +326,8 @@ class ExportService {
         console.log('Title generation result:', result);
         title = result.title;
         summary = result.summary;
+        console.log('🎯 [ExportService] Generated title:', title);
+        console.log('🎯 [ExportService] Generated summary:', summary);
       } else {
         console.log('OpenAI handler not available, using default title');
         title = 'Chat_Export';
@@ -328,15 +340,18 @@ class ExportService {
     }
 
     // Generate HTML content
-    const htmlContent = await this.exportChatToHTML(conversationHistory, claudeHistory, o1History, deepseekHistory, claudeInstructions, modelID, providerFactory);
+    console.log('🔄 [ExportService] Calling exportChatToHTML with title:', title, 'summary:', summary);
+    const htmlContent = await this.exportChatToHTML(conversationHistory, claudeHistory, o1History, deepseekHistory, claudeInstructions, modelID, providerFactory, title, summary);
     
+    console.log('✅ [ExportService] exportChatToHTMLWithTitle complete');
     return { htmlContent, title };
   }
 
   /**
    * Export Gemini chat to HTML
    */
-  async exportGeminiChatToHTML(geminiHistory, modelID, providerFactory) {
+  async exportGeminiChatToHTML(geminiHistory, modelID, providerFactory, title = null, summary = null) {
+    console.log('🔍 [ExportService] Starting exportGeminiChatToHTML with title:', title, 'summary:', summary);
     const convertNewlinesToHtml = text => text.replace(/\n/g, '<br>');
     const messageRegex = /(System Prompt: |User Prompt: |Response: )/g;
     const messages = geminiHistory.split(messageRegex).slice(1);
@@ -346,25 +361,14 @@ class ExportService {
     const chatType = 'gemini';
     const tokens = await tokenService.tokenizeHistory(geminiHistory, modelID, chatType);
     
-    // Generate title and summary using Gemini
-    let title, summary;
-    try {
-      const geminiHandler = providerFactory.isProviderAvailable('gemini') ? 
-        providerFactory.getHandler('gemini') : null;
-      
-      if (geminiHandler) {
-        const result = await titleService.nameChat(geminiHistory, tokens, geminiHandler);
-        title = result.title;
-        summary = result.summary;
-      } else {
-        title = 'Gemini Chat';
-        summary = 'Gemini conversation export';
-      }
-    } catch (error) {
-      console.error('Error generating Gemini title/summary:', error);
+    // Use provided title and summary, or fall back to defaults
+    if (!title) {
       title = 'Gemini Chat';
+    }
+    if (!summary) {
       summary = 'Gemini conversation export';
     }
+    console.log('🎯 [ExportService] Using Gemini title:', title, 'summary:', summary);
 
     let htmlContent = `
       <!DOCTYPE html>
@@ -448,14 +452,15 @@ class ExportService {
       summary = 'Gemini conversation export';
     }
 
-    const htmlContent = await this.exportGeminiChatToHTML(geminiHistory, modelID, providerFactory);
+    const htmlContent = await this.exportGeminiChatToHTML(geminiHistory, modelID, providerFactory, title, summary);
     return { htmlContent, title };
   }
 
   /**
    * Export Assistant chat to HTML
    */
-  async exportAssistantsChat(systemMessage, modelID, providerFactory) {
+  async exportAssistantsChat(systemMessage, modelID, providerFactory, title = null, summary = null) {
+    console.log('🔍 [ExportService] Starting exportAssistantsChat with title:', title, 'summary:', summary);
     const chatType = 'assistant';
     
     try {
@@ -464,14 +469,14 @@ class ExportService {
         providerFactory.getHandler('openai') : null;
       
       if (!openaiHandler || !openaiHandler.thread) {
-        return this.getPlaceholderAssistantExport(systemMessage, modelID);
+        return this.getPlaceholderAssistantExport(systemMessage, modelID, title, summary);
       }
 
       // Fetch all messages from the thread
       const messages = await openaiHandler.fetchThreadMessages();
       
       if (messages.length === 0) {
-        return this.getPlaceholderAssistantExport(systemMessage, modelID);
+        return this.getPlaceholderAssistantExport(systemMessage, modelID, title, summary);
       }
 
       // Build chat history string for token calculation and title generation
@@ -503,17 +508,14 @@ class ExportService {
       const tokens = await tokenService.tokenizeHistory(chatHistory, modelID, chatType);
       const cost = await costService.calculateCost(tokens, modelID);
 
-      // Generate title and summary
-      let title, summary;
-      try {
-        const result = await titleService.titleChat(chatHistory, tokens, cost, openaiHandler);
-        title = result.title;
-        summary = result.summary;
-      } catch (error) {
-        console.error('Error generating assistant title/summary:', error);
+      // Use provided title and summary, or fall back to defaults
+      if (!title) {
         title = 'Assistant Chat';
+      }
+      if (!summary) {
         summary = 'Assistant conversation export';
       }
+      console.log('🎯 [ExportService] Using Assistant title:', title, 'summary:', summary);
 
       // Generate HTML content
       let htmlContent = `
@@ -581,26 +583,26 @@ class ExportService {
 
     } catch (error) {
       console.error('Error exporting assistant chat:', error);
-      return this.getPlaceholderAssistantExport(systemMessage, modelID);
+      return this.getPlaceholderAssistantExport(systemMessage, modelID, title, summary);
     }
   }
 
   /**
    * Get placeholder assistant export when full export fails
    */
-  getPlaceholderAssistantExport(systemMessage, modelID) {
+  getPlaceholderAssistantExport(systemMessage, modelID, title = 'Assistant Chat Export', summary = 'Assistant conversation data not available for export') {
     return `
       <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Assistant Chat Export</title>
+        <title>${title}</title>
         ${this.getExportStyles()}
       </head>
       <body>
         <div class="header">
-          <h1>🤖 Assistant Chat Export</h1>
+          <h1>🤖 ${title}</h1>
           <div class="metadata">
             Exported on ${new Date().toLocaleString()} | 
             Model: ${modelID}
@@ -611,7 +613,7 @@ class ExportService {
         
         <div class="summary">
           <h3>📊 Conversation Summary</h3>
-          <p><strong>Note:</strong> Assistant conversation data not available for export</p>
+          <p><strong>Summary:</strong> ${summary}</p>
         </div>
         
         <div class="export-info">
@@ -631,7 +633,7 @@ class ExportService {
         providerFactory.getHandler('openai') : null;
       
       if (!openaiHandler || !openaiHandler.thread) {
-        const htmlContent = await this.exportAssistantsChat(systemMessage, modelID, providerFactory);
+        const htmlContent = await this.exportAssistantsChat(systemMessage, modelID, providerFactory, 'Assistant_Chat', 'Assistant conversation export');
         return { htmlContent, title: 'Assistant_Chat' };
       }
 
@@ -639,7 +641,7 @@ class ExportService {
       const messages = await openaiHandler.fetchThreadMessages();
       
       if (messages.length === 0) {
-        const htmlContent = await this.exportAssistantsChat(systemMessage, modelID, providerFactory);
+        const htmlContent = await this.exportAssistantsChat(systemMessage, modelID, providerFactory, 'Assistant_Chat', 'Assistant conversation export');
         return { htmlContent, title: 'Assistant_Chat' };
       }
 
@@ -665,21 +667,24 @@ class ExportService {
       const tokens = await tokenService.tokenizeHistory(chatHistory, modelID, chatType);
       const cost = await costService.calculateCost(tokens, modelID);
 
-      let title;
+      let title, summary;
       try {
         const result = await titleService.titleChat(chatHistory, tokens, cost, openaiHandler);
         title = result.title;
+        summary = result.summary;
+        console.log('🎯 [ExportService] Generated Assistant title:', title, 'summary:', summary);
       } catch (error) {
         console.error('Error generating assistant title:', error);
         title = 'Assistant_Chat';
+        summary = 'Assistant conversation export';
       }
 
-      const htmlContent = await this.exportAssistantsChat(systemMessage, modelID, providerFactory);
+      const htmlContent = await this.exportAssistantsChat(systemMessage, modelID, providerFactory, title, summary);
       return { htmlContent, title };
 
     } catch (error) {
       console.error('Error in exportAssistantsChatWithTitle:', error);
-      const htmlContent = await this.exportAssistantsChat(systemMessage, modelID, providerFactory);
+      const htmlContent = await this.exportAssistantsChat(systemMessage, modelID, providerFactory, 'Assistant_Chat', 'Assistant conversation export');
       return { htmlContent, title: 'Assistant_Chat' };
     }
   }

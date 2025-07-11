@@ -207,13 +207,24 @@ class RouteManager {
 
     // Enhanced image generation route
     app.post('/generate-image', ErrorHandler.asyncHandler(async (req, res) => {
-      const { prompt, options = {} } = req.body;
+      const { prompt, modelID, options = {} } = req.body;
       
       if (!prompt) {
         throw ErrorHandler.validationError('Prompt is required for image generation');
       }
 
-      const result = await providerFactory.generateImage(prompt, options);
+      // Detect if Generate: prefix was used to skip enhancement
+      const isGenerateCommand = prompt.startsWith("Generate:");
+      const actualPrompt = isGenerateCommand ? prompt.substring("Generate:".length).trim() : prompt;
+      
+      // Update options based on command type
+      const updatedOptions = {
+        ...options,
+        enhancePrompt: !isGenerateCommand, // Skip enhancement for Generate: prefix
+        modelID: modelID || options.preferredModel || 'gpt-image-1'
+      };
+
+      const result = await providerFactory.generateImage(actualPrompt, updatedOptions);
       
       if (result.imageData) {
         // Save image to uploads directory
