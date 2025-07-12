@@ -152,6 +152,82 @@ class DynamicModelManager {
   }
 
   /**
+   * Load OpenRouter models from API and merge with core models
+   */
+  async loadOpenRouterModels() {
+    try {
+      console.log('Loading OpenRouter models from API...');
+      
+      const response = await fetch('/api/models/openrouter');
+      if (!response.ok) {
+        console.warn(`OpenRouter API returned ${response.status}, skipping OpenRouter models`);
+        return;
+      }
+      
+      const data = await response.json();
+      if (!data.success || !data.data) {
+        console.warn('Invalid OpenRouter API response, skipping OpenRouter models');
+        return;
+      }
+      
+      const openRouterModels = data.data;
+      const openRouterCount = Object.keys(openRouterModels).length;
+      
+      if (openRouterCount === 0) {
+        console.log('No OpenRouter models available');
+        return;
+      }
+      
+      console.log(`Processing ${openRouterCount} OpenRouter models...`);
+      
+      // Merge OpenRouter models with core models
+      let mergedCount = 0;
+      Object.entries(openRouterModels).forEach(([id, model]) => {
+        // Skip if model already exists (core models take precedence)
+        if (this.models[id]) {
+          console.log(`Skipping duplicate model: ${id}`);
+          return;
+        }
+        
+        // Ensure proper source marking for OpenRouter models
+        const processedModel = {
+          ...model,
+          id: id,
+          source: 'openrouter'
+        };
+        
+        // Add to models collection
+        this.models[id] = processedModel;
+        mergedCount++;
+        
+        // Update categories
+        const category = model.category || 'other';
+        if (!this.categories[category]) {
+          this.categories[category] = {
+            name: this.getCategoryDisplayName(category),
+            models: []
+          };
+        }
+        
+        if (!this.categories[category].models.includes(id)) {
+          this.categories[category].models.push(id);
+        }
+      });
+      
+      console.log(`Successfully merged ${mergedCount} OpenRouter models (${openRouterCount - mergedCount} duplicates skipped)`);
+      
+      // Log cache status if available
+      if (data.meta && data.meta.cacheStatus) {
+        console.log('OpenRouter cache status:', data.meta.cacheStatus);
+      }
+      
+    } catch (error) {
+      console.warn('Failed to load OpenRouter models:', error.message);
+      // Don't throw - allow core models to work even if OpenRouter fails
+    }
+  }
+
+  /**
    * Load models from API as fallback
    */
   async loadFromAPI() {
@@ -172,14 +248,22 @@ class DynamicModelManager {
         throw new Error(data.error || 'API returned error');
       }
 
-      this.models = data.data.models;
-      this.categories = data.data.categories;
+      // Handle unified API response format
+      if (data.data.models && data.data.categories) {
+        // Frontend format response
+        this.models = data.data.models;
+        this.categories = data.data.categories;
+      } else {
+        // Process raw models data
+        this.processModelData({ models: data.data });
+      }
+      
       this.lastFetch = Date.now();
 
       // Enhance models with descriptions
       this.enhanceModelsWithDescriptions();
 
-      console.log(`Loaded ${Object.keys(this.models).length} models from API`);
+      console.log(`Loaded ${Object.keys(this.models).length} models from API (includes core + OpenRouter)`);
 
     } catch (error) {
       console.error('API fallback failed, using core models:', error);
