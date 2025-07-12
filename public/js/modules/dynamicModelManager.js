@@ -140,7 +140,10 @@ class DynamicModelManager {
       const modelData = await response.json();
       this.processModelData(modelData);
 
-      console.log(`Loaded ${Object.keys(this.models).length} models from JSON file`);
+      // Load OpenRouter models and merge them
+      await this.loadOpenRouterModels();
+
+      console.log(`Loaded ${Object.keys(this.models).length} models total (core + OpenRouter)`);
 
     } catch (error) {
       console.warn('Failed to load from JSON, trying API fallback:', error);
@@ -584,8 +587,10 @@ class DynamicModelManager {
       llama: 'LLaMA Models',
       mistral: 'Mistral Models',
       deepseek: 'DeepSeek Models',
+      grok: 'Grok Models',
       voice: 'Voice Models',
       image: 'Image Models',
+      search: 'Web Search Models',
       other: 'Other Models'
     };
 

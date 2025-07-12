@@ -795,8 +795,10 @@ class ModelUIManager {
       llama: 'LLaMA Models',
       mistral: 'Mistral Models',
       deepseek: 'DeepSeek Models',
+      grok: 'Grok Models',
       voice: 'Voice Models',
       image: 'Image Models',
+      search: 'Web Search Models',
       other: 'Other Models'
     };
     

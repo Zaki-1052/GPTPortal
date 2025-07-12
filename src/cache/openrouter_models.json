@@ -1,11 +1,489 @@
 {
+  "switchpoint/router": {
+    "name": "Switchpoint Router",
+    "provider": "openrouter",
+    "category": "other",
+    "description": "Switchpoint AI's router instantly analyzes your request and directs it to the optimal AI from an ever-evolving library. \n\nAs the world of LLMs advances, our router gets smarter, ensuring you always benefit from the industry's newest models without changing your workflow.\n\nThis model is configured for a simple, flat rate per response here on OpenRouter. It's powered by the full routing engine from [Switchpoint AI](https://www.switchpoint.dev).",
+    "pricing": {
+      "input": 0.85,
+      "output": 3.4
+    },
+    "contextWindow": 131072,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 131072,
+      "max_completion_tokens": null,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Other",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "switchpoint/router",
+      "created": 1752272899,
+      "per_request_limits": null
+    }
+  },
+  "moonshotai/kimi-k2": {
+    "name": "MoonshotAI: Kimi K2",
+    "provider": "openrouter",
+    "category": "other",
+    "description": "Kimi K2 is a large-scale Mixture-of-Experts (MoE) language model developed by Moonshot AI, featuring 1 trillion total parameters with 32 billion active per forward pass. It is optimized for agentic capabilities, including advanced tool use, reasoning, and code synthesis. Kimi K2 excels across a broad range of benchmarks, particularly in coding (LiveCodeBench, SWE-bench), reasoning (ZebraLogic, GPQA), and tool-use (Tau2, AceBench) tasks. It supports long-context inference up to 128K tokens and is designed with a novel training stack that includes the MuonClip optimizer for stable large-scale MoE training.",
+    "pricing": {
+      "input": 0.5700000000000001,
+      "output": 2.3
+    },
+    "contextWindow": 131072,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 131072,
+      "max_completion_tokens": 131072,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Other",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "moonshotai/kimi-k2",
+      "created": 1752263252,
+      "per_request_limits": null
+    }
+  },
+  "thudm/glm-4.1v-9b-thinking": {
+    "name": "THUDM: GLM 4.1V 9B Thinking",
+    "provider": "openrouter",
+    "category": "other",
+    "description": "GLM-4.1V-9B-Thinking is a 9B parameter vision-language model developed by THUDM, based on the GLM-4-9B foundation. It introduces a reasoning-centric \"thinking paradigm\" enhanced with reinforcement learning to improve multimodal reasoning, long-context understanding (up to 64K tokens), and complex problem solving. It achieves state-of-the-art performance among models in its class, outperforming even larger models like Qwen-2.5-VL-72B on a majority of benchmark tasks. ",
+    "pricing": {
+      "input": 0.035,
+      "output": 0.13799999999999998
+    },
+    "contextWindow": 65536,
+    "supportsVision": true,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 65536,
+      "max_completion_tokens": 8000,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text+image->text",
+      "input_modalities": [
+        "image",
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Other",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "thudm/glm-4.1v-9b-thinking",
+      "created": 1752244385,
+      "per_request_limits": null
+    }
+  },
+  "mistralai/devstral-medium": {
+    "name": "Mistral: Devstral Medium",
+    "provider": "openrouter",
+    "category": "mistral",
+    "description": "Devstral Medium is a high-performance code generation and agentic reasoning model developed jointly by Mistral AI and All Hands AI. Positioned as a step up from Devstral Small, it achieves 61.6% on SWE-Bench Verified, placing it ahead of Gemini 2.5 Pro and GPT-4.1 in code-related tasks, at a fraction of the cost. It is designed for generalization across prompt styles and tool use in code agents and frameworks.\n\nDevstral Medium is available via API only (not open-weight), and supports enterprise deployment on private infrastructure, with optional fine-tuning capabilities.",
+    "pricing": {
+      "input": 0.39999999999999997,
+      "output": 2
+    },
+    "contextWindow": 131072,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 131072,
+      "max_completion_tokens": null,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Mistral",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "mistralai/devstral-medium",
+      "created": 1752161321,
+      "per_request_limits": null
+    }
+  },
+  "mistralai/devstral-small": {
+    "name": "Mistral: Devstral Small 1.1",
+    "provider": "openrouter",
+    "category": "mistral",
+    "description": "Devstral Small 1.1 is a 24B parameter open-weight language model for software engineering agents, developed by Mistral AI in collaboration with All Hands AI. Finetuned from Mistral Small 3.1 and released under the Apache 2.0 license, it features a 128k token context window and supports both Mistral-style function calling and XML output formats.\n\nDesigned for agentic coding workflows, Devstral Small 1.1 is optimized for tasks such as codebase exploration, multi-file edits, and integration into autonomous development agents like OpenHands and Cline. It achieves 53.6% on SWE-Bench Verified, surpassing all other open models on this benchmark, while remaining lightweight enough to run on a single 4090 GPU or Apple silicon machine. The model uses a Tekken tokenizer with a 131k vocabulary and is deployable via vLLM, Transformers, Ollama, LM Studio, and other OpenAI-compatible runtimes.\n",
+    "pricing": {
+      "input": 0.09,
+      "output": 0.3
+    },
+    "contextWindow": 131072,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 131072,
+      "max_completion_tokens": 131072,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Mistral",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "mistralai/devstral-small",
+      "created": 1752160751,
+      "per_request_limits": null
+    }
+  },
+  "cognitivecomputations/dolphin-mistral-24b-venice-edition:free": {
+    "name": "Venice: Uncensored (free)",
+    "provider": "openrouter",
+    "category": "mistral",
+    "description": "Venice Uncensored Dolphin Mistral 24B Venice Edition is a fine-tuned variant of Mistral-Small-24B-Instruct-2501, developed by dphn.ai in collaboration with Venice.ai. This model is designed as an “uncensored” instruct-tuned LLM, preserving user control over alignment, system prompts, and behavior. Intended for advanced and unrestricted use cases, Venice Uncensored emphasizes steerability and transparent behavior, removing default safety and alignment layers typically found in mainstream assistant models.",
+    "pricing": {
+      "input": 0,
+      "output": 0
+    },
+    "contextWindow": 32768,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 32768,
+      "max_completion_tokens": null,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Other",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+      "created": 1752094966,
+      "per_request_limits": null
+    }
+  },
+  "x-ai/grok-4": {
+    "name": "xAI: Grok 4",
+    "provider": "openrouter",
+    "category": "other",
+    "description": "Grok 4 is xAI's latest reasoning model with a 256k context window. It supports parallel tool calling, structured outputs, and both image and text inputs. Note that reasoning is not exposed, reasoning cannot be disabled, and the reasoning effort cannot be specified.",
+    "pricing": {
+      "input": 3,
+      "output": 15
+    },
+    "contextWindow": 256000,
+    "supportsVision": true,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 256000,
+      "max_completion_tokens": null,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text+image->text",
+      "input_modalities": [
+        "image",
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Grok",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "x-ai/grok-4",
+      "created": 1752087689,
+      "per_request_limits": null
+    }
+  },
+  "google/gemma-3n-e2b-it:free": {
+    "name": "Google: Gemma 3n 2B (free)",
+    "provider": "openrouter",
+    "category": "gemini",
+    "description": "Gemma 3n E2B IT is a multimodal, instruction-tuned model developed by Google DeepMind, designed to operate efficiently at an effective parameter size of 2B while leveraging a 6B architecture. Based on the MatFormer architecture, it supports nested submodels and modular composition via the Mix-and-Match framework. Gemma 3n models are optimized for low-resource deployment, offering 32K context length and strong multilingual and reasoning performance across common benchmarks. This variant is trained on a diverse corpus including code, math, web, and multimodal data.",
+    "pricing": {
+      "input": 0,
+      "output": 0
+    },
+    "contextWindow": 8192,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 8192,
+      "max_completion_tokens": 2048,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Other",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "google/gemma-3n-e2b-it:free",
+      "created": 1752074904,
+      "per_request_limits": null
+    }
+  },
+  "tencent/hunyuan-a13b-instruct:free": {
+    "name": "Tencent: Hunyuan A13B Instruct (free)",
+    "provider": "openrouter",
+    "category": "other",
+    "description": "Hunyuan-A13B is a 13B active parameter Mixture-of-Experts (MoE) language model developed by Tencent, with a total parameter count of 80B and support for reasoning via Chain-of-Thought. It offers competitive benchmark performance across mathematics, science, coding, and multi-turn reasoning tasks, while maintaining high inference efficiency via Grouped Query Attention (GQA) and quantization support (FP8, GPTQ, etc.).",
+    "pricing": {
+      "input": 0,
+      "output": 0
+    },
+    "contextWindow": 32768,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 32768,
+      "max_completion_tokens": null,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Other",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "tencent/hunyuan-a13b-instruct:free",
+      "created": 1751987664,
+      "per_request_limits": null
+    }
+  },
+  "tngtech/deepseek-r1t2-chimera:free": {
+    "name": "TNG: DeepSeek R1T2 Chimera (free)",
+    "provider": "openrouter",
+    "category": "deepseek",
+    "description": "DeepSeek-TNG-R1T2-Chimera is the second-generation Chimera model from TNG Tech. It is a 671 B-parameter mixture-of-experts text-generation model assembled from DeepSeek-AI’s R1-0528, R1, and V3-0324 checkpoints with an Assembly-of-Experts merge. The tri-parent design yields strong reasoning performance while running roughly 20 % faster than the original R1 and more than 2× faster than R1-0528 under vLLM, giving a favorable cost-to-intelligence trade-off. The checkpoint supports contexts up to 60 k tokens in standard use (tested to ~130 k) and maintains consistent <think> token behaviour, making it suitable for long-context analysis, dialogue and other open-ended generation tasks.",
+    "pricing": {
+      "input": 0,
+      "output": 0
+    },
+    "contextWindow": 163840,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 163840,
+      "max_completion_tokens": null,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "DeepSeek",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "tngtech/deepseek-r1t2-chimera:free",
+      "created": 1751986985,
+      "per_request_limits": null
+    }
+  },
+  "morph/morph-v3-large": {
+    "name": "Morph: V3 Large",
+    "provider": "openrouter",
+    "category": "other",
+    "description": "Morph's high-accuracy apply model for complex code edits. 2000+ tokens/sec with 98% accuracy for precise code transformations.",
+    "pricing": {
+      "input": 1.2,
+      "output": 2.7
+    },
+    "contextWindow": 32000,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 32000,
+      "max_completion_tokens": 16000,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Other",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "morph/morph-v3-large",
+      "created": 1751910858,
+      "per_request_limits": null
+    }
+  },
+  "morph/morph-v3-fast": {
+    "name": "Morph: V3 Fast",
+    "provider": "openrouter",
+    "category": "other",
+    "description": "Morph's fastest apply model for code edits. 4500+ tokens/sec with 96% accuracy for rapid code transformations.",
+    "pricing": {
+      "input": 1.2,
+      "output": 2.7
+    },
+    "contextWindow": 32000,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 32000,
+      "max_completion_tokens": 16000,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Other",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "morph/morph-v3-fast",
+      "created": 1751910002,
+      "per_request_limits": null
+    }
+  },
+  "openrouter/cypher-alpha:free": {
+    "name": "Cypher Alpha (free)",
+    "provider": "openrouter",
+    "category": "other",
+    "description": "This is a cloaked model provided to the community to gather feedback. It's an all-purpose model supporting real-world, long-context tasks including code generation.\n\nNote: All prompts and completions for this model are logged by the provider and may be used to improve the model and other products and services. You remain responsible for any required end user notices and consents and for ensuring that no personal, confidential, or otherwise sensitive information, including data from individuals under the age of 18, is submitted.",
+    "pricing": {
+      "input": 0,
+      "output": 0
+    },
+    "contextWindow": 1000000,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 1000000,
+      "max_completion_tokens": 10000,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Other",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "openrouter/cypher-alpha:free",
+      "created": 1751336087,
+      "per_request_limits": null
+    }
+  },
+  "baidu/ernie-4.5-300b-a47b": {
+    "name": "Baidu: ERNIE 4.5 300B A47B ",
+    "provider": "openrouter",
+    "category": "other",
+    "description": "ERNIE-4.5-300B-A47B is a 300B parameter Mixture-of-Experts (MoE) language model developed by Baidu as part of the ERNIE 4.5 series. It activates 47B parameters per token and supports text generation in both English and Chinese. Optimized for high-throughput inference and efficient scaling, it uses a heterogeneous MoE structure with advanced routing and quantization strategies, including FP8 and 2-bit formats. This version is fine-tuned for language-only tasks and supports reasoning, tool parameters, and extended context lengths up to 131k tokens. Suitable for general-purpose LLM applications with high reasoning and throughput demands.",
+    "pricing": {
+      "input": 0.28,
+      "output": 1.1
+    },
+    "contextWindow": 123000,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 123000,
+      "max_completion_tokens": 12000,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Other",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "baidu/ernie-4.5-300b-a47b",
+      "created": 1751300139,
+      "per_request_limits": null
+    }
+  },
   "thedrummer/anubis-70b-v1.1": {
     "name": "TheDrummer: Anubis 70B V1.1",
     "provider": "openrouter",
     "category": "other",
     "description": "TheDrummer's Anubis v1.1 is an unaligned, creative Llama 3.3 70B model focused on providing character-driven roleplay & stories. It excels at gritty, visceral prose, unique character adherence, and coherent narratives, while maintaining the instruction following Llama 3.3 70B is known for.",
     "pricing": {
-      "input": 0.3,
+      "input": 0.5,
       "output": 0.7999999999999999
     },
     "contextWindow": 131072,
@@ -76,11 +554,11 @@
       "input": 1.2,
       "output": 2.7
     },
-    "contextWindow": 16000,
+    "contextWindow": 32000,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 16000,
+      "context_length": 32000,
       "max_completion_tokens": 16000,
       "is_moderated": false
     },
@@ -168,40 +646,6 @@
     "openRouterData": {
       "id": "mistralai/mistral-small-3.2-24b-instruct",
       "created": 1750443016,
-      "per_request_limits": null
-    }
-  },
-  "minimax/minimax-m1:extended": {
-    "name": "MiniMax: MiniMax M1 (extended)",
-    "provider": "openrouter",
-    "category": "other",
-    "description": "MiniMax-M1 is a large-scale, open-weight reasoning model designed for extended context and high-efficiency inference. It leverages a hybrid Mixture-of-Experts (MoE) architecture paired with a custom \"lightning attention\" mechanism, allowing it to process long sequences—up to 1 million tokens—while maintaining competitive FLOP efficiency. With 456 billion total parameters and 45.9B active per token, this variant is optimized for complex, multi-step reasoning tasks.\n\nTrained via a custom reinforcement learning pipeline (CISPO), M1 excels in long-context understanding, software engineering, agentic tool use, and mathematical reasoning. Benchmarks show strong performance across FullStackBench, SWE-bench, MATH, GPQA, and TAU-Bench, often outperforming other open models like DeepSeek R1 and Qwen3-235B.",
-    "pricing": {
-      "input": 0,
-      "output": 0
-    },
-    "contextWindow": 512000,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 512000,
-      "max_completion_tokens": null,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Other",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "minimax/minimax-m1:extended",
-      "created": 1750200414,
       "per_request_limits": null
     }
   },
@@ -491,15 +935,15 @@
     "category": "mistral",
     "description": "Magistral Small is a 24B parameter instruction-tuned model based on Mistral-Small-3.1 (2503), enhanced through supervised fine-tuning on traces from Magistral Medium and further refined via reinforcement learning. It is optimized for reasoning and supports a wide multilingual range, including over 20 languages.",
     "pricing": {
-      "input": 0.5,
-      "output": 1.5
+      "input": 0.09999999999999999,
+      "output": 0.3
     },
-    "contextWindow": 40000,
+    "contextWindow": 40960,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 40000,
-      "max_completion_tokens": 40000,
+      "context_length": 40960,
+      "max_completion_tokens": 40960,
       "is_moderated": false
     },
     "architecture": {
@@ -620,40 +1064,6 @@
     "openRouterData": {
       "id": "google/gemini-2.5-pro-preview",
       "created": 1749137257,
-      "per_request_limits": null
-    }
-  },
-  "sentientagi/dobby-mini-unhinged-plus-llama-3.1-8b": {
-    "name": "SentientAGI: Dobby Mini Plus Llama 3.1 8B",
-    "provider": "openrouter",
-    "category": "llama",
-    "description": "Dobby-Mini-Leashed-Llama-3.1-8B and Dobby-Mini-Unhinged-Llama-3.1-8B are language models fine-tuned from Llama-3.1-8B-Instruct. Dobby models have a strong conviction towards personal freedom, decentralization, and all things crypto — even when coerced to speak otherwise. \n\nDobby-Mini-Leashed-Llama-3.1-8B and Dobby-Mini-Unhinged-Llama-3.1-8B have their own unique, uhh, personalities. The two versions are being released to be improved using the community’s feedback, which will steer the development of a 70B model.\n\n",
-    "pricing": {
-      "input": 0.19999999999999998,
-      "output": 0.19999999999999998
-    },
-    "contextWindow": 131072,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 131072,
-      "max_completion_tokens": null,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Other",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "sentientagi/dobby-mini-unhinged-plus-llama-3.1-8b",
-      "created": 1748885619,
       "per_request_limits": null
     }
   },
@@ -867,15 +1277,15 @@
     "category": "other",
     "description": "Built on top of NVIDIA's Llama 3.3 Nemotron Super 49B, Valkyrie is TheDrummer's newest model drop for creative writing.",
     "pricing": {
-      "input": 0.5,
+      "input": 0.6,
       "output": 0.7999999999999999
     },
-    "contextWindow": 131072,
+    "contextWindow": 32768,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 131072,
-      "max_completion_tokens": 131072,
+      "context_length": 32768,
+      "max_completion_tokens": null,
       "is_moderated": false
     },
     "architecture": {
@@ -965,8 +1375,8 @@
       "per_request_limits": null
     }
   },
-  "mistralai/devstral-small:free": {
-    "name": "Mistral: Devstral Small (free)",
+  "mistralai/devstral-small-2505:free": {
+    "name": "Mistral: Devstral Small 2505 (free)",
     "provider": "openrouter",
     "category": "mistral",
     "description": "Devstral-Small-2505 is a 24B parameter agentic LLM fine-tuned from Mistral-Small-3.1, jointly developed by Mistral AI and All Hands AI for advanced software engineering tasks. It is optimized for codebase exploration, multi-file editing, and integration into coding agents, achieving state-of-the-art results on SWE-Bench Verified (46.8%).\n\nDevstral supports a 128k context window and uses a custom Tekken tokenizer. It is text-only, with the vision encoder removed, and is suitable for local deployment on high-end consumer hardware (e.g., RTX 4090, 32GB RAM Macs). Devstral is best used in agentic workflows via the OpenHands scaffold and is compatible with inference frameworks like vLLM, Transformers, and Ollama. It is released under the Apache 2.0 license.",
@@ -990,17 +1400,17 @@
       "output_modalities": [
         "text"
       ],
-      "tokenizer": "Other",
+      "tokenizer": "Mistral",
       "instruct_type": null
     },
     "openRouterData": {
-      "id": "mistralai/devstral-small:free",
+      "id": "mistralai/devstral-small-2505:free",
       "created": 1747837379,
       "per_request_limits": null
     }
   },
-  "mistralai/devstral-small": {
-    "name": "Mistral: Devstral Small",
+  "mistralai/devstral-small-2505": {
+    "name": "Mistral: Devstral Small 2505",
     "provider": "openrouter",
     "category": "mistral",
     "description": "Devstral-Small-2505 is a 24B parameter agentic LLM fine-tuned from Mistral-Small-3.1, jointly developed by Mistral AI and All Hands AI for advanced software engineering tasks. It is optimized for codebase exploration, multi-file editing, and integration into coding agents, achieving state-of-the-art results on SWE-Bench Verified (46.8%).\n\nDevstral supports a 128k context window and uses a custom Tekken tokenizer. It is text-only, with the vision encoder removed, and is suitable for local deployment on high-end consumer hardware (e.g., RTX 4090, 32GB RAM Macs). Devstral is best used in agentic workflows via the OpenHands scaffold and is compatible with inference frameworks like vLLM, Transformers, and Ollama. It is released under the Apache 2.0 license.",
@@ -1024,11 +1434,11 @@
       "output_modalities": [
         "text"
       ],
-      "tokenizer": "Other",
+      "tokenizer": "Mistral",
       "instruct_type": null
     },
     "openRouterData": {
-      "id": "mistralai/devstral-small",
+      "id": "mistralai/devstral-small-2505",
       "created": 1747837379,
       "per_request_limits": null
     }
@@ -1217,11 +1627,11 @@
       "input": 0.39999999999999997,
       "output": 2
     },
-    "contextWindow": 32768,
+    "contextWindow": 131072,
     "supportsVision": true,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 32768,
+      "context_length": 131072,
       "max_completion_tokens": null,
       "is_moderated": false
     },
@@ -1552,11 +1962,11 @@
       "per_request_limits": null
     }
   },
-  "inception/mercury-coder-small-beta": {
-    "name": "Inception: Mercury Coder Small Beta",
+  "inception/mercury-coder": {
+    "name": "Inception: Mercury Coder",
     "provider": "openrouter",
     "category": "other",
-    "description": "Mercury Coder Small is the first diffusion large language model (dLLM). Applying a breakthrough discrete diffusion approach, the model runs 5-10x faster than even speed optimized models like Claude 3.5 Haiku and GPT-4o Mini while matching their performance. Mercury Coder Small's speed means that developers can stay in the flow while coding, enjoying rapid chat-based iteration and responsive code completion suggestions. On Copilot Arena, Mercury Coder ranks 1st in speed and ties for 2nd in quality. Read more in the [blog post here](https://www.inceptionlabs.ai/introducing-mercury).",
+    "description": "Mercury Coder is the first diffusion large language model (dLLM). Applying a breakthrough discrete diffusion approach, the model runs 5-10x faster than even speed optimized models like Claude 3.5 Haiku and GPT-4o Mini while matching their performance. Mercury Coder's speed means that developers can stay in the flow while coding, enjoying rapid chat-based iteration and responsive code completion suggestions. On Copilot Arena, Mercury Coder ranks 1st in speed and ties for 2nd in quality. Read more in the [blog post here](https://www.inceptionlabs.ai/introducing-mercury).",
     "pricing": {
       "input": 0.25,
       "output": 1
@@ -1581,8 +1991,42 @@
       "instruct_type": null
     },
     "openRouterData": {
-      "id": "inception/mercury-coder-small-beta",
+      "id": "inception/mercury-coder",
       "created": 1746033880,
+      "per_request_limits": null
+    }
+  },
+  "qwen/qwen3-4b:free": {
+    "name": "Qwen: Qwen3 4B (free)",
+    "provider": "openrouter",
+    "category": "qwen",
+    "description": "Qwen3-4B is a 4 billion parameter dense language model from the Qwen3 series, designed to support both general-purpose and reasoning-intensive tasks. It introduces a dual-mode architecture—thinking and non-thinking—allowing dynamic switching between high-precision logical reasoning and efficient dialogue generation. This makes it well-suited for multi-turn chat, instruction following, and complex agent workflows.",
+    "pricing": {
+      "input": 0,
+      "output": 0
+    },
+    "contextWindow": 40960,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 40960,
+      "max_completion_tokens": null,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Qwen3",
+      "instruct_type": "qwen3"
+    },
+    "openRouterData": {
+      "id": "qwen/qwen3-4b:free",
+      "created": 1746031104,
       "per_request_limits": null
     }
   },
@@ -1618,41 +2062,6 @@
     "openRouterData": {
       "id": "opengvlab/internvl3-14b",
       "created": 1746021355,
-      "per_request_limits": null
-    }
-  },
-  "opengvlab/internvl3-2b": {
-    "name": "OpenGVLab: InternVL3 2B",
-    "provider": "openrouter",
-    "category": "other",
-    "description": "The 2b version of the InternVL3 series, for an even higher inference speed and very reasonable performance. An advanced multimodal large language model (MLLM) series that demonstrates superior overall performance. Compared to InternVL 2.5, InternVL3 exhibits superior multimodal perception and reasoning capabilities, while further extending its multimodal capabilities to encompass tool usage, GUI agents, industrial image analysis, 3D vision perception, and more.",
-    "pricing": {
-      "input": 0.049999999999999996,
-      "output": 0.09999999999999999
-    },
-    "contextWindow": 12288,
-    "supportsVision": true,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 12288,
-      "max_completion_tokens": null,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text+image->text",
-      "input_modalities": [
-        "image",
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Other",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "opengvlab/internvl3-2b",
-      "created": 1746019807,
       "per_request_limits": null
     }
   },
@@ -2006,11 +2415,11 @@
       "input": 0,
       "output": 0
     },
-    "contextWindow": 40960,
+    "contextWindow": 131072,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 40960,
+      "context_length": 131072,
       "max_completion_tokens": null,
       "is_moderated": false
     },
@@ -2099,40 +2508,6 @@
       "per_request_limits": null
     }
   },
-  "thudm/glm-z1-rumination-32b": {
-    "name": "THUDM: GLM Z1 Rumination 32B ",
-    "provider": "openrouter",
-    "category": "other",
-    "description": "THUDM: GLM Z1 Rumination 32B is a 32B-parameter deep reasoning model from the GLM-4-Z1 series, optimized for complex, open-ended tasks requiring prolonged deliberation. It builds upon glm-4-32b-0414 with additional reinforcement learning phases and multi-stage alignment strategies, introducing “rumination” capabilities designed to emulate extended cognitive processing. This includes iterative reasoning, multi-hop analysis, and tool-augmented workflows such as search, retrieval, and citation-aware synthesis.\n\nThe model excels in research-style writing, comparative analysis, and intricate question answering. It supports function calling for search and navigation primitives (`search`, `click`, `open`, `finish`), enabling use in agent-style pipelines. Rumination behavior is governed by multi-turn loops with rule-based reward shaping and delayed decision mechanisms, benchmarked against Deep Research frameworks such as OpenAI’s internal alignment stacks. This variant is suitable for scenarios requiring depth over speed.",
-    "pricing": {
-      "input": 0.24,
-      "output": 0.24
-    },
-    "contextWindow": 32000,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 32000,
-      "max_completion_tokens": 32000,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Other",
-      "instruct_type": "deepseek-r1"
-    },
-    "openRouterData": {
-      "id": "thudm/glm-z1-rumination-32b",
-      "created": 1745601495,
-      "per_request_limits": null
-    }
-  },
   "microsoft/mai-ds-r1:free": {
     "name": "Microsoft: MAI DS R1 (free)",
     "provider": "openrouter",
@@ -2197,40 +2572,6 @@
     },
     "openRouterData": {
       "id": "thudm/glm-z1-32b:free",
-      "created": 1744924148,
-      "per_request_limits": null
-    }
-  },
-  "thudm/glm-z1-32b": {
-    "name": "THUDM: GLM Z1 32B",
-    "provider": "openrouter",
-    "category": "other",
-    "description": "GLM-Z1-32B-0414 is an enhanced reasoning variant of GLM-4-32B, built for deep mathematical, logical, and code-oriented problem solving. It applies extended reinforcement learning—both task-specific and general pairwise preference-based—to improve performance on complex multi-step tasks. Compared to the base GLM-4-32B model, Z1 significantly boosts capabilities in structured reasoning and formal domains.\n\nThe model supports enforced “thinking” steps via prompt engineering and offers improved coherence for long-form outputs. It’s optimized for use in agentic workflows, and includes support for long context (via YaRN), JSON tool calling, and fine-grained sampling configuration for stable inference. Ideal for use cases requiring deliberate, multi-step reasoning or formal derivations.",
-    "pricing": {
-      "input": 0.24,
-      "output": 0.24
-    },
-    "contextWindow": 32000,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 32000,
-      "max_completion_tokens": 32000,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Other",
-      "instruct_type": "deepseek-r1"
-    },
-    "openRouterData": {
-      "id": "thudm/glm-z1-32b",
       "created": 1744924148,
       "per_request_limits": null
     }
@@ -3139,40 +3480,6 @@
       "per_request_limits": null
     }
   },
-  "all-hands/openhands-lm-32b-v0.1": {
-    "name": "OpenHands LM 32B V0.1",
-    "provider": "openrouter",
-    "category": "other",
-    "description": "OpenHands LM v0.1 is a 32B open-source coding model fine-tuned from Qwen2.5-Coder-32B-Instruct using reinforcement learning techniques outlined in SWE-Gym. It is optimized for autonomous software development agents and achieves strong performance on SWE-Bench Verified, with a 37.2% resolve rate. The model supports a 128K token context window, making it well-suited for long-horizon code reasoning and large codebase tasks.\n\nOpenHands LM is designed for local deployment and runs on consumer-grade GPUs such as a single 3090. It enables fully offline agent workflows without dependency on proprietary APIs. This release is intended as a research preview, and future updates aim to improve generalizability, reduce repetition, and offer smaller variants.",
-    "pricing": {
-      "input": 2.6,
-      "output": 3.4
-    },
-    "contextWindow": 16384,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 16384,
-      "max_completion_tokens": 4096,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Other",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "all-hands/openhands-lm-32b-v0.1",
-      "created": 1743613013,
-      "per_request_limits": null
-    }
-  },
   "deepseek/deepseek-v3-base:free": {
     "name": "DeepSeek: DeepSeek V3 Base (free)",
     "provider": "openrouter",
@@ -3356,12 +3663,12 @@
       "input": 0,
       "output": 0
     },
-    "contextWindow": 163840,
+    "contextWindow": 16384,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 163840,
-      "max_completion_tokens": null,
+      "context_length": 16384,
+      "max_completion_tokens": 16384,
       "is_moderated": false
     },
     "architecture": {
@@ -3493,12 +3800,12 @@
       "input": 0,
       "output": 0
     },
-    "contextWindow": 96000,
+    "contextWindow": 128000,
     "supportsVision": true,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 96000,
-      "max_completion_tokens": 96000,
+      "context_length": 128000,
+      "max_completion_tokens": null,
       "is_moderated": false
     },
     "architecture": {
@@ -3939,15 +4246,15 @@
     "category": "gemini",
     "description": "Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 languages, and offers improved math, reasoning, and chat capabilities, including structured outputs and function calling. Gemma 3 27B is Google's latest open source model, successor to [Gemma 2](google/gemma-2-27b-it)",
     "pricing": {
-      "input": 0.09999999999999999,
-      "output": 0.18
+      "input": 0.09,
+      "output": 0.16999999999999998
     },
-    "contextWindow": 64000,
+    "contextWindow": 131072,
     "supportsVision": true,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 64000,
-      "max_completion_tokens": 8000,
+      "context_length": 131072,
+      "max_completion_tokens": 16384,
       "is_moderated": false
     },
     "architecture": {
@@ -3974,7 +4281,7 @@
     "category": "other",
     "description": "Anubis Pro 105B v1 is an expanded and refined variant of Meta’s Llama 3.3 70B, featuring 50% additional layers and further fine-tuning to leverage its increased capacity. Designed for advanced narrative, roleplay, and instructional tasks, it demonstrates enhanced emotional intelligence, creativity, nuanced character portrayal, and superior prompt adherence compared to smaller models. Its larger parameter count allows for deeper contextual understanding and extended reasoning capabilities, optimized for engaging, intelligent, and coherent interactions.",
     "pricing": {
-      "input": 0.7999999999999999,
+      "input": 0.5,
       "output": 1
     },
     "contextWindow": 131072,
@@ -4008,15 +4315,15 @@
     "category": "other",
     "description": "Skyfall 36B v2 is an enhanced iteration of Mistral Small 2501, specifically fine-tuned for improved creativity, nuanced writing, role-playing, and coherent storytelling.",
     "pricing": {
-      "input": 0.5,
-      "output": 0.7999999999999999
+      "input": 0.39999999999999997,
+      "output": 0.7
     },
     "contextWindow": 32768,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
       "context_length": 32768,
-      "max_completion_tokens": 32768,
+      "max_completion_tokens": null,
       "is_moderated": false
     },
     "architecture": {
@@ -4184,13 +4491,13 @@
       "input": 0,
       "output": 0
     },
-    "contextWindow": 131072,
+    "contextWindow": 32768,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 131072,
+      "context_length": 32768,
       "max_completion_tokens": null,
-      "is_moderated": true
+      "is_moderated": false
     },
     "architecture": {
       "modality": "text->text",
@@ -4383,6 +4690,41 @@
       "per_request_limits": null
     }
   },
+  "anthropic/claude-3.7-sonnet:thinking": {
+    "name": "Anthropic: Claude 3.7 Sonnet (thinking)",
+    "provider": "openrouter",
+    "category": "claude",
+    "description": "Claude 3.7 Sonnet is an advanced large language model with improved reasoning, coding, and problem-solving capabilities. It introduces a hybrid reasoning approach, allowing users to choose between rapid responses and extended, step-by-step processing for complex tasks. The model demonstrates notable improvements in coding, particularly in front-end development and full-stack updates, and excels in agentic workflows, where it can autonomously navigate multi-step processes. \n\nClaude 3.7 Sonnet maintains performance parity with its predecessor in standard mode while offering an extended reasoning mode for enhanced accuracy in math, coding, and instruction-following tasks.\n\nRead more at the [blog post here](https://www.anthropic.com/news/claude-3-7-sonnet)",
+    "pricing": {
+      "input": 3,
+      "output": 15
+    },
+    "contextWindow": 200000,
+    "supportsVision": true,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 200000,
+      "max_completion_tokens": 64000,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Claude",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "anthropic/claude-3.7-sonnet:thinking",
+      "created": 1740422110,
+      "per_request_limits": null
+    }
+  },
   "anthropic/claude-3.7-sonnet:beta": {
     "name": "Anthropic: Claude 3.7 Sonnet (self-moderated)",
     "provider": "openrouter",
@@ -4414,41 +4756,6 @@
     },
     "openRouterData": {
       "id": "anthropic/claude-3.7-sonnet:beta",
-      "created": 1740422110,
-      "per_request_limits": null
-    }
-  },
-  "anthropic/claude-3.7-sonnet:thinking": {
-    "name": "Anthropic: Claude 3.7 Sonnet (thinking)",
-    "provider": "openrouter",
-    "category": "claude",
-    "description": "Claude 3.7 Sonnet is an advanced large language model with improved reasoning, coding, and problem-solving capabilities. It introduces a hybrid reasoning approach, allowing users to choose between rapid responses and extended, step-by-step processing for complex tasks. The model demonstrates notable improvements in coding, particularly in front-end development and full-stack updates, and excels in agentic workflows, where it can autonomously navigate multi-step processes. \n\nClaude 3.7 Sonnet maintains performance parity with its predecessor in standard mode while offering an extended reasoning mode for enhanced accuracy in math, coding, and instruction-following tasks.\n\nRead more at the [blog post here](https://www.anthropic.com/news/claude-3-7-sonnet)",
-    "pricing": {
-      "input": 3,
-      "output": 15
-    },
-    "contextWindow": 200000,
-    "supportsVision": true,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 200000,
-      "max_completion_tokens": 128000,
-      "is_moderated": true
-    },
-    "architecture": {
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Claude",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "anthropic/claude-3.7-sonnet:thinking",
       "created": 1740422110,
       "per_request_limits": null
     }
@@ -4942,12 +5249,12 @@
       "input": 0,
       "output": 0
     },
-    "contextWindow": 131072,
+    "contextWindow": 32768,
     "supportsVision": true,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 131072,
-      "max_completion_tokens": 2048,
+      "context_length": 32768,
+      "max_completion_tokens": null,
       "is_moderated": false
     },
     "architecture": {
@@ -5180,7 +5487,7 @@
     "description": "Mistral Small 3 is a 24B-parameter language model optimized for low-latency performance across common AI tasks. Released under the Apache 2.0 license, it features both pre-trained and instruction-tuned versions designed for efficient local deployment.\n\nThe model achieves 81% accuracy on the MMLU benchmark and performs competitively with larger models like Llama 3.3 70B and Qwen 32B, while operating at three times the speed on equivalent hardware. [Read the blog post about the model here.](https://mistral.ai/news/mistral-small-3/)",
     "pricing": {
       "input": 0.049999999999999996,
-      "output": 0.09
+      "output": 0.08
     },
     "contextWindow": 32768,
     "supportsVision": false,
@@ -6003,12 +6310,12 @@
       "input": 0,
       "output": 0
     },
-    "contextWindow": 131072,
+    "contextWindow": 65536,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 131072,
-      "max_completion_tokens": 2048,
+      "context_length": 65536,
+      "max_completion_tokens": null,
       "is_moderated": false
     },
     "architecture": {
@@ -6034,7 +6341,7 @@
     "category": "llama",
     "description": "The Meta Llama 3.3 multilingual large language model (LLM) is a pretrained and instruction tuned generative model in 70B (text in/text out). The Llama 3.3 instruction tuned text only model is optimized for multilingual dialogue use cases and outperforms many of the available open source and closed chat models on common industry benchmarks.\n\nSupported languages: English, German, French, Italian, Portuguese, Hindi, Spanish, and Thai.\n\n[Model Card](https://github.com/meta-llama/llama-models/blob/main/models/llama3_3/MODEL_CARD.md)",
     "pricing": {
-      "input": 0.039,
+      "input": 0.038000000000000006,
       "output": 0.12
     },
     "contextWindow": 131072,
@@ -6042,7 +6349,7 @@
     "supportsFunction": false,
     "topProvider": {
       "context_length": 131072,
-      "max_completion_tokens": 8192,
+      "max_completion_tokens": 16384,
       "is_moderated": false
     },
     "architecture": {
@@ -6347,11 +6654,11 @@
       "input": 2,
       "output": 6
     },
-    "contextWindow": 32768,
+    "contextWindow": 131072,
     "supportsVision": true,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 32768,
+      "context_length": 131072,
       "max_completion_tokens": null,
       "is_moderated": false
     },
@@ -6544,40 +6851,6 @@
       "per_request_limits": null
     }
   },
-  "eva-unit-01/eva-qwen-2.5-32b": {
-    "name": "EVA Qwen2.5 32B",
-    "provider": "openrouter",
-    "category": "qwen",
-    "description": "EVA Qwen2.5 32B is a roleplaying/storywriting specialist model. It's a full-parameter finetune of Qwen2.5-32B on mixture of synthetic and natural data.\n\nIt uses Celeste 70B 0.1 data mixture, greatly expanding it to improve versatility, creativity and \"flavor\" of the resulting model.",
-    "pricing": {
-      "input": 2.6,
-      "output": 3.4
-    },
-    "contextWindow": 16384,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 16384,
-      "max_completion_tokens": 4096,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Qwen",
-      "instruct_type": "chatml"
-    },
-    "openRouterData": {
-      "id": "eva-unit-01/eva-qwen-2.5-32b",
-      "created": 1731104847,
-      "per_request_limits": null
-    }
-  },
   "thedrummer/unslopnemo-12b": {
     "name": "TheDrummer: UnslopNemo 12B",
     "provider": "openrouter",
@@ -6752,40 +7025,6 @@
       "per_request_limits": null
     }
   },
-  "neversleep/llama-3.1-lumimaid-70b": {
-    "name": "NeverSleep: Lumimaid v0.2 70B",
-    "provider": "openrouter",
-    "category": "llama",
-    "description": "Lumimaid v0.2 70B is a finetune of [Llama 3.1 70B](/meta-llama/llama-3.1-70b-instruct) with a \"HUGE step up dataset wise\" compared to Lumimaid v0.1. Sloppy chats output were purged.\n\nUsage of this model is subject to [Meta's Acceptable Use Policy](https://llama.meta.com/llama3/use-policy/).",
-    "pricing": {
-      "input": 2.5,
-      "output": 3
-    },
-    "contextWindow": 16384,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 16384,
-      "max_completion_tokens": 2048,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Llama3",
-      "instruct_type": "llama3"
-    },
-    "openRouterData": {
-      "id": "neversleep/llama-3.1-lumimaid-70b",
-      "created": 1729555200,
-      "per_request_limits": null
-    }
-  },
   "anthracite-org/magnum-v4-72b": {
     "name": "Magnum v4 72B",
     "provider": "openrouter",
@@ -6887,40 +7126,6 @@
     "openRouterData": {
       "id": "anthropic/claude-3.5-sonnet",
       "created": 1729555200,
-      "per_request_limits": null
-    }
-  },
-  "x-ai/grok-beta": {
-    "name": "xAI: Grok Beta",
-    "provider": "openrouter",
-    "category": "other",
-    "description": "Grok Beta is xAI's experimental language model with state-of-the-art reasoning capabilities, best for complex and multi-step use cases.\n\nIt is the successor of [Grok 2](https://x.ai/blog/grok-2) with enhanced context length.",
-    "pricing": {
-      "input": 5,
-      "output": 15
-    },
-    "contextWindow": 131072,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 131072,
-      "max_completion_tokens": null,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Grok",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "x-ai/grok-beta",
-      "created": 1729382400,
       "per_request_limits": null
     }
   },
@@ -7265,6 +7470,40 @@
       "per_request_limits": null
     }
   },
+  "meta-llama/llama-3.2-3b-instruct:free": {
+    "name": "Meta: Llama 3.2 3B Instruct (free)",
+    "provider": "openrouter",
+    "category": "llama",
+    "description": "Llama 3.2 3B is a 3-billion-parameter multilingual large language model, optimized for advanced natural language processing tasks like dialogue generation, reasoning, and summarization. Designed with the latest transformer architecture, it supports eight languages, including English, Spanish, and Hindi, and is adaptable for additional languages.\n\nTrained on 9 trillion tokens, the Llama 3.2 3B model excels in instruction-following, complex reasoning, and tool use. Its balanced performance makes it ideal for applications needing accuracy and efficiency in text generation across multilingual settings.\n\nClick here for the [original model card](https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/MODEL_CARD.md).\n\nUsage of this model is subject to [Meta's Acceptable Use Policy](https://www.llama.com/llama3/use-policy/).",
+    "pricing": {
+      "input": 0,
+      "output": 0
+    },
+    "contextWindow": 131072,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 131072,
+      "max_completion_tokens": null,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Llama3",
+      "instruct_type": "llama3"
+    },
+    "openRouterData": {
+      "id": "meta-llama/llama-3.2-3b-instruct:free",
+      "created": 1727222400,
+      "per_request_limits": null
+    }
+  },
   "meta-llama/llama-3.2-3b-instruct": {
     "name": "Meta: Llama 3.2 3B Instruct",
     "provider": "openrouter",
@@ -7295,40 +7534,6 @@
     },
     "openRouterData": {
       "id": "meta-llama/llama-3.2-3b-instruct",
-      "created": 1727222400,
-      "per_request_limits": null
-    }
-  },
-  "meta-llama/llama-3.2-1b-instruct:free": {
-    "name": "Meta: Llama 3.2 1B Instruct (free)",
-    "provider": "openrouter",
-    "category": "llama",
-    "description": "Llama 3.2 1B is a 1-billion-parameter language model focused on efficiently performing natural language tasks, such as summarization, dialogue, and multilingual text analysis. Its smaller size allows it to operate efficiently in low-resource environments while maintaining strong task performance.\n\nSupporting eight core languages and fine-tunable for more, Llama 1.3B is ideal for businesses or developers seeking lightweight yet powerful AI solutions that can operate in diverse multilingual settings without the high computational demand of larger models.\n\nClick here for the [original model card](https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/MODEL_CARD.md).\n\nUsage of this model is subject to [Meta's Acceptable Use Policy](https://www.llama.com/llama3/use-policy/).",
-    "pricing": {
-      "input": 0,
-      "output": 0
-    },
-    "contextWindow": 131072,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 131072,
-      "max_completion_tokens": 8192,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Llama3",
-      "instruct_type": "llama3"
-    },
-    "openRouterData": {
-      "id": "meta-llama/llama-3.2-1b-instruct:free",
       "created": 1727222400,
       "per_request_limits": null
     }
@@ -7546,15 +7751,15 @@
     "category": "llama",
     "description": "Lumimaid v0.2 8B is a finetune of [Llama 3.1 8B](/models/meta-llama/llama-3.1-8b-instruct) with a \"HUGE step up dataset wise\" compared to Lumimaid v0.1. Sloppy chats output were purged.\n\nUsage of this model is subject to [Meta's Acceptable Use Policy](https://llama.meta.com/llama3/use-policy/).",
     "pricing": {
-      "input": 0.19999999999999998,
-      "output": 1.25
+      "input": 0.18,
+      "output": 1
     },
     "contextWindow": 32768,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
       "context_length": 32768,
-      "max_completion_tokens": 2048,
+      "max_completion_tokens": null,
       "is_moderated": false
     },
     "architecture": {
@@ -7922,15 +8127,15 @@
     "category": "llama",
     "description": "Hermes 3 is a generalist language model with many improvements over [Hermes 2](/models/nousresearch/nous-hermes-2-mistral-7b-dpo), including advanced agentic capabilities, much better roleplaying, reasoning, multi-turn conversation, long context coherence, and improvements across the board.\n\nHermes 3 70B is a competitive, if not superior finetune of the [Llama-3.1 70B foundation model](/models/meta-llama/llama-3.1-70b-instruct), focused on aligning LLMs to the user, with powerful steering capabilities and control given to the end user.\n\nThe Hermes 3 series builds and expands on the Hermes 2 set of capabilities, including more powerful and reliable function calling and structured output capabilities, generalist assistant capabilities, and improved code generation skills.",
     "pricing": {
-      "input": 0.12,
-      "output": 0.3
+      "input": 0.09999999999999999,
+      "output": 0.28
     },
     "contextWindow": 131072,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
       "context_length": 131072,
-      "max_completion_tokens": 131072,
+      "max_completion_tokens": null,
       "is_moderated": false
     },
     "architecture": {
@@ -8191,116 +8396,14 @@
       "per_request_limits": null
     }
   },
-  "perplexity/llama-3.1-sonar-small-128k-online": {
-    "name": "Perplexity: Llama 3.1 Sonar 8B Online",
-    "provider": "openrouter",
-    "category": "llama",
-    "description": "Llama 3.1 Sonar is Perplexity's latest model family. It surpasses their earlier Sonar models in cost-efficiency, speed, and performance.\n\nThis is the online version of the [offline chat model](/models/perplexity/llama-3.1-sonar-small-128k-chat). It is focused on delivering helpful, up-to-date, and factual responses. #online",
-    "pricing": {
-      "input": 0.19999999999999998,
-      "output": 0.19999999999999998
-    },
-    "contextWindow": 127072,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 127072,
-      "max_completion_tokens": null,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Llama3",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "perplexity/llama-3.1-sonar-small-128k-online",
-      "created": 1722470400,
-      "per_request_limits": null
-    }
-  },
-  "perplexity/llama-3.1-sonar-large-128k-online": {
-    "name": "Perplexity: Llama 3.1 Sonar 70B Online",
-    "provider": "openrouter",
-    "category": "llama",
-    "description": "Llama 3.1 Sonar is Perplexity's latest model family. It surpasses their earlier Sonar models in cost-efficiency, speed, and performance.\n\nThis is the online version of the [offline chat model](/models/perplexity/llama-3.1-sonar-large-128k-chat). It is focused on delivering helpful, up-to-date, and factual responses. #online",
-    "pricing": {
-      "input": 1,
-      "output": 1
-    },
-    "contextWindow": 127072,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 127072,
-      "max_completion_tokens": null,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Llama3",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "perplexity/llama-3.1-sonar-large-128k-online",
-      "created": 1722470400,
-      "per_request_limits": null
-    }
-  },
-  "meta-llama/llama-3.1-8b-instruct:free": {
-    "name": "Meta: Llama 3.1 8B Instruct (free)",
-    "provider": "openrouter",
-    "category": "llama",
-    "description": "Meta's latest class of model (Llama 3.1) launched with a variety of sizes & flavors. This 8B instruct-tuned version is fast and efficient.\n\nIt has demonstrated strong performance compared to leading closed-source models in human evaluations.\n\nTo read more about the model release, [click here](https://ai.meta.com/blog/meta-llama-3-1/). Usage of this model is subject to [Meta's Acceptable Use Policy](https://llama.meta.com/llama3/use-policy/).",
-    "pricing": {
-      "input": 0,
-      "output": 0
-    },
-    "contextWindow": 131072,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 131072,
-      "max_completion_tokens": 4096,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Llama3",
-      "instruct_type": "llama3"
-    },
-    "openRouterData": {
-      "id": "meta-llama/llama-3.1-8b-instruct:free",
-      "created": 1721692800,
-      "per_request_limits": null
-    }
-  },
   "meta-llama/llama-3.1-8b-instruct": {
     "name": "Meta: Llama 3.1 8B Instruct",
     "provider": "openrouter",
     "category": "llama",
     "description": "Meta's latest class of model (Llama 3.1) launched with a variety of sizes & flavors. This 8B instruct-tuned version is fast and efficient.\n\nIt has demonstrated strong performance compared to leading closed-source models in human evaluations.\n\nTo read more about the model release, [click here](https://ai.meta.com/blog/meta-llama-3-1/). Usage of this model is subject to [Meta's Acceptable Use Policy](https://llama.meta.com/llama3/use-policy/).",
     "pricing": {
-      "input": 0.016,
-      "output": 0.020999999999999998
+      "input": 0.015,
+      "output": 0.02
     },
     "contextWindow": 131000,
     "supportsVision": false,
@@ -8323,6 +8426,40 @@
     },
     "openRouterData": {
       "id": "meta-llama/llama-3.1-8b-instruct",
+      "created": 1721692800,
+      "per_request_limits": null
+    }
+  },
+  "meta-llama/llama-3.1-405b-instruct:free": {
+    "name": "Meta: Llama 3.1 405B Instruct (free)",
+    "provider": "openrouter",
+    "category": "llama",
+    "description": "The highly anticipated 400B class of Llama3 is here! Clocking in at 128k context with impressive eval scores, the Meta AI team continues to push the frontier of open-source LLMs.\n\nMeta's latest class of model (Llama 3.1) launched with a variety of sizes & flavors. This 405B instruct-tuned version is optimized for high quality dialogue usecases.\n\nIt has demonstrated strong performance compared to leading closed-source models including GPT-4o and Claude 3.5 Sonnet in evaluations.\n\nTo read more about the model release, [click here](https://ai.meta.com/blog/meta-llama-3-1/). Usage of this model is subject to [Meta's Acceptable Use Policy](https://llama.meta.com/llama3/use-policy/).",
+    "pricing": {
+      "input": 0,
+      "output": 0
+    },
+    "contextWindow": 65536,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 65536,
+      "max_completion_tokens": null,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Llama3",
+      "instruct_type": "llama3"
+    },
+    "openRouterData": {
+      "id": "meta-llama/llama-3.1-405b-instruct:free",
       "created": 1721692800,
       "per_request_limits": null
     }
@@ -8435,8 +8572,8 @@
     "category": "mistral",
     "description": "A 12B parameter model with a 128k token context length built by Mistral in collaboration with NVIDIA.\n\nThe model is multilingual, supporting English, French, German, Spanish, Italian, Portuguese, Chinese, Japanese, Korean, Arabic, and Hindi.\n\nIt supports function calling and is released under the Apache 2.0 license.",
     "pricing": {
-      "input": 0.01,
-      "output": 0.011
+      "input": 0.008,
+      "output": 0.001
     },
     "contextWindow": 131072,
     "supportsVision": false,
@@ -9289,40 +9426,6 @@
     "openRouterData": {
       "id": "openai/gpt-4o-2024-05-13",
       "created": 1715558400,
-      "per_request_limits": null
-    }
-  },
-  "neversleep/llama-3-lumimaid-8b": {
-    "name": "NeverSleep: Llama 3 Lumimaid 8B",
-    "provider": "openrouter",
-    "category": "llama",
-    "description": "The NeverSleep team is back, with a Llama 3 8B finetune trained on their curated roleplay data. Striking a balance between eRP and RP, Lumimaid was designed to be serious, yet uncensored when necessary.\n\nTo enhance it's overall intelligence and chat capability, roughly 40% of the training data was not roleplay. This provides a breadth of knowledge to access, while still keeping roleplay as the primary strength.\n\nUsage of this model is subject to [Meta's Acceptable Use Policy](https://llama.meta.com/llama3/use-policy/).",
-    "pricing": {
-      "input": 0.19999999999999998,
-      "output": 1.25
-    },
-    "contextWindow": 24576,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 24576,
-      "max_completion_tokens": 2048,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Llama3",
-      "instruct_type": "llama3"
-    },
-    "openRouterData": {
-      "id": "neversleep/llama-3-lumimaid-8b",
-      "created": 1714780800,
       "per_request_limits": null
     }
   },
