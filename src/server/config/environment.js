@@ -19,7 +19,7 @@ const config = {
     claude: process.env.CLAUDE_API_KEY,
     google: process.env.GOOGLE_API_KEY,
     mistral: process.env.MISTRAL_API_KEY,
-    qroq: process.env.QROQ_API_KEY,
+    groq: process.env.GROQ_API_KEY,
     openrouter: process.env.OPENROUTER_API_KEY,
     codestral: process.env.CODESTRAL_API_KEY,
     deepseek: process.env.DEEPSEEK_API_KEY

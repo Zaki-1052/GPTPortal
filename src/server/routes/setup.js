@@ -23,7 +23,7 @@ function createSetupRoutes(config) {
       claudeApiKey, 
       googleApiKey, 
       mistralApiKey, 
-      qroqApiKey, 
+      groqApiKey,
       openrouterApiKey, 
       codestralApiKey 
     } = req.body;
@@ -35,7 +35,7 @@ function createSetupRoutes(config) {
     if (claudeApiKey) envContent += `CLAUDE_API_KEY=${claudeApiKey}\n`;
     if (googleApiKey) envContent += `GOOGLE_API_KEY=${googleApiKey}\n`;
     if (mistralApiKey) envContent += `MISTRAL_API_KEY=${mistralApiKey}\n`;
-    if (qroqApiKey) envContent += `QROQ_API_KEY=${qroqApiKey}\n`;
+    if (groqApiKey) envContent += `GROQ_API_KEY=${groqApiKey}\n`;
     if (openrouterApiKey) envContent += `OPENROUTER_API_KEY=${openrouterApiKey}\n`;
     if (codestralApiKey) envContent += `CODESTRAL_API_KEY=${codestralApiKey}\n`;
 

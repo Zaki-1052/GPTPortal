@@ -127,7 +127,7 @@ app.get('/setup', (req, res) => {
 });
 
 app.post('/setup', (req, res) => {
-  const { username, password, openaiApiKey, claudeApiKey, googleApiKey, mistralApiKey, qroqApiKey, openrouterApiKey, codestralApiKey } = req.body;
+  const { username, password, openaiApiKey, claudeApiKey, googleApiKey, mistralApiKey, groqApiKey, openrouterApiKey, codestralApiKey } = req.body;
 
   let envContent = `USER_USERNAME=${username}\nUSER_PASSWORD=${password}\n`;
 
@@ -143,8 +143,8 @@ app.post('/setup', (req, res) => {
   if (mistralApiKey) {
       envContent += `MISTRAL_API_KEY=${mistralApiKey}\n`;
   }
-  if (qroqApiKey) {
-      envContent += `QROQ_API_KEY=${qroqApiKey}\n`;
+  if (groqApiKey) {
+      envContent += `GROQ_API_KEY=${groqApiKey}\n`;
   }
   if (openrouterApiKey) {
       envContent += `OPENROUTER_API_KEY=${openrouterApiKey}\n`;

@@ -42,8 +42,8 @@ function initializeAIProviders(apiKeys) {
   }
 
   // Groq API
-  if (apiKeys.qroq) {
-    providers.qroq = { apiKey: apiKeys.qroq };
+  if (apiKeys.groq) {
+    providers.groq = { apiKey: apiKeys.groq };
     console.log('Groq provider configured');
   }
 
