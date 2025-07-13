@@ -94,7 +94,8 @@ class TokenService {
    * Split Gemini format history into segments
    */
   splitGeminiSegments(chatHistory) {
-    const segmentRegex = /(?:System Prompt:|User Prompt:|Response:)([^:]+)(?=System Prompt:|User Prompt:|Response:|$)/g;
+    // Capture everything between section labels including newlines and colons
+    const segmentRegex = /(?:System Prompt:|User Prompt:|Response:)([\s\S]*?)(?=System Prompt:|User Prompt:|Response:|$)/g;
     const matches = [];
     let match;
     
