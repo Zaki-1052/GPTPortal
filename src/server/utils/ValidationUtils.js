@@ -148,7 +148,7 @@ class ValidationUtils {
       claude: /^sk-ant-[A-Za-z0-9\-_]{95,}$/,
       google: /^[A-Za-z0-9\-_]{39}$/,
       mistral: /^[A-Za-z0-9]{32}$/,
-      qroq: /^gsk_[A-Za-z0-9]{52}$/
+      groq: /^gsk_[A-Za-z0-9]{52}$/
     };
 
     const pattern = patterns[provider];

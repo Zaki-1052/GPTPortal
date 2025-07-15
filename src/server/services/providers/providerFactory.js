@@ -45,8 +45,8 @@ class ProviderFactory {
       console.log('✅ Claude handler initialized');
     }
 
-    if (this.apiKeys.qroq) {
-      this.handlers.groq = new GroqHandler(this.apiKeys.qroq);
+    if (this.apiKeys.groq) {
+      this.handlers.groq = new GroqHandler(this.apiKeys.groq);
       console.log('✅ Groq handler initialized');
     }
 
