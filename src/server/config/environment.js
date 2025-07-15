@@ -23,7 +23,8 @@ const config = {
     openrouter: process.env.OPENROUTER_API_KEY,
     codestral: process.env.CODESTRAL_API_KEY,
     deepseek: process.env.DEEPSEEK_API_KEY,
-    grok: process.env.GROK_API_KEY
+    grok: process.env.GROK_API_KEY,
+    kimi: process.env.KIMI_API_KEY
   },
   
   // Model parameters

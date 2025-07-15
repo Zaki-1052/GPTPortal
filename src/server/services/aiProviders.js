@@ -53,6 +53,24 @@ function initializeAIProviders(apiKeys) {
     console.log('OpenRouter provider configured');
   }
 
+  // DeepSeek API
+  if (apiKeys.deepseek) {
+    providers.deepseek = { apiKey: apiKeys.deepseek };
+    console.log('DeepSeek provider configured');
+  }
+
+  // Grok API
+  if (apiKeys.grok) {
+    providers.grok = { apiKey: apiKeys.grok };
+    console.log('Grok provider configured');
+  }
+
+  // Kimi API
+  if (apiKeys.kimi) {
+    providers.kimi = { apiKey: apiKeys.kimi };
+    console.log('Kimi provider configured');
+  }
+
   return providers;
 }
 

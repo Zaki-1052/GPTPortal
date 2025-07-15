@@ -25,7 +25,10 @@ function createSetupRoutes(config) {
       mistralApiKey, 
       groqApiKey,
       openrouterApiKey, 
-      codestralApiKey 
+      codestralApiKey,
+      deepseekApiKey,
+      grokApiKey,
+      kimiApiKey
     } = req.body;
 
     let envContent = `USER_USERNAME=${username}\nUSER_PASSWORD=${password}\n`;
@@ -38,6 +41,9 @@ function createSetupRoutes(config) {
     if (groqApiKey) envContent += `GROQ_API_KEY=${groqApiKey}\n`;
     if (openrouterApiKey) envContent += `OPENROUTER_API_KEY=${openrouterApiKey}\n`;
     if (codestralApiKey) envContent += `CODESTRAL_API_KEY=${codestralApiKey}\n`;
+    if (deepseekApiKey) envContent += `DEEPSEEK_API_KEY=${deepseekApiKey}\n`;
+    if (grokApiKey) envContent += `GROK_API_KEY=${grokApiKey}\n`;
+    if (kimiApiKey) envContent += `KIMI_API_KEY=${kimiApiKey}\n`;
 
     try {
       fs.writeFileSync('.env', envContent);

@@ -7,6 +7,7 @@ const MistralHandler = require('./mistralHandler');
 const OpenRouterHandler = require('./openrouterHandler');
 const GeminiHandler = require('./geminiHandler');
 const GrokHandler = require('./grokHandler');
+const KimiHandler = require('./kimiHandler');
 
 class ProviderFactory {
   constructor(apiKeys, promptCacheService = null) {
@@ -73,6 +74,11 @@ class ProviderFactory {
     if (this.apiKeys.grok) {
       this.handlers.grok = new GrokHandler(this.apiKeys.grok);
       console.log('✅ Grok handler initialized');
+    }
+
+    if (this.apiKeys.kimi) {
+      this.handlers.kimi = new KimiHandler(this.apiKeys.kimi);
+      console.log('✅ Kimi handler initialized');
     }
   }
 
@@ -146,6 +152,11 @@ class ProviderFactory {
     // Grok models
     if (modelID.startsWith('grok')) {
       return 'grok';
+    }
+
+    // Kimi models
+    if (modelID.includes('kimi')) {
+      return 'kimi';
     }
 
     // Default to OpenRouter for unknown models
@@ -284,6 +295,8 @@ class ProviderFactory {
       return handler.formatUserInput(userMessage, fileContents, fileId);
     } else if (provider === 'grok') {
       return handler.formatUserInput(userMessage, fileContents, fileId, imageName, base64Image);
+    } else if (provider === 'kimi') {
+      return handler.formatUserInput(userMessage, fileContents, fileId);
     } else {
       // For other providers (Groq, Mistral, DeepSeek, OpenRouter)
       return handler.formatUserInput(userMessage, fileContents, fileId);
