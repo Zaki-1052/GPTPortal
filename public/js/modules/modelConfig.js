@@ -97,7 +97,13 @@ class ModelConfig {
     
     // Update current model
     this.currentModelID = modelID;
+    window.currentModelID = modelID; // Update global reference for GPT-5 controls
     this.determineEndpoint(modelID);
+    
+    // Update GPT-5 controls visibility
+    if (window.gptPortalApp && window.gptPortalApp.updateGPT5ControlsVisibility) {
+      window.gptPortalApp.updateGPT5ControlsVisibility();
+    }
     
     // Close dropdown
     const options = document.getElementById('model-options');

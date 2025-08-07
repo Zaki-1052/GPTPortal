@@ -373,6 +373,48 @@ class GPTPortalApp {
 
       console.log('Tokens updated:', window.tokens);
     });
+    
+    // Setup GPT-5 specific controls
+    this.setupGPT5Controls();
+  }
+
+  setupGPT5Controls() {
+    const reasoningEffortSelect = document.getElementById('reasoning-effort-select');
+    const verbositySelect = document.getElementById('verbosity-select');
+    
+    // Initialize global variables
+    window.reasoningEffort = 'medium';
+    window.verbosity = 'medium';
+    
+    if (reasoningEffortSelect) {
+      reasoningEffortSelect.addEventListener('change', (e) => {
+        window.reasoningEffort = e.target.value;
+        console.log('Reasoning effort updated:', window.reasoningEffort);
+      });
+    }
+    
+    if (verbositySelect) {
+      verbositySelect.addEventListener('change', (e) => {
+        window.verbosity = e.target.value;
+        console.log('Verbosity updated:', window.verbosity);
+      });
+    }
+    
+    // Show/hide GPT-5 controls based on model selection
+    this.updateGPT5ControlsVisibility();
+  }
+
+  updateGPT5ControlsVisibility() {
+    const gpt5Controls = document.getElementById('gpt5-controls');
+    const currentModelID = window.currentModelID || '';
+    
+    if (gpt5Controls) {
+      if (currentModelID.startsWith('gpt-5')) {
+        gpt5Controls.style.display = 'block';
+      } else {
+        gpt5Controls.style.display = 'none';
+      }
+    }
   }
 
   getMaxTokensByModel(modelID) {
@@ -728,6 +770,54 @@ class GPTPortalApp {
       
       #model-token-limit {
         color: #ccc;
+      }
+      
+      /* GPT-5 Specific Controls */
+      #gpt5-controls {
+        margin-top: 15px;
+        padding: 15px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      #reasoning-effort-container,
+      #verbosity-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      
+      #reasoning-effort-container label,
+      #verbosity-container label {
+        min-width: 120px;
+        font-weight: bold;
+        color: #fff;
+      }
+      
+      #reasoning-effort-select,
+      #verbosity-select {
+        flex: 1;
+        padding: 5px 10px;
+        background: #333;
+        color: #fff;
+        border: 1px solid #555;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      
+      #reasoning-effort-select:focus,
+      #verbosity-select:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+      }
+      
+      .param-help {
+        font-size: 12px;
+        color: #aaa;
+        margin-left: 10px;
       }
     `;
     document.head.appendChild(style);

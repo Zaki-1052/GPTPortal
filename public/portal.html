@@ -161,6 +161,30 @@
       <span id="tokens-value">8000</span>
       <span id="tokens-limit">(Model limit: <span id="model-token-limit">8000</span>)</span>
     </div>
+    
+    <!-- GPT-5 Specific Controls -->
+    <div id="gpt5-controls" style="display: none;">
+      <div id="reasoning-effort-container">
+        <label for="reasoning-effort-select">Reasoning Effort:</label>
+        <select id="reasoning-effort-select">
+          <option value="minimal">Minimal - Fastest response</option>
+          <option value="low">Low - Quick reasoning</option>
+          <option value="medium" selected>Medium - Balanced reasoning</option>
+          <option value="high">High - Thorough reasoning</option>
+        </select>
+        <span class="param-help">💡 Higher effort = better reasoning but slower response</span>
+      </div>
+      
+      <div id="verbosity-container">
+        <label for="verbosity-select">Verbosity:</label>
+        <select id="verbosity-select">
+          <option value="low">Low - Concise responses</option>
+          <option value="medium" selected>Medium - Balanced detail</option>
+          <option value="high">High - Detailed responses</option>
+        </select>
+        <span class="param-help">💡 Controls response length and detail</span>
+      </div>
+    </div>
   </div>
 
   <!-- Enhanced Setup Controls -->

@@ -432,6 +432,12 @@ class ChatManager {
         tokens: window.tokens || 8000,
         cachePreference: cachePreference
       };
+      
+      // Add GPT-5 specific parameters
+      if (currentModelID && currentModelID.startsWith('gpt-5')) {
+        payload.reasoningEffort = window.reasoningEffort || 'medium';
+        payload.verbosity = window.verbosity || 'medium';
+      }
       endpoint = '/message';
       
       // Debug logging for image fix verification
