@@ -408,12 +408,21 @@ class GPTPortalApp {
     const gpt5Controls = document.getElementById('gpt5-controls');
     const currentModelID = window.currentModelID || '';
     
+    console.log('updateGPT5ControlsVisibility called');
+    console.log('currentModelID:', currentModelID);
+    console.log('gpt5Controls element:', gpt5Controls);
+    console.log('Is GPT-5:', currentModelID.startsWith('gpt-5'));
+    
     if (gpt5Controls) {
       if (currentModelID.startsWith('gpt-5')) {
+        console.log('Showing GPT-5 controls via app');
         gpt5Controls.style.display = 'block';
       } else {
+        console.log('Hiding GPT-5 controls via app');
         gpt5Controls.style.display = 'none';
       }
+    } else {
+      console.log('GPT-5 controls element not found in app');
     }
   }
 

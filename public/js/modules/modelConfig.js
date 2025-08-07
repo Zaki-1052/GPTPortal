@@ -77,6 +77,9 @@ class ModelConfig {
   }
 
   selectModel(modelID) {
+    console.log('📋 modelConfig.selectModel called with:', modelID);
+    console.log('   window.currentModelID before:', window.currentModelID);
+    
     let displayName = modelID;
     
     // Get display name from dynamic model manager
@@ -98,11 +101,19 @@ class ModelConfig {
     // Update current model
     this.currentModelID = modelID;
     window.currentModelID = modelID; // Update global reference for GPT-5 controls
+    console.log('   window.currentModelID set to:', window.currentModelID);
     this.determineEndpoint(modelID);
     
     // Update GPT-5 controls visibility
+    console.log('Model selected:', modelID, 'Is GPT-5:', modelID.startsWith('gpt-5'));
+    
     if (window.gptPortalApp && window.gptPortalApp.updateGPT5ControlsVisibility) {
+      console.log('Calling updateGPT5ControlsVisibility from app');
       window.gptPortalApp.updateGPT5ControlsVisibility();
+    } else {
+      console.log('App not ready, trying direct control update');
+      // Fallback: directly update controls if app isn't ready
+      this.updateGPT5ControlsDirect(modelID);
     }
     
     // Close dropdown
@@ -124,6 +135,24 @@ class ModelConfig {
       console.log("Using Assistants endpoint");
     } else {
       console.log("Using standard endpoint");
+    }
+  }
+
+  // Fallback method to update GPT-5 controls directly
+  updateGPT5ControlsDirect(modelID) {
+    const gpt5Controls = document.getElementById('gpt5-controls');
+    console.log('GPT-5 controls element:', gpt5Controls);
+    
+    if (gpt5Controls) {
+      if (modelID && modelID.startsWith('gpt-5')) {
+        console.log('Showing GPT-5 controls');
+        gpt5Controls.style.display = 'block';
+      } else {
+        console.log('Hiding GPT-5 controls');
+        gpt5Controls.style.display = 'none';
+      }
+    } else {
+      console.log('GPT-5 controls element not found');
     }
   }
 

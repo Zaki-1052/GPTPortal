@@ -423,11 +423,18 @@ class DynamicModelManager {
     // Update global model state for backward compatibility
     this.updateGlobalModelState(modelId);
 
+    // BACKUP: Ensure window.currentModelID is always set
+    console.log('🔧 BACKUP: Setting window.currentModelID directly to:', modelId);
+    window.currentModelID = modelId;
+
     // Update token limits based on model
     this.updateTokenLimits(modelId);
 
     // Update context tracker if available
     this.updateContextTracker(modelId);
+
+    // Update GPT-5 controls visibility
+    this.updateGPT5Controls(modelId);
 
     console.log('Model selected successfully:', modelId);
   }
@@ -437,15 +444,22 @@ class DynamicModelManager {
    * @param {string} modelId - Selected model ID
    */
   updateGlobalModelState(modelId) {
+    console.log('🔄 updateGlobalModelState called with:', modelId);
+    console.log('   window.currentModelID before:', window.currentModelID);
+    
     if (window.gptPortalApp && window.gptPortalApp.modelConfig) {
+      console.log('   Using gptPortalApp.modelConfig.selectModel');
       window.gptPortalApp.modelConfig.selectModel(modelId);
     } else {
+      console.log('   Using direct fallback update');
       // Direct update for legacy code
       window.currentModelID = modelId;
       if (window.updateCurrentModelID) {
         window.updateCurrentModelID(modelId);
       }
     }
+    
+    console.log('   window.currentModelID after:', window.currentModelID);
   }
 
   /**
@@ -785,6 +799,30 @@ class DynamicModelManager {
     // Also update any global context tracker
     if (window.contextTracker) {
       window.contextTracker.setCurrentModel(modelId);
+    }
+  }
+
+  /**
+   * Update GPT-5 specific controls visibility
+   * @param {string} modelId - Selected model ID
+   */
+  updateGPT5Controls(modelId) {
+    console.log('updateGPT5Controls called with:', modelId);
+    
+    const gpt5Controls = document.getElementById('gpt5-controls');
+    if (gpt5Controls) {
+      const isGPT5 = modelId && modelId.startsWith('gpt-5');
+      console.log('GPT-5 controls found, isGPT5:', isGPT5);
+      
+      if (isGPT5) {
+        gpt5Controls.style.display = 'block';
+        console.log('Showing GPT-5 controls');
+      } else {
+        gpt5Controls.style.display = 'none';
+        console.log('Hiding GPT-5 controls');
+      }
+    } else {
+      console.log('GPT-5 controls element not found in DOM');
     }
   }
 }
