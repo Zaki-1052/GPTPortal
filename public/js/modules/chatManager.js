@@ -449,20 +449,8 @@ class ChatManager {
       }
     }
 
-    // Create AbortController for timeout handling
-    const controller = new AbortController();
-    const timeoutDuration = this.getTimeoutForModel(currentModelID);
-    let timeoutId;
-
     try {
       console.log('Sending to:', endpoint, payload);
-      
-      // Set timeout
-      timeoutId = setTimeout(() => {
-        controller.abort();
-      }, timeoutDuration);
-      
-      console.log(`⏱️ Request timeout set to ${timeoutDuration / 1000}s for model ${currentModelID}`);
       
       // Show progress indicator for deep research models
       if (currentModelID === 'o3-deep-research' || currentModelID === 'o4-mini-deep-research') {
@@ -474,12 +462,8 @@ class ChatManager {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
-        signal: controller.signal
+        body: JSON.stringify(payload)
       });
-      
-      // Clear timeout if request completes successfully
-      clearTimeout(timeoutId);
 
       // Hide progress indicator for deep research models
       if (currentModelID === 'o3-deep-research' || currentModelID === 'o4-mini-deep-research') {
@@ -525,38 +509,11 @@ class ChatManager {
       }
       
     } catch (error) {
-      // Clear timeout if it exists
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      
-      if (error.name === 'AbortError') {
-        console.error('Request timeout:', error);
-        this.displayMessage('⏱️ Request timed out. Deep research queries can take up to 20 minutes - please try again or use a smaller scope.', 'error');
-      } else {
-        console.error('Error sending message to server:', error);
-        this.displayMessage('Error sending message. Please try again.', 'error');
-      }
+      console.error('Error sending message to server:', error);
+      this.displayMessage('Error sending message. Please try again.', 'error');
     }
   }
 
-  /**
-   * Get timeout duration based on model type
-   */
-  getTimeoutForModel(modelID) {
-    // Deep research models need extended timeout (30 minutes)
-    if (modelID === 'o3-deep-research' || modelID === 'o4-mini-deep-research') {
-      return 30 * 60 * 1000; // 30 minutes
-    }
-    
-    // Reasoning models need longer timeout (10 minutes)
-    if (modelID && (modelID.includes('o1') || modelID.includes('o3') || modelID.includes('o4'))) {
-      return 10 * 60 * 1000; // 10 minutes
-    }
-    
-    // Default timeout for other models (2 minutes)
-    return 2 * 60 * 1000; // 2 minutes
-  }
 
   /**
    * Show progress indicator for deep research
