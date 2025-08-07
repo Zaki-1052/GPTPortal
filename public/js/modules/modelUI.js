@@ -908,15 +908,19 @@ class ModelUIManager {
     // Define custom ordering for each category
     const categoryOrders = {
       gpt: {
-        'gpt-4': 1,
-        'gpt-4-turbo': 2,
-        'gpt-4o': 3,
-        'gpt-4.1': 4,
-        'gpt-4o-mini': 5,
-        'gpt-4.1-mini': 6,
-        'gpt-4.1-nano': 7,
-        'gpt-3.5-turbo': 8,
-        'gpt-3.5-turbo-0125': 8
+        'gpt-5': 1,
+        'gpt-5-mini': 2,
+        'gpt-5-nano': 3,
+        'gpt-5-chat-latest': 4,
+        'gpt-4': 5,
+        'gpt-4-turbo': 6,
+        'gpt-4o': 7,
+        'gpt-4.1': 8,
+        'gpt-4o-mini': 9,
+        'gpt-4.1-mini': 10,
+        'gpt-4.1-nano': 11,
+        'gpt-3.5-turbo': 12,
+        'gpt-3.5-turbo-0125': 12
       },
       reasoning: {
         'o4-mini': 1,
