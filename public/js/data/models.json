@@ -114,8 +114,8 @@
       "source": "core",
       "description": "Most intelligent GPT model with advanced reasoning, code generation, and long context capabilities",
       "pricing": { "input": 1.25, "output": 10.00, "cached": 0.125 },
-      "contextWindow": 200000,
-      "maxTokens": 16000,
+      "contextWindow": 400000,
+      "maxTokens": 128000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsReasoning": true
@@ -128,8 +128,8 @@
       "source": "core",
       "description": "Cost-optimized reasoning and chat model that balances speed, cost, and capability",
       "pricing": { "input": 0.25, "output": 2.00, "cached": 0.025 },
-      "contextWindow": 200000,
-      "maxTokens": 16000,
+      "contextWindow": 400000,
+      "maxTokens": 128000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsReasoning": true
@@ -142,8 +142,8 @@
       "source": "core",
       "description": "High-throughput model for simple instruction-following and classification tasks",
       "pricing": { "input": 0.05, "output": 0.40, "cached": 0.005 },
-      "contextWindow": 200000,
-      "maxTokens": 16000,
+      "contextWindow": 400000,
+      "maxTokens": 128000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsReasoning": true
@@ -156,8 +156,8 @@
       "source": "core",
       "description": "Latest GPT-5 model optimized for conversational interactions",
       "pricing": { "input": 1.25, "output": 10.00, "cached": 0.125 },
-      "contextWindow": 200000,
-      "maxTokens": 16000,
+      "contextWindow": 400000,
+      "maxTokens": 128000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsReasoning": true
