@@ -255,6 +255,10 @@ router.post('/message', async (req, res) => {
   }
   tokens = await enforceTokenLimits(tokens, modelID);
 
+  // Handle GPT-5 specific parameters
+  const reasoningEffort = req.body.reasoningEffort || "medium"; // minimal, low, medium, high
+  const verbosity = req.body.verbosity || "medium"; // low, medium, high
+
   // Check for shutdown command
   if (user_message === "Bye!") {
     console.log("Shutdown message received. Exporting chat and closing server...");
@@ -397,7 +401,9 @@ router.post('/message', async (req, res) => {
       o1History,
       deepseekHistory,
       temperature,
-      tokens
+      tokens,
+      reasoningEffort,
+      verbosity
     };
 
     // Route to appropriate provider

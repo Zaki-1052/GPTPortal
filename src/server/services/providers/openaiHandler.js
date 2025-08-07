@@ -64,7 +64,7 @@ class OpenAIHandler {
    * Handle o1/o3 reasoning models
    */
   async handleReasoningCompletion(payload) {
-    const { user_input, modelID, o1History = [] } = payload;
+    const { user_input, modelID, o1History = [], reasoningEffort = "medium", verbosity = "medium" } = payload;
 
     // Add user input to o1History (like original implementation)
     o1History.push(user_input);
@@ -82,22 +82,35 @@ class OpenAIHandler {
       })
     };
 
+    // Determine if this is a GPT-5 model for enhanced features
+    const isGPT5 = modelID.startsWith('gpt-5');
+    
     let requestData;
     if (this.oCount > 0 && this.lastResponseId) {
       requestData = {
         model: modelID,
         previous_response_id: this.lastResponseId,
-        reasoning: { effort: "high", summary: "auto" },
+        reasoning: { effort: reasoningEffort, summary: "auto" },
         input: [transformedUserInput],
         store: true,
       };
+      
+      // Add verbosity control for GPT-5 models
+      if (isGPT5) {
+        requestData.text = { verbosity: verbosity };
+      }
     } else {
       requestData = {
         model: modelID,
-        reasoning: { effort: "high", summary: "auto" },
+        reasoning: { effort: reasoningEffort, summary: "auto" },
         input: [transformedUserInput],
         store: true,
       };
+      
+      // Add verbosity control for GPT-5 models
+      if (isGPT5) {
+        requestData.text = { verbosity: verbosity };
+      }
     }
 
     const headers = {
@@ -751,7 +764,7 @@ Enhanced prompt:`;
     const { modelID } = payload;
 
     // Route to reasoning models
-    if (modelID.includes('o1') || modelID.includes('o3') || modelID.includes('o4')) {
+    if (modelID.includes('o1') || modelID.includes('o3') || modelID.includes('o4') || modelID.startsWith('gpt-5')) {
       return await this.handleReasoningCompletion(payload);
     }
 

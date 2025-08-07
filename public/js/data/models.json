@@ -106,6 +106,63 @@
       "supportsFunction": true
     },
 
+    "gpt-5": {
+      "id": "gpt-5",
+      "name": "GPT-5: Most Intelligent",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "core",
+      "description": "Most intelligent GPT model with advanced reasoning, code generation, and long context capabilities",
+      "pricing": { "input": 1.25, "output": 10.00, "cached": 0.125 },
+      "contextWindow": 200000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsReasoning": true
+    },
+    "gpt-5-mini": {
+      "id": "gpt-5-mini",
+      "name": "GPT-5 Mini: Balanced",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "core",
+      "description": "Cost-optimized reasoning and chat model that balances speed, cost, and capability",
+      "pricing": { "input": 0.25, "output": 2.00, "cached": 0.025 },
+      "contextWindow": 200000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsReasoning": true
+    },
+    "gpt-5-nano": {
+      "id": "gpt-5-nano",
+      "name": "GPT-5 Nano: Efficient",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "core",
+      "description": "High-throughput model for simple instruction-following and classification tasks",
+      "pricing": { "input": 0.05, "output": 0.40, "cached": 0.005 },
+      "contextWindow": 200000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsReasoning": true
+    },
+    "gpt-5-chat-latest": {
+      "id": "gpt-5-chat-latest",
+      "name": "GPT-5 Chat: Latest",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "core",
+      "description": "Latest GPT-5 model optimized for conversational interactions",
+      "pricing": { "input": 1.25, "output": 10.00, "cached": 0.125 },
+      "contextWindow": 200000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsReasoning": true
+    },
+
 
     "o1-preview": {
       "id": "o1-preview",
@@ -1013,7 +1070,7 @@
   "categories": {
     "gpt": {
       "name": "GPT Models",
-      "models": ["gpt-4", "gpt-4-turbo", "gpt-4o", "gpt-4.1", "gpt-4o-mini", "gpt-4.1-mini", "gpt-4.1-nano", "gpt-3.5-turbo-0125"]
+      "models": ["gpt-5", "gpt-5-mini", "gpt-5-nano", "gpt-5-chat-latest", "gpt-4", "gpt-4-turbo", "gpt-4o", "gpt-4.1", "gpt-4o-mini", "gpt-4.1-mini", "gpt-4.1-nano", "gpt-3.5-turbo-0125"]
     },
     "claude": {
       "name": "Claude Models",

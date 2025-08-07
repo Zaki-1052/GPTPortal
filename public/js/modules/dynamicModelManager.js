@@ -627,6 +627,10 @@ class DynamicModelManager {
    */
   getDisplayName(modelId) {
     const customNames = {
+      "gpt-5": "GPT-5: Most Intelligent",
+      "gpt-5-mini": "GPT-5 Mini: Balanced",
+      "gpt-5-nano": "GPT-5 Nano: Efficient",
+      "gpt-5-chat-latest": "GPT-5 Chat: Latest",
       "gpt-4": "GPT-4: Original",
       "gpt-4o": "GPT-4o: Latest",
       "gpt-4o-mini": "GPT-4o Mini: Cheapest",
@@ -688,6 +692,10 @@ class DynamicModelManager {
    */
   getModelDescriptions() {
     return {
+      "gpt-5": "GPT-5: Most intelligent GPT model with advanced reasoning, code generation, and long context capabilities",
+      "gpt-5-mini": "GPT-5 Mini: Cost-optimized reasoning and chat model that balances speed, cost, and capability",
+      "gpt-5-nano": "GPT-5 Nano: High-throughput model for simple instruction-following and classification tasks",
+      "gpt-5-chat-latest": "GPT-5 Chat: Latest GPT-5 model optimized for conversational interactions",
       "gpt-4": "GPT-4: Oldest Intelligent Model",
       "gpt-4o": "GPT-4o: Latest OpenAI Intelligent Model",
       "gpt-4-32k": "GPT-4-32k: Longer Context Window — Higher Price",
