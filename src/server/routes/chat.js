@@ -256,8 +256,16 @@ router.post('/message', async (req, res) => {
   tokens = await enforceTokenLimits(tokens, modelID);
 
   // Handle GPT-5 specific parameters
-  const reasoningEffort = req.body.reasoningEffort || "medium"; // minimal, low, medium, high
-  const verbosity = req.body.verbosity || "medium"; // low, medium, high
+  let reasoningEffort = req.body.reasoningEffort || "medium"; // minimal, low, medium, high
+  let verbosity = req.body.verbosity || "medium"; // low, medium, high
+  
+  // Override with environment variables if set
+  if (process.env.REASONING_EFFORT) {
+    reasoningEffort = process.env.REASONING_EFFORT;
+  }
+  if (process.env.VERBOSITY) {
+    verbosity = process.env.VERBOSITY;
+  }
 
   // Check for shutdown command
   if (user_message === "Bye!") {

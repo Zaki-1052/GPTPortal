@@ -43,6 +43,10 @@ const WEB_SEARCH_CHAT_MODELS = [
 
 // Reasoning models (use Responses API)
 const REASONING_MODELS = [
+  'gpt-5',
+  'gpt-5-mini',
+  'gpt-5-nano',
+  'gpt-5-chat-latest',
   'o1',
   'o1-preview',
   'o1-mini',
@@ -72,6 +76,10 @@ const WEB_SEARCH_RESPONSES_MODELS = [
 
 // Models that support Code Interpreter via Responses API
 const CODE_INTERPRETER_MODELS = [
+  'gpt-5',
+  'gpt-5-mini',
+  'gpt-5-nano',
+  'gpt-5-chat-latest',
   'gpt-4.1',
   'gpt-4o', 
   'gpt-4o-mini',

@@ -64,7 +64,15 @@ class OpenAIHandler {
    * Handle o1/o3 reasoning models
    */
   async handleReasoningCompletion(payload) {
-    const { user_input, modelID, o1History = [], reasoningEffort = "medium", verbosity = "medium" } = payload;
+    let { user_input, modelID, o1History = [], reasoningEffort = "medium", verbosity = "medium" } = payload;
+
+    // Override with environment variables if set
+    if (process.env.REASONING_EFFORT) {
+      reasoningEffort = process.env.REASONING_EFFORT;
+    }
+    if (process.env.VERBOSITY) {
+      verbosity = process.env.VERBOSITY;
+    }
 
     // Add user input to o1History (like original implementation)
     o1History.push(user_input);
