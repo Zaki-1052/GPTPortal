@@ -371,7 +371,7 @@ class ResponsesHandler {
       model: modelID,
       input: input,
       temperature: temperature,
-      max_tokens: tokens,
+      max_output_tokens: tokens,
       store: true
     };
 
