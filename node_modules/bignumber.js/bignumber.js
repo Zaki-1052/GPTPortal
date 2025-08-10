@@ -2,7 +2,7 @@
   'use strict';
 
 /*
- *      bignumber.js v9.3.0
+ *      bignumber.js v9.3.1
  *      A JavaScript library for arbitrary-precision arithmetic.
  *      https://github.com/MikeMcl/bignumber.js
  *      Copyright (c) 2025 Michael Mclaughlin <M8ch88l@gmail.com>
@@ -1270,7 +1270,7 @@
 
         // Fixed-point notation.
         } else {
-          i -= ne;
+          i -= ne + (id === 2 && e > ne);
           str = toFixedPoint(str, e, '0');
 
           // Append zeros?

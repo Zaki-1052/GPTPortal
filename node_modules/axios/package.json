@@ -1,6 +1,6 @@
 {
   "name": "axios",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "Promise based HTTP client for the browser and node.js",
   "main": "index.js",
   "exports": {
@@ -157,7 +157,7 @@
   "typings": "./index.d.ts",
   "dependencies": {
     "follow-redirects": "^1.15.6",
-    "form-data": "^4.0.0",
+    "form-data": "^4.0.4",
     "proxy-from-env": "^1.1.0"
   },
   "bundlesize": [
@@ -176,10 +176,10 @@
     "Justin Beckwith (https://github.com/JustinBeckwith)",
     "Martti Laine (https://github.com/codeclown)",
     "Xianming Zhong (https://github.com/chinesedfan)",
-    "Rikki Gibson (https://github.com/RikkiGibson)",
     "Remco Haszing (https://github.com/remcohaszing)",
-    "Yasu Flores (https://github.com/yasuf)",
-    "Ben Carp (https://github.com/carpben)"
+    "Rikki Gibson (https://github.com/RikkiGibson)",
+    "Ben Carp (https://github.com/carpben)",
+    "Yasu Flores (https://github.com/yasuf)"
   ],
   "sideEffects": false,
   "release-it": {

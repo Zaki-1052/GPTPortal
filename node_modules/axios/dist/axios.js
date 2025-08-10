@@ -1,4 +1,4 @@
-/*! Axios v1.10.0 Copyright (c) 2025 Matt Zabriskie and contributors */
+/*! Axios v1.11.0 Copyright (c) 2025 Matt Zabriskie and contributors */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
@@ -819,6 +819,26 @@
   };
 
   /**
+   * Determine if a value is an empty object (safely handles Buffers)
+   *
+   * @param {*} val The value to test
+   *
+   * @returns {boolean} True if value is an empty object, otherwise false
+   */
+  var isEmptyObject = function isEmptyObject(val) {
+    // Early return for non-objects or Buffers to prevent RangeError
+    if (!isObject(val) || isBuffer(val)) {
+      return false;
+    }
+    try {
+      return Object.keys(val).length === 0 && Object.getPrototypeOf(val) === Object.prototype;
+    } catch (e) {
+      // Fallback for any other objects that might cause RangeError with Object.keys()
+      return false;
+    }
+  };
+
+  /**
    * Determine if a value is a Date
    *
    * @param {*} val The value to test
@@ -942,6 +962,11 @@
         fn.call(null, obj[i], i, obj);
       }
     } else {
+      // Buffer check
+      if (isBuffer(obj)) {
+        return;
+      }
+
       // Iterate over object keys
       var keys = allOwnKeys ? Object.getOwnPropertyNames(obj) : Object.keys(obj);
       var len = keys.length;
@@ -953,6 +978,9 @@
     }
   }
   function findKey(obj, key) {
+    if (isBuffer(obj)) {
+      return null;
+    }
     key = key.toLowerCase();
     var keys = Object.keys(obj);
     var i = keys.length;
@@ -1286,6 +1314,11 @@
         if (stack.indexOf(source) >= 0) {
           return;
         }
+
+        //Buffer check
+        if (isBuffer(source)) {
+          return source;
+        }
         if (!('toJSON' in source)) {
           stack[i] = source;
           var target = isArray(source) ? [] : {};
@@ -1347,6 +1380,7 @@
     isBoolean: isBoolean,
     isObject: isObject,
     isPlainObject: isPlainObject,
+    isEmptyObject: isEmptyObject,
     isReadableStream: isReadableStream,
     isRequest: isRequest,
     isResponse: isResponse,
@@ -1907,7 +1941,7 @@
   var platform = _objectSpread2(_objectSpread2({}, utils), platform$1);
 
   function toURLEncodedForm(data, options) {
-    return toFormData(data, new platform.classes.URLSearchParams(), Object.assign({
+    return toFormData(data, new platform.classes.URLSearchParams(), _objectSpread2({
       visitor: function visitor(value, key, path, helpers) {
         if (platform.isNode && utils$1.isBuffer(value)) {
           this.append(key, value.toString('base64'));
@@ -2576,7 +2610,7 @@
         clearTimeout(timer);
         timer = null;
       }
-      fn.apply(null, args);
+      fn.apply(void 0, _toConsumableArray(args));
     };
     var throttled = function throttled() {
       var now = Date.now();
@@ -2824,7 +2858,7 @@
         return mergeDeepProperties(headersToObject(a), headersToObject(b), prop, true);
       }
     };
-    utils$1.forEach(Object.keys(Object.assign({}, config1, config2)), function computeConfigValue(prop) {
+    utils$1.forEach(Object.keys(_objectSpread2(_objectSpread2({}, config1), config2)), function computeConfigValue(prop) {
       var merge = mergeMap[prop] || mergeDeepProperties;
       var configValue = merge(config1[prop], config2[prop], prop);
       utils$1.isUndefined(configValue) && merge !== mergeDirectKeys || (config[prop] = configValue);
@@ -3677,7 +3711,7 @@
     });
   }
 
-  var VERSION = "1.10.0";
+  var VERSION = "1.11.0";
 
   var validators$1 = {};
 

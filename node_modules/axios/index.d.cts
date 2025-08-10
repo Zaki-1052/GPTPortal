@@ -6,7 +6,7 @@ type MethodsHeaders = Partial<{
   [Key in axios.Method as Lowercase<Key>]: AxiosHeaders;
 } & {common: AxiosHeaders}>;
 
-type AxiosHeaderMatcher = (this: AxiosHeaders, value: string, name: string, headers: RawAxiosHeaders) => boolean;
+type AxiosHeaderMatcher = string | RegExp | ((this: AxiosHeaders, value: string, name: string) => boolean);
 
 type AxiosHeaderParser = (this: AxiosHeaders, value: axios.AxiosHeaderValue, header: string) => any;
 
@@ -77,6 +77,8 @@ declare class AxiosHeaders {
   getAuthorization(matcher?: AxiosHeaderMatcher): axios.AxiosHeaderValue;
   hasAuthorization(matcher?: AxiosHeaderMatcher): boolean;
 
+  getSetCookie(): string[];
+
   [Symbol.iterator](): IterableIterator<[string, axios.AxiosHeaderValue]>;
 }
 
@@ -97,6 +99,14 @@ declare class AxiosError<T = unknown, D = any> extends Error {
   status?: number;
   toJSON: () => object;
   cause?: Error;
+  static from<T = unknown, D = any>(
+    error: Error | unknown,
+    code?: string,
+    config?: axios.InternalAxiosRequestConfig<D>,
+    request?: any,
+    response?: axios.AxiosResponse<T, D>,
+    customProps?: object,
+): AxiosError<T, D>;
   static readonly ERR_FR_TOO_MANY_REDIRECTS = "ERR_FR_TOO_MANY_REDIRECTS";
   static readonly ERR_BAD_OPTION_VALUE = "ERR_BAD_OPTION_VALUE";
   static readonly ERR_BAD_OPTION = "ERR_BAD_OPTION";
@@ -424,7 +434,7 @@ declare namespace axios {
   // Alias
   type RawAxiosRequestConfig<D = any> = AxiosRequestConfig<D>;
 
-  interface InternalAxiosRequestConfig<D = any> extends AxiosRequestConfig {
+  interface InternalAxiosRequestConfig<D = any> extends AxiosRequestConfig<D> {
     headers: AxiosRequestHeaders;
   }
 
@@ -542,6 +552,7 @@ declare namespace axios {
     formToJSON(form: GenericFormData|GenericHTMLFormElement): object;
     getAdapter(adapters: AxiosAdapterConfig | AxiosAdapterConfig[] | undefined): AxiosAdapter;
     AxiosHeaders: typeof AxiosHeaders;
+    mergeConfig<D = any>(config1: AxiosRequestConfig<D>, config2: AxiosRequestConfig<D>): AxiosRequestConfig<D>;
   }
 }
 
