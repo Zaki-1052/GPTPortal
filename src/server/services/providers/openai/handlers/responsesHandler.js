@@ -60,9 +60,29 @@ class ResponsesHandler {
     o1History.push(user_input);
 
     // Transform content types for Responses API
+    // Extract all content items (text and images) from user_input
+    let userMessage = null;
+    let base64Image = null;
+    let imageName = null;
+    
+    if (user_input.content && Array.isArray(user_input.content)) {
+      // Extract text and image content from the array
+      user_input.content.forEach(item => {
+        if (item.type === 'text' && item.text && !userMessage) {
+          userMessage = item.text;
+        } else if (item.type === 'text' && item.text && !imageName) {
+          imageName = item.text;
+        } else if (item.type === 'image_url' && item.image_url?.url) {
+          base64Image = item.image_url.url;
+        }
+      });
+    } else if (typeof user_input.content === 'string') {
+      userMessage = user_input.content;
+    }
+    
     const transformedUserInput = formatUserInputForResponses(
-      user_input.content?.[0]?.text || user_input.content,
-      null, null, null, null
+      userMessage,
+      null, null, imageName, base64Image
     );
 
     // Build request data
@@ -341,9 +361,29 @@ class ResponsesHandler {
     }
 
     // Transform user input for Responses API
+    // Extract all content items (text and images) from user_input
+    let userMessage = null;
+    let base64Image = null;
+    let imageName = null;
+    
+    if (user_input.content && Array.isArray(user_input.content)) {
+      // Extract text and image content from the array
+      user_input.content.forEach(item => {
+        if (item.type === 'text' && item.text && !userMessage) {
+          userMessage = item.text;
+        } else if (item.type === 'text' && item.text && !imageName) {
+          imageName = item.text;
+        } else if (item.type === 'image_url' && item.image_url?.url) {
+          base64Image = item.image_url.url;
+        }
+      });
+    } else if (typeof user_input.content === 'string') {
+      userMessage = user_input.content;
+    }
+    
     const transformedUserInput = formatUserInputForResponses(
-      user_input.content?.[0]?.text || user_input.content,
-      null, null, null, null
+      userMessage,
+      null, null, imageName, base64Image
     );
 
     // Build conversation input
@@ -357,7 +397,26 @@ class ResponsesHandler {
     // Add conversation history
     conversationHistory.forEach(msg => {
       if (msg.role === 'user') {
-        input.push(formatUserInputForResponses(msg.content));
+        // Handle user messages that might contain images
+        let msgText = null;
+        let msgImage = null;
+        let msgImageName = null;
+        
+        if (msg.content && Array.isArray(msg.content)) {
+          msg.content.forEach(item => {
+            if (item.type === 'text' && item.text && !msgText) {
+              msgText = item.text;
+            } else if (item.type === 'text' && item.text && !msgImageName) {
+              msgImageName = item.text;
+            } else if (item.type === 'image_url' && item.image_url?.url) {
+              msgImage = item.image_url.url;
+            }
+          });
+        } else if (typeof msg.content === 'string') {
+          msgText = msg.content;
+        }
+        
+        input.push(formatUserInputForResponses(msgText, null, null, msgImageName, msgImage));
       } else {
         input.push({ role: msg.role, content: msg.content });
       }
