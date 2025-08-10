@@ -510,7 +510,7 @@ function transformContentForResponses(content) {
     if (item.type === 'text') {
       return { type: 'input_text', text: item.text };
     } else if (item.type === 'image_url') {
-      return { type: 'input_image', image_url: item.image_url };
+      return { type: 'input_image', image_url: item.image_url?.url || item.image_url };
     }
     return item;
   });
