@@ -147,6 +147,7 @@ class ChatHandler {
 
   /**
    * Enhance prompt for better responses
+   * @deprecated
    */
   async enhancePrompt(userPrompt, enhancementType = 'general') {
     const enhancementPrompts = {

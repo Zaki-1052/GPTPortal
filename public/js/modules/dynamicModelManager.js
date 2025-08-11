@@ -22,8 +22,7 @@ class DynamicModelManager {
     this.uiManager = null;
     this.initialized = false;
 
-    // Model descriptions for enhanced display
-    this.modelDescriptions = this.getModelDescriptions();
+    // Model descriptions now come from models.json directly
 
     this.init();
   }
@@ -331,7 +330,7 @@ class DynamicModelManager {
         provider: 'openai',
         category: 'gpt',
         source: 'core',
-        description: this.modelDescriptions['gpt-4o']
+        description: 'Latest OpenAI GPT-4 model'
       },
       'claude-3-5-sonnet-latest': {
         id: 'claude-3-5-sonnet-latest',
@@ -339,7 +338,7 @@ class DynamicModelManager {
         provider: 'anthropic',
         category: 'claude',
         source: 'core',
-        description: this.modelDescriptions['claude-3-5-sonnet-latest']
+        description: 'Advanced Claude model'
       },
       'gemini-1.5-pro': {
         id: 'gemini-1.5-pro',
@@ -347,7 +346,7 @@ class DynamicModelManager {
         provider: 'google',
         category: 'gemini',
         source: 'core',
-        description: this.modelDescriptions['gemini-1.5-pro']
+        description: 'Best Gemini model'
       }
     };
 
@@ -369,10 +368,7 @@ class DynamicModelManager {
     Object.keys(this.models).forEach(modelId => {
       const model = this.models[modelId];
 
-      // Add description if available
-      if (this.modelDescriptions[modelId]) {
-        model.description = this.modelDescriptions[modelId];
-      }
+      // Description now comes directly from models.json - no need to add it
 
       // Ensure display name is set
       if (!model.name) {
@@ -635,46 +631,19 @@ class DynamicModelManager {
   }
 
   /**
-   * Get display name for model
+   * Get display name for model (from models.json)
    * @param {string} modelId - Model ID
    * @returns {string} Display name
    */
   getDisplayName(modelId) {
-    const customNames = {
-      "gpt-5": "GPT-5: Most Intelligent",
-      "gpt-5-mini": "GPT-5 Mini: Balanced",
-      "gpt-5-nano": "GPT-5 Nano: Efficient",
-      "gpt-5-chat-latest": "GPT-5 Chat: Latest",
-      "gpt-4": "GPT-4: Original",
-      "gpt-4o": "GPT-4o: Latest",
-      "gpt-4o-mini": "GPT-4o Mini: Cheapest",
-      "gpt-4-turbo": "GPT-4 Turbo: Standard",
-      "gpt-3.5-turbo-0125": "GPT-3.5 Turbo: Legacy",
-      "claude-opus-4-1-20250805": "Claude 4.1 Opus",
-      "claude-opus-4-20250514": "Claude 4 Opus",
-      "claude-sonnet-4-20250514": "Claude 4 Sonnet",
-      "claude-3-7-sonnet-latest": "Claude 3.7 Sonnet",
-      "claude-3-5-sonnet-latest": "Claude 3.5 Sonnet",
-      "claude-3-5-haiku-latest": "Claude 3.5 Haiku",
-      "claude-3-haiku-20240307": "Claude Haiku: Cheap",
-      "o1-preview": "GPT-o1 Preview: Reasoning",
-      "o1-mini": "GPT-o1 Mini: Cheap Reasoning",
-      "o3-mini": "GPT-o3 Mini: Cheap Reasoning",
-      "deepseek-reasoner": "DeepSeek-R1",
-      "deepseek-chat": "DeepSeek-Chat",
-      "kimi-k2-0711-preview": "Kimi K2: Advanced Reasoning",
-      "gemini-pro": "Gemini Pro",
-      "gemini-1.5-pro": "Gemini 1.5 Pro: Best",
-      "gemini-1.5-flash": "Gemini 1.5 Flash",
-      "gemini-2.0-flash-exp": "Gemini 2.0 Flash",
-      "llama-3.1-405b-reasoning": "Llama 3.1 405B",
-      "llama-3.1-70b-versatile": "Llama 3.1 70B",
-      "llama-3.1-8b-instant": "Llama 3.1 8B",
-      "mistral-large-latest": "Mistral Large",
-      "codestral-latest": "Codestral"
-    };
-
-    return customNames[modelId] || modelId;
+    // Use the name from models.json if available
+    const model = this.models?.[modelId];
+    if (model && model.name) {
+      return model.name;
+    }
+    
+    // Fallback to model ID if not found in models.json
+    return modelId;
   }
 
   /**
@@ -683,66 +652,24 @@ class DynamicModelManager {
    * @returns {string} Display name
    */
   getCategoryDisplayName(category) {
-    const displayNames = {
-      gpt: 'GPT Models',
-      claude: 'Claude Models',
-      gemini: 'Gemini Models',
-      reasoning: 'Reasoning Models',
-      llama: 'LLaMA Models',
-      mistral: 'Mistral Models',
-      deepseek: 'Chinese AI Models',
-      grok: 'Grok Models',
-      voice: 'Voice Models',
-      image: 'Image Models',
-      search: 'Web Search Models',
-      other: 'Other Models'
-    };
-
-    return displayNames[category] || category.charAt(0).toUpperCase() + category.slice(1) + ' Models';
+    // Use the name from models.json categories if available
+    const categoryData = this.categories?.[category];
+    if (categoryData && categoryData.name) {
+      return categoryData.name;
+    }
+    
+    // Fallback to capitalized category key
+    return category.charAt(0).toUpperCase() + category.slice(1) + ' Models';
   }
 
   /**
-   * Get model descriptions for enhanced display
+   * Get model descriptions for enhanced display (from models.json)
    * @returns {Object} Map of model descriptions
    */
   getModelDescriptions() {
-    return {
-      "gpt-5": "GPT-5: Most intelligent GPT model with advanced reasoning, code generation, and long context capabilities",
-      "gpt-5-mini": "GPT-5 Mini: Cost-optimized reasoning and chat model that balances speed, cost, and capability",
-      "gpt-5-nano": "GPT-5 Nano: High-throughput model for simple instruction-following and classification tasks",
-      "gpt-5-chat-latest": "GPT-5 Chat: Latest GPT-5 model optimized for conversational interactions",
-      "gpt-4": "GPT-4: Oldest Intelligent Model",
-      "gpt-4o": "GPT-4o: Latest OpenAI Intelligent Model",
-      "gpt-4-32k": "GPT-4-32k: Longer Context Window — Higher Price",
-      "gpt-4-turbo": "GPT-4-Turbo: ChatGPT-Plus Model — 128k Tokens",
-      "gpt-3.5-turbo-0125": "GPT-3.5-Turbo: Older Cheap Option",
-      "claude-opus-4-1-20250805": "Claude 4.1 Opus: Highest level of intelligence and capability with extended thinking",
-      "claude-opus-4-20250514": "Claude 4 Opus: Previous flagship model with very high intelligence",
-      "claude-sonnet-4-20250514": "Claude 4 Sonnet: High-performance model with balanced capabilities",
-      "claude-3-7-sonnet-latest": "Most Advanced Anthropic Model",
-      "claude-3-5-sonnet-latest": "Best Normal Claude Model",
-      "claude-3-5-haiku-latest": "Fast & Cheap Anthropic Model",
-      "gemini-pro": "Gemini-Pro: Google Bard Model — 3.5 Equivalent",
-      "gemini-pro-vision": "Gemini-Vision: View Images — One-Time Use",
-      "gemini-1.5-pro": "Gemini-Pro-1.5: Best Gemini Model — 2 Million Tokens",
-      "gemini-1.5-flash": "Gemini-Flash-1.5: Fastest & Cheapest Google Model",
-      "gemini-2.0-flash-exp": "Gemini-Flash-2.0: Newest & Best Google Model",
-      "claude-3-opus-20240229": "Claude-Opus: Very Powerful — GPT-4 Level",
-      "claude-3-sonnet-20240229": "Claude-Sonnet: Hard-Working — Turbo Level",
-      "claude-3-haiku-20240307": "Claude-Haiku: Light, Cheap, & Fast — New",
-      "o1-preview": "GPT-o1-Preview: Advanced reasoning model for complex problems",
-      "o1-mini": "GPT-o1-Mini: Faster reasoning model for simpler tasks",
-      "o3-mini": "GPT-o3-Mini: Next generation reasoning model",
-      "deepseek-reasoner": "DeepSeek-R1: Advanced reasoning model with step-by-step thinking",
-      "deepseek-chat": "DeepSeek-Chat: General purpose chat model",
-      "kimi-k2-0711-preview": "Kimi K2: Moonshot AI's flagship model with 1T parameters, optimized for long context, reasoning, and agentic behavior",
-      "llama-3.1-405b-reasoning": "Llama 3.1 405B: Largest open source model with strong reasoning",
-      "llama-3.1-70b-versatile": "Llama 3.1 70B: Versatile model for various tasks",
-      "llama-3.1-8b-instant": "Llama 3.1 8B: Fast and efficient model",
-      "mistral-large-latest": "Mistral-Large: Most Expensive and Intelligent",
-      "codestral-latest": "Codestral: Best Mistral Model for Coding",
-      "gpt-4o-mini": "GPT-4o-Mini: Small, fast, and cheap model from OpenAI with relatively high intelligence."
-    };
+    // Return empty object - descriptions now come directly from models.json via model.description
+    // This method is kept for backwards compatibility but is no longer used
+    return {};
   }
 
   /**
