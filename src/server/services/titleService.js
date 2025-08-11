@@ -46,7 +46,8 @@ class TitleService {
         o1History: [],
         deepseekHistory: [],
         temperature: 0.4,
-        tokens: 10
+        tokens: 10,
+        forceCleanResponse: true
       };
 
       const result = await openaiHandler.handleRequest(payload);
@@ -86,7 +87,8 @@ class TitleService {
         o1History: [],
         deepseekHistory: [],
         temperature: 1,
-        tokens: 200
+        tokens: 200,
+        forceCleanResponse: true
       };
 
       const result = await openaiHandler.handleRequest(payload);

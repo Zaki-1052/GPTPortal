@@ -49,7 +49,8 @@ class ResponsesHandler {
       user_input, 
       modelID, 
       o1History = [],
-      webSearchConfig = null
+      webSearchConfig = null,
+      forceCleanResponse = false
     } = payload;
 
     if (!this.supportsModel(modelID)) {
@@ -159,8 +160,8 @@ class ResponsesHandler {
         generatedFiles = codeResults.generatedFiles;
       }
       
-      // Format the complete message with reasoning if available
-      const formattedContent = formatReasoningResponse(reasoning, assistantContent);
+      // Format the complete message with reasoning if available (unless clean response is forced)
+      const formattedContent = forceCleanResponse ? assistantContent : formatReasoningResponse(reasoning, assistantContent);
       
       // Add assistant response to o1History
       o1History.push({ role: "assistant", content: formattedContent });
@@ -353,7 +354,8 @@ class ResponsesHandler {
       conversationHistory = [],
       temperature = DEFAULTS.TEMPERATURE,
       tokens = DEFAULTS.MAX_TOKENS,
-      webSearchConfig = null
+      webSearchConfig = null,
+      forceCleanResponse = false
     } = payload;
 
     if (!this.webSearchService.supportsResponsesWebSearch(modelID)) {
@@ -479,8 +481,8 @@ class ResponsesHandler {
         generatedFiles = codeResults.generatedFiles;
       }
       
-      // Use assistant content directly for non-reasoning models
-      const finalContent = reasoning ? formatReasoningResponse(reasoning, assistantContent) : assistantContent;
+      // Use assistant content directly for non-reasoning models (or when clean response is forced)
+      const finalContent = (reasoning && !forceCleanResponse) ? formatReasoningResponse(reasoning, assistantContent) : assistantContent;
       
       const result = {
         success: true,
