@@ -20,10 +20,20 @@ class ModelConfig {
     await this.fetchConfig();
     await this.fetchDefaultModel();
     
-    // Initialize dynamic model manager
+    // Initialize dynamic model manager - use existing instance if available
     if (window.DynamicModelManager) {
-      this.dynamicModelManager = new window.DynamicModelManager();
-      console.log('Dynamic model system enabled');
+      // Check if there's already an instance
+      if (window.dynamicModelManagerInstance) {
+        this.dynamicModelManager = window.dynamicModelManagerInstance;
+        console.log('Using existing DynamicModelManager instance');
+      } else {
+        this.dynamicModelManager = new window.DynamicModelManager();
+        console.log('Created new DynamicModelManager instance');
+      }
+      
+      // Wait for the dynamic model manager to be ready
+      await this.waitForDynamicModelManager();
+      console.log('Dynamic model system enabled and ready');
     } else {
       console.warn('DynamicModelManager not available, using static models');
       this.usesDynamicModels = false;
@@ -31,6 +41,28 @@ class ModelConfig {
     
     // Don't set default model on initialization - let it show "Select a Model" until first message
     // this.setDefaultModel();
+  }
+
+  /**
+   * Wait for the dynamic model manager to finish loading
+   */
+  async waitForDynamicModelManager() {
+    if (!this.dynamicModelManager) return;
+    
+    // Wait for initialization to complete
+    const maxWait = 10000; // 10 seconds max
+    const checkInterval = 100; // Check every 100ms
+    const startTime = Date.now();
+    
+    while (!this.dynamicModelManager.initialized && (Date.now() - startTime) < maxWait) {
+      await new Promise(resolve => setTimeout(resolve, checkInterval));
+    }
+    
+    if (!this.dynamicModelManager.initialized) {
+      console.warn('DynamicModelManager initialization timeout');
+    } else {
+      console.log('DynamicModelManager is ready with models loaded');
+    }
   }
 
   async fetchConfig() {
@@ -70,8 +102,8 @@ class ModelConfig {
           selectedModelDiv.textContent = this.currentModelID;
         }
       } else {
-        // Fallback to legacy model names
-        selectedModelDiv.textContent = this.getLegacyModelName(this.currentModelID);
+        // Fallback to model ID if dynamic manager not available
+        selectedModelDiv.textContent = this.currentModelID;
       }
     }
   }
@@ -88,9 +120,8 @@ class ModelConfig {
       if (model) {
         displayName = model.name;
       }
-    } else {
-      displayName = this.getLegacyModelName(modelID);
     }
+    // If no display name found, use the model ID as fallback
     
     // Update display
     const selectedModelDiv = document.getElementById("selected-model");
@@ -156,38 +187,6 @@ class ModelConfig {
     }
   }
 
-  // Legacy model name mapping for backward compatibility
-  getLegacyModelName(modelID) {
-    const legacyNames = {
-      "gpt-4": "GPT-4: Original",
-      "gpt-4o": "GPT-4o: Latest", 
-      "gpt-4o-mini": "GPT-4o Mini: Cheapest",
-      "gpt-4-turbo": "GPT-4 Turbo: Standard",
-      "gpt-3.5-turbo-0125": "GPT-3.5 Turbo: Legacy",
-      "claude-opus-4-20250514": "Claude 4 Opus",
-      "claude-sonnet-4-20250514": "Claude 4 Sonnet",
-      "claude-3-7-sonnet-latest": "Claude 3.7 Sonnet",
-      "claude-3-5-sonnet-latest": "Claude 3.5 Sonnet",
-      "claude-3-5-haiku-latest": "Claude 3.5 Haiku",
-      "claude-3-haiku-20240307": "Claude Haiku: Cheap",
-      "o1-preview": "GPT-o1 Preview: Reasoning",
-      "o1-mini": "GPT-o1 Mini: Cheap Reasoning",
-      "o3-mini": "GPT-o3 Mini: Cheap Reasoning",
-      "deepseek-reasoner": "DeepSeek-R1",
-      "deepseek-chat": "DeepSeek-Chat",
-      "gemini-pro": "Gemini Pro",
-      "gemini-1.5-pro": "Gemini 1.5 Pro: Best",
-      "gemini-1.5-flash": "Gemini 1.5 Flash",
-      "gemini-2.0-flash-exp": "Gemini 2.0 Flash",
-      "llama-3.1-405b-reasoning": "Llama 3.1 405B",
-      "llama-3.1-70b-versatile": "Llama 3.1 70B",
-      "llama-3.1-8b-instant": "Llama 3.1 8B",
-      "mistral-large-latest": "Mistral Large",
-      "codestral-latest": "Codestral"
-    };
-    
-    return legacyNames[modelID] || modelID;
-  }
 
   updateCurrentModelID(modelID) {
     this.currentModelID = modelID;
@@ -207,7 +206,7 @@ class ModelConfig {
     // Fallback for legacy system
     return {
       id: modelID,
-      name: this.getLegacyModelName(modelID),
+      name: modelID, // Use model ID as display name if no dynamic data available
       provider: this.inferProvider(modelID)
     };
   }
@@ -255,7 +254,7 @@ class ModelConfig {
     
     return {
       id: this.currentModelID,
-      name: this.getLegacyModelName(this.currentModelID),
+      name: this.currentModelID, // Use model ID as display name if no dynamic data available
       provider: this.inferProvider(this.currentModelID)
     };
   }
