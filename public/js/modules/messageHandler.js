@@ -92,6 +92,8 @@ class MessageHandler {
       if (e.target.matches('.copy-btn, .copy-code-btn')) {
         this.handleCopyClick(e);
       }
+      // Screenshot button clicks are handled by individual button event listeners
+      // (added in createScreenshotButton method)
     });
   }
 
@@ -256,6 +258,10 @@ class MessageHandler {
     // Add main copy button
     const copyButton = this.createCopyButton(message);
     element.appendChild(copyButton);
+
+    // Add screenshot button
+    const screenshotButton = this.createScreenshotButton(element);
+    element.appendChild(screenshotButton);
   }
 
   /**
@@ -474,6 +480,28 @@ class MessageHandler {
     
     button.className = 'copy-btn';
     button.dataset.copyText = textToCopy;
+    
+    return button;
+  }
+
+  /**
+   * Create screenshot button
+   * @param {HTMLElement} messageElement - Message element to screenshot
+   * @returns {HTMLElement} Screenshot button
+   */
+  createScreenshotButton(messageElement) {
+    const button = this.createButton('📷', async () => {
+      try {
+        await this.captureAndCopyScreenshot(messageElement);
+        this.showScreenshotFeedback(button);
+      } catch (error) {
+        console.error('Screenshot failed:', error);
+        this.showScreenshotError(button);
+      }
+    });
+    
+    button.className = 'screenshot-btn';
+    button.title = 'Copy screenshot to clipboard';
     
     return button;
   }
@@ -775,6 +803,292 @@ class MessageHandler {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  /**
+   * Capture message element as screenshot and copy to clipboard
+   * @param {HTMLElement} messageElement - Message element to capture
+   */
+  async captureAndCopyScreenshot(messageElement) {
+    // Check browser support
+    if (!navigator.clipboard || !navigator.clipboard.write) {
+      throw new Error('Clipboard API not supported in this browser');
+    }
+
+    // Create canvas and capture the message
+    const canvas = await this.captureMessageToCanvas(messageElement);
+    
+    // Convert canvas to blob and copy to clipboard
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          reject(new Error('Failed to create image blob'));
+          return;
+        }
+
+        try {
+          const clipboardItem = new ClipboardItem({
+            'image/png': blob
+          });
+          
+          await navigator.clipboard.write([clipboardItem]);
+          console.log('Screenshot copied to clipboard successfully');
+          resolve();
+        } catch (error) {
+          console.error('Failed to copy screenshot to clipboard:', error);
+          reject(error);
+        }
+      }, 'image/png', 0.95);
+    });
+  }
+
+  /**
+   * Capture message element to canvas
+   * @param {HTMLElement} messageElement - Element to capture
+   * @returns {Promise<HTMLCanvasElement>} Canvas with captured content
+   */
+  async captureMessageToCanvas(messageElement) {
+    // Get element dimensions and styles
+    const rect = messageElement.getBoundingClientRect();
+    const computedStyle = window.getComputedStyle(messageElement);
+    
+    // Create canvas with appropriate size
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const scale = window.devicePixelRatio || 1;
+    
+    // Set canvas size accounting for device pixel ratio
+    canvas.width = Math.ceil(rect.width * scale);
+    canvas.height = Math.ceil(rect.height * scale);
+    ctx.scale(scale, scale);
+    
+    // Set canvas dimensions for CSS
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+
+    // Fill background
+    const bgColor = this.getElementBackgroundColor(messageElement, computedStyle);
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, rect.width, rect.height);
+
+    // Draw rounded corners if border-radius is set
+    const borderRadius = this.getBorderRadius(computedStyle);
+    if (borderRadius > 0) {
+      this.drawRoundedRect(ctx, 0, 0, rect.width, rect.height, borderRadius, bgColor);
+    }
+
+    // Render text content
+    await this.renderElementContent(ctx, messageElement, rect);
+    
+    return canvas;
+  }
+
+  /**
+   * Get effective background color of element
+   * @param {HTMLElement} element - Element to check
+   * @param {CSSStyleDeclaration} computedStyle - Computed styles
+   * @returns {string} Background color
+   */
+  getElementBackgroundColor(element, computedStyle) {
+    let bgColor = computedStyle.backgroundColor;
+    
+    // If transparent, look for parent background
+    if (bgColor === 'rgba(0, 0, 0, 0)' || bgColor === 'transparent') {
+      // Use message response background color from CSS
+      bgColor = 'rgba(22, 27, 34, 0.8)';
+    }
+    
+    return bgColor;
+  }
+
+  /**
+   * Get border radius from computed style
+   * @param {CSSStyleDeclaration} computedStyle - Computed styles
+   * @returns {number} Border radius in pixels
+   */
+  getBorderRadius(computedStyle) {
+    const borderRadius = computedStyle.borderRadius;
+    if (borderRadius && borderRadius !== '0px') {
+      return parseInt(borderRadius, 10) || 0;
+    }
+    return 0;
+  }
+
+  /**
+   * Draw rounded rectangle
+   * @param {CanvasRenderingContext2D} ctx - Canvas context
+   * @param {number} x - X coordinate
+   * @param {number} y - Y coordinate
+   * @param {number} width - Width
+   * @param {number} height - Height
+   * @param {number} radius - Border radius
+   * @param {string} fillStyle - Fill color
+   */
+  drawRoundedRect(ctx, x, y, width, height, radius, fillStyle) {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.fillStyle = fillStyle;
+    ctx.fill();
+  }
+
+  /**
+   * Render element content to canvas
+   * @param {CanvasRenderingContext2D} ctx - Canvas context
+   * @param {HTMLElement} element - Element to render
+   * @param {DOMRect} containerRect - Container dimensions
+   */
+  async renderElementContent(ctx, element, containerRect) {
+    const padding = 20; // Message padding from CSS
+    let currentY = padding;
+    
+    // Set text properties
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = '#e6edf3'; // Text color from CSS
+    
+    // Process each child element
+    for (const child of element.children) {
+      if (child.classList.contains('copy-btn') || child.classList.contains('screenshot-btn')) {
+        continue; // Skip buttons
+      }
+      
+      if (child.classList.contains('message-text')) {
+        currentY = await this.renderTextContent(ctx, child, padding, currentY, containerRect.width - (padding * 2));
+      } else if (child.classList.contains('code-block')) {
+        currentY = await this.renderCodeBlock(ctx, child, padding, currentY, containerRect.width - (padding * 2));
+      }
+      
+      currentY += 10; // Space between elements
+    }
+  }
+
+  /**
+   * Render text content to canvas
+   * @param {CanvasRenderingContext2D} ctx - Canvas context
+   * @param {HTMLElement} textElement - Text element
+   * @param {number} x - X position
+   * @param {number} y - Y position
+   * @param {number} maxWidth - Maximum width
+   * @returns {Promise<number>} Next Y position
+   */
+  async renderTextContent(ctx, textElement, x, y, maxWidth) {
+    ctx.font = '16px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    ctx.fillStyle = '#e6edf3';
+    
+    const text = textElement.textContent || '';
+    const lineHeight = 24;
+    const lines = this.wrapText(ctx, text, maxWidth);
+    
+    for (let i = 0; i < lines.length; i++) {
+      ctx.fillText(lines[i], x, y + (i * lineHeight));
+    }
+    
+    return y + (lines.length * lineHeight);
+  }
+
+  /**
+   * Render code block to canvas
+   * @param {CanvasRenderingContext2D} ctx - Canvas context
+   * @param {HTMLElement} codeElement - Code block element
+   * @param {number} x - X position
+   * @param {number} y - Y position
+   * @param {number} maxWidth - Maximum width
+   * @returns {Promise<number>} Next Y position
+   */
+  async renderCodeBlock(ctx, codeElement, x, y, maxWidth) {
+    const codeRect = { x: x, y: y, width: maxWidth, height: 0 };
+    
+    // Draw code block background
+    ctx.fillStyle = '#1e1e1e';
+    const codeHeight = 100; // Estimate, would need more complex calculation
+    ctx.fillRect(codeRect.x, codeRect.y, codeRect.width, codeHeight);
+    
+    // Draw code text
+    ctx.font = '14px "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace';
+    ctx.fillStyle = '#e6edf3';
+    
+    const codeText = codeElement.textContent || '';
+    const lines = this.wrapText(ctx, codeText, maxWidth - 32); // Account for padding
+    const lineHeight = 20;
+    
+    for (let i = 0; i < lines.length; i++) {
+      ctx.fillText(lines[i], x + 16, y + 16 + (i * lineHeight));
+    }
+    
+    return y + Math.max(codeHeight, (lines.length * lineHeight) + 32);
+  }
+
+  /**
+   * Wrap text to fit within specified width
+   * @param {CanvasRenderingContext2D} ctx - Canvas context
+   * @param {string} text - Text to wrap
+   * @param {number} maxWidth - Maximum width
+   * @returns {string[]} Array of wrapped lines
+   */
+  wrapText(ctx, text, maxWidth) {
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = '';
+
+    for (let word of words) {
+      const testLine = currentLine + (currentLine ? ' ' : '') + word;
+      const metrics = ctx.measureText(testLine);
+      
+      if (metrics.width > maxWidth && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    }
+    
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+    
+    return lines.length > 0 ? lines : [''];
+  }
+
+  /**
+   * Show screenshot success feedback
+   * @param {HTMLElement} button - Screenshot button
+   */
+  showScreenshotFeedback(button) {
+    const originalText = button.textContent;
+    button.textContent = '✅';
+    button.style.backgroundColor = '#4CAF50';
+    button.style.transform = 'scale(1.1)';
+    
+    setTimeout(() => {
+      button.textContent = originalText;
+      button.style.backgroundColor = '';
+      button.style.transform = '';
+    }, 2000);
+  }
+
+  /**
+   * Show screenshot error feedback
+   * @param {HTMLElement} button - Screenshot button
+   */
+  showScreenshotError(button) {
+    const originalText = button.textContent;
+    button.textContent = '❌';
+    button.style.backgroundColor = '#f44336';
+    button.title = 'Screenshot failed - clipboard not supported';
+    
+    setTimeout(() => {
+      button.textContent = originalText;
+      button.style.backgroundColor = '';
+      button.title = 'Copy screenshot to clipboard';
+    }, 3000);
   }
 
   /**
