@@ -260,6 +260,7 @@ class ModelUIManager {
     
     // Sort models within each category using custom ordering
     Object.entries(grouped).forEach(([categoryKey, category]) => {
+      console.log(`🔢 Sorting ${category.models.length} models in category: ${categoryKey}`);
       category.models.sort((a, b) => {
         // Sort by search score if available, then by custom order
         const scoreA = a.searchScore || 0;
@@ -269,8 +270,15 @@ class ModelUIManager {
           return scoreB - scoreA; // Higher score first
         }
         
-        return this.getCustomModelOrder(a.id, categoryKey) - this.getCustomModelOrder(b.id, categoryKey);
+        const orderA = this.getCustomModelOrder(a.id, categoryKey);
+        const orderB = this.getCustomModelOrder(b.id, categoryKey);
+        console.log(`📊 Model order: ${a.id}=${orderA}, ${b.id}=${orderB}`);
+        
+        return orderA - orderB;
       });
+      
+      // Log final order for this category
+      console.log(`✅ Final order for ${categoryKey}:`, category.models.map(m => `${m.id}(${this.getCustomModelOrder(m.id, categoryKey)})`).slice(0, 10));
     });
     
     return grouped;
@@ -912,9 +920,16 @@ class ModelUIManager {
       if (categoryModels && Array.isArray(categoryModels)) {
         const index = categoryModels.indexOf(modelId);
         if (index !== -1) {
+          console.log(`✅ Found ${modelId} in models.json category ${categoryKey} at index ${index}`);
           return index + 1; // Return 1-based index for sorting
+        } else {
+          console.log(`❌ Model ${modelId} not found in models.json category ${categoryKey} array:`, categoryModels.slice(0, 5), '...');
         }
+      } else {
+        console.log(`❌ No models array for category ${categoryKey}`);
       }
+    } else {
+      console.log(`❌ No category data for ${categoryKey} in modelManager`);
     }
 
     // Fallback: Use hardcoded ordering for models not in models.json categories
@@ -995,6 +1010,7 @@ class ModelUIManager {
     // Get the order from fallback hardcoded ordering
     const categoryOrder = fallbackOrders[categoryKey];
     if (categoryOrder && categoryOrder[modelId] !== undefined) {
+      console.log(`🔄 Using hardcoded fallback for ${modelId} in ${categoryKey}: ${categoryOrder[modelId]}`);
       return categoryOrder[modelId];
     }
 
@@ -1002,12 +1018,14 @@ class ModelUIManager {
     if (categoryOrder) {
       for (const [orderedModelId, order] of Object.entries(categoryOrder)) {
         if (modelId.includes(orderedModelId) || orderedModelId.includes(modelId)) {
+          console.log(`🔄 Using pattern match fallback for ${modelId} ~ ${orderedModelId} in ${categoryKey}: ${order}`);
           return order;
         }
       }
     }
 
     // Default fallback - put unknown models at the end
+    console.log(`❌ No order found for ${modelId} in ${categoryKey}, using default: 999`);
     return 999;
   }
 }

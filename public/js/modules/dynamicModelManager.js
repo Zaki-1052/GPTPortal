@@ -290,35 +290,41 @@ class DynamicModelManager {
   processModelData(modelData) {
     // Handle the JSON structure
     const modelsData = modelData.models || modelData;
+    const categoriesData = modelData.categories || {};
     this.models = {};
     this.categories = {};
 
-    // Group models by category
-    const categorizedModels = {};
+    // First, load all individual model definitions
     Object.values(modelsData).forEach(model => {
-      const category = model.category || 'other';
-      if (!categorizedModels[category]) {
-        categorizedModels[category] = [];
-      }
-      categorizedModels[category].push(model);
+      this.models[model.id] = {
+        ...model,
+        source: model.source || 'core'
+      };
     });
 
-    // Process categorized models
-    Object.entries(categorizedModels).forEach(([categoryKey, categoryModels]) => {
-      // Build category info
+    // Then, build categories using the predefined categories section with custom ordering
+    Object.entries(categoriesData).forEach(([categoryKey, categoryInfo]) => {
       this.categories[categoryKey] = {
-        name: this.getCategoryDisplayName(categoryKey),
-        models: categoryModels.map(model => model.id)
+        name: categoryInfo.name || this.getCategoryDisplayName(categoryKey),
+        models: categoryInfo.models || []  // Use the ordered array from categories
       };
+      console.log(`📂 Loaded category ${categoryKey} with ${categoryInfo.models ? categoryInfo.models.length : 0} models in order`);
+    });
 
-      // Add models to main models object
-      categoryModels.forEach(model => {
-        this.models[model.id] = {
-          ...model,
-          category: categoryKey,
-          source: model.source || 'core'
-        };
-      });
+    // For any models not in predefined categories, create fallback categories
+    Object.values(modelsData).forEach(model => {
+      const category = model.category || 'other';
+      if (!this.categories[category]) {
+        if (!this.categories[category]) {
+          this.categories[category] = {
+            name: this.getCategoryDisplayName(category),
+            models: []
+          };
+        }
+        if (!this.categories[category].models.includes(model.id)) {
+          this.categories[category].models.push(model.id);
+        }
+      }
     });
 
     // Enhance with descriptions
@@ -391,6 +397,10 @@ class DynamicModelManager {
    * Populate model selector UI
    */
   populateModelSelector() {
+    console.log('📋 populateModelSelector called with categories:', Object.keys(this.categories));
+    console.log('📋 GPT category models:', this.categories.gpt ? this.categories.gpt.models.slice(0, 5) : 'undefined');
+    console.log('📋 OpenRouter category models:', this.categories.openrouter ? this.categories.openrouter.models.length : 'undefined');
+    
     if (this.uiManager) {
       this.uiManager.populateModelSelector(this.models, this.categories);
     } else {
