@@ -118,49 +118,31 @@ class ChatHandler {
   /**
    * Get model capabilities
    */
-  getModelCapabilities(modelId) {
+  async getModelCapabilities(modelId) {
     const capabilities = {
       chat: this.supportsModel(modelId),
       webSearch: this.webSearchService.supportsChatWebSearch(modelId),
-      vision: this.supportsVision(modelId),
-      function: this.supportsFunction(modelId)
+      vision: await this.supportsVision(modelId),
+      function: await this.supportsFunction(modelId)
     };
 
     return capabilities;
   }
 
   /**
-   * Check if model supports vision
+   * Check if model supports vision (delegated to modelLoader)
    */
-  supportsVision(modelId) {
-    const visionModels = [
-      'gpt-4',
-      'gpt-4-turbo',
-      'gpt-4o',
-      'gpt-4.1',
-      'gpt-4o-mini',
-      'gpt-4.1-mini',
-      'gpt-4o-search-preview',
-      'gpt-4o-mini-search-preview'
-    ];
-    return visionModels.includes(modelId);
+  async supportsVision(modelId) {
+    const modelLoader = require('../../../shared/modelLoader');
+    return await modelLoader.supportsVision(modelId);
   }
 
   /**
-   * Check if model supports function calling
+   * Check if model supports function calling (delegated to modelLoader)
    */
-  supportsFunction(modelId) {
-    const functionModels = [
-      'gpt-4',
-      'gpt-4-turbo',
-      'gpt-4o',
-      'gpt-4.1',
-      'gpt-4o-mini',
-      'gpt-4.1-mini',
-      'gpt-3.5-turbo',
-      'gpt-3.5-turbo-0125'
-    ];
-    return functionModels.includes(modelId);
+  async supportsFunction(modelId) {
+    const modelLoader = require('../../../shared/modelLoader');
+    return await modelLoader.supportsFunction(modelId);
   }
 
   /**

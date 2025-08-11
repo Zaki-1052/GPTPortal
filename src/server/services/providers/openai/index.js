@@ -217,7 +217,7 @@ class OpenAIHandler {
   /**
    * Get model capabilities
    */
-  getModelCapabilities(modelId) {
+  async getModelCapabilities(modelId) {
     const capabilities = {
       chat: this.isChatModel(modelId) || this.webSearchService.supportsChatWebSearch(modelId),
       reasoning: this.isReasoningModel(modelId),
@@ -226,13 +226,13 @@ class OpenAIHandler {
       codeInterpreter: this.isCodeInterpreterModel(modelId),
       image: this.isImageModel(modelId),
       audio: this.isAudioModel(modelId),
-      vision: this.supportsVision(modelId),
-      function: this.supportsFunction(modelId)
+      vision: await this.supportsVision(modelId),
+      function: await this.supportsFunction(modelId)
     };
 
     // Add specific handler capabilities
     if (capabilities.chat && this.isChatModel(modelId)) {
-      Object.assign(capabilities, this.chatHandler.getModelCapabilities(modelId));
+      Object.assign(capabilities, await this.chatHandler.getModelCapabilities(modelId));
     }
     if (capabilities.webSearch && this.webSearchService.supportsChatWebSearch(modelId)) {
       // Web search chat models use chat handler but with web search
@@ -263,37 +263,19 @@ class OpenAIHandler {
   }
 
   /**
-   * Check vision support
+   * Check vision support (delegated to modelLoader)
    */
-  supportsVision(modelId) {
-    const visionModels = [
-      'gpt-4',
-      'gpt-4-turbo',
-      'gpt-4o',
-      'gpt-4.1',
-      'gpt-4o-mini',
-      'gpt-4.1-mini',
-      'gpt-4o-search-preview',
-      'gpt-4o-mini-search-preview'
-    ];
-    return visionModels.includes(modelId);
+  async supportsVision(modelId) {
+    const modelLoader = require('../../shared/modelLoader');
+    return await modelLoader.supportsVision(modelId);
   }
 
   /**
-   * Check function calling support
+   * Check function calling support (delegated to modelLoader)
    */
-  supportsFunction(modelId) {
-    const functionModels = [
-      'gpt-4',
-      'gpt-4-turbo',
-      'gpt-4o',
-      'gpt-4.1',
-      'gpt-4o-mini',
-      'gpt-4.1-mini',
-      'gpt-3.5-turbo',
-      'gpt-3.5-turbo-0125'
-    ];
-    return functionModels.includes(modelId);
+  async supportsFunction(modelId) {
+    const modelLoader = require('../../shared/modelLoader');
+    return await modelLoader.supportsFunction(modelId);
   }
 
   /**
