@@ -217,8 +217,8 @@
     "category": "gpt",
     "description": "gpt-oss-120b is an open-weight, 117B-parameter Mixture-of-Experts (MoE) language model from OpenAI designed for high-reasoning, agentic, and general-purpose production use cases. It activates 5.1B parameters per forward pass and is optimized to run on a single H100 GPU with native MXFP4 quantization. The model supports configurable reasoning depth, full chain-of-thought access, and native tool use, including function calling, browsing, and structured output generation.",
     "pricing": {
-      "input": 0.09,
-      "output": 0.44999999999999996
+      "input": 0.07256312,
+      "output": 0.2903936
     },
     "contextWindow": 131072,
     "supportsVision": false,
@@ -2183,11 +2183,11 @@
       "input": 0.01999188,
       "output": 0.0800064
     },
-    "contextWindow": 32768,
+    "contextWindow": 131072,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 32768,
+      "context_length": 131072,
       "max_completion_tokens": null,
       "is_moderated": false
     },

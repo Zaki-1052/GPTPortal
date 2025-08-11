@@ -930,20 +930,21 @@ class ModelUIManager {
         'o1-mini': 5
       },
       claude: {
-        'claude-opus-4-20250514': 1,
-        'claude-4-opus': 1,
-        'claude-sonnet-4-20250514': 2,
-        'claude-4-sonnet': 2,
-        'claude-3-7-sonnet-latest': 3,
-        'claude-3.7-sonnet': 3,
-        'claude-3-5-sonnet-latest': 4,
-        'claude-3-5-sonnet-20241022': 4,
-        'claude-3.5-sonnet': 4,
-        'claude-3-5-haiku-latest': 5,
-        'claude-3-5-haiku-20241022': 5,
-        'claude-3.5-haiku': 5,
-        'claude-3-haiku-20240307': 6,
-        'claude-3-haiku': 6
+        'claude-opus-4-1-20250805': 1,  // Claude 4.1 Opus (newest)
+        'claude-opus-4-20250514': 2,    // Claude 4 Opus (older)
+        'claude-4-opus': 2,
+        'claude-sonnet-4-20250514': 3,
+        'claude-4-sonnet': 3,
+        'claude-3-7-sonnet-latest': 4,
+        'claude-3.7-sonnet': 4,
+        'claude-3-5-sonnet-latest': 5,
+        'claude-3-5-sonnet-20241022': 5,
+        'claude-3.5-sonnet': 5,
+        'claude-3-5-haiku-latest': 6,
+        'claude-3-5-haiku-20241022': 6,
+        'claude-3.5-haiku': 6,
+        'claude-3-haiku-20240307': 7,
+        'claude-3-haiku': 7
       },
       gemini: {
         'gemini-2.5-pro': 1,
