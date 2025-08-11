@@ -899,14 +899,25 @@ class ModelUIManager {
   }
 
   /**
-   * Get custom model order for sorting
+   * Get custom model order for sorting (uses models.json as primary source, hardcoded as fallback)
    * @param {string} modelId - Model ID
    * @param {string} categoryKey - Category key
    * @returns {number} Sort order (lower numbers come first)
    */
   getCustomModelOrder(modelId, categoryKey) {
-    // Define custom ordering for each category
-    const categoryOrders = {
+    // Primary: Use order from models.json categories array
+    if (this.modelManager && this.modelManager.categories && this.modelManager.categories[categoryKey]) {
+      const categoryModels = this.modelManager.categories[categoryKey].models;
+      if (categoryModels && Array.isArray(categoryModels)) {
+        const index = categoryModels.indexOf(modelId);
+        if (index !== -1) {
+          return index + 1; // Return 1-based index for sorting
+        }
+      }
+    }
+
+    // Fallback: Use hardcoded ordering for models not in models.json categories
+    const fallbackOrders = {
       gpt: {
         'gpt-5': 1,
         'gpt-5-mini': 2,
@@ -962,11 +973,26 @@ class ModelUIManager {
         'deepseek-reasoner': 1,
         'deepseek-r1': 1,
         'deepseek-chat': 2
+      },
+      mistral: {
+        'mistral-large-latest': 1,
+        'mistral-medium-latest': 2,
+        'pixtral-large-latest': 3,
+        'pixtral-12b-latest': 4,
+        'mistral-small-latest': 5,
+        'codestral-latest': 6,
+        'open-mixtral-8x22b': 7,
+        'open-mistral-nemo': 8
+      },
+      llama: {
+        'llama-3.1-405b-reasoning': 1,
+        'llama-3.1-70b-versatile': 2,
+        'llama-3.1-8b-instant': 3
       }
     };
 
-    // Get the order for this model in this category
-    const categoryOrder = categoryOrders[categoryKey];
+    // Get the order from fallback hardcoded ordering
+    const categoryOrder = fallbackOrders[categoryKey];
     if (categoryOrder && categoryOrder[modelId] !== undefined) {
       return categoryOrder[modelId];
     }
