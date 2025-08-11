@@ -799,6 +799,7 @@ class ModelUIManager {
       voice: 'Voice Models',
       image: 'Image Models',
       search: 'Web Search Models',
+      openrouter: 'OpenRouter Models',
       other: 'Other Models'
     };
     

@@ -188,32 +188,42 @@ class DynamicModelManager {
           return;
         }
         
-        // Ensure proper source marking for OpenRouter models
+        // Ensure proper source marking for OpenRouter models and assign to OpenRouter category
         const processedModel = {
           ...model,
           id: id,
-          source: 'openrouter'
+          source: 'openrouter',
+          category: 'openrouter'  // Override original category with OpenRouter category
         };
         
         // Add to models collection
         this.models[id] = processedModel;
         mergedCount++;
         
-        // Update categories
-        const category = model.category || 'other';
+        // Update categories - assign all OpenRouter models to their own category
+        const category = 'openrouter';
+        console.log(`🔄 Assigning OpenRouter model ${id} to category: ${category} (was: ${model.category || 'undefined'})`);
         if (!this.categories[category]) {
           this.categories[category] = {
             name: this.getCategoryDisplayName(category),
             models: []
           };
+          console.log(`✅ Created new OpenRouter category with name: ${this.getCategoryDisplayName(category)}`);
         }
         
         if (!this.categories[category].models.includes(id)) {
           this.categories[category].models.push(id);
+          console.log(`✅ Added ${id} to OpenRouter category (total: ${this.categories[category].models.length})`);
         }
       });
       
       console.log(`Successfully merged ${mergedCount} OpenRouter models (${openRouterCount - mergedCount} duplicates skipped)`);
+      
+      // Debug: Log all categories after OpenRouter merge
+      console.log('📊 All categories after OpenRouter merge:', Object.keys(this.categories));
+      if (this.categories.openrouter) {
+        console.log(`📊 OpenRouter category has ${this.categories.openrouter.models.length} models:`, this.categories.openrouter.models.slice(0, 5), '...');
+      }
       
       // Log cache status if available
       if (data.meta && data.meta.cacheStatus) {
