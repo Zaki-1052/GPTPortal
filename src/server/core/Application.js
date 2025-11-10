@@ -123,9 +123,14 @@ class Application extends EventEmitter {
       try {
         // Stop accepting new requests
         if (this.server) {
-          this.server.close();
+          await new Promise((resolve, reject) => {
+            this.server.close((err) => {
+              if (err) reject(err);
+              else resolve();
+            });
+          });
         }
-        
+
         // Shutdown services
         await this.serviceManager.shutdown();
         
