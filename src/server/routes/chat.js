@@ -49,7 +49,7 @@ async function readInstructionsFile() {
   try {
     if (customPrompt) {
       const promptFile = path.join(__dirname, '../../../public/uploads/prompts', `${promptName}.md`);
-      const content = fs.readFileSync(promptFile, 'utf8');
+      const content = await fs.promises.readFile(promptFile, 'utf8');
       const parsedContent = parsePromptMarkdown(content);
       return parsedContent.body;
     } else {
@@ -105,10 +105,10 @@ async function initializeConversationHistory() {
 async function initializeClaudeInstructions() {
   try {
     let claudeFile = await fs.promises.readFile('./public/claudeInstructions.xml', 'utf8');
-    
+
     if (customPrompt) {
       const promptFile = path.join(__dirname, '../../../public/uploads/prompts', `${promptName}.md`);
-      const content = fs.readFileSync(promptFile, 'utf8');
+      const content = await fs.promises.readFile(promptFile, 'utf8');
       const parsedContent = parsePromptMarkdown(content);
       let customPromptText = parsedContent.body;
       claudeFile += "\n\n <prompt> \n\n" + customPromptText + "\n\n </prompt>";

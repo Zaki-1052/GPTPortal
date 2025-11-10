@@ -76,14 +76,14 @@ class MiddlewareManager {
   setupRequestLogging(app) {
     app.use((req, res, next) => {
       const startTime = Date.now();
-      
+
       // Log request
       this.logger.logRequest(req, startTime);
 
       // Override res.end to log response
       const originalEnd = res.end;
+      const logger = this.logger; // Reuse existing logger instance
       res.end = function(...args) {
-        const logger = new Logger('MiddlewareManager');
         logger.logResponse(req, res, startTime);
         originalEnd.apply(this, args);
       };

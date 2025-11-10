@@ -121,7 +121,7 @@ class ModelSyncService {
    * @param {Object} options - Sync options
    * @returns {Promise<Object>} Sync results
    */
-  async forcSync(options = {}) {
+  async forceSync(options = {}) {
     return this.syncModels({ ...options, forceSync: true });
   }
 }

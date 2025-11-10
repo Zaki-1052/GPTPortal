@@ -358,15 +358,20 @@ class RouteManager {
     app.get('/listChats', ErrorHandler.asyncHandler(async (req, res) => {
       const fs = require('fs');
       const folderPath = path.join(__dirname, '../../../public/uploads/chats');
-      
+
       try {
         const files = await fs.promises.readdir(folderPath);
-        const sortedFiles = files.sort((a, b) => {
-          const statA = fs.statSync(path.join(folderPath, a));
-          const statB = fs.statSync(path.join(folderPath, b));
-          return statB.mtime - statA.mtime;
-        });
-        
+        // Get stats asynchronously for all files
+        const fileStats = await Promise.all(
+          files.map(async (file) => ({
+            name: file,
+            mtime: (await fs.promises.stat(path.join(folderPath, file))).mtime
+          }))
+        );
+        const sortedFiles = fileStats
+          .sort((a, b) => b.mtime - a.mtime)
+          .map(f => f.name);
+
         res.json({ success: true, files: sortedFiles });
       } catch (error) {
         // If directory doesn't exist, return empty array
@@ -378,15 +383,20 @@ class RouteManager {
     app.get('/listPrompts', ErrorHandler.asyncHandler(async (req, res) => {
       const fs = require('fs');
       const folderPath = path.join(__dirname, '../../../public/uploads/prompts');
-      
+
       try {
         const files = await fs.promises.readdir(folderPath);
         const mdFiles = files.filter(file => file.endsWith('.md'));
-        const sortedFiles = mdFiles.sort((a, b) => {
-          const statA = fs.statSync(path.join(folderPath, a));
-          const statB = fs.statSync(path.join(folderPath, b));
-          return statB.mtime - statA.mtime;
-        });
+        // Get stats asynchronously for all files
+        const fileStats = await Promise.all(
+          mdFiles.map(async (file) => ({
+            name: file,
+            mtime: (await fs.promises.stat(path.join(folderPath, file))).mtime
+          }))
+        );
+        const sortedFiles = fileStats
+          .sort((a, b) => b.mtime - a.mtime)
+          .map(f => f.name);
         
         // Parse prompt info for tooltips
         const promptInfo = {};
