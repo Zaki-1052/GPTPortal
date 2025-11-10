@@ -221,6 +221,88 @@ class ValidationUtils {
       errors
     };
   }
+
+  /**
+   * Sanitize filename to prevent path traversal attacks
+   * Removes directory traversal sequences and returns only the basename
+   * @param {string} filename - The filename to sanitize
+   * @param {string} allowedExtension - Optional: specific extension to enforce (e.g., '.md', '.txt')
+   * @returns {Object} - { isValid: boolean, sanitized: string, error: string }
+   */
+  sanitizeFilename(filename, allowedExtension = null) {
+    if (!filename || typeof filename !== 'string') {
+      return { isValid: false, sanitized: '', error: 'Filename must be a non-empty string' };
+    }
+
+    // Check for path traversal attempts
+    if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+      return { isValid: false, sanitized: '', error: 'Path traversal detected in filename' };
+    }
+
+    // Check for null bytes (common attack vector)
+    if (filename.includes('\0')) {
+      return { isValid: false, sanitized: '', error: 'Null byte detected in filename' };
+    }
+
+    // Check for dangerous characters
+    if (/[<>:"|?*\x00-\x1F]/.test(filename)) {
+      return { isValid: false, sanitized: '', error: 'Filename contains invalid characters' };
+    }
+
+    // Validate length
+    if (filename.length > 255) {
+      return { isValid: false, sanitized: '', error: 'Filename too long (max 255 characters)' };
+    }
+
+    // Extract just the basename to prevent any directory traversal
+    const path = require('path');
+    const basename = path.basename(filename);
+
+    // Check if specific extension is required
+    if (allowedExtension) {
+      if (!basename.endsWith(allowedExtension)) {
+        return {
+          isValid: false,
+          sanitized: '',
+          error: `Filename must have ${allowedExtension} extension`
+        };
+      }
+    }
+
+    return { isValid: true, sanitized: basename, error: null };
+  }
+
+  /**
+   * Validate and construct safe file path within allowed directory
+   * @param {string} baseDir - The base directory (absolute path)
+   * @param {string} filename - The filename to validate
+   * @param {string} allowedExtension - Optional: specific extension to enforce
+   * @returns {Object} - { isValid: boolean, safePath: string, error: string }
+   */
+  validateSafeFilePath(baseDir, filename, allowedExtension = null) {
+    const path = require('path');
+    const fs = require('fs');
+
+    // First sanitize the filename
+    const sanitized = this.sanitizeFilename(filename, allowedExtension);
+    if (!sanitized.isValid) {
+      return { isValid: false, safePath: '', error: sanitized.error };
+    }
+
+    // Construct the full path
+    const fullPath = path.join(baseDir, sanitized.sanitized);
+
+    // Resolve to absolute path to check for traversal
+    const resolvedPath = path.resolve(fullPath);
+    const resolvedBase = path.resolve(baseDir);
+
+    // Ensure the resolved path is within the base directory
+    if (!resolvedPath.startsWith(resolvedBase + path.sep) && resolvedPath !== resolvedBase) {
+      return { isValid: false, safePath: '', error: 'Path traversal attempt detected' };
+    }
+
+    return { isValid: true, safePath: fullPath, error: null };
+  }
 }
 
 module.exports = new ValidationUtils();

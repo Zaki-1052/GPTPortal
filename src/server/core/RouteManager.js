@@ -358,15 +358,20 @@ class RouteManager {
     app.get('/listChats', ErrorHandler.asyncHandler(async (req, res) => {
       const fs = require('fs');
       const folderPath = path.join(__dirname, '../../../public/uploads/chats');
-      
+
       try {
         const files = await fs.promises.readdir(folderPath);
-        const sortedFiles = files.sort((a, b) => {
-          const statA = fs.statSync(path.join(folderPath, a));
-          const statB = fs.statSync(path.join(folderPath, b));
-          return statB.mtime - statA.mtime;
-        });
-        
+        // Get stats asynchronously for all files
+        const fileStats = await Promise.all(
+          files.map(async (file) => ({
+            name: file,
+            mtime: (await fs.promises.stat(path.join(folderPath, file))).mtime
+          }))
+        );
+        const sortedFiles = fileStats
+          .sort((a, b) => b.mtime - a.mtime)
+          .map(f => f.name);
+
         res.json({ success: true, files: sortedFiles });
       } catch (error) {
         // If directory doesn't exist, return empty array
@@ -378,15 +383,20 @@ class RouteManager {
     app.get('/listPrompts', ErrorHandler.asyncHandler(async (req, res) => {
       const fs = require('fs');
       const folderPath = path.join(__dirname, '../../../public/uploads/prompts');
-      
+
       try {
         const files = await fs.promises.readdir(folderPath);
         const mdFiles = files.filter(file => file.endsWith('.md'));
-        const sortedFiles = mdFiles.sort((a, b) => {
-          const statA = fs.statSync(path.join(folderPath, a));
-          const statB = fs.statSync(path.join(folderPath, b));
-          return statB.mtime - statA.mtime;
-        });
+        // Get stats asynchronously for all files
+        const fileStats = await Promise.all(
+          mdFiles.map(async (file) => ({
+            name: file,
+            mtime: (await fs.promises.stat(path.join(folderPath, file))).mtime
+          }))
+        );
+        const sortedFiles = fileStats
+          .sort((a, b) => b.mtime - a.mtime)
+          .map(f => f.name);
         
         // Parse prompt info for tooltips
         const promptInfo = {};
@@ -422,13 +432,21 @@ class RouteManager {
     app.post('/setPrompt', ErrorHandler.asyncHandler(async (req, res) => {
       const fs = require('fs');
       const { chosenPrompt } = req.body;
-      
+
       if (!chosenPrompt) {
         throw ErrorHandler.validationError('Prompt name is required');
       }
-      
-      const promptFile = path.join(__dirname, '../../../public/uploads/prompts', `${chosenPrompt}.md`);
-      
+
+      // Validate and sanitize filename to prevent path traversal
+      const baseDir = path.join(__dirname, '../../../public/uploads/prompts');
+      const validation = ValidationUtils.validateSafeFilePath(baseDir, chosenPrompt, '.md');
+
+      if (!validation.isValid) {
+        throw ErrorHandler.validationError(`Invalid prompt name: ${validation.error}`);
+      }
+
+      const promptFile = validation.safePath;
+
       try {
         const content = await fs.promises.readFile(promptFile, 'utf8');
         const nameMatch = content.match(/## \*\*(.*?)\*\*/);
@@ -451,8 +469,17 @@ class RouteManager {
     app.get('/getSummary/:chatName', ErrorHandler.asyncHandler(async (req, res) => {
       const fs = require('fs');
       const { chatName } = req.params;
+
+      // Validate and sanitize filename to prevent path traversal
+      const baseDir = path.join(__dirname, '../../../public/uploads/chats');
+      const validation = ValidationUtils.validateSafeFilePath(baseDir, chatName, '.txt');
+
+      if (!validation.isValid) {
+        throw ErrorHandler.validationError(`Invalid chat name: ${validation.error}`);
+      }
+
       const conversationFile = await fs.promises.readFile(
-        path.join(__dirname, '../../../public/uploads/chats', `${chatName}.txt`), 
+        validation.safePath,
         'utf8'
       );
       

@@ -8,31 +8,16 @@ const tokenService = require('../services/tokenService');
 const costService = require('../services/costService');
 const titleService = require('../services/titleService');
 const exportService = require('../services/exportService');
+const ValidationUtils = require('../utils/ValidationUtils');
 
 const router = express.Router();
 
 // Initialize provider factory (will be set by main server)
 let providerFactory = null;
 
-// Global state variables (preserving original behavior)
-let conversationHistory = [];
-let claudeHistory = [];
-let o1History = [];
-let deepseekHistory = [];
-let geminiHistory = '';
-let systemMessage = '';
-let claudeInstructions = '';
-let epochs = 0;
-let fileContents = null;
-let file_id = "";
-let imageName = "";
-let uploadedImagePath = "";
-let isShuttingDown = false;
-let customPrompt = false;
-let promptName = '';
-let continueConv = false;
-let chosenChat = '';
-let summariesOnly = true;
+// IMPORTANT: Chat state is now stored in req.session.chat instead of global variables
+// This prevents multi-user interference and data leakage between sessions
+// All chat state is initialized in MiddlewareManager.setupSession()
 
 /**
  * Initialize the chat routes with provider factory
@@ -44,12 +29,21 @@ function initializeChatRoutes(factory) {
 
 /**
  * Function to read instructions from the file
+ * @param {Object} session - Express session object containing chat state
  */
-async function readInstructionsFile() {
+async function readInstructionsFile(session) {
   try {
-    if (customPrompt) {
-      const promptFile = path.join(__dirname, '../../../public/uploads/prompts', `${promptName}.md`);
-      const content = fs.readFileSync(promptFile, 'utf8');
+    if (session.customPrompt) {
+      // Validate and sanitize filename to prevent path traversal
+      const baseDir = path.join(__dirname, '../../../public/uploads/prompts');
+      const validation = ValidationUtils.validateSafeFilePath(baseDir, session.promptName, '.md');
+
+      if (!validation.isValid) {
+        console.error('Invalid prompt name:', validation.error);
+        return '';
+      }
+
+      const content = await fs.promises.readFile(validation.safePath, 'utf8');
       const parsedContent = parsePromptMarkdown(content);
       return parsedContent.body;
     } else {
@@ -79,51 +73,61 @@ function parsePromptMarkdown(content) {
 
 /**
  * Initialize conversation history with instructions
+ * @param {Object} session - Express session object containing chat state
  */
-async function initializeConversationHistory() {
-  const fileInstructions = await readInstructionsFile();
+async function initializeConversationHistory(session) {
+  const fileInstructions = await readInstructionsFile(session);
   let message = `You are a helpful and intelligent AI assistant, knowledgeable about a wide range of topics and highly capable of a great many tasks.\n Specifically:\n ${fileInstructions}`;
-  
-  if (continueConv) {
-    console.log("continue conversation", continueConv);
-    if (summariesOnly) {
-      console.log("summaries only", summariesOnly);
-      const contextAndSummary = await continueConversation(chosenChat);
+
+  if (session.continueConv) {
+    console.log("continue conversation", session.continueConv);
+    if (session.summariesOnly) {
+      console.log("summaries only", session.summariesOnly);
+      const contextAndSummary = await continueConversation(session.chosenChat);
       message += `\n---\n${contextAndSummary}`;
     } else {
-      message = await continueConversation(chosenChat);
+      message = await continueConversation(session.chosenChat);
     }
   }
-  
-  conversationHistory.push({ role: "system", content: message });
+
+  session.conversationHistory.push({ role: "system", content: message });
   return message;
 }
 
 /**
  * Initialize Claude instructions
+ * @param {Object} session - Express session object containing chat state
  */
-async function initializeClaudeInstructions() {
+async function initializeClaudeInstructions(session) {
   try {
     let claudeFile = await fs.promises.readFile('./public/claudeInstructions.xml', 'utf8');
-    
-    if (customPrompt) {
-      const promptFile = path.join(__dirname, '../../../public/uploads/prompts', `${promptName}.md`);
-      const content = fs.readFileSync(promptFile, 'utf8');
+
+    if (session.customPrompt) {
+      // Validate and sanitize filename to prevent path traversal
+      const baseDir = path.join(__dirname, '../../../public/uploads/prompts');
+      const validation = ValidationUtils.validateSafeFilePath(baseDir, session.promptName, '.md');
+
+      if (!validation.isValid) {
+        console.error('Invalid prompt name:', validation.error);
+        return claudeFile; // Return without custom prompt if invalid
+      }
+
+      const content = await fs.promises.readFile(validation.safePath, 'utf8');
       const parsedContent = parsePromptMarkdown(content);
       let customPromptText = parsedContent.body;
       claudeFile += "\n\n <prompt> \n\n" + customPromptText + "\n\n </prompt>";
     }
-    
-    claudeInstructions = claudeFile;
-    if (continueConv) {
-      if (summariesOnly) {
-        const contextAndSummary = await continueConversation(chosenChat);
-        claudeInstructions += `\n---\n${contextAndSummary}`;
+
+    session.claudeInstructions = claudeFile;
+    if (session.continueConv) {
+      if (session.summariesOnly) {
+        const contextAndSummary = await continueConversation(session.chosenChat, session.summariesOnly);
+        session.claudeInstructions += `\n---\n${contextAndSummary}`;
       } else {
-        claudeInstructions += await continueConversation(chosenChat);
+        session.claudeInstructions += await continueConversation(session.chosenChat, session.summariesOnly);
       }
     }
-    return claudeInstructions;
+    return session.claudeInstructions;
   } catch (error) {
     console.error('Error reading Claude instructions file:', error);
     return '';
@@ -132,14 +136,24 @@ async function initializeClaudeInstructions() {
 
 /**
  * Continue conversation by loading chat context
+ * @param {string} chosenChat - Chat file name
+ * @param {boolean} summariesOnly - Whether to load only summaries
  */
-async function continueConversation(chosenChat) {
+async function continueConversation(chosenChat, summariesOnly) {
   try {
+    // Validate and sanitize filename to prevent path traversal
+    const baseDir = path.join(__dirname, '../../../public/uploads/chats');
+    const validation = ValidationUtils.validateSafeFilePath(baseDir, chosenChat, '.txt');
+
+    if (!validation.isValid) {
+      throw new Error(`Invalid chat name: ${validation.error}`);
+    }
+
     const conversationFile = await fs.promises.readFile(
-      path.join(__dirname, '../../../public/uploads/chats', `${chosenChat}.txt`), 
+      validation.safePath,
       'utf8'
     );
-    
+
     if (summariesOnly) {
       const regex = /\n\n-----\n\n(.+)/s;
       const match = conversationFile.match(regex);
@@ -210,17 +224,19 @@ function imageToBase64(filePath) {
 
 /**
  * Export chat to HTML using the export service
+ * @param {Object} session - Express session object containing chat state
+ * @param {string} modelID - Model ID for export context
  */
-async function exportChatToHTML() {
+async function exportChatToHTML(session, modelID = 'gpt-4.1') {
   const exportData = {
-    conversationHistory,
-    claudeHistory,
-    o1History,
-    deepseekHistory,
-    claudeInstructions,
-    modelID: 'gpt-4.1' // Default, should be passed from request context
+    conversationHistory: session.conversationHistory,
+    claudeHistory: session.claudeHistory,
+    o1History: session.o1History,
+    deepseekHistory: session.deepseekHistory,
+    claudeInstructions: session.claudeInstructions,
+    modelID: modelID
   };
-  
+
   return await exportService.exportChat('conversation', exportData, providerFactory);
 }
 
@@ -277,8 +293,8 @@ router.post('/message', async (req, res) => {
     
     req.app.locals.isShuttingDown = true;
     
-    const htmlContent = await exportChatToHTML();
-    
+    const htmlContent = await exportChatToHTML(req.session.chat, modelID);
+
     res.set('Content-Type', 'text/html');
     res.set('Content-Disposition', 'attachment; filename="chat_history.html"');
     res.send(htmlContent);
@@ -307,20 +323,20 @@ router.post('/message', async (req, res) => {
 
   try {
     // Initialize system message if first request
-    if (epochs === 0) {
+    if (req.session.chat.epochs === 0) {
       if (modelID.startsWith('gpt') || modelID.includes('o1') || modelID.includes('o3')) {
-        systemMessage = await initializeConversationHistory();
+        req.session.chat.systemMessage = await initializeConversationHistory(req.session.chat);
       } else if (modelID.startsWith('claude')) {
-        const instructionsText = await initializeClaudeInstructions();
+        const instructionsText = await initializeClaudeInstructions(req.session.chat);
         if (providerFactory.isProviderAvailable('claude')) {
           const claudeHandler = providerFactory.getHandler('claude');
           const sections = claudeHandler.parseInstructionsIntoSections(instructionsText);
-          systemMessage = claudeHandler.formatSectionsIntoSystemMessage(sections);
+          req.session.chat.systemMessage = claudeHandler.formatSectionsIntoSystemMessage(sections);
         }
       } else {
-        systemMessage = await initializeConversationHistory();
+        req.session.chat.systemMessage = await initializeConversationHistory(req.session.chat);
       }
-      epochs++;
+      req.session.chat.epochs++;
     }
 
     // Handle file contents from upload
@@ -333,8 +349,8 @@ router.post('/message', async (req, res) => {
     
     // Handle single file upload (backward compatibility)
     if (req.app.locals.currentFileContents) {
-      fileContents = req.app.locals.currentFileContents;
-      file_id = req.app.locals.currentFileId;
+      req.session.chat.fileContents = req.app.locals.currentFileContents;
+      req.session.chat.file_id = req.app.locals.currentFileId;
       // Clear after use
       req.app.locals.currentFileContents = null;
       req.app.locals.currentFileId = null;
@@ -342,9 +358,9 @@ router.post('/message', async (req, res) => {
 
     // Handle image from upload route first
     if (req.app.locals.currentImageName) {
-      imageName = req.app.locals.currentImageName;
-      uploadedImagePath = req.app.locals.currentImagePath;
-      console.log('Found uploaded image:', imageName, 'at path:', uploadedImagePath);
+      req.session.chat.imageName = req.app.locals.currentImageName;
+      req.session.chat.uploadedImagePath = req.app.locals.currentImagePath;
+      console.log('Found uploaded image:', req.session.chat.imageName, 'at path:', req.session.chat.uploadedImagePath);
       // Clear after use
       req.app.locals.currentImageName = null;
       req.app.locals.currentImagePath = null;
@@ -365,26 +381,26 @@ router.post('/message', async (req, res) => {
     }
     
     // Also check if we have an uploaded image path but no base64Image yet
-    if (!base64Image && uploadedImagePath) {
-      console.log('Converting uploaded image to base64:', uploadedImagePath);
-      base64Image = imageToBase64(uploadedImagePath);
+    if (!base64Image && req.session.chat.uploadedImagePath) {
+      console.log('Converting uploaded image to base64:', req.session.chat.uploadedImagePath);
+      base64Image = imageToBase64(req.session.chat.uploadedImagePath);
       console.log('base64Image from upload result:', base64Image ? 'SUCCESS (length: ' + base64Image.length + ')' : 'FAILED');
     }
     
     // Debug logging for image data
     console.log('=== Image Processing Debug ===');
-    console.log('imageName:', imageName);
-    console.log('uploadedImagePath:', uploadedImagePath);
+    console.log('imageName:', req.session.chat.imageName);
+    console.log('uploadedImagePath:', req.session.chat.uploadedImagePath);
     console.log('base64Image exists:', !!base64Image);
     console.log('base64Image length:', base64Image ? base64Image.length : 0);
     console.log('base64Image starts with:', base64Image ? base64Image.substring(0, 50) : 'N/A');
     console.log('============================')
     
     // Clean up uploaded image after processing
-    if (uploadedImagePath) {
-      fs.unlink(uploadedImagePath, (err) => {
+    if (req.session.chat.uploadedImagePath) {
+      fs.unlink(req.session.chat.uploadedImagePath, (err) => {
         if (err) console.error("Error deleting temp file:", err);
-        else console.log("Temp file deleted:", uploadedImagePath);
+        else console.log("Temp file deleted:", req.session.chat.uploadedImagePath);
       });
     }
 
@@ -392,9 +408,9 @@ router.post('/message', async (req, res) => {
     const user_input = providerFactory.formatUserInput(
       modelID,
       user_message,
-      fileContents,
-      file_id,
-      imageName,
+      req.session.chat.fileContents,
+      req.session.chat.file_id,
+      req.session.chat.imageName,
       base64Image,
       uploadedFiles
     );
@@ -403,11 +419,11 @@ router.post('/message', async (req, res) => {
     const payload = {
       user_input,
       modelID,
-      systemMessage,
-      conversationHistory,
-      claudeHistory,
-      o1History,
-      deepseekHistory,
+      systemMessage: req.session.chat.systemMessage,
+      conversationHistory: req.session.chat.conversationHistory,
+      claudeHistory: req.session.chat.claudeHistory,
+      o1History: req.session.chat.o1History,
+      deepseekHistory: req.session.chat.deepseekHistory,
       temperature,
       tokens,
       reasoningEffort,
@@ -419,22 +435,22 @@ router.post('/message', async (req, res) => {
 
     if (result.success) {
       // Store conversation state in app.locals for export functionality
-      req.app.locals.conversationHistory = conversationHistory;
-      req.app.locals.claudeHistory = claudeHistory;
-      req.app.locals.o1History = o1History;
-      req.app.locals.deepseekHistory = deepseekHistory;
-      req.app.locals.claudeInstructions = claudeInstructions;
+      req.app.locals.conversationHistory = req.session.chat.conversationHistory;
+      req.app.locals.claudeHistory = req.session.chat.claudeHistory;
+      req.app.locals.o1History = req.session.chat.o1History;
+      req.app.locals.deepseekHistory = req.session.chat.deepseekHistory;
+      req.app.locals.claudeInstructions = req.session.chat.claudeInstructions;
       req.app.locals.currentModelID = modelID;
-      req.app.locals.systemMessage = systemMessage;
-      
+      req.app.locals.systemMessage = req.session.chat.systemMessage;
+
       // Clean up file contents
-      fileContents = null;
-      file_id = "";
-      imageName = "";
-      
-      res.json({ 
+      req.session.chat.fileContents = null;
+      req.session.chat.file_id = "";
+      req.session.chat.imageName = "";
+
+      res.json({
         text: result.content,
-        usage: result.usage 
+        usage: result.usage
       });
     } else {
       res.status(500).json({ 
@@ -456,23 +472,23 @@ router.post('/message', async (req, res) => {
  * Reset conversation state
  */
 router.post('/reset', (req, res) => {
-  conversationHistory = [];
-  claudeHistory = [];
-  o1History = [];
-  deepseekHistory = [];
-  geminiHistory = '';
-  epochs = 0;
-  fileContents = null;
-  file_id = "";
-  imageName = "";
-  customPrompt = false;
-  continueConv = false;
-  
+  req.session.chat.conversationHistory = [];
+  req.session.chat.claudeHistory = [];
+  req.session.chat.o1History = [];
+  req.session.chat.deepseekHistory = [];
+  req.session.chat.geminiHistory = '';
+  req.session.chat.epochs = 0;
+  req.session.chat.fileContents = null;
+  req.session.chat.file_id = "";
+  req.session.chat.imageName = "";
+  req.session.chat.customPrompt = false;
+  req.session.chat.continueConv = false;
+
   // Reset provider factory state
   if (providerFactory && providerFactory.handlers.openai) {
     providerFactory.handlers.openai.resetState();
   }
-  
+
   res.json({ success: true, message: 'Conversation state reset' });
 });
 
@@ -481,13 +497,13 @@ router.post('/reset', (req, res) => {
  */
 router.post('/setChat', async (req, res) => {
   try {
-    chosenChat = req.body.chosenChat;
-    continueConv = true;
+    req.session.chat.chosenChat = req.body.chosenChat;
+    req.session.chat.continueConv = true;
 
-    const contextAndSummary = await continueConversation(chosenChat);
+    const contextAndSummary = await continueConversation(req.session.chat.chosenChat);
     console.log('Context and Summary loaded');
 
-    res.status(200).json({ message: 'Chat set successfully', chosenChat });
+    res.status(200).json({ message: 'Chat set successfully', chosenChat: req.session.chat.chosenChat });
   } catch (error) {
     console.error('Error in /setChat endpoint:', error);
     res.status(500).json({ message: 'Failed to set chat', error: error.message });
@@ -500,10 +516,10 @@ router.post('/setChat', async (req, res) => {
 router.post('/copyPrompt', async (req, res) => {
   try {
     const { chosenPrompt } = req.body;
-    customPrompt = true;
-    promptName = chosenPrompt;
-    const instructions = await readInstructionsFile();
-    
+    req.session.chat.customPrompt = true;
+    req.session.chat.promptName = chosenPrompt;
+    const instructions = await readInstructionsFile(req.session.chat);
+
     res.json({ success: true, instructions });
   } catch (error) {
     console.error('Error copying prompt:', error);
@@ -516,9 +532,9 @@ router.post('/copyPrompt', async (req, res) => {
  */
 router.post('/setSummariesOnly', (req, res) => {
   try {
-    summariesOnly = req.body.summariesOnly;
-    console.log('Summaries only mode:', summariesOnly);
-    res.status(200).json({ message: 'Summaries only setting updated successfully', summariesOnly });
+    req.session.chat.summariesOnly = req.body.summariesOnly;
+    console.log('Summaries only mode:', req.session.chat.summariesOnly);
+    res.status(200).json({ message: 'Summaries only setting updated successfully', summariesOnly: req.session.chat.summariesOnly });
   } catch (error) {
     console.error('Error in /setSummariesOnly endpoint:', error);
     res.status(500).json({ message: 'Failed to update summaries only setting', error: error.message });

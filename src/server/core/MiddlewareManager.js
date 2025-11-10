@@ -6,6 +6,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const rateLimit = require('express-rate-limit');
+const session = require('express-session');
 const { setupAuth } = require('../middleware/auth');
 const { setupUpload } = require('../middleware/upload');
 const ValidationUtils = require('../utils/ValidationUtils');
@@ -32,6 +33,9 @@ class MiddlewareManager {
 
     // Request logging middleware
     this.setupRequestLogging(app);
+
+    // Session middleware (before auth to maintain state per user)
+    this.setupSession(app);
 
     // Security middleware
     this.setupSecurity(app);
@@ -76,20 +80,67 @@ class MiddlewareManager {
   setupRequestLogging(app) {
     app.use((req, res, next) => {
       const startTime = Date.now();
-      
+
       // Log request
       this.logger.logRequest(req, startTime);
 
       // Override res.end to log response
       const originalEnd = res.end;
+      const logger = this.logger; // Reuse existing logger instance
       res.end = function(...args) {
-        const logger = new Logger('MiddlewareManager');
         logger.logResponse(req, res, startTime);
         originalEnd.apply(this, args);
       };
 
       next();
     });
+  }
+
+  /**
+   * Setup session middleware to maintain per-user state
+   */
+  setupSession(app) {
+    const sessionSecret = process.env.SESSION_SECRET ||
+      require('crypto').randomBytes(32).toString('hex');
+
+    app.use(session({
+      secret: sessionSecret,
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      }
+    }));
+
+    // Initialize session storage for chat state
+    app.use((req, res, next) => {
+      if (!req.session.chat) {
+        req.session.chat = {
+          conversationHistory: [],
+          claudeHistory: [],
+          o1History: [],
+          deepseekHistory: [],
+          geminiHistory: '',
+          systemMessage: '',
+          claudeInstructions: '',
+          epochs: 0,
+          fileContents: null,
+          file_id: "",
+          imageName: "",
+          uploadedImagePath: "",
+          customPrompt: false,
+          promptName: '',
+          continueConv: false,
+          chosenChat: '',
+          summariesOnly: true
+        };
+      }
+      next();
+    });
+
+    this.logger.info('✅ Session management configured');
   }
 
   /**
