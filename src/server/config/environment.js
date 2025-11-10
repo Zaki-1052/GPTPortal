@@ -29,8 +29,24 @@ const config = {
   
   // Model parameters
   model: {
-    temperature: process.env.TEMPERATURE ? parseFloat(process.env.TEMPERATURE) : 1,
-    maxTokens: process.env.MAX_TOKENS ? parseInt(process.env.MAX_TOKENS) : 8000
+    temperature: (() => {
+      if (!process.env.TEMPERATURE) return 1;
+      const temp = parseFloat(process.env.TEMPERATURE);
+      if (isNaN(temp) || temp < 0 || temp > 2) {
+        console.warn(`Invalid TEMPERATURE value "${process.env.TEMPERATURE}". Using default: 1`);
+        return 1;
+      }
+      return temp;
+    })(),
+    maxTokens: (() => {
+      if (!process.env.MAX_TOKENS) return 8000;
+      const tokens = parseInt(process.env.MAX_TOKENS, 10);
+      if (isNaN(tokens) || tokens < 1 || tokens > 1000000) {
+        console.warn(`Invalid MAX_TOKENS value "${process.env.MAX_TOKENS}". Using default: 8000`);
+        return 8000;
+      }
+      return tokens;
+    })()
   },
   
   // Prompt caching configuration
@@ -38,7 +54,15 @@ const config = {
     enabled: process.env.CLAUDE_CACHE_ENABLED === 'true',
     strategy: process.env.CLAUDE_CACHE_STRATEGY || 'conservative',
     analytics: process.env.CLAUDE_CACHE_ANALYTICS !== 'false',
-    maxBreakpoints: process.env.CLAUDE_CACHE_MAX_BREAKPOINTS ? parseInt(process.env.CLAUDE_CACHE_MAX_BREAKPOINTS) : 4,
+    maxBreakpoints: (() => {
+      if (!process.env.CLAUDE_CACHE_MAX_BREAKPOINTS) return 4;
+      const breakpoints = parseInt(process.env.CLAUDE_CACHE_MAX_BREAKPOINTS, 10);
+      if (isNaN(breakpoints) || breakpoints < 0 || breakpoints > 10) {
+        console.warn(`Invalid CLAUDE_CACHE_MAX_BREAKPOINTS value "${process.env.CLAUDE_CACHE_MAX_BREAKPOINTS}". Using default: 4`);
+        return 4;
+      }
+      return breakpoints;
+    })(),
     defaultPreference: process.env.CLAUDE_CACHE_DEFAULT_PREFERENCE || 'auto'
   },
   

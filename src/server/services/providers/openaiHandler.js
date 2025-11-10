@@ -44,11 +44,20 @@ class OpenAIHandler {
 
     try {
       const response = await axios.post(`${this.baseURL}/chat/completions`, requestData, { headers });
-      const messageContent = response.data.choices[0].message.content;
-      
+
+      // Validate response structure
+      if (!response.data?.choices || response.data.choices.length === 0) {
+        throw new Error('Invalid API response: no choices returned');
+      }
+
+      const messageContent = response.data.choices[0]?.message?.content;
+      if (messageContent === undefined) {
+        throw new Error('Invalid API response: no message content');
+      }
+
       // Add assistant response to history
       conversationHistory.push({ role: "assistant", content: messageContent });
-      
+
       return {
         success: true,
         content: messageContent,
@@ -230,7 +239,14 @@ Enhanced prompt:`;
         }
       });
 
-      return response.data.choices[0].message.content.trim();
+      // Validate response structure
+      if (!response.data?.choices || response.data.choices.length === 0) {
+        console.warn('Invalid enhancement response, using original prompt');
+        return userPrompt;
+      }
+
+      const enhancedContent = response.data.choices[0]?.message?.content;
+      return enhancedContent ? enhancedContent.trim() : userPrompt;
     } catch (error) {
       console.warn('Prompt enhancement failed, using original prompt:', error.message);
       return userPrompt;
@@ -256,18 +272,24 @@ Enhanced prompt:`;
         prompt: enhancedPrompt
       });
 
-      if (response.data && response.data[0] && response.data[0].b64_json) {
-        return {
-          success: true,
-          imageData: response.data[0].b64_json,
-          enhancedPrompt: enhancedPrompt,
-          originalPrompt: prompt,
-          model: 'gpt-image-1',
-          revisedPrompt: response.data[0].revised_prompt || enhancedPrompt
-        };
-      } else {
+      // Validate response structure
+      if (!response.data || !Array.isArray(response.data) || response.data.length === 0) {
         throw new Error('No image data found in response');
       }
+
+      const imageData = response.data[0]?.b64_json;
+      if (!imageData) {
+        throw new Error('No b64_json data in response');
+      }
+
+      return {
+        success: true,
+        imageData: imageData,
+        enhancedPrompt: enhancedPrompt,
+        originalPrompt: prompt,
+        model: 'gpt-image-1',
+        revisedPrompt: response.data[0].revised_prompt || enhancedPrompt
+      };
     } catch (error) {
       console.error('GPT Image 1 API Error:', error.message);
       throw error;
@@ -294,10 +316,20 @@ Enhanced prompt:`;
 
     try {
       const response = await axios.post(`${this.baseURL}/images/generations`, requestData, { headers });
-      
+
+      // Validate response structure
+      if (!response.data?.data || !Array.isArray(response.data.data) || response.data.data.length === 0) {
+        throw new Error('No image data found in DALL-E response');
+      }
+
+      const imageData = response.data.data[0]?.b64_json;
+      if (!imageData) {
+        throw new Error('No b64_json data in DALL-E response');
+      }
+
       return {
         success: true,
-        imageData: response.data.data[0].b64_json,
+        imageData: imageData,
         prompt: prompt,
         model: model,
         revisedPrompt: response.data.data[0].revised_prompt || prompt

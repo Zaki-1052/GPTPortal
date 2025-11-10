@@ -207,10 +207,17 @@ class ClaudeHandler {
         };
       } else {
         // Standard Claude response
-        const textContent = Array.isArray(messageContent) ? messageContent[0].text : messageContent;
-        
+        let textContent = messageContent;
+        if (Array.isArray(messageContent)) {
+          if (messageContent.length > 0 && messageContent[0]?.text) {
+            textContent = messageContent[0].text;
+          } else {
+            textContent = JSON.stringify(messageContent);
+          }
+        }
+
         finalClaudeHistory.push({ role: "assistant", content: response.data.content });
-        
+
         return {
           success: true,
           content: textContent,
@@ -299,11 +306,23 @@ class ClaudeHandler {
     // Add image with XML structure
     if (base64Image) {
       console.log('=== Processing base64Image in ClaudeHandler ===');
-      const [mediaPart, base64Data] = base64Image.split(';base64,');
-      const mediaType = mediaPart.split(':')[1];
+      const parts = base64Image.split(';base64,');
+      if (parts.length !== 2) {
+        console.error('Invalid base64 image format. Expected "data:type;base64,data"');
+        throw new Error('Invalid base64 image format');
+      }
+
+      const [mediaPart, base64Data] = parts;
+      const mediaTypeParts = mediaPart.split(':');
+      if (mediaTypeParts.length < 2) {
+        console.error('Invalid media type format in base64 image');
+        throw new Error('Invalid media type format');
+      }
+
+      const mediaType = mediaTypeParts[1];
       console.log('mediaType:', mediaType);
       console.log('base64Data length:', base64Data ? base64Data.length : 0);
-      
+
       user_input.content.push({ type: "text", text: "<image_name>" });
       user_input.content.push({ type: "text", text: imageName || "uploaded_image" });
       user_input.content.push({ type: "text", text: "</image_name>" });
@@ -332,14 +351,47 @@ class ClaudeHandler {
    * Parse Claude instructions into sections for system message
    */
   parseInstructionsIntoSections(instructionsText) {
+    if (!instructionsText || typeof instructionsText !== 'string') {
+      throw new Error('Invalid instructions text: must be a non-empty string');
+    }
+
     // Find the major section boundaries
-    const roleAssignmentEnd = instructionsText.indexOf('</role_assignment>') + '</role_assignment>'.length;
+    const roleAssignmentEndTag = '</role_assignment>';
+    const roleAssignmentEndIdx = instructionsText.indexOf(roleAssignmentEndTag);
+    if (roleAssignmentEndIdx === -1) {
+      throw new Error('Missing </role_assignment> tag in instructions');
+    }
+    const roleAssignmentEnd = roleAssignmentEndIdx + roleAssignmentEndTag.length;
+
     const claudeInfoStart = instructionsText.indexOf('<claude_info>');
-    const claudeInfoEnd = instructionsText.indexOf('</claude_info>') + '</claude_info>'.length;
+    if (claudeInfoStart === -1) {
+      throw new Error('Missing <claude_info> tag in instructions');
+    }
+
+    const claudeInfoEndTag = '</claude_info>';
+    const claudeInfoEndIdx = instructionsText.indexOf(claudeInfoEndTag);
+    if (claudeInfoEndIdx === -1) {
+      throw new Error('Missing </claude_info> tag in instructions');
+    }
+    const claudeInfoEnd = claudeInfoEndIdx + claudeInfoEndTag.length;
+
     const taskInstructionsStart = instructionsText.indexOf('<task_instructions>');
-    const methodsEnd = instructionsText.indexOf('</methods>') + '</methods>'.length;
+    if (taskInstructionsStart === -1) {
+      throw new Error('Missing <task_instructions> tag in instructions');
+    }
+
+    const methodsEndTag = '</methods>';
+    const methodsEndIdx = instructionsText.indexOf(methodsEndTag);
+    if (methodsEndIdx === -1) {
+      throw new Error('Missing </methods> tag in instructions');
+    }
+    const methodsEnd = methodsEndIdx + methodsEndTag.length;
+
     const finalStart = instructionsText.indexOf('<final>');
-    
+    if (finalStart === -1) {
+      throw new Error('Missing <final> tag in instructions');
+    }
+
     // Create the four main sections
     const sections = [
       {
