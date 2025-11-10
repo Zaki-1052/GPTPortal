@@ -19,45 +19,50 @@ class Application extends EventEmitter {
     this.server = null;
     this.config = config;
     this.isShuttingDown = false;
-    
+    this.isInitialized = false;
+
     // Core managers
     this.middlewareManager = new MiddlewareManager(this.config);
     this.serviceManager = new ServiceManager(this.config);
     this.routeManager = new RouteManager(this.serviceManager);
     this.errorHandler = new ErrorHandler();
     this.logger = new Logger('Application');
-    
-    this.initialize();
   }
 
   /**
    * Initialize the application
    */
   async initialize() {
+    if (this.isInitialized) {
+      this.logger.debug('Application already initialized, skipping...');
+      return;
+    }
+
     try {
       this.logger.info('Initializing GPTPortal Application...');
-      
+
       // Validate configuration
       validateConfig();
-      
+
       // Initialize services first
       await this.serviceManager.initialize();
-      
+
       // Setup middleware
       this.middlewareManager.setup(this.app);
-      
+
       // Setup routes
       this.routeManager.setup(this.app);
-      
+
       // Setup error handling
       this.errorHandler.setup(this.app);
-      
+
       // Setup graceful shutdown
       this.setupGracefulShutdown();
-      
+
+      this.isInitialized = true;
       this.logger.info('✅ Application initialized successfully');
       this.emit('initialized');
-      
+
     } catch (error) {
       this.logger.error('Failed to initialize application:', error);
       throw error;
@@ -68,6 +73,11 @@ class Application extends EventEmitter {
    * Start the server
    */
   async start() {
+    // Ensure initialization is complete before starting
+    if (!this.isInitialized) {
+      await this.initialize();
+    }
+
     const PORT = this.config.isVercelEnvironment ? process.env.PORT : this.config.port;
     const HOST = this.config.isVercelEnvironment ? '0.0.0.0' : this.config.host;
 
