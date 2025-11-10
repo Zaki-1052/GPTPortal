@@ -269,11 +269,17 @@ class GPTPortalApp {
   }
 
   setupTemperatureSlider() {
+    // Prevent re-initialization
+    if (this._temperatureSliderInitialized) {
+      console.log('Temperature slider already initialized, skipping...');
+      return;
+    }
+
     // Use existing elements from HTML
     const tempSlider = document.getElementById('temperature-slider');
     const tempValueDisplay = document.getElementById('temperature-value');
     const tempSliderContainer = document.getElementById('temperature-slider-container');
-    
+
     if (!tempSlider || !tempValueDisplay || !tempSliderContainer) {
       console.warn('Temperature slider elements not found in HTML');
       return;
@@ -296,40 +302,47 @@ class GPTPortalApp {
 
     // Set initial color
     const initialTempPercentage = ((window.temperature || 1) - 0) / (2 - 0) * 100;
-    const initialTempColor = initialTempPercentage < 50 
-      ? `rgb(${Math.round(initialTempPercentage * 2.55)}, 255, 0)` 
+    const initialTempColor = initialTempPercentage < 50
+      ? `rgb(${Math.round(initialTempPercentage * 2.55)}, 255, 0)`
       : `rgb(255, ${Math.round(255 - (initialTempPercentage - 50) * 5.1)}, 0)`;
     tempValueDisplay.style.color = initialTempColor;
     tempSlider.style.setProperty('--thumb-color', initialTempColor);
 
-    // Remove any existing event listeners to avoid duplicates
-    const newTempSlider = tempSlider.cloneNode(true);
-    tempSlider.parentNode.replaceChild(newTempSlider, tempSlider);
-
-    newTempSlider.addEventListener('input', function() {
+    // Add event listener (only once since we prevent re-initialization)
+    const tempInputHandler = function() {
       window.temperature = parseFloat(this.value);
       tempValueDisplay.textContent = window.temperature.toFixed(1);
-      
+
       const tempPercentage = (window.temperature - 0) / (2 - 0) * 100;
-      const tempColor = tempPercentage < 50 
-        ? `rgb(${Math.round(tempPercentage * 2.55)}, 255, 0)` 
+      const tempColor = tempPercentage < 50
+        ? `rgb(${Math.round(tempPercentage * 2.55)}, 255, 0)`
         : `rgb(255, ${Math.round(255 - (tempPercentage - 50) * 5.1)}, 0)`;
-      
+
       tempValueDisplay.style.color = tempColor;
       this.style.setProperty('--thumb-color', tempColor);
 
       console.log('Temperature updated:', window.temperature);
-    });
+    };
+
+    tempSlider.addEventListener('input', tempInputHandler);
+    this._temperatureSliderInitialized = true;
+    this._tempInputHandler = tempInputHandler;
   }
 
   setupTokensSlider() {
+    // Prevent re-initialization
+    if (this._tokensSliderInitialized) {
+      console.log('Tokens slider already initialized, skipping...');
+      return;
+    }
+
     // Use existing elements from HTML
     const tokensSlider = document.getElementById('tokens-slider');
     const tokensValueDisplay = document.getElementById('tokens-value');
     const tokensSliderContainer = document.getElementById('tokens-slider-container');
     const tokensLimitDisplay = document.getElementById('tokens-limit');
     const modelTokenLimit = document.getElementById('model-token-limit');
-    
+
     if (!tokensSlider || !tokensValueDisplay || !tokensSliderContainer) {
       console.warn('Tokens slider elements not found in HTML');
       return;
@@ -343,7 +356,7 @@ class GPTPortalApp {
 
     // Update display
     tokensValueDisplay.textContent = (window.tokens || 8000).toLocaleString();
-    
+
     // Ensure model limit display exists
     if (modelTokenLimit) {
       modelTokenLimit.textContent = '8000';
@@ -354,26 +367,27 @@ class GPTPortalApp {
     tokensValueDisplay.style.color = initialTokensColor;
     tokensSlider.style.setProperty('--thumb-color', initialTokensColor);
 
-    // Remove any existing event listeners to avoid duplicates
-    const newTokensSlider = tokensSlider.cloneNode(true);
-    tokensSlider.parentNode.replaceChild(newTokensSlider, tokensSlider);
-
-    newTokensSlider.addEventListener('input', (e) => {
+    // Add event listener (only once since we prevent re-initialization)
+    const tokensInputHandler = (e) => {
       window.tokens = parseInt(e.target.value);
       tokensValueDisplay.textContent = window.tokens.toLocaleString();
-      
+
       const maxTokens = this.getMaxTokensByModel(window.currentModelID || 'default');
       const tokensPercentage = (window.tokens - 1000) / (maxTokens - 1000) * 100;
-      const tokensColor = tokensPercentage < 50 
-        ? `rgb(${Math.round(tokensPercentage * 2.55)}, 255, 0)` 
+      const tokensColor = tokensPercentage < 50
+        ? `rgb(${Math.round(tokensPercentage * 2.55)}, 255, 0)`
         : `rgb(255, ${Math.round(255 - (tokensPercentage - 50) * 5.1)}, 0)`;
-      
+
       tokensValueDisplay.style.color = tokensColor;
       e.target.style.setProperty('--thumb-color', tokensColor);
 
       console.log('Tokens updated:', window.tokens);
-    });
-    
+    };
+
+    tokensSlider.addEventListener('input', tokensInputHandler);
+    this._tokensSliderInitialized = true;
+    this._tokensInputHandler = tokensInputHandler;
+
     // Setup GPT-5 specific controls
     this.setupGPT5Controls();
   }
@@ -474,13 +488,19 @@ class GPTPortalApp {
   }
 
   setupEnhancedKeyboardShortcuts() {
-    document.addEventListener('keydown', (event) => {
+    // Avoid duplicate keyboard shortcut listeners
+    if (this._keyboardShortcutsAttached) {
+      console.log('Keyboard shortcuts already attached, skipping...');
+      return;
+    }
+
+    const keyboardHandler = (event) => {
       // Ctrl/Cmd + Enter to send message
       if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
         event.preventDefault();
         window.sendMessage();
       }
-      
+
       // Escape to close dropdown
       if (event.key === 'Escape') {
         const modelOptions = document.getElementById('model-options');
@@ -488,13 +508,13 @@ class GPTPortalApp {
           modelOptions.style.display = 'none';
         }
       }
-      
+
       // Ctrl/Cmd + L to clear chat
       if ((event.ctrlKey || event.metaKey) && event.key === 'l') {
         event.preventDefault();
         window.clearChat();
       }
-      
+
       // Ctrl/Cmd + S to save/export chat
       if ((event.ctrlKey || event.metaKey) && event.key === 's') {
         event.preventDefault();
@@ -531,7 +551,11 @@ class GPTPortalApp {
           modeSelector.click();
         }
       }
-    });
+    };
+
+    document.addEventListener('keydown', keyboardHandler);
+    this._keyboardShortcutsAttached = true;
+    this._keyboardHandler = keyboardHandler;
   }
 
   setupFileUploadStatus() {
@@ -898,20 +922,22 @@ class GPTPortalApp {
 }
 
 // Initialize the application when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('DOM loaded, initializing GPTPortal Enhanced...');
-  window.gptPortalApp = new GPTPortalApp();
-});
-
-// Fallback initialization for immediate script loading
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    if (!window.gptPortalApp) {
-      window.gptPortalApp = new GPTPortalApp();
-    }
-  });
-} else {
-  if (!window.gptPortalApp) {
-    window.gptPortalApp = new GPTPortalApp();
+// Use a single initialization path to prevent duplicate instances
+function initializeApp() {
+  if (window.gptPortalApp) {
+    console.log('GPTPortalApp already initialized, skipping...');
+    return;
   }
+
+  console.log('Initializing GPTPortal Enhanced...');
+  window.gptPortalApp = new GPTPortalApp();
+}
+
+// Single initialization path - avoid race conditions
+if (document.readyState === 'loading') {
+  // DOM is still loading, wait for DOMContentLoaded
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  // DOM is already loaded, initialize immediately
+  initializeApp();
 }

@@ -560,44 +560,63 @@ class ChatManager {
    * Start progress animation
    */
   startProgressAnimation() {
-    if (this.progressInterval) {
-      clearInterval(this.progressInterval);
-    }
-    
+    // Always clear any existing interval first
+    this.stopProgressAnimation();
+
     const phases = [
       '🔍 Searching web sources...',
       '📊 Analyzing data...',
       '💻 Running calculations...',
       '📝 Synthesizing findings...'
     ];
-    
+
     let phaseIndex = 0;
     let dots = '';
-    
+
     this.progressInterval = setInterval(() => {
       dots = dots.length >= 3 ? '' : dots + '.';
       const currentPhase = phases[phaseIndex % phases.length];
-      
+
       // Update the last system message with progress
       const chatBox = document.getElementById('chat-box');
+      if (!chatBox) {
+        // Chat box no longer exists, stop the animation
+        this.stopProgressAnimation();
+        return;
+      }
+
       const systemMessages = chatBox.querySelectorAll('.system-message');
       if (systemMessages.length > 0) {
         const lastSystemMessage = systemMessages[systemMessages.length - 1];
         if (lastSystemMessage && lastSystemMessage.textContent.includes('Deep Research in Progress')) {
-          const progressLine = lastSystemMessage.querySelector('.progress-line') || 
+          const progressLine = lastSystemMessage.querySelector('.progress-line') ||
                                lastSystemMessage.appendChild(document.createElement('div'));
           progressLine.className = 'progress-line';
           progressLine.style.marginTop = '10px';
           progressLine.style.fontWeight = 'normal';
           progressLine.textContent = currentPhase + dots;
+        } else {
+          // Progress message no longer exists, stop the animation
+          this.stopProgressAnimation();
         }
+      } else {
+        // No system messages, stop the animation
+        this.stopProgressAnimation();
       }
-      
+
       // Change phase every 15 seconds
       if (dots === '') {
         phaseIndex++;
       }
     }, 1000);
+
+    // Set up cleanup on page unload
+    if (!this._unloadHandlerAttached) {
+      window.addEventListener('beforeunload', () => {
+        this.stopProgressAnimation();
+      });
+      this._unloadHandlerAttached = true;
+    }
   }
 
   /**
