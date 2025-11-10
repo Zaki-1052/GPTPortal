@@ -5,6 +5,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const rateLimit = require('express-rate-limit');
 const { setupAuth } = require('../middleware/auth');
 const { setupUpload } = require('../middleware/upload');
 const ValidationUtils = require('../utils/ValidationUtils');
@@ -122,12 +123,39 @@ class MiddlewareManager {
       next();
     });
 
-    // Rate limiting placeholder
-    app.use((req, res, next) => {
-      // TODO: Implement rate limiting
-      // This would integrate with Redis or memory store
-      next();
+    // Rate limiting implementation
+    const generalLimiter = rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: parseInt(process.env.RATE_LIMIT_MAX) || 100, // Limit each IP to 100 requests per windowMs
+      message: {
+        error: 'Too many requests from this IP, please try again later.',
+        code: 'RATE_LIMIT_EXCEEDED'
+      },
+      standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+      legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+      // Skip rate limiting for health check endpoints
+      skip: (req) => req.path === '/health' || req.path === '/health/detailed'
     });
+
+    // Apply general rate limiter to all routes
+    app.use(generalLimiter);
+
+    // Stricter rate limiting for API endpoints
+    const apiLimiter = rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: parseInt(process.env.API_RATE_LIMIT_MAX) || 50, // Limit each IP to 50 requests per windowMs for API
+      message: {
+        error: 'Too many API requests from this IP, please try again later.',
+        code: 'API_RATE_LIMIT_EXCEEDED'
+      },
+      standardHeaders: true,
+      legacyHeaders: false
+    });
+
+    // Apply stricter rate limiter to API routes
+    app.use('/api/', apiLimiter);
+
+    this.logger.info('✅ Rate limiting configured');
   }
 
   /**
