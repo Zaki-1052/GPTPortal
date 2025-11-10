@@ -21,6 +21,7 @@
     "express": "^4.19.2",
     "express-basic-auth": "^1.2.1",
     "express-rate-limit": "^7.4.1",
+    "express-session": "^1.18.2",
     "fs": "^0.0.1-security",
     "helmet": "^8.0.0",
     "image-downloader": "^4.3.0",
