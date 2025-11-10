@@ -7,7 +7,8 @@ class MessageHandler {
     this.conversationHistory = [];
     this.markdownRenderer = null;
     this.sanitizer = null;
-    
+    this.eventHandlersAttached = false;
+
     this.init();
   }
 
@@ -26,7 +27,7 @@ class MessageHandler {
         this.setupMarkdown();
       }, 0);
     }
-    
+
     this.setupEventHandlers();
     console.log('Message handler initialized');
   }
@@ -87,14 +88,23 @@ class MessageHandler {
    * Setup event handlers
    */
   setupEventHandlers() {
+    // Prevent duplicate event listeners
+    if (this.eventHandlersAttached) {
+      console.log('Message handler event listeners already attached, skipping...');
+      return;
+    }
+
     // Listen for copy button clicks
-    document.addEventListener('click', (e) => {
+    this.clickHandler = (e) => {
       if (e.target.matches('.copy-btn, .copy-code-btn')) {
         this.handleCopyClick(e);
       }
       // Screenshot button clicks are handled by individual button event listeners
       // (added in createScreenshotButton method)
-    });
+    };
+
+    document.addEventListener('click', this.clickHandler);
+    this.eventHandlersAttached = true;
   }
 
   /**

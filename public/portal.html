@@ -615,17 +615,25 @@ function setupPerformanceMonitoring() {
       console.log('Performance monitoring not available');
     }
   }
-  
-  // Monitor memory usage (if available)
-  if (performance.memory) {
-    setInterval(() => {
+
+  // Monitor memory usage (if available) - with cleanup
+  if (performance.memory && !window._memoryMonitorInterval) {
+    window._memoryMonitorInterval = setInterval(() => {
       const memory = performance.memory;
       const usedPercent = (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100;
-      
+
       if (usedPercent > 80) {
         console.warn(`High memory usage: ${usedPercent.toFixed(1)}%`);
       }
     }, 30000); // Check every 30 seconds
+
+    // Clean up on page unload
+    window.addEventListener('beforeunload', () => {
+      if (window._memoryMonitorInterval) {
+        clearInterval(window._memoryMonitorInterval);
+        window._memoryMonitorInterval = null;
+      }
+    });
   }
 }
 

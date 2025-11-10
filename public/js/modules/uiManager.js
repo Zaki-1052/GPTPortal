@@ -5,17 +5,26 @@ class UIManager {
     this.chatManager = chatManager;
     this.sidebarVisible = false;
     this.promptBarVisible = false;
-    
+    this.listenersAttached = false;
+
     this.init();
   }
 
   init() {
+    // Only initialize once to prevent duplicate event listeners
+    if (this.listenersAttached) {
+      console.log('UIManager already initialized, skipping...');
+      return;
+    }
+
     this.setupModelSelector();
     this.setupSidebar();
     this.setupPromptBar();
     this.setupKeyboardShortcuts();
     this.setupFileUpload();
     this.setupDragAndDrop();
+
+    this.listenersAttached = true;
   }
 
   setupModelSelector() {
