@@ -162,6 +162,21 @@
       "supportsFunction": true,
       "supportsReasoning": true
     },
+    "gpt-5.2": {
+      "id": "gpt-5.2",
+      "name": "GPT-5.2: Best for Coding",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "core",
+      "description": "Flagship model for coding and agentic tasks with higher reasoning, 400K context window, and 128K max output",
+      "pricing": { "input": 1.75, "output": 14.00, "cached": 0.175 },
+      "contextWindow": 400000,
+      "maxTokens": 128000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsReasoning": true,
+      "knowledgeCutoff": "2025-08-31"
+    },
 
 
     "o1-preview": {
@@ -1084,7 +1099,7 @@
   "categories": {
     "gpt": {
       "name": "GPT Models",
-      "models": ["gpt-5", "gpt-5-mini", "gpt-5-nano", "gpt-5-chat-latest", "gpt-4", "gpt-4-turbo", "gpt-4o", "gpt-4.1", "gpt-4o-mini", "gpt-4.1-mini", "gpt-4.1-nano", "gpt-3.5-turbo-0125"]
+      "models": ["gpt-5.2", "gpt-5", "gpt-5-mini", "gpt-5-nano", "gpt-5-chat-latest", "gpt-4", "gpt-4-turbo", "gpt-4o", "gpt-4.1", "gpt-4o-mini", "gpt-4.1-mini", "gpt-4.1-nano", "gpt-3.5-turbo-0125"]
     },
     "claude": {
       "name": "Claude Models",
