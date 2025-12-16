@@ -496,7 +496,7 @@ class ModelUIManager {
     }
     
     if (model.supportsSpeechToText) {
-      const speechBadge = this.createBadge('🎙️', '#9C27B0', 'Speech to Text');
+      const speechBadge = this.createBadge('🎙️', '#0284c7', 'Speech to Text');
       badgesContainer.appendChild(speechBadge);
     }
     
