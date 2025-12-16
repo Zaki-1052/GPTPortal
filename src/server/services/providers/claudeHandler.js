@@ -92,12 +92,18 @@ class ClaudeHandler {
     finalClaudeHistory.push(user_input);
 
     // Check if this is a Claude 4 model with thinking support
-    const isThinkingModel = modelID === 'claude-3-7-sonnet-latest' || 
-                           modelID === 'claude-opus-4-20250514' || 
-                           modelID === 'claude-sonnet-4-20250514';
+    const isThinkingModel = modelID === 'claude-3-7-sonnet-latest' ||
+                           modelID === 'claude-opus-4-20250514' ||
+                           modelID === 'claude-sonnet-4-20250514' ||
+                           modelID === 'claude-sonnet-4-5-20250929' ||
+                           modelID === 'claude-haiku-4-5-20251001' ||
+                           modelID === 'claude-opus-4-5-20251101';
 
     // Check if web search is supported for this model
     const supportsWebSearch = [
+      'claude-sonnet-4-5-20250929',
+      'claude-haiku-4-5-20251001',
+      'claude-opus-4-5-20251101',
       'claude-opus-4-20250514',
       'claude-sonnet-4-20250514',
       'claude-3-7-sonnet-latest',

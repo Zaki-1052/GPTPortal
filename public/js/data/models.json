@@ -271,6 +271,51 @@
       "supportsFunction": false
     },
 
+    "claude-sonnet-4-5-20250929": {
+      "id": "claude-sonnet-4-5-20250929",
+      "name": "Claude Sonnet 4.5",
+      "provider": "anthropic",
+      "category": "claude",
+      "source": "core",
+      "description": "Our smart model for complex agents and coding with exceptional performance in agentic tasks",
+      "pricing": { "input": 3.00, "output": 15.00, "cached": 0.30, "cacheWrite": 3.75 },
+      "contextWindow": 200000,
+      "maxTokens": 64000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsExtendedThinking": true,
+      "knowledgeCutoff": "2025-01-31"
+    },
+    "claude-haiku-4-5-20251001": {
+      "id": "claude-haiku-4-5-20251001",
+      "name": "Claude Haiku 4.5",
+      "provider": "anthropic",
+      "category": "claude",
+      "source": "core",
+      "description": "Our fastest model with near-frontier intelligence and exceptional speed",
+      "pricing": { "input": 1.00, "output": 5.00, "cached": 0.10, "cacheWrite": 1.25 },
+      "contextWindow": 200000,
+      "maxTokens": 64000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsExtendedThinking": true,
+      "knowledgeCutoff": "2025-02-28"
+    },
+    "claude-opus-4-5-20251101": {
+      "id": "claude-opus-4-5-20251101",
+      "name": "Claude Opus 4.5",
+      "provider": "anthropic",
+      "category": "claude",
+      "source": "core",
+      "description": "Premium model combining maximum intelligence with practical performance for the most demanding tasks",
+      "pricing": { "input": 5.00, "output": 25.00, "cached": 0.50, "cacheWrite": 6.25 },
+      "contextWindow": 200000,
+      "maxTokens": 64000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "supportsExtendedThinking": true,
+      "knowledgeCutoff": "2025-05-31"
+    },
     "claude-opus-4-1-20250805": {
       "id": "claude-opus-4-1-20250805",
       "name": "Claude 4.1 Opus",
@@ -1103,7 +1148,7 @@
     },
     "claude": {
       "name": "Claude Models",
-      "models": ["claude-opus-4-1-20250805", "claude-opus-4-20250514", "claude-sonnet-4-20250514", "claude-3-7-sonnet-latest", "claude-3-5-sonnet-latest", "claude-3-5-haiku-latest", "claude-3-haiku-20240307"]
+      "models": ["claude-sonnet-4-5-20250929", "claude-haiku-4-5-20251001", "claude-opus-4-5-20251101", "claude-opus-4-1-20250805", "claude-opus-4-20250514", "claude-sonnet-4-20250514", "claude-3-7-sonnet-latest", "claude-3-5-sonnet-latest", "claude-3-5-haiku-latest", "claude-3-haiku-20240307"]
     },
     "gemini": {
       "name": "Gemini Models",
