@@ -440,6 +440,26 @@ class GPTPortalApp {
     }
   }
 
+  updateReasoningEffortDefault(modelID) {
+    const reasoningEffortSelect = document.getElementById('reasoning-effort-select');
+    if (!reasoningEffortSelect || !modelID) return;
+
+    // Get model metadata from dynamic model manager
+    let defaultEffort = 'medium'; // fallback
+    if (this.modelConfig?.dynamicModelManager) {
+      const model = this.modelConfig.dynamicModelManager.getModel(modelID);
+      if (model?.defaultReasoningEffort) {
+        defaultEffort = model.defaultReasoningEffort;
+      }
+    }
+
+    // Update dropdown and global variable
+    reasoningEffortSelect.value = defaultEffort;
+    window.reasoningEffort = defaultEffort;
+
+    console.log(`Reasoning effort set to ${defaultEffort} for model ${modelID}`);
+  }
+
   getMaxTokensByModel(modelID) {
     // From original script.js
     if (modelID === 'gpt-4') {

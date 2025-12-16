@@ -118,7 +118,8 @@
       "maxTokens": 128000,
       "supportsVision": true,
       "supportsFunction": true,
-      "supportsReasoning": true
+      "supportsReasoning": true,
+      "defaultReasoningEffort": "medium"
     },
     "gpt-5-mini": {
       "id": "gpt-5-mini",
@@ -132,7 +133,8 @@
       "maxTokens": 128000,
       "supportsVision": true,
       "supportsFunction": true,
-      "supportsReasoning": true
+      "supportsReasoning": true,
+      "defaultReasoningEffort": "medium"
     },
     "gpt-5-nano": {
       "id": "gpt-5-nano",
@@ -146,7 +148,8 @@
       "maxTokens": 128000,
       "supportsVision": true,
       "supportsFunction": true,
-      "supportsReasoning": true
+      "supportsReasoning": true,
+      "defaultReasoningEffort": "medium"
     },
     "gpt-5-chat-latest": {
       "id": "gpt-5-chat-latest",
@@ -160,7 +163,8 @@
       "maxTokens": 128000,
       "supportsVision": true,
       "supportsFunction": true,
-      "supportsReasoning": true
+      "supportsReasoning": true,
+      "defaultReasoningEffort": "medium"
     },
     "gpt-5.2": {
       "id": "gpt-5.2",
@@ -175,6 +179,7 @@
       "supportsVision": true,
       "supportsFunction": true,
       "supportsReasoning": true,
+      "defaultReasoningEffort": "none",
       "knowledgeCutoff": "2025-08-31"
     },
 

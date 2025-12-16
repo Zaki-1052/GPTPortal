@@ -3,6 +3,9 @@ const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
 
+// Valid reasoning effort levels according to OpenAI API
+const VALID_REASONING_EFFORTS = ['none', 'minimal', 'low', 'medium', 'high', 'xhigh'];
+
 class OpenAIHandler {
   constructor(apiKey) {
     this.apiKey = apiKey;
@@ -74,6 +77,12 @@ class OpenAIHandler {
    */
   async handleReasoningCompletion(payload) {
     let { user_input, modelID, o1History = [], reasoningEffort = "medium", verbosity = "medium" } = payload;
+
+    // Validate reasoning effort
+    if (!VALID_REASONING_EFFORTS.includes(reasoningEffort)) {
+      console.warn(`Invalid reasoning effort '${reasoningEffort}' for model ${modelID}, using 'medium'`);
+      reasoningEffort = 'medium';
+    }
 
     // Override with environment variables if set
     if (process.env.REASONING_EFFORT) {

@@ -146,6 +146,11 @@ class ModelConfig {
       // Fallback: directly update controls if app isn't ready
       this.updateGPT5ControlsDirect(modelID);
     }
+
+    // Update reasoning effort default based on model
+    if (window.gptPortalApp && window.gptPortalApp.updateReasoningEffortDefault) {
+      window.gptPortalApp.updateReasoningEffortDefault(modelID);
+    }
     
     // Close dropdown
     const options = document.getElementById('model-options');

@@ -12,6 +12,9 @@ const ValidationUtils = require('../utils/ValidationUtils');
 
 const router = express.Router();
 
+// Valid reasoning effort levels according to OpenAI API
+const VALID_REASONING_EFFORTS = ['none', 'minimal', 'low', 'medium', 'high', 'xhigh'];
+
 // Initialize provider factory (will be set by main server)
 let providerFactory = null;
 
@@ -272,9 +275,15 @@ router.post('/message', async (req, res) => {
   tokens = await enforceTokenLimits(tokens, modelID);
 
   // Handle GPT-5 specific parameters
-  let reasoningEffort = req.body.reasoningEffort || "medium"; // minimal, low, medium, high
+  let reasoningEffort = req.body.reasoningEffort || "medium"; // none, minimal, low, medium, high, xhigh
   let verbosity = req.body.verbosity || "medium"; // low, medium, high
-  
+
+  // Validate reasoning effort
+  if (!VALID_REASONING_EFFORTS.includes(reasoningEffort)) {
+    console.warn(`Invalid reasoning effort '${reasoningEffort}', defaulting to 'medium'`);
+    reasoningEffort = 'medium';
+  }
+
   // Override with environment variables if set
   if (process.env.REASONING_EFFORT) {
     reasoningEffort = process.env.REASONING_EFFORT;

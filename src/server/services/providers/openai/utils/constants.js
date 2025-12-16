@@ -47,6 +47,7 @@ const REASONING_MODELS = [
   'gpt-5-mini',
   'gpt-5-nano',
   'gpt-5-chat-latest',
+  'gpt-5.2',
   'o1',
   'o1-preview',
   'o1-mini',
