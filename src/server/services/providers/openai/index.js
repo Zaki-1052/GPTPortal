@@ -266,7 +266,7 @@ class OpenAIHandler {
    * Check vision support (delegated to modelLoader)
    */
   async supportsVision(modelId) {
-    const modelLoader = require('../../shared/modelLoader');
+    const modelLoader = require('../../../../shared/modelLoader');
     return await modelLoader.supportsVision(modelId);
   }
 
@@ -274,7 +274,7 @@ class OpenAIHandler {
    * Check function calling support (delegated to modelLoader)
    */
   async supportsFunction(modelId) {
-    const modelLoader = require('../../shared/modelLoader');
+    const modelLoader = require('../../../../shared/modelLoader');
     return await modelLoader.supportsFunction(modelId);
   }
 

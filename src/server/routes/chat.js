@@ -292,43 +292,8 @@ router.post('/message', async (req, res) => {
     verbosity = process.env.VERBOSITY;
   }
 
-  // Check for shutdown command
-  if (user_message === "Bye!") {
-    console.log("Shutdown message received. Exporting chat and closing server...");
-    
-    if (req.app.locals.isShuttingDown) {
-      return res.status(503).send('Server is already shutting down');
-    }
-    
-    req.app.locals.isShuttingDown = true;
-    
-    const htmlContent = await exportChatToHTML(req.session.chat, modelID);
-
-    res.set('Content-Type', 'text/html');
-    res.set('Content-Disposition', 'attachment; filename="chat_history.html"');
-    res.send(htmlContent);
-    
-    // Gracefully shutdown server after sending response
-    setTimeout(() => {
-      console.log("Server shutting down gracefully...");
-      
-      // Get server instance from app locals if available
-      const server = req.app.locals.serverInstance || req.app.get('server');
-      
-      if (server) {
-        server.close(() => {
-          console.log('Server successfully shut down.');
-          process.exit(0);
-        });
-      } else {
-        // Fallback if server instance not available
-        console.log('Server instance not found, forcing exit...');
-        process.exit(0);
-      }
-    }, 1000);
-    
-    return;
-  }
+  // NOTE: the legacy "Bye!" magic-message shutdown was removed. A chat message
+  // must never kill the server; use the dedicated shutdown control instead.
 
   try {
     // Initialize system message if first request

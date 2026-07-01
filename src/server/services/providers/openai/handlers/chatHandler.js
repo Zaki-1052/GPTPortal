@@ -133,7 +133,7 @@ class ChatHandler {
    * Check if model supports vision (delegated to modelLoader)
    */
   async supportsVision(modelId) {
-    const modelLoader = require('../../../shared/modelLoader');
+    const modelLoader = require('../../../../../shared/modelLoader');
     return await modelLoader.supportsVision(modelId);
   }
 
@@ -141,7 +141,7 @@ class ChatHandler {
    * Check if model supports function calling (delegated to modelLoader)
    */
   async supportsFunction(modelId) {
-    const modelLoader = require('../../../shared/modelLoader');
+    const modelLoader = require('../../../../../shared/modelLoader');
     return await modelLoader.supportsFunction(modelId);
   }
 

@@ -518,32 +518,9 @@ class RouteManager {
       res.attachment(`${result.title}.html`);
       res.send(result.htmlContent);
 
-      console.log("Chat history sent to client, initiating shutdown...");
-      
-      // Check if already shutting down
-      if (req.app.locals.isShuttingDown) {
-        return;
-      }
-      
-      req.app.locals.isShuttingDown = true;
-      
-      // Delay before shutting down the server to allow file download
-      setTimeout(() => {
-        console.log("Sending SIGTERM to self...");
-        
-        const server = req.app.locals.serverInstance || req.app.get('server');
-        
-        if (server) {
-          process.kill(process.pid, 'SIGINT'); // Send SIGINT to self first
-          server.close(() => {
-            console.log('Server successfully shut down.');
-            process.exit(99);
-          });
-        } else {
-          console.log('Server instance not found, forcing exit...');
-          process.exit(99);
-        }
-      }, 100); // Short delay for download to complete
+      console.log("Chat history exported and sent to client.");
+      // NOTE: export is a pure download — it no longer shuts the server down.
+      // Use the dedicated POST /shutdown-server endpoint for an intentional shutdown.
     }));
 
 

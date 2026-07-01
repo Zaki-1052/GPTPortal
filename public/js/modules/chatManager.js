@@ -226,9 +226,6 @@ class ChatManager {
           if (this.voiceMode) {
             // Voice mode feedback would be handled here
           }
-          if (message === "Bye!") {
-            this.exportChatOnShutdown();
-          }
         } catch (error) {
           console.error('Error sending message:', error);
           this.displayMessage('Error sending message. Please try again.', 'error');

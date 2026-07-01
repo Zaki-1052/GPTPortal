@@ -42,13 +42,6 @@ class CostService {
       }
     }
 
-    // Add extra cost calculation (from original implementation)
-    const extraCostRate = 0.600; // per million tokens
-    let extraCost = (tokens.totalTokens / 1000000) * extraCostRate;
-    extraCost *= 2;
-
-    totalCost += extraCost;
-    
     // Convert to cents
     totalCost *= 100;
 
