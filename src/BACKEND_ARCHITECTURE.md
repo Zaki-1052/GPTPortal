@@ -29,7 +29,7 @@ GPTPortal is a sophisticated multi-LLM chat interface built with Node.js and Exp
 
 - **Input Validation**: Comprehensive request validation and sanitization
 - **Rate Limiting**: Multi-tier rate limiting for different endpoints
-- **Security Headers**: Helmet.js integration for security headers
+- **Security Headers**: Hand-rolled CSP + XSS/frame/referrer headers (in `MiddlewareManager`)
 
 ## Core Components
 
@@ -325,27 +325,20 @@ Centralized middleware configuration:
 - **Validation**: Input validation and sanitization
 - **Authentication**: Basic auth and session management
 
-#### **SecurityMiddleware.js**
+#### Security (in `MiddlewareManager`)
 
-Comprehensive security measures:
-
-```javascript
-class SecurityMiddleware {
-  setup(app) {
-    this.setupHelmet(app);          // Security headers
-    this.setupRateLimiting(app);    // Multi-tier rate limits
-    this.setupRequestLimits(app);   // Size and pattern validation
-    this.setupAPIKeyValidation(app); // External API access
-  }
-}
-```
+Security is centralized in `MiddlewareManager.setupSecurity()` rather than a
+separate class. A previous `SecurityMiddleware.js` (helmet + tiered limiters)
+was removed: it was never wired in, duplicated the inline setup, and its
+`detectSuspiciousPatterns` scan would false-positive on legitimate chat
+messages (users routinely paste `<script>`, SQL, or `on*=` snippets when asking
+the model about them). Keep security config in one place.
 
 **Security Features:**
 
-- **Rate Limiting**: Different limits for general, AI, and image endpoints
-- **Request Validation**: Pattern detection for common attacks
-- **Security Headers**: CSP, XSS protection, frame options
-- **Suspicious Activity Detection**: Pattern-based threat detection
+- **Rate Limiting**: General (100/15min) + stricter `/api/` (50/15min) limiters
+- **Security Headers**: Hand-rolled CSP, XSS protection, frame options, referrer policy
+- **Trust Proxy**: `loopback` only (correct for a local-first app; widen if deployed behind a known proxy)
 
 ### 6. Utilities (`src/server/utils/`)
 

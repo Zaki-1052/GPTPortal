@@ -8,13 +8,43 @@ const OpenRouterHandler = require('./openrouterHandler');
 const GeminiHandler = require('./geminiHandler');
 const GrokHandler = require('./grokHandler');
 const KimiHandler = require('./kimiHandler');
+const CustomEndpointHandler = require('./customEndpointHandler');
+const { loadEndpointsFromEnv } = require('./endpointResolver');
 
 class ProviderFactory {
   constructor(apiKeys, promptCacheService = null) {
     this.apiKeys = apiKeys;
     this.handlers = {};
     this.promptCacheService = promptCacheService;
+    // catalog id -> handler key, so routing follows the model catalog (single
+    // source of truth) instead of brittle string prefixes. Built once at init.
+    this.catalogRoutes = this._loadCatalogRoutes();
     this.initializeHandlers();
+  }
+
+  /**
+   * Build a { modelID -> handlerKey } map from the model catalog so
+   * getProviderForModel can consult the declared `provider` field first.
+   * Catalog `provider` values use vendor names (`anthropic`, `google`) while
+   * handlers are keyed by our internal names (`claude`, `gemini`); resolve that
+   * alias here. Failure is non-fatal — routing falls back to prefix matching.
+   * @returns {Object<string,string>}
+   */
+  _loadCatalogRoutes() {
+    const alias = { anthropic: 'claude', google: 'gemini' };
+    try {
+      const catalog = require('../../../../public/js/data/models.json');
+      const routes = {};
+      for (const [id, model] of Object.entries(catalog.models || {})) {
+        const provider = model && model.provider;
+        if (!provider) continue;
+        routes[id] = alias[provider] || provider;
+      }
+      return routes;
+    } catch (error) {
+      console.warn('⚠️  Could not load catalog for provider routing; using prefix matching only:', error.message);
+      return {};
+    }
   }
 
   /**
@@ -80,6 +110,14 @@ class ProviderFactory {
       this.handlers.kimi = new KimiHandler(this.apiKeys.kimi);
       console.log('✅ Kimi handler initialized');
     }
+
+    // Optional, config-driven OpenAI-compatible endpoints (Ollama/LM Studio/vLLM/…).
+    // Fully opt-in: only registered when CUSTOM_* env vars declare an endpoint.
+    const customEndpoints = loadEndpointsFromEnv();
+    if (customEndpoints.length > 0) {
+      this.handlers.custom = new CustomEndpointHandler(customEndpoints);
+      console.log(`✅ Custom endpoint handler initialized (${customEndpoints.map(e => e.prefix).join(', ')})`);
+    }
   }
 
   /**
@@ -114,10 +152,26 @@ class ProviderFactory {
       }
     }
 
+    // Prefer the catalog's declared provider (single source of truth) over the
+    // string-prefix guesses below. This covers every core model — including
+    // slash ids like `openai/gpt-oss-120b` (→ groq) — so the routing table and
+    // the catalog can never silently diverge. OpenRouter slash ids and any
+    // unknown/custom ids are absent from the catalog and fall through.
+    const catalogProvider = this.catalogRoutes[modelID];
+    if (catalogProvider) {
+      return catalogProvider;
+    }
+
     // Groq-hosted open models use slash ids (e.g. openai/gpt-oss-120b, groq/compound) —
     // match these BEFORE the generic slash → OpenRouter fallback below.
     if (modelID.includes('gpt-oss') || modelID.startsWith('groq/')) {
       return 'groq';
+    }
+
+    // User-configured OpenAI-compatible endpoints use `<prefix>/<model>` ids
+    // (e.g. `ollama/llama3.2`). Match before the generic slash → OpenRouter.
+    if (this.handlers.custom && this.handlers.custom.supports(modelID)) {
+      return 'custom';
     }
 
     // OpenRouter models (contain slash)

@@ -1556,3 +1556,189 @@ input[type='range']::-moz-range-track { height: 6px; background: var(--border); 
     scroll-behavior: auto !important;
   }
 }
+
+/* =========================================================================
+   14. PRESETS + COMPARE (optional enhancements)
+   Both reuse the .setup-editor-container backdrop/card. id-scoped selectors
+   override the generic dialog max-width without touching the base rule.
+   ========================================================================= */
+
+/* Shared text inputs / textareas inside the two dialogs */
+#presets-container input[type='text'],
+#compare-container input[type='text'],
+#compare-container textarea {
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+#presets-container input[type='text']:focus,
+#compare-container input[type='text']:focus,
+#compare-container textarea:focus {
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+#presets-container input::placeholder,
+#compare-container input::placeholder,
+#compare-container textarea::placeholder { color: var(--text-muted); }
+
+/* ---- Presets ---- */
+#presets-container .presets-dialog { max-width: 640px; }
+
+.preset-save-row { display: flex; gap: var(--space-2); }
+.preset-save-row input { flex: 1 1 auto; min-width: 0; }
+.preset-save-row .setup-action-btn { flex: 0 0 auto; height: 40px; }
+
+.presets-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.presets-empty { color: var(--text-muted); font-size: 13px; margin: var(--space-2) 0; }
+
+.preset-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+.preset-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.preset-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.preset-params { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+.preset-actions { display: flex; gap: var(--space-2); flex-shrink: 0; }
+.preset-actions .setup-action-btn { height: 34px; padding: 0 var(--space-3); }
+
+/* ---- Compare ---- */
+#compare-container .compare-dialog { max-width: 1200px; }
+
+.compare-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  overflow: auto;
+}
+.compare-controls {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+.compare-picker { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+.compare-count { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+.compare-count.at-limit { color: var(--warning); }
+
+.compare-model-list {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  max-height: 260px;
+  overflow: auto;
+}
+.compare-model-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+.compare-model-item:last-child { border-bottom: none; }
+.compare-model-item:hover { background: var(--surface-2); }
+.compare-model-item input { accent-color: var(--accent); flex: 0 0 auto; }
+.compare-model-name {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.compare-empty { color: var(--text-muted); font-size: 13px; padding: var(--space-3); }
+
+.compare-prompt-area { display: flex; flex-direction: column; gap: var(--space-2); }
+.compare-prompt-area label { margin-bottom: 2px; }
+#compare-prompt { min-height: 120px; resize: vertical; line-height: 1.5; }
+.compare-prompt-area .btn-primary { align-self: flex-start; }
+
+.compare-results {
+  display: grid;
+  grid-template-columns: repeat(var(--compare-cols, 1), minmax(0, 1fr));
+  gap: var(--space-3);
+}
+.compare-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.compare-col-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.compare-col-title {
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.compare-col-cost { font-family: var(--font-mono); font-size: 11px; color: var(--accent); flex-shrink: 0; }
+.compare-col-body {
+  padding: var(--space-3);
+  overflow: auto;
+  max-height: 46vh;
+  font-size: 14px;
+  line-height: 1.6;
+  word-break: break-word;
+}
+.compare-col-error { color: var(--danger); font-family: var(--font-mono); font-size: 13px; }
+
+.compare-spinner {
+  width: 22px;
+  height: 22px;
+  margin: var(--space-4) auto;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  animation: compareSpin 0.8s linear infinite;
+}
+@keyframes compareSpin { to { transform: rotate(360deg); } }
+
+/* ---- transient toast (used by presets) ---- */
+.gp-toast {
+  position: fixed;
+  bottom: var(--space-5);
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
+  font-size: 13px;
+  z-index: 10001;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.gp-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 768px) {
+  .compare-controls { grid-template-columns: 1fr; }
+  .compare-results { grid-template-columns: 1fr !important; }
+  .preset-row { flex-direction: column; align-items: stretch; }
+  .preset-actions .setup-action-btn { flex: 1; justify-content: center; }
+}

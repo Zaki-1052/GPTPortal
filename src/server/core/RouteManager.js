@@ -336,11 +336,17 @@ class RouteManager {
       }
 
       const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-      
-      // Store in app locals for chat processing
-      req.app.locals.currentImageName = req.file.filename;
-      req.app.locals.currentImagePath = req.file.path;
-      
+
+      // Store the image reference in THIS caller's session (per-user), not a
+      // process-global. The old app.locals.current* hand-off leaked one user's
+      // upload into another user's next /message. Persist before responding so
+      // the follow-up /message reliably sees it.
+      req.session.chat.imageName = req.file.filename;
+      req.session.chat.uploadedImagePath = req.file.path;
+      await new Promise((resolve, reject) =>
+        req.session.save(err => (err ? reject(err) : resolve()))
+      );
+
       res.json({
         success: true,
         imageUrl

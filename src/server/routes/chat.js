@@ -15,6 +15,10 @@ const router = express.Router();
 // Valid reasoning effort levels according to OpenAI API
 const VALID_REASONING_EFFORTS = ['none', 'minimal', 'low', 'medium', 'high', 'xhigh'];
 
+// Upper bound on models fanned out per /compare request (protects the account
+// from an accidental 50-model broadside; the UI also caps selection).
+const MAX_COMPARE_MODELS = 6;
+
 // Initialize provider factory (will be set by main server)
 let providerFactory = null;
 
@@ -321,23 +325,14 @@ router.post('/message', async (req, res) => {
       req.app.locals.uploadedFiles.delete(req.body.sessionId);
     }
     
-    // Handle single file upload (backward compatibility)
-    if (req.app.locals.currentFileContents) {
-      req.session.chat.fileContents = req.app.locals.currentFileContents;
-      req.session.chat.file_id = req.app.locals.currentFileId;
-      // Clear after use
-      req.app.locals.currentFileContents = null;
-      req.app.locals.currentFileId = null;
-    }
-
-    // Handle image from upload route first
-    if (req.app.locals.currentImageName) {
-      req.session.chat.imageName = req.app.locals.currentImageName;
-      req.session.chat.uploadedImagePath = req.app.locals.currentImagePath;
+    // The uploaded image reference now lives in req.session.chat (written by the
+    // /upload-image route), so there is no process-global app.locals hand-off to
+    // read here — that path leaked one user's upload into another user's turn.
+    // The legacy single-file app.locals.currentFileContents branch was dead
+    // (never written) and was removed; multi-file uploads flow through
+    // req.app.locals.uploadedFiles keyed by the client sessionId (handled above).
+    if (req.session.chat.imageName) {
       console.log('Found uploaded image:', req.session.chat.imageName, 'at path:', req.session.chat.uploadedImagePath);
-      // Clear after use
-      req.app.locals.currentImageName = null;
-      req.app.locals.currentImagePath = null;
     }
 
     // Handle image processing
@@ -471,6 +466,140 @@ router.post('/message', async (req, res) => {
       error: 'Failed to process message', 
       details: error.message 
     });
+  }
+});
+
+/**
+ * Normalize a provider usage object to {input, output} token counts.
+ * OpenAI uses prompt/completion_tokens, Anthropic input/output_tokens, Gemini
+ * prompt/candidates token counts — cover them all so cost is computable.
+ * @param {Object} usage
+ * @returns {{input:number, output:number}}
+ */
+function extractUsageTokens(usage) {
+  if (!usage || typeof usage !== 'object') return { input: 0, output: 0 };
+  const input = usage.prompt_tokens ?? usage.input_tokens ?? usage.inputTokens ??
+                usage.promptTokenCount ?? 0;
+  const output = usage.completion_tokens ?? usage.output_tokens ?? usage.outputTokens ??
+                 usage.candidatesTokenCount ?? 0;
+  return { input: Number(input) || 0, output: Number(output) || 0 };
+}
+
+/**
+ * Build a stateless system message for compare runs (standard preamble + the
+ * shared instructions file). Does not touch any session.
+ * @returns {Promise<string>}
+ */
+async function buildCompareSystemMessage() {
+  let fileInstructions = '';
+  try {
+    fileInstructions = await fs.promises.readFile('./public/instructions.md', 'utf8');
+  } catch (error) {
+    console.warn('Compare: could not read instructions.md, using bare preamble:', error.message);
+  }
+  return `You are a helpful and intelligent AI assistant, knowledgeable about a wide range of topics and highly capable of a great many tasks.\n Specifically:\n ${fileInstructions}`;
+}
+
+/**
+ * Run a single model as an isolated one-shot for the Compare view. Uses fresh
+ * per-model history arrays so nothing leaks into the caller's session, and never
+ * throws — failures are returned as { success:false } so one bad model can't sink
+ * the whole comparison.
+ * @param {string} modelID
+ * @param {Object} params - { message, systemMessage, temperature, tokens, reasoningEffort, verbosity }
+ * @returns {Promise<Object>} per-model result row
+ */
+async function runCompareModel(modelID, params) {
+  const { message, systemMessage, temperature, tokens, reasoningEffort, verbosity } = params;
+  try {
+    const cappedTokens = await enforceTokenLimits(tokens, modelID);
+    const user_input = providerFactory.formatUserInput(modelID, message, null, null, null, null, null);
+
+    const payload = {
+      user_input,
+      modelID,
+      systemMessage,
+      conversationHistory: [{ role: 'system', content: systemMessage }],
+      claudeHistory: [],
+      o1History: [],
+      deepseekHistory: [],
+      temperature,
+      tokens: cappedTokens,
+      reasoningEffort,
+      verbosity
+    };
+
+    const result = await providerFactory.handleRequest(modelID, payload);
+    if (!result || !result.success) {
+      return { modelID, success: false, error: (result && result.error) || 'Request failed' };
+    }
+
+    const { input, output } = extractUsageTokens(result.usage);
+    let cost = 0;
+    try {
+      cost = await costService.calculateSimpleCost(modelID, input, output);
+    } catch (costErr) {
+      console.warn(`Compare: cost calc failed for ${modelID}:`, costErr.message);
+    }
+
+    return { modelID, success: true, content: result.content, usage: result.usage, cost };
+  } catch (error) {
+    console.error(`Compare: model ${modelID} failed:`, error.message);
+    return { modelID, success: false, error: error.message };
+  }
+}
+
+/**
+ * Compare endpoint — fan one prompt out to N models and return their answers
+ * side by side. Stateless: it does not read or mutate req.session.chat, so
+ * comparing never disturbs the main conversation.
+ */
+router.post('/compare', async (req, res) => {
+  try {
+    const { message, models } = req.body;
+
+    if (!message || typeof message !== 'string' || !message.trim()) {
+      return res.status(400).json({ error: 'A non-empty message is required' });
+    }
+    if (!Array.isArray(models) || models.length === 0) {
+      return res.status(400).json({ error: 'A non-empty models array is required' });
+    }
+
+    // De-dupe, drop non-strings, cap the fan-out.
+    const selected = [...new Set(models.filter(m => typeof m === 'string' && m.trim()))]
+      .slice(0, MAX_COMPARE_MODELS);
+    if (selected.length === 0) {
+      return res.status(400).json({ error: 'No valid model ids provided' });
+    }
+
+    // Resolve run parameters (body → env override → default), mirroring /message.
+    let temperature = typeof req.body.temperature === 'number' ? req.body.temperature : 1;
+    if (process.env.TEMPERATURE) {
+      const t = parseFloat(process.env.TEMPERATURE);
+      if (!isNaN(t)) temperature = t;
+    }
+    let tokens = typeof req.body.tokens === 'number' ? req.body.tokens : 8000;
+    if (process.env.MAX_TOKENS) {
+      const mt = parseInt(process.env.MAX_TOKENS, 10);
+      if (!isNaN(mt)) tokens = mt;
+    }
+    let reasoningEffort = req.body.reasoningEffort || 'medium';
+    if (!VALID_REASONING_EFFORTS.includes(reasoningEffort)) reasoningEffort = 'medium';
+    const verbosity = req.body.verbosity || 'medium';
+
+    const systemMessage = await buildCompareSystemMessage();
+
+    // Run all models concurrently; runCompareModel never rejects.
+    const results = await Promise.all(
+      selected.map(modelID =>
+        runCompareModel(modelID, { message, systemMessage, temperature, tokens, reasoningEffort, verbosity })
+      )
+    );
+
+    res.json({ results });
+  } catch (error) {
+    console.error('Error in /compare endpoint:', error);
+    res.status(500).json({ error: 'Failed to run comparison', details: error.message });
   }
 });
 

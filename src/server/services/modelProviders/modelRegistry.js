@@ -1,10 +1,14 @@
-// Unified model registry that combines core models and OpenRouter models
+// Unified model registry that combines core models, OpenRouter models, and any
+// user-configured OpenAI-compatible endpoints (Ollama/LM Studio/local).
 const { getCoreModels, getCoreModelsByCategory, getCoreModel, isCoreModel } = require('./coreModels');
 const OpenRouterProvider = require('./openRouterProvider');
+const CustomEndpointProvider = require('./customEndpointProvider');
 
 class ModelRegistry {
   constructor() {
     this.openRouterProvider = new OpenRouterProvider();
+    // Opt-in: does nothing unless CUSTOM_* endpoints are configured.
+    this.customEndpointProvider = new CustomEndpointProvider();
     this.initialized = false;
     this.init();
   }
@@ -29,11 +33,14 @@ class ModelRegistry {
   getAllModels() {
     const coreModels = getCoreModels();
     const openRouterModels = this.openRouterProvider.getModels();
-    
+    const customModels = this.customEndpointProvider.getModels();
+
     return {
       core: coreModels,
       openrouter: openRouterModels,
-      combined: { ...coreModels, ...openRouterModels }
+      custom: customModels,
+      // Core wins on id collisions, then custom (local), then OpenRouter.
+      combined: { ...openRouterModels, ...customModels, ...coreModels }
     };
   }
 
@@ -98,7 +105,13 @@ class ModelRegistry {
     if (openRouterModel) {
       return { ...openRouterModel, source: 'openrouter' };
     }
-    
+
+    // Try user-configured custom endpoints (local/self-hosted)
+    const customModel = this.customEndpointProvider.getModel(modelId);
+    if (customModel) {
+      return { ...customModel, source: 'custom' };
+    }
+
     return null;
   }
 
@@ -162,9 +175,11 @@ class ModelRegistry {
           description: model.description,
           pricing: model.pricing,
           contextWindow: model.contextWindow,
+          maxTokens: model.maxTokens,
           supportsVision: model.supportsVision,
           supportsFunction: model.supportsFunction,
-          source: isCoreModel(id) ? 'core' : 'openrouter'
+          supportsReasoning: model.supportsReasoning,
+          source: isCoreModel(id) ? 'core' : (model.provider === 'custom' ? 'custom' : 'openrouter')
         };
       });
     });
@@ -187,6 +202,7 @@ class ModelRegistry {
       qwen: 'Qwen Models',
       cohere: 'Cohere Models',
       perplexity: 'Perplexity Models',
+      local: 'Local / Custom Endpoints',
       other: 'Other Models'
     };
     
@@ -284,6 +300,7 @@ class ModelRegistry {
   async shutdown() {
     console.log('Shutting down Model Registry...');
     await this.openRouterProvider.shutdown();
+    this.customEndpointProvider.shutdown();
     console.log('Model Registry shut down cleanly');
   }
 }

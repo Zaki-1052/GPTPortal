@@ -112,6 +112,20 @@ class OpenRouterProvider {
    * Transform OpenRouter API model to our internal format
    */
   transformModel(apiModel) {
+    // Derive capability flags from OpenRouter's live metadata rather than
+    // guessing from the id. `architecture.input_modalities` is the authoritative
+    // vision signal; `supported_parameters` tells us whether tools/reasoning are
+    // accepted. (The old code read `modality` for both — it never contains
+    // "function", so supportsFunction was always false.)
+    const arch = apiModel.architecture || {};
+    const inputModalities = Array.isArray(arch.input_modalities) ? arch.input_modalities : [];
+    const supportedParams = Array.isArray(apiModel.supported_parameters) ? apiModel.supported_parameters : [];
+
+    const supportsVision = inputModalities.includes('image') ||
+      (typeof arch.modality === 'string' && arch.modality.includes('image'));
+    const supportsFunction = supportedParams.includes('tools') || supportedParams.includes('tool_choice');
+    const supportsReasoning = supportedParams.includes('reasoning') || supportedParams.includes('include_reasoning');
+
     return {
       name: apiModel.name,
       provider: 'openrouter',
@@ -122,10 +136,12 @@ class OpenRouterProvider {
         output: parseFloat(apiModel.pricing?.completion || 0) * 1000000
       },
       contextWindow: apiModel.context_length || 4096,
-      supportsVision: apiModel.architecture?.modality?.includes('image') || false,
-      supportsFunction: apiModel.architecture?.modality?.includes('function') || false,
+      supportsVision,
+      supportsFunction,
+      supportsReasoning,
       topProvider: apiModel.top_provider || null,
-      architecture: apiModel.architecture || {},
+      architecture: arch,
+      supportedParameters: supportedParams,
       // OpenRouter specific fields
       openRouterData: {
         id: apiModel.id,

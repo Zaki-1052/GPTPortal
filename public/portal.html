@@ -148,6 +148,14 @@
       <button id="edit-env-btn" class="icon-btn" title="Edit environment variables" aria-label="Edit environment variables">
         <svg class="icon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       </button>
+      <!-- Presets: save/apply {system prompt + params} bundles (localStorage) -->
+      <button id="presets-btn" class="icon-btn" title="Presets" aria-label="Presets">
+        <svg class="icon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+      </button>
+      <!-- Compare: fan one prompt to N models, side by side -->
+      <button id="compare-btn" class="icon-btn" title="Compare models" aria-label="Compare models">
+        <svg class="icon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="7" height="16" rx="1"/><rect x="14" y="4" width="7" height="16" rx="1"/></svg>
+      </button>
     </div>
   </header>
 
@@ -403,6 +411,59 @@
   </div>
 </div>
 
+<!-- ===================== PRESETS MODAL ===================== -->
+<div id="presets-container" class="setup-editor-container" style="display:none;">
+  <div class="presets-dialog">
+    <div class="setup-editor-header">
+      <div class="setup-editor-title">
+        <span class="setup-editor-icon"><svg class="icon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span>
+        <h4>Presets</h4>
+      </div>
+      <button id="presets-close" class="setup-editor-close" title="Close" aria-label="Close">
+        <svg class="icon icon-sm" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="setup-editor-content">
+      <p class="info-text">Save the system prompt, temperature, max tokens, reasoning effort, and verbosity as a named bundle. Applying a preset updates the composer controls immediately; the system prompt takes effect on your next new chat.</p>
+      <div class="preset-save-row">
+        <input type="text" id="preset-name-input" placeholder="Preset name (e.g. Concise coder)" autocomplete="off" />
+        <button id="preset-save-btn" class="setup-action-btn primary">Save current settings</button>
+      </div>
+      <div id="presets-list" class="presets-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== COMPARE MODAL ===================== -->
+<div id="compare-container" class="setup-editor-container" style="display:none;">
+  <div class="compare-dialog">
+    <div class="setup-editor-header">
+      <div class="setup-editor-title">
+        <span class="setup-editor-icon"><svg class="icon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="7" height="16" rx="1"/><rect x="14" y="4" width="7" height="16" rx="1"/></svg></span>
+        <h4>Compare models</h4>
+      </div>
+      <button id="compare-close" class="setup-editor-close" title="Close" aria-label="Close">
+        <svg class="icon icon-sm" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="compare-body">
+      <div class="compare-controls">
+        <div class="compare-picker">
+          <input type="text" id="compare-model-search" placeholder="Filter models…" autocomplete="off" />
+          <span id="compare-selected-count" class="compare-count">0 / 6 selected</span>
+          <div id="compare-model-list" class="compare-model-list"></div>
+        </div>
+        <div class="compare-prompt-area">
+          <label for="compare-prompt" class="info-text">Prompt (sent to every selected model)</label>
+          <textarea id="compare-prompt" placeholder="Type one prompt to send to all selected models…"></textarea>
+          <button id="compare-run-btn" class="btn-primary">Run comparison</button>
+        </div>
+      </div>
+      <div id="compare-results" class="compare-results"></div>
+    </div>
+  </div>
+</div>
+
 <!-- Wire up the theme toggle button (helpers defined in the head bootstrap). -->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
@@ -510,6 +571,10 @@
 
 <!-- Main Application -->
 <script src="js/app.js"></script>
+
+<!-- Optional enhancements: presets + model compare (self-initializing) -->
+<script src="js/modules/presets.js"></script>
+<script src="js/modules/compare.js"></script>
 
 <!-- Portal Initialization (load last) -->
 <script src="js/modules/portalInit.js"></script>

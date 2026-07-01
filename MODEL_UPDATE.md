@@ -2,19 +2,29 @@
 
 This document provides comprehensive instructions for adding new AI providers and models to GPTPortal. Follow these steps to ensure complete integration with zero functionality loss.
 
+## What changed in the 2026 refresh (read first)
+
+Several things that used to require manual edits are now automatic. Skim these before following the step-by-step guide — they shrink most tasks:
+
+- **Routing follows the catalog.** `providerFactory.getProviderForModel()` now consults each model's `provider` field in `public/js/data/models.json` **first** (built once into a lookup by `_loadCatalogRoutes()`), and only falls back to string-prefix matching for ids not in the catalog. So **adding a core model to a provider family that already exists needs no `providerFactory` routing edit** — just give it the correct `provider` in `models.json`. You only add a routing branch when introducing a brand-new provider family. Note the catalog uses vendor names `anthropic`/`google`, which alias to the handler keys `claude`/`gemini`.
+- **Streaming is a first-class contract.** Any handler that implements `async *streamCompletion(payload)` (yielding `{type:'thinking'|'text'|'error'|'usage'}` events) is auto-detected by `providerFactory.supportsStreaming()` / `handleRequestStream()` and used by the SSE path in `/message`. Handlers without it fall back to a single non-streaming turn. See **Streaming** below.
+- **Chat state is per-session.** Conversation/image/file state lives in `req.session.chat`, not process globals. New handlers receive history arrays via the payload and must not stash per-conversation state on the singleton instance.
+- **Local / OpenAI-compatible endpoints need no handler.** Ollama, LM Studio, vLLM, LocalAI, or any `{base_url, api_key}` are added purely via `CUSTOM_*` env vars (see **Custom OpenAI-compatible endpoints**). Do **not** write a handler for these.
+- **A smoke test guards the catalog.** `npm test` (`scripts/smoke-test.js`) validates `models.json` schema, duplicate keys, category consistency, and that every id routes to an available handler. Run it after any catalog edit.
+
 ## Overview
 
-Adding a new provider/model requires updates to 8 core files across backend, frontend, and configuration layers:
+Adding a brand-new provider/model touches the following files across backend, frontend, and configuration. For a new model in an **existing** provider family, most of these are skipped — usually only `models.json` (step 3) is required.
 
-### Required Files
-1. **Handler Implementation**: `src/server/services/providers/{provider}Handler.js`
-2. **Provider Factory**: `src/server/services/providers/providerFactory.js`
-3. **Model Configuration**: `public/js/data/models.json`
-4. **Environment Config**: `src/server/config/environment.js`
-5. **Environment Example**: `.env.example`
-6. **Setup Route**: `src/server/routes/setup.js`
-7. **Legacy Providers**: `src/server/services/aiProviders.js`
-8. **Frontend Display**: `public/js/modules/dynamicModelManager.js`
+### Files
+1. **Handler Implementation**: `src/server/services/providers/{provider}Handler.js`  *(new provider only)*
+2. **Provider Factory**: `src/server/services/providers/providerFactory.js`  *(new provider family only — see routing note above)*
+3. **Model Configuration**: `public/js/data/models.json`  *(always)*
+4. **Environment Config**: `src/server/config/environment.js`  *(new provider only)*
+5. **Environment Example**: `.env.example`  *(new provider only)*
+6. **Setup Route**: `src/server/routes/setup.js`  *(new provider only)*
+7. **Legacy Providers**: `src/server/services/aiProviders.js`  *(new provider only)*
+8. **Frontend Display**: `public/js/modules/dynamicModelManager.js`  *(optional — display names/descriptions)*
 
 ## Step-by-Step Implementation
 
@@ -117,14 +127,15 @@ if (this.apiKeys.{provider}) {
 }
 ```
 
-#### 2.3 Add Model Routing
-In `getProviderForModel()` method:
+#### 2.3 Add Model Routing (new provider family only)
+Routing reads the catalog `provider` field first, so a core model with a correct `provider` in `models.json` already routes. Add a `getProviderForModel()` branch **only** when introducing a new provider family whose ids won't be in the catalog (or that need special prefix handling). Place it before the generic slash → OpenRouter fallback:
 ```javascript
 // {Provider} models
 if (modelID.includes('{model-identifier}')) {
   return '{provider}';
 }
 ```
+Also add the vendor→handler alias in `_loadCatalogRoutes()` if your catalog `provider` value differs from the handler key (as `anthropic`→`claude`, `google`→`gemini` do).
 
 #### 2.4 Add Format User Input Routing
 In `formatUserInput()` method:
@@ -250,37 +261,49 @@ In `getModelDescriptions()` method:
 ### Model Configuration Schema
 ```json
 {
-  "id": "string",           // Unique model identifier
+  "id": "string",           // Unique model identifier (routing key)
   "name": "string",         // User-friendly display name
-  "provider": "string",     // Provider key matching handler
-  "category": "string",     // Category for grouping
-  "source": "core|openrouter", // Model source
+  "provider": "string",     // Vendor name; drives routing (anthropic/google alias to claude/gemini)
+  "category": "string",     // Category for grouping (must exist in `categories`)
+  "source": "core",         // Catalog entries are "core"; OpenRouter/custom are injected at runtime
   "description": "string",  // Capability description
   "pricing": {              // Per million tokens
     "input": number,
     "output": number,
-    "cached": number        // Optional for cache-enabled models
+    "cached": number,       // Optional — cached-read price (prompt caching)
+    "cacheWrite": number    // Optional — cache-write price
   },
   "contextWindow": number,  // Maximum context tokens
   "maxTokens": number,      // Maximum output tokens
   "supportsVision": boolean,
   "supportsFunction": boolean,
-  "supportsReasoning": boolean
+  "supportsReasoning": boolean,        // Optional — exposes reasoning-effort control
+  "defaultReasoningEffort": "string"   // Optional — none|minimal|low|medium|high|xhigh
 }
 ```
+
+> The smoke test (`npm test`) requires `id, name, provider, category, source, description, pricing{input,output}, contextWindow, maxTokens` and non-zero pricing for core models. Keep `provider`/`category` consistent with the routing map and the `categories` block.
 
 ## Testing & Verification
 
 ### 1. Backend Verification
 ```bash
+# Validate the catalog (schema, dup keys, routing) — run after any models.json edit
+npm test
+
 # Check handler initialization
 npm start
 # Look for "✅ {Provider} handler initialized" in logs
 
-# Test API endpoint
-curl -X POST http://localhost:3000/api/chat \
+# Test the chat endpoint (note: the route is /message, and it is behind basic auth)
+curl -X POST http://localhost:3000/message \
+  -u "$USER_USERNAME:$USER_PASSWORD" \
   -H "Content-Type: application/json" \
   -d '{"modelID": "{model-id}", "message": "Hello"}'
+
+# Confirm routing without booting the server
+node -e "const F=require('./src/server/services/providers/providerFactory'); \
+  console.log(new F({}).getProviderForModel('{model-id}'))"
 ```
 
 ### 2. Frontend Verification
@@ -319,6 +342,46 @@ const factory = new ProviderFactory({});
 console.log(factory.getProviderForModel('{model-id}'));
 "
 ```
+
+## Streaming (optional but recommended)
+
+Handlers opt into token streaming by implementing an async generator alongside `handleRequest`:
+
+```javascript
+// Yields the streaming contract; providerFactory auto-detects and uses it.
+async *streamCompletion(payload) {
+  const { user_input, conversationHistory } = payload;
+  conversationHistory.push(user_input);            // mirror the non-streaming path
+  let text = '';
+  // ...open the provider stream...
+  for await (const ev of parseOpenAISSE(response.data)) {   // from ./streamUtils
+    if (ev.type === 'text') text += ev.value;      // accumulate the answer
+    yield ev;                                      // {type:'thinking'|'text'|'error'|'usage'}
+  }
+  conversationHistory.push({ role: 'assistant', content: text }); // leave history normal
+}
+```
+
+- OpenAI-compatible providers can reuse `parseOpenAISSE` from `src/server/services/providers/streamUtils.js`; Anthropic-style streams use `parseAnthropicSSE`.
+- Emit reasoning/thinking deltas as `{type:'thinking'}` and answer deltas as `{type:'text'}`; end with `{type:'usage', usage}` when the provider reports it.
+- No route changes are needed — `/message` already negotiates SSE (`Accept: text/event-stream` or `body.stream:true`) and calls `providerFactory.handleRequestStream()`, which falls back to a single non-streaming turn for handlers without `streamCompletion`.
+
+## Custom OpenAI-compatible endpoints (no handler needed)
+
+Ollama, LM Studio, vLLM, LocalAI, or any `{base_url, api_key}` are added via environment only — the generic `customEndpointHandler.js` + `endpointResolver.js` serve them, and `customEndpointProvider.js` auto-discovers their `/models` into the picker under "Local / Custom Endpoints". Models are addressed as `<prefix>/<model>` (e.g. `ollama/llama3.2`).
+
+```bash
+# Single endpoint
+CUSTOM_OPENAI_BASE_URL=http://localhost:11434/v1
+CUSTOM_OPENAI_API_KEY=ollama
+CUSTOM_OPENAI_PREFIX=ollama
+CUSTOM_OPENAI_LABEL=Ollama
+
+# Or several (JSON array, one line)
+CUSTOM_ENDPOINTS=[{"prefix":"ollama","baseURL":"http://localhost:11434/v1","apiKey":"ollama","label":"Ollama"},{"prefix":"lmstudio","baseURL":"http://localhost:1234/v1","apiKey":"lm-studio","label":"LM Studio"}]
+```
+
+Do not add these to `models.json` or `providerFactory` — routing to `custom` is handled by the resolver.
 
 ## Cost Service Integration
 

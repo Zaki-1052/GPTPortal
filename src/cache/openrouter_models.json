@@ -321,15 +321,15 @@
     "category": "claude",
     "description": "This model always redirects to the latest model in the Claude Fable family.",
     "pricing": {
-      "input": -1000000,
-      "output": -1000000
+      "input": 10,
+      "output": 50
     },
     "contextWindow": 1000000,
     "supportsVision": true,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": null,
-      "max_completion_tokens": null,
+      "context_length": 1000000,
+      "max_completion_tokens": 128000,
       "is_moderated": false
     },
     "architecture": {
@@ -348,6 +348,42 @@
     "openRouterData": {
       "id": "~anthropic/claude-fable-latest",
       "created": 1781029944,
+      "per_request_limits": null
+    }
+  },
+  "anthropic/claude-fable-5": {
+    "name": "Anthropic: Claude Fable 5",
+    "provider": "openrouter",
+    "category": "claude",
+    "description": "Claude Fable 5 is a Mythos-class model from Anthropic, built for autonomous knowledge work and coding. It supports text, image, and file inputs with text output, with reasoning support and...",
+    "pricing": {
+      "input": 10,
+      "output": 50
+    },
+    "contextWindow": 1000000,
+    "supportsVision": true,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 1000000,
+      "max_completion_tokens": 128000,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "file"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Claude",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "anthropic/claude-fable-5",
+      "created": 1781007515,
       "per_request_limits": null
     }
   },
@@ -8901,8 +8937,8 @@
     "category": "deepseek",
     "description": "DeepSeek V3, a 685B-parameter, mixture-of-experts model, is the latest iteration of the flagship chat model family from the DeepSeek team. It succeeds the [DeepSeek V3](/deepseek/deepseek-chat-v3) model and performs really well...",
     "pricing": {
-      "input": 0.19999999999999998,
-      "output": 0.77
+      "input": 0.24,
+      "output": 0.8999999999999999
     },
     "contextWindow": 163840,
     "supportsVision": false,
