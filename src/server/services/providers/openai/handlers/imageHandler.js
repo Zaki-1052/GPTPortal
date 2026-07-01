@@ -52,20 +52,21 @@ Enhanced prompt:`;
    * Generate image using GPT Image 1 with Images API
    */
   async generateImageWithGPTImage(prompt, options = {}) {
-    const {
-      quality = 'standard',
-      size = '1024x1024',
-      enhancePrompt = true
-    } = options;
+    const { model = 'gpt-image-2', enhancePrompt = true } = options;
+    // gpt-image-* models reject the legacy 'response_format' field (they always
+    // return b64_json); 'size' and 'quality' are the supported generation controls.
+    const size = options.size && options.size !== 'auto' ? options.size : '1024x1024';
+    const quality = options.quality && options.quality !== 'auto' ? options.quality : 'high';
 
     try {
       // Enhance prompt for better results (skip if enhancePrompt is false)
       const enhancedPrompt = enhancePrompt ? await this.enhanceImagePrompt(prompt) : prompt;
-      
+
       const requestData = {
-        model: "gpt-image-1",
+        model,
         prompt: enhancedPrompt,
-        response_format: 'b64_json'
+        size,
+        quality
       };
 
       const response = await this.apiClient.imageGeneration(requestData);
@@ -76,14 +77,14 @@ Enhanced prompt:`;
           imageData: response.data.data[0].b64_json,
           enhancedPrompt: enhancedPrompt,
           originalPrompt: prompt,
-          model: 'gpt-image-1',
+          model,
           revisedPrompt: response.data.data[0].revised_prompt || enhancedPrompt
         };
       } else {
         throw new Error('No image data found in response');
       }
     } catch (error) {
-      console.error('GPT Image 1 API Error:', error.message);
+      console.error(`${model} API Error:`, error.message);
       throw error;
     }
   }
@@ -122,11 +123,11 @@ Enhanced prompt:`;
    */
   async generateImage(prompt, options = {}) {
     const {
-      preferredModel = 'gpt-image-1',
-      modelID = 'gpt-image-1',
+      preferredModel = 'gpt-image-2',
+      modelID = 'gpt-image-2',
       enhancePrompt = true,
-      quality = 'auto',
-      size = 'auto'
+      quality = 'high',
+      size = '1024x1024'
     } = options;
 
     // Use modelID if provided, otherwise use preferredModel
@@ -136,20 +137,21 @@ Enhanced prompt:`;
     console.log(`🎚️ Enhancement: ${enhancePrompt ? 'enabled' : 'disabled'}`);
 
     try {
-      // Try GPT Image 1 first (default)
-      if (selectedModel === 'gpt-image-1') {
-        console.log('📸 Attempting GPT Image 1...');
+      // Try the requested GPT Image model first (default gpt-image-2)
+      if (selectedModel.startsWith('gpt-image')) {
+        console.log(`📸 Attempting ${selectedModel}...`);
         try {
-          const result = await this.generateImageWithGPTImage(prompt, { 
-            quality, 
-            size, 
-            enhancePrompt 
+          const result = await this.generateImageWithGPTImage(prompt, {
+            model: selectedModel,
+            quality,
+            size,
+            enhancePrompt
           });
-          console.log('✅ GPT Image 1 successful');
+          console.log(`✅ ${selectedModel} successful`);
           return result;
         } catch (gptImageError) {
-          console.warn('⚠️ GPT Image 1 failed, trying DALL-E 3 fallback:', gptImageError.message);
-          
+          console.warn(`⚠️ ${selectedModel} failed, trying DALL-E 3 fallback:`, gptImageError.message);
+
           // Fallback to DALL-E 3
           try {
             const result = await this.generateImageWithDALLE(prompt, 'dall-e-3');
@@ -157,14 +159,14 @@ Enhanced prompt:`;
             return { ...result, usedFallback: true, fallbackReason: gptImageError.message };
           } catch (dalle3Error) {
             console.warn('⚠️ DALL-E 3 failed, trying DALL-E 2 fallback:', dalle3Error.message);
-            
+
             // Final fallback to DALL-E 2
             const result = await this.generateImageWithDALLE(prompt, 'dall-e-2');
             console.log('✅ DALL-E 2 final fallback successful');
-            return { 
-              ...result, 
-              usedFallback: true, 
-              fallbackReason: `GPT Image 1: ${gptImageError.message}, DALL-E 3: ${dalle3Error.message}` 
+            return {
+              ...result,
+              usedFallback: true,
+              fallbackReason: `${selectedModel}: ${gptImageError.message}, DALL-E 3: ${dalle3Error.message}`
             };
           }
         }

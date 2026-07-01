@@ -10,17 +10,22 @@ const ImageHandler = require('./handlers/imageHandler');
 const AudioHandler = require('./handlers/audioHandler');
 const AssistantsHandler = require('./handlers/assistantsHandler');
 
-const { 
-  MODEL_TYPES, 
-  CHAT_MODELS, 
+const {
+  MODEL_TYPES,
+  CHAT_MODELS,
   WEB_SEARCH_CHAT_MODELS,
-  REASONING_MODELS, 
+  REASONING_MODELS,
   DEEP_RESEARCH_MODELS,
   WEB_SEARCH_RESPONSES_MODELS,
   CODE_INTERPRETER_MODELS,
-  IMAGE_MODELS, 
-  AUDIO_MODELS 
+  IMAGE_MODELS,
+  AUDIO_MODELS,
+  API_ENDPOINTS,
+  DEFAULTS
 } = require('./utils/constants');
+
+// Shared streaming contract helpers (see providers/streamUtils.js)
+const { parseOpenAISSE } = require('../streamUtils');
 
 class OpenAIHandler {
   constructor(apiKey) {
@@ -98,6 +103,175 @@ class OpenAIHandler {
       console.error(`OpenAI Handler Error for model ${modelID}:`, error.message);
       throw error;
     }
+  }
+
+  /**
+   * Stream a completion following the shared streaming contract.
+   * Dispatches by the same model-class logic as handleRequest (Responses API
+   * for reasoning/tool models, Chat Completions otherwise) and yields:
+   *   { type:'thinking', value } | { type:'text', value }
+   *   { type:'error', value }    | { type:'usage', usage }  (usage yielded last)
+   * The chosen history array is mutated in place (user_input at the start,
+   * assistant message at the end) so a streamed turn mirrors handleRequest.
+   * @param {Object} payload
+   */
+  async *streamCompletion(payload) {
+    const { modelID } = payload;
+    if (this._usesResponsesAPI(modelID)) {
+      yield* this._streamResponses(payload);
+    } else {
+      yield* this._streamChat(payload);
+    }
+  }
+
+  /**
+   * Decide whether a model streams via the Responses API (true) or Chat
+   * Completions (false), mirroring handleRequest's routing order.
+   */
+  _usesResponsesAPI(modelID) {
+    if (this.isDeepResearchModel(modelID)) return true;
+    if (this.isReasoningModel(modelID)) return true;
+    if (this.isCodeInterpreterModel(modelID)) return true;
+    if (this.isWebSearchModel(modelID)) {
+      if (this.webSearchService.supportsChatWebSearch(modelID)) return false;
+      if (this.webSearchService.supportsResponsesWebSearch(modelID)) return true;
+    }
+    if (this.shouldUseResponsesAPI(modelID)) return true;
+    return false;
+  }
+
+  /**
+   * Stream via Chat Completions. Mirrors chatHandler.handleChatCompletion's
+   * history handling by mutating payload.conversationHistory.
+   */
+  async *_streamChat(payload) {
+    const {
+      user_input,
+      modelID,
+      systemMessage,
+      temperature = DEFAULTS.TEMPERATURE,
+      tokens = DEFAULTS.MAX_TOKENS
+    } = payload;
+
+    const history = payload.conversationHistory || [];
+    history.push(user_input);
+
+    // System message lives only in the request copy, never in stored history
+    const messages = [...history];
+    if (systemMessage) messages.unshift({ role: 'system', content: systemMessage });
+
+    let requestData = {
+      model: modelID,
+      messages,
+      temperature,
+      max_tokens: tokens,
+      stream: true,
+      stream_options: { include_usage: true }
+    };
+
+    if (this.webSearchService.supportsChatWebSearch(modelID) && payload.webSearchConfig !== false) {
+      const processedConfig = this.webSearchService.processWebSearchConfig(payload.webSearchConfig || {});
+      requestData = this.webSearchService.addWebSearchToChat(requestData, processedConfig);
+    }
+
+    let accumulated = '';
+    let usage = null;
+    try {
+      const response = await this.apiClient.post(API_ENDPOINTS.CHAT_COMPLETIONS, requestData, { responseType: 'stream' });
+      for await (const ev of parseOpenAISSE(response.data)) {
+        if (ev.type === 'usage') { usage = ev.usage; continue; }
+        if (ev.type === 'text') accumulated += ev.value;
+        yield ev;
+      }
+    } catch (error) {
+      yield { type: 'error', value: error.message };
+      return;
+    }
+
+    history.push({ role: 'assistant', content: accumulated });
+    if (usage) yield { type: 'usage', usage };
+  }
+
+  /**
+   * Stream via the Responses API. Mirrors responsesHandler.handleReasoningCompletion's
+   * history handling by mutating payload.o1History.
+   */
+  async *_streamResponses(payload) {
+    const history = payload.o1History || [];
+    history.push(payload.user_input);
+
+    let requestData;
+    try {
+      requestData = await this.responsesHandler.buildReasoningRequestData(payload, { stream: true });
+    } catch (error) {
+      yield { type: 'error', value: error.message };
+      return;
+    }
+
+    let accumulated = '';
+    let usage = null;
+    try {
+      const response = await this.apiClient.post(API_ENDPOINTS.RESPONSES, requestData, { responseType: 'stream' });
+      for await (const ev of this._parseResponsesSSE(response.data)) {
+        if (ev.type === 'usage') { usage = ev.usage; continue; }
+        if (ev.type === 'text') accumulated += ev.value;
+        yield ev;
+      }
+    } catch (error) {
+      yield { type: 'error', value: error.message };
+      return;
+    }
+
+    history.push({ role: 'assistant', content: accumulated });
+    if (usage) yield { type: 'usage', usage };
+  }
+
+  /**
+   * Parse an OpenAI Responses API SSE stream (POST /responses with stream:true,
+   * axios responseType:'stream'). Yields contract events; usage is yielded last.
+   * @param {NodeJS.ReadableStream} stream - the axios response.data stream
+   */
+  async *_parseResponsesSSE(stream) {
+    let buffer = '';
+    let usage = null;
+    for await (const chunk of stream) {
+      buffer += chunk.toString('utf8');
+      let nl;
+      while ((nl = buffer.indexOf('\n')) >= 0) {
+        const line = buffer.slice(0, nl).trim();
+        buffer = buffer.slice(nl + 1);
+        if (!line || !line.startsWith('data:')) continue;
+        const data = line.slice(5).trim();
+        if (data === '[DONE]') {
+          if (usage) yield { type: 'usage', usage };
+          return;
+        }
+        let json;
+        try { json = JSON.parse(data); } catch { continue; }
+        switch (json.type) {
+          case 'response.output_text.delta':
+            if (typeof json.delta === 'string') yield { type: 'text', value: json.delta };
+            break;
+          case 'response.reasoning_summary_text.delta':
+            if (typeof json.delta === 'string') yield { type: 'thinking', value: json.delta };
+            break;
+          case 'response.completed':
+            if (json.response && json.response.usage) usage = json.response.usage;
+            break;
+          case 'response.failed':
+          case 'error': {
+            const msg = (json.response && json.response.error && json.response.error.message)
+              || (json.error && json.error.message)
+              || 'Responses stream error';
+            yield { type: 'error', value: msg };
+            break;
+          }
+          default:
+            break;
+        }
+      }
+    }
+    if (usage) yield { type: 'usage', usage };
   }
 
   /**

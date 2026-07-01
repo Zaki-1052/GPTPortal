@@ -36,7 +36,7 @@ function createConfigRoutes(config) {
     if (defaultModel) {
       res.json({ model: defaultModel });
     } else {
-      res.json({ model: 'gpt-4o' });
+      res.json({ model: 'gpt-5.5' });
     }
   });
 

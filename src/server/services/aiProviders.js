@@ -1,6 +1,5 @@
 // AI Provider initialization and management
 const OpenAI = require('openai').default;
-const { GoogleGenerativeAI } = require('@google/generative-ai');
 const axios = require('axios');
 
 /**
@@ -23,7 +22,9 @@ function initializeAIProviders(apiKeys) {
 
   // Initialize Google Gemini
   if (apiKeys.google) {
-    providers.gemini = new GoogleGenerativeAI(apiKeys.google);
+    // Active Gemini chat/image path lives in providers/geminiHandler.js (@google/genai);
+    // this legacy registry only needs the key marker for parity with other providers.
+    providers.gemini = { apiKey: apiKeys.google };
     console.log('Google Gemini provider initialized');
   } else {
     console.warn("Warning: Google API key missing. Gemini features disabled.");
@@ -78,25 +79,14 @@ function initializeAIProviders(apiKeys) {
  * Get safety settings for Google Gemini
  */
 function getGeminiSafetySettings() {
-  const { HarmBlockThreshold, HarmCategory } = require('@google/generative-ai');
-  
+  // Plain string enum values (accepted by the Gemini REST API), so this helper no
+  // longer depends on the deprecated @google/generative-ai package for constants.
+  const threshold = 'BLOCK_MEDIUM_AND_ABOVE';
   return [
-    {
-      category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-    },
-    {
-      category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-    },
-    {
-      category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-    },
-    {
-      category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-    },
+    { category: 'HARM_CATEGORY_HARASSMENT', threshold },
+    { category: 'HARM_CATEGORY_HATE_SPEECH', threshold },
+    { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold },
+    { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold },
   ];
 }
 

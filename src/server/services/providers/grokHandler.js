@@ -1,6 +1,7 @@
 // src/server/services/providers/grokHandler.js
 // XAI Grok Provider Handler - OpenAI-compatible API for Grok models
 const axios = require('axios');
+const { parseOpenAISSE } = require('./streamUtils');
 
 class GrokHandler {
   constructor(apiKey) {
@@ -37,12 +38,13 @@ class GrokHandler {
 
     try {
       const response = await axios.post(`${this.baseURL}/chat/completions`, requestData, { headers });
-      
-      // Handle reasoning content for Grok 4
+
+      // Handle reasoning content for Grok 4.x (any model that returns reasoning_content)
       let messageContent;
-      if (modelID === 'grok-4' && response.data.choices[0].message.reasoning_content) {
-        const reasoningContent = response.data.choices[0].message.reasoning_content || '';
-        const textContent = response.data.choices[0].message.content || '';
+      const responseMessage = response.data.choices[0].message;
+      if (responseMessage.reasoning_content) {
+        const reasoningContent = responseMessage.reasoning_content || '';
+        const textContent = responseMessage.content || '';
         
         // Format with thinking and response sections similar to DeepSeek
         messageContent = `# Thinking:\n${reasoningContent}\n\n---\n# Response:\n${textContent}`;
@@ -230,8 +232,8 @@ class GrokHandler {
    * Check if model supports reasoning
    */
   isReasoningModel(modelID) {
-    // Grok 4 is reasoning-only, others can have reasoning
-    return modelID === 'grok-4';
+    // Grok 4.x models (e.g. grok-4, grok-4.3) emit reasoning_content.
+    return typeof modelID === 'string' && modelID.startsWith('grok-4');
   }
 
   /**
@@ -239,6 +241,20 @@ class GrokHandler {
    */
   getModelCapabilities(modelID) {
     const capabilities = {
+      'grok-4.3': {
+        contextWindow: 256000,
+        supportsVision: true,
+        supportsReasoning: true,
+        supportsFunctionCalling: true,
+        supportsStructuredOutputs: true
+      },
+      'grok-build-0.1': {
+        contextWindow: 256000,
+        supportsVision: false,
+        supportsReasoning: true,
+        supportsFunctionCalling: true,
+        supportsStructuredOutputs: true
+      },
       'grok-4': {
         contextWindow: 256000,
         supportsVision: true,
@@ -291,7 +307,14 @@ class GrokHandler {
       }
     };
     
-    return capabilities[modelID] || null;
+    // Unknown/new Grok ids are treated as full-capability so newer models are never rejected.
+    return capabilities[modelID] || {
+      contextWindow: 256000,
+      supportsVision: true,
+      supportsReasoning: true,
+      supportsFunctionCalling: true,
+      supportsStructuredOutputs: true
+    };
   }
 
   /**
@@ -318,6 +341,62 @@ class GrokHandler {
 
     // Route to standard chat completion
     return await this.handleChatCompletion(payload);
+  }
+
+  /**
+   * Stream a Grok chat completion (OpenAI-compatible SSE).
+   * Mirrors handleChatCompletion's history handling: pushes user_input onto
+   * conversationHistory first, accumulates the streamed answer text, then pushes
+   * the assistant message at the end. Yields streaming contract events
+   * ({ type: 'thinking' | 'text' | 'error' | 'usage', ... }).
+   */
+  async *streamCompletion(payload) {
+    const { user_input, modelID, conversationHistory, temperature, tokens } = payload;
+
+    // Mirror the non-streaming path: add user input to history before requesting.
+    conversationHistory.push(user_input);
+
+    // Build the same request data as handleChatCompletion, plus streaming flags.
+    const requestData = {
+      model: modelID,
+      messages: conversationHistory,
+      temperature: temperature,
+      max_tokens: tokens,
+      stream: true,
+      stream_options: { include_usage: true }
+    };
+
+    // Preserve search_parameters passthrough for live/web search.
+    if (payload.search_parameters) {
+      requestData.search_parameters = payload.search_parameters;
+    }
+
+    const headers = {
+      'Authorization': `Bearer ${this.apiKey}`,
+      'Content-Type': 'application/json'
+    };
+
+    let text = '';
+    try {
+      const response = await axios.post(`${this.baseURL}/chat/completions`, requestData, {
+        headers,
+        responseType: 'stream'
+      });
+
+      // reasoning_content deltas are surfaced as { type: 'thinking' } by parseOpenAISSE.
+      for await (const ev of parseOpenAISSE(response.data)) {
+        if (ev.type === 'text') text += ev.value;
+        yield ev;
+      }
+    } catch (error) {
+      const message = error.response?.data?.error?.message || error.message;
+      console.error('Grok Streaming Error:', message);
+      yield { type: 'error', value: `Grok API Error: ${message}` };
+      return;
+    }
+
+    // Mirror the non-streaming path: append the assembled assistant answer.
+    conversationHistory.push({ role: 'assistant', content: text });
   }
 }
 

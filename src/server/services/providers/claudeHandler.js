@@ -24,6 +24,10 @@
 //   }
 // }
 const axios = require('axios');
+const { parseAnthropicSSE } = require('./streamUtils');
+
+// Valid effort levels for adaptive-thinking (effort-class) Claude models
+const EFFORT_LEVELS = ['low', 'medium', 'high', 'xhigh', 'max'];
 
 class ClaudeHandler {
   constructor(apiKey) {
@@ -37,6 +41,117 @@ class ClaudeHandler {
    */
   setPromptCacheService(promptCacheService) {
     this.promptCacheService = promptCacheService;
+  }
+
+  /**
+   * Classify a Claude model id into a request-construction family.
+   * - 'effort':  adaptive thinking + output_config.effort (no temperature/top_p)
+   * - 'legacy':  extended thinking via budget_tokens (temperature allowed)
+   * Unknown ids default to 'effort' (adaptive) to match current API behavior.
+   * @param {string} modelID
+   * @returns {'effort'|'legacy'}
+   */
+  classifyModel(modelID) {
+    const id = modelID || '';
+    // Legacy extended-thinking models reject output_config.effort
+    if (id === 'claude-sonnet-4-5-20250929' || id === 'claude-haiku-4-5-20251001') {
+      return 'legacy';
+    }
+    // Effort-class families (adaptive thinking)
+    if (/opus-4-(5|6|7|8)/.test(id) || /sonnet-(5|4-6)/.test(id) || /fable-5/.test(id)) {
+      return 'effort';
+    }
+    // Default any other/unknown Claude id to the adaptive effort path
+    return 'effort';
+  }
+
+  /**
+   * Map a requested reasoning effort to a value supported by the target model.
+   * xhigh/max are valid on fable-5/opus-4-7/opus-4-8/sonnet-5; on
+   * opus-4-5/sonnet-4-6 the maximum allowed is 'high' so xhigh/max clamp down.
+   * @param {string} modelID
+   * @param {string} [reasoningEffort]
+   * @returns {'low'|'medium'|'high'|'xhigh'|'max'}
+   */
+  mapEffort(modelID, reasoningEffort) {
+    let effort = (reasoningEffort || 'high').toLowerCase();
+    if (!EFFORT_LEVELS.includes(effort)) effort = 'high';
+
+    const clampToHigh = /opus-4-5/.test(modelID || '') || /sonnet-4-6/.test(modelID || '');
+    if (clampToHigh && (effort === 'xhigh' || effort === 'max')) {
+      effort = 'high';
+    }
+    return effort;
+  }
+
+  /**
+   * Whether the given model supports the server-side web_search tool.
+   * Matches the current catalog: opus-4-8, opus-4-7, opus-4-5, sonnet-5,
+   * sonnet-4-5, haiku-4-5, fable-5.
+   * @param {string} modelID
+   * @returns {boolean}
+   */
+  supportsWebSearch(modelID) {
+    const id = modelID || '';
+    return /opus-4-8|opus-4-7|opus-4-5|sonnet-5|sonnet-4-5|haiku-4-5|fable-5/.test(id);
+  }
+
+  /**
+   * Build the Anthropic Messages request body for a given model family.
+   * Shared by the non-streaming and streaming paths so both stay in lockstep.
+   * @param {Object} args
+   * @param {string} args.modelID
+   * @param {number} [args.tokens]
+   * @param {number} [args.temperature]
+   * @param {string} [args.reasoningEffort]
+   * @param {*} args.systemMessage
+   * @param {Array} args.messages
+   * @returns {{ requestData: Object, modelClass: 'effort'|'legacy' }}
+   */
+  buildRequestData({ modelID, tokens, temperature, reasoningEffort, systemMessage, messages }) {
+    const modelClass = this.classifyModel(modelID);
+    const maxTokens = tokens || 16000;
+
+    const requestData = {
+      model: modelID,
+      max_tokens: maxTokens,
+      system: systemMessage,
+      messages: messages,
+    };
+
+    if (modelClass === 'legacy') {
+      // Extended thinking: budget_tokens must be < max_tokens
+      const budget = Math.min(Math.max(1024, maxTokens - 1024), maxTokens - 1);
+      requestData.thinking = { type: 'enabled', budget_tokens: budget };
+      if (temperature !== undefined && temperature !== null) {
+        requestData.temperature = temperature;
+      }
+    } else {
+      // Effort-class: adaptive thinking; never send temperature/top_p
+      requestData.thinking = { type: 'adaptive', display: 'summarized' };
+      requestData.output_config = { effort: this.mapEffort(modelID, reasoningEffort) };
+    }
+
+    // Auto-enable web search for supported models with the version matching the family
+    if (this.supportsWebSearch(modelID)) {
+      const toolType = modelClass === 'legacy' ? 'web_search_20250305' : 'web_search_20260209';
+      requestData.tools = [{ type: toolType, name: 'web_search' }];
+      console.log(`🔍 Web search enabled by default for ${modelID}`);
+    }
+
+    return { requestData, modelClass };
+  }
+
+  /**
+   * Construct the standard Anthropic request headers.
+   * @returns {Object}
+   */
+  buildHeaders() {
+    return {
+      'x-api-key': this.apiKey,
+      'content-type': 'application/json',
+      'anthropic-version': '2023-06-01'
+    };
   }
 
   /**
@@ -62,7 +177,7 @@ class ClaudeHandler {
    * @returns {Promise<Object>} Response object with success status, content, and usage info
    */
   async handleChatCompletion(payload) {
-    const { user_input, modelID, systemMessage, claudeHistory, temperature, tokens, cachePreference, webSearchConfig } = payload;
+    const { user_input, modelID, systemMessage, claudeHistory, temperature, tokens, reasoningEffort, cachePreference, webSearchConfig } = payload;
     
     // Apply prompt caching if available and enabled
     let finalPayload = payload;
@@ -91,103 +206,30 @@ class ClaudeHandler {
     
     finalClaudeHistory.push(user_input);
 
-    // Check if this is a Claude 4 model with thinking support
-    const isThinkingModel = modelID === 'claude-3-7-sonnet-latest' ||
-                           modelID === 'claude-opus-4-20250514' ||
-                           modelID === 'claude-sonnet-4-20250514' ||
-                           modelID === 'claude-sonnet-4-5-20250929' ||
-                           modelID === 'claude-haiku-4-5-20251001' ||
-                           modelID === 'claude-opus-4-5-20251101';
+    // Build the request body via model-family logic (effort vs legacy thinking)
+    const { requestData } = this.buildRequestData({
+      modelID,
+      tokens,
+      temperature,
+      reasoningEffort,
+      systemMessage: finalSystemMessage,
+      messages: finalClaudeHistory
+    });
 
-    // Check if web search is supported for this model
-    const supportsWebSearch = [
-      'claude-sonnet-4-5-20250929',
-      'claude-haiku-4-5-20251001',
-      'claude-opus-4-5-20251101',
-      'claude-opus-4-20250514',
-      'claude-sonnet-4-20250514',
-      'claude-3-7-sonnet-latest',
-      'claude-3-5-sonnet-latest',
-      'claude-3-5-sonnet-20241022',
-      'claude-3-5-haiku-latest',
-      'claude-3-5-haiku-20241022'
-    ].includes(modelID);
-
-    let requestData;
-    if (isThinkingModel) {
-      const budget = tokens - 100;
-      requestData = {
-        model: modelID,
-        max_tokens: tokens,
-        thinking: {
-          type: "enabled",
-          budget_tokens: budget
-        },
-        temperature: temperature,
-        system: finalSystemMessage,
-        messages: finalClaudeHistory,
-      };
-    } else {
-      requestData = {
-        model: modelID,
-        max_tokens: tokens,
-        temperature: temperature,
-        system: finalSystemMessage,
-        messages: finalClaudeHistory,
-      };
-    }
-
-    // Add web search tool by default for supported models
-    // Uncomment the condition below to make web search optional
-    // if (webSearchConfig && supportsWebSearch) {
-    if (supportsWebSearch) {
-      const webSearchTool = {
-        type: "web_search_20250305",
-        name: "web_search"
-      };
-
-      // Add optional parameters if provided
-      // if (webSearchConfig.maxUses !== undefined) {
-      //   webSearchTool.max_uses = webSearchConfig.maxUses;
-      // }
-      // if (webSearchConfig.allowedDomains && Array.isArray(webSearchConfig.allowedDomains)) {
-      //   webSearchTool.allowed_domains = webSearchConfig.allowedDomains;
-      // }
-      // if (webSearchConfig.blockedDomains && Array.isArray(webSearchConfig.blockedDomains)) {
-      //   webSearchTool.blocked_domains = webSearchConfig.blockedDomains;
-      // }
-      // if (webSearchConfig.userLocation) {
-      //   webSearchTool.user_location = webSearchConfig.userLocation;
-      // }
-
-      // Add tools array to request data
-      requestData.tools = [webSearchTool];
-      
-      console.log(`🔍 Web search enabled by default for ${modelID}`);
-    }
-
-    const headers = {
-      'x-api-key': this.apiKey,
-      'content-type': 'application/json',
-      'anthropic-version': '2023-06-01'
-    };
-
-    // Add beta header for thinking models
-    if (isThinkingModel) {
-      headers['anthropic-beta'] = 'output-128k-2025-02-19';
-    }
+    const headers = this.buildHeaders();
 
     try {
       const response = await axios.post(`${this.baseURL}/messages`, requestData, { headers });
       let messageContent = response.data.content;
-      
+
       // Track cache performance if caching was attempted
       if (this.promptCacheService && cacheStrategy?.shouldCache && response.data.usage) {
         this.promptCacheService.trackCachePerformance(modelID, response.data.usage, true);
       }
-      
-      // Process thinking models response
-      if (isThinkingModel && Array.isArray(messageContent)) {
+
+      // Process responses that contain thinking blocks (effort or legacy families)
+      const hasThinking = Array.isArray(messageContent) && messageContent.some(item => item.type === 'thinking');
+      if (hasThinking) {
         let thinkingContent = '';
         let textContent = '';
 
@@ -234,6 +276,70 @@ class ClaudeHandler {
       console.error('Claude API Error:', error.message);
       throw new Error(`Claude API Error: ${error.response?.data?.error?.message || error.message}`);
     }
+  }
+
+  /**
+   * Stream a Claude chat completion, yielding contract events.
+   * Mirrors handleChatCompletion's history handling: pushes user_input onto
+   * claudeHistory first, accumulates streamed text, and pushes the assembled
+   * assistant message onto claudeHistory at the end.
+   * @param {Object} payload - see handleChatCompletion for shape
+   * @yields {{type:'thinking'|'text'|'error'|'usage', value?:string, usage?:object}}
+   */
+  async *streamCompletion(payload) {
+    const { user_input, modelID, systemMessage, temperature, tokens, reasoningEffort, cachePreference } = payload;
+
+    // Apply prompt caching if available and enabled (graceful degradation on error)
+    let finalPayload = payload;
+    if (this.promptCacheService) {
+      try {
+        const cacheStrategy = await this.promptCacheService.analyzeCacheStrategy(payload, { cachePreference });
+        if (cacheStrategy.shouldCache) {
+          finalPayload = await this.promptCacheService.applyCacheControls(payload, cacheStrategy);
+          console.log(`🔄 Applied ${cacheStrategy.type} caching strategy to ${modelID}`);
+        }
+      } catch (error) {
+        console.warn('Failed to apply prompt caching, proceeding without cache:', error.message);
+      }
+    }
+
+    const { systemMessage: finalSystemMessage, claudeHistory: finalClaudeHistory } = finalPayload;
+
+    // Push user input first, exactly like the non-streaming path
+    finalClaudeHistory.push(user_input);
+
+    // Build the same request body as handleChatCompletion, plus stream:true
+    const { requestData } = this.buildRequestData({
+      modelID,
+      tokens,
+      temperature,
+      reasoningEffort,
+      systemMessage: finalSystemMessage,
+      messages: finalClaudeHistory
+    });
+    requestData.stream = true;
+
+    const headers = this.buildHeaders();
+
+    let accumulatedText = '';
+    try {
+      const response = await axios.post(`${this.baseURL}/messages`, requestData, {
+        headers,
+        responseType: 'stream'
+      });
+
+      for await (const ev of parseAnthropicSSE(response.data)) {
+        if (ev.type === 'text') accumulatedText += ev.value;
+        yield ev;
+      }
+    } catch (error) {
+      console.error('Claude API Stream Error:', error.message);
+      yield { type: 'error', value: error.response?.data?.error?.message || error.message };
+      return;
+    }
+
+    // Leave history in the same shape as a non-streamed turn
+    finalClaudeHistory.push({ role: 'assistant', content: accumulatedText });
   }
 
   /**

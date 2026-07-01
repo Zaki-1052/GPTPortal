@@ -404,6 +404,38 @@ router.post('/message', async (req, res) => {
       verbosity
     };
 
+    // Streaming path (Server-Sent Events) when the client requests it.
+    const wantsStream = req.body.stream === true || (req.headers.accept || '').includes('text/event-stream');
+    if (wantsStream && providerFactory.supportsStreaming(modelID)) {
+      const { sseHeaders, writeSSE } = require('../services/providers/streamUtils');
+      sseHeaders(res);
+      let finalUsage = null;
+      try {
+        for await (const ev of providerFactory.handleRequestStream(modelID, payload)) {
+          if (ev.type === 'usage') finalUsage = ev.usage;
+          writeSSE(res, ev);
+        }
+        // Mirror conversation state into app.locals for the export feature
+        req.app.locals.conversationHistory = req.session.chat.conversationHistory;
+        req.app.locals.claudeHistory = req.session.chat.claudeHistory;
+        req.app.locals.o1History = req.session.chat.o1History;
+        req.app.locals.deepseekHistory = req.session.chat.deepseekHistory;
+        req.app.locals.claudeInstructions = req.session.chat.claudeInstructions;
+        req.app.locals.currentModelID = modelID;
+        req.app.locals.systemMessage = req.session.chat.systemMessage;
+        req.session.chat.fileContents = null;
+        req.session.chat.file_id = "";
+        req.session.chat.imageName = "";
+        writeSSE(res, { type: 'done', usage: finalUsage });
+      } catch (streamErr) {
+        console.error('Streaming error:', streamErr);
+        writeSSE(res, { type: 'error', value: streamErr.message });
+      } finally {
+        res.end();
+      }
+      return;
+    }
+
     // Route to appropriate provider
     const result = await providerFactory.handleRequest(modelID, payload);
 

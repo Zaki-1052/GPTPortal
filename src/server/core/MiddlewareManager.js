@@ -24,8 +24,12 @@ class MiddlewareManager {
   setup(app) {
     this.logger.info('Setting up middleware...');
 
-    // Basic Express configuration
-    app.set('trust proxy', true);
+    // Basic Express configuration.
+    // 'loopback' (trust only localhost) instead of `true`: a permissive `true`
+    // makes express-rate-limit throw ERR_ERL_PERMISSIVE_TRUST_PROXY on every
+    // request. Loopback is correct for a local-first app; widen it if you deploy
+    // behind a known reverse proxy.
+    app.set('trust proxy', 'loopback');
     app.disable('x-powered-by'); // Security: hide Express
 
     // Request ID middleware

@@ -60,78 +60,15 @@ class ResponsesHandler {
     // Add user input to o1History
     o1History.push(user_input);
 
-    // Transform content types for Responses API
-    // Extract all content items (text and images) from user_input
-    let userMessage = null;
-    let base64Image = null;
-    let imageName = null;
-    
-    if (user_input.content && Array.isArray(user_input.content)) {
-      // Extract text and image content from the array
-      user_input.content.forEach(item => {
-        if (item.type === 'text' && item.text && !userMessage) {
-          userMessage = item.text;
-        } else if (item.type === 'text' && item.text && !imageName) {
-          imageName = item.text;
-        } else if (item.type === 'image_url' && item.image_url?.url) {
-          base64Image = item.image_url.url;
-        }
-      });
-    } else if (typeof user_input.content === 'string') {
-      userMessage = user_input.content;
-    }
-    
-    const transformedUserInput = formatUserInputForResponses(
-      userMessage,
-      null, null, imageName, base64Image
-    );
-
-    // Build request data
-    let requestData;
-    if (this.responseCount > 0 && this.lastResponseId) {
-      requestData = {
-        model: modelID,
-        previous_response_id: this.lastResponseId,
-        input: [transformedUserInput],
-        store: true,
-      };
-    } else {
-      requestData = {
-        model: modelID,
-        input: [transformedUserInput],
-        store: true,
-      };
-    }
-
-    // Add reasoning configuration for reasoning models
-    if (this.isReasoningModel(modelID)) {
-      requestData.reasoning = { 
-        effort: "high", 
-        summary: "auto" 
-      };
-    }
-
-    // Auto-enable web search for supported models (like Claude implementation)
-    if (this.webSearchService.supportsResponsesWebSearch(modelID)) {
-      if (webSearchConfig !== false) { // Allow explicit disable with false
-        const processedConfig = this.webSearchService.processWebSearchConfig(webSearchConfig || {});
-        requestData = this.webSearchService.addWebSearchToResponses(requestData, processedConfig);
-        console.log(`🔍 Web search enabled by default for ${modelID}`);
-      }
-    }
-
-    // Auto-enable Code Interpreter for supported models
-    if (this.codeInterpreterService.supportsCodeInterpreter(modelID)) {
-      if (payload.codeInterpreterConfig !== false) { // Allow explicit disable with false
-        const codeConfig = payload.codeInterpreterConfig || {};
-        requestData = this.codeInterpreterService.addCodeInterpreterToResponses(requestData, codeConfig);
-        console.log(`🐍 Code Interpreter enabled by default for ${modelID}`);
-      }
-    }
+    // Build the Responses API request (reasoning effort, verbosity, tokens, tools)
+    const requestData = await this.buildReasoningRequestData(payload);
 
     try {
       const response = await this.apiClient.responses(requestData);
       this.responseCount++;
+      // Informational only for getCurrentState(); never reused to chain turns.
+      // Continuation is caller-supplied via payload.previousResponseId so this
+      // singleton instance cannot leak one user's context into another's.
       this.lastResponseId = response.data.id;
 
       // Process response format
@@ -171,7 +108,7 @@ class ResponsesHandler {
         content: formattedContent,
         reasoning: reasoning,
         response: assistantContent,
-        responseId: this.lastResponseId,
+        responseId: response.data.id,
         model: modelID,
         type: 'responses',
         usage: response.data.usage
@@ -195,6 +132,125 @@ class ResponsesHandler {
       console.error('Responses API Error:', error.message);
       throw new Error(`Responses API Error: ${error.message}`);
     }
+  }
+
+  /**
+   * Build the Responses API request body for reasoning-style calls.
+   * Pure query: reads payload + services and performs no history mutation, so it
+   * is shared by the non-streaming path and the streaming path (stream:true).
+   * @param {Object} payload
+   * @param {{stream?: boolean}} [options]
+   * @returns {Promise<Object>} request data for POST /responses
+   */
+  async buildReasoningRequestData(payload, { stream = false } = {}) {
+    const { user_input, modelID, tokens, verbosity, previousResponseId } = payload;
+
+    // Extract text + optional image from the structured user_input
+    let userMessage = null;
+    let base64Image = null;
+    let imageName = null;
+
+    if (user_input && Array.isArray(user_input.content)) {
+      user_input.content.forEach(item => {
+        if (item.type === 'text' && item.text && !userMessage) {
+          userMessage = item.text;
+        } else if (item.type === 'text' && item.text && !imageName) {
+          imageName = item.text;
+        } else if (item.type === 'image_url' && item.image_url?.url) {
+          base64Image = item.image_url.url;
+        }
+      });
+    } else if (user_input && typeof user_input.content === 'string') {
+      userMessage = user_input.content;
+    }
+
+    const transformedUserInput = formatUserInputForResponses(
+      userMessage,
+      null, null, imageName, base64Image
+    );
+
+    let requestData = {
+      model: modelID,
+      input: [transformedUserInput],
+      store: true
+    };
+
+    // Continue a prior turn only when the caller supplies the id (no singleton state)
+    if (previousResponseId) {
+      requestData.previous_response_id = previousResponseId;
+    }
+
+    // Cap the generation length (previously omitted entirely)
+    if (tokens) {
+      requestData.max_output_tokens = tokens;
+    }
+
+    // Wire the user's reasoning effort (falls back to the model default, then 'medium')
+    if (this.isReasoningModel(modelID)) {
+      requestData.reasoning = {
+        effort: await this.resolveReasoningEffort(payload),
+        summary: 'auto'
+      };
+    }
+
+    // Wire response verbosity (GPT-5 text control) when a valid value is provided
+    const resolvedVerbosity = this.resolveVerbosity(verbosity);
+    if (resolvedVerbosity) {
+      requestData.text = { ...(requestData.text || {}), verbosity: resolvedVerbosity };
+    }
+
+    // Auto-enable web search for supported models (unless explicitly disabled)
+    if (this.webSearchService.supportsResponsesWebSearch(modelID) && payload.webSearchConfig !== false) {
+      const processedConfig = this.webSearchService.processWebSearchConfig(payload.webSearchConfig || {});
+      requestData = this.webSearchService.addWebSearchToResponses(requestData, processedConfig);
+      console.log(`🔍 Web search enabled by default for ${modelID}`);
+    }
+
+    // Auto-enable Code Interpreter for supported models (unless explicitly disabled)
+    if (this.codeInterpreterService.supportsCodeInterpreter(modelID) && payload.codeInterpreterConfig !== false) {
+      const codeConfig = payload.codeInterpreterConfig || {};
+      requestData = this.codeInterpreterService.addCodeInterpreterToResponses(requestData, codeConfig);
+      console.log(`🐍 Code Interpreter enabled by default for ${modelID}`);
+    }
+
+    if (stream) {
+      requestData.stream = true;
+    }
+
+    return requestData;
+  }
+
+  /**
+   * Resolve reasoning effort: explicit payload value, else the model's
+   * defaultReasoningEffort, else 'medium'. Allowed: none|minimal|low|medium|high|xhigh.
+   * @param {Object} payload
+   * @returns {Promise<string>}
+   */
+  async resolveReasoningEffort(payload) {
+    const allowed = ['none', 'minimal', 'low', 'medium', 'high', 'xhigh'];
+    if (payload.reasoningEffort && allowed.includes(payload.reasoningEffort)) {
+      return payload.reasoningEffort;
+    }
+    try {
+      const modelLoader = require('../../../../../shared/modelLoader');
+      const model = await modelLoader.getModel(payload.modelID);
+      if (model && model.defaultReasoningEffort && allowed.includes(model.defaultReasoningEffort)) {
+        return model.defaultReasoningEffort;
+      }
+    } catch (error) {
+      console.warn('Could not resolve model default reasoning effort:', error.message);
+    }
+    return 'medium';
+  }
+
+  /**
+   * Validate and normalize verbosity; returns null when absent/invalid.
+   * @param {string} verbosity
+   * @returns {string|null}
+   */
+  resolveVerbosity(verbosity) {
+    const allowed = ['low', 'medium', 'high'];
+    return verbosity && allowed.includes(verbosity) ? verbosity : null;
   }
 
   /**

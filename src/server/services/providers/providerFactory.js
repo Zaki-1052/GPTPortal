@@ -87,12 +87,12 @@ class ProviderFactory {
    */
   isImageModel(modelID) {
     const imageModelIds = [
-      'gpt-image-1', 
-      'dall-e-3', 
-      'dall-e-2',
-      'gemini-2.0-flash-preview-image-generation',
-      'imagen-4.0-generate-preview',
-      'grok-2-image-1212'
+      'gpt-image-2',
+      'gpt-image-1.5',
+      'gpt-image-1-mini',
+      'gpt-image-1',
+      'gemini-3.1-flash-image',
+      'gemini-3-pro-image'
     ];
     return imageModelIds.includes(modelID);
   }
@@ -106,12 +106,18 @@ class ProviderFactory {
       if (modelID.startsWith('gpt-image') || modelID.startsWith('dall-e')) {
         return 'openai';
       }
-      if (modelID.startsWith('gemini-2.0-flash-preview-image-generation') || modelID.startsWith('imagen-')) {
+      if (modelID.startsWith('gemini')) {
         return 'gemini';
       }
-      if (modelID.startsWith('grok-2-image')) {
+      if (modelID.startsWith('grok')) {
         return 'grok';
       }
+    }
+
+    // Groq-hosted open models use slash ids (e.g. openai/gpt-oss-120b, groq/compound) —
+    // match these BEFORE the generic slash → OpenRouter fallback below.
+    if (modelID.includes('gpt-oss') || modelID.startsWith('groq/')) {
+      return 'groq';
     }
 
     // OpenRouter models (contain slash)
@@ -119,8 +125,8 @@ class ProviderFactory {
       return 'openrouter';
     }
 
-    // OpenAI models
-    if (modelID.startsWith('gpt') || modelID.includes('o1') || modelID.includes('o3') || modelID.includes('o4')) {
+    // OpenAI models (GPT family + o-series reasoning, e.g. o4-mini)
+    if (modelID.startsWith('gpt') || /^o\d/.test(modelID)) {
       return 'openai';
     }
 
@@ -134,8 +140,8 @@ class ProviderFactory {
       return 'groq';
     }
 
-    // Mistral models
-    if (modelID.includes('mistral') || modelID.includes('mixtral') || modelID === 'codestral-latest') {
+    // Mistral models (large/medium/small, codestral, magistral, devstral, ministral, pixtral)
+    if (/mistral|mixtral|codestral|magistral|devstral|ministral|pixtral/.test(modelID)) {
       return 'mistral';
     }
 
@@ -154,7 +160,7 @@ class ProviderFactory {
       return 'grok';
     }
 
-    // Kimi models
+    // Kimi / Moonshot models
     if (modelID.includes('kimi')) {
       return 'kimi';
     }
@@ -180,13 +186,52 @@ class ProviderFactory {
   async handleRequest(modelID, payload) {
     const provider = this.getProviderForModel(modelID);
     const handler = this.getHandler(provider);
-    
+
     console.log(`🔀 Routing ${modelID} to ${provider} provider`);
-    
+
     return await handler.handleRequest({
       ...payload,
       modelID
     });
+  }
+
+  /**
+   * Whether the routed handler can stream this model (never for image models).
+   */
+  supportsStreaming(modelID) {
+    if (this.isImageModel(modelID)) return false;
+    try {
+      const provider = this.getProviderForModel(modelID);
+      const handler = this.handlers[provider];
+      return !!(handler && typeof handler.streamCompletion === 'function');
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Route a streaming request to the appropriate provider handler.
+   * Yields contract events: { type: 'thinking'|'text'|'error'|'usage', ... }.
+   * Falls back to a single non-streaming turn for handlers without streamCompletion.
+   */
+  async *handleRequestStream(modelID, payload) {
+    const provider = this.getProviderForModel(modelID);
+    const handler = this.getHandler(provider);
+
+    console.log(`🔀 Streaming ${modelID} via ${provider} provider`);
+
+    if (typeof handler.streamCompletion !== 'function') {
+      const result = await handler.handleRequest({ ...payload, modelID });
+      if (result && result.success) {
+        yield { type: 'text', value: result.content };
+        yield { type: 'usage', usage: result.usage || {} };
+      } else {
+        yield { type: 'error', value: (result && result.error) || 'Request failed' };
+      }
+      return;
+    }
+
+    yield* handler.streamCompletion({ ...payload, modelID });
   }
 
   /**
