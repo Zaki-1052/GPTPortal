@@ -5,12 +5,40 @@
   <title>GPTPortal - Multi-LLM Chat Interface</title>
   <meta name="author" content="Zakir Alibhai">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Theme bootstrap: set data-theme before paint to avoid FOUC.
+       Reads localStorage('gptportal-theme'); defaults from prefers-color-scheme. -->
+  <script>
+    (function () {
+      var KEY = 'gptportal-theme';
+      var saved = null;
+      try { saved = localStorage.getItem(KEY); } catch (e) {}
+      var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+      var theme = saved || (prefersLight ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+      // Exposed helpers used by the header #theme-toggle button.
+      window.__setTheme = function (t) {
+        document.documentElement.setAttribute('data-theme', t);
+        try { localStorage.setItem(KEY, t); } catch (e) {}
+      };
+      window.__toggleTheme = function () {
+        var cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        window.__setTheme(cur);
+      };
+    })();
+  </script>
+
   <link rel="stylesheet" href="chat.css">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- UI + monospace typefaces (single request) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
   <!-- KaTeX for LaTeX rendering -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" crossorigin="anonymous">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js" crossorigin="anonymous"></script>
@@ -26,7 +54,7 @@
       console.log('- typeof katex:', typeof katex);
       console.log('- typeof renderMathInElement:', typeof renderMathInElement);
       console.log('- window.renderMathInElement:', window.renderMathInElement);
-      
+
       // Try to find it in different places
       if (typeof katex !== 'undefined') {
         console.log('- katex.renderMathInElement:', katex.renderMathInElement);
@@ -36,281 +64,354 @@
   </script>
 </head>
 <body>
-<div>
-  <!-- Sidebar for Chat History -->
-  <div id="toggleArrow">&#x25B6;</div>
-  <div id="sidebar">
-    <div id="chatList"></div>
-    <div id="summariesButtonContainer">
-      <button id="summariesButton">Summaries Only</button>
+<div class="app-shell">
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="app-header">
+    <div class="header-left">
+      <!-- Sidebar (chat history) toggle. JS (#toggleArrow) rewrites this glyph on toggle. -->
+      <div id="toggleArrow" role="button" tabindex="0" title="Toggle chat history" aria-label="Toggle chat history">
+        <svg class="icon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+      </div>
+      <div class="brand">
+        <svg class="icon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+        <span>GPT Portal</span>
+        <span class="brand-sub">Multi-LLM Console</span>
+      </div>
     </div>
+
+    <div class="header-center">
+      <!-- Enhanced Model Selector with Dynamic Loading -->
+      <div id="model-selector-container">
+        <div class="custom-select" id="selected-model">
+          <span class="model-icon">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+          </span>
+          <span class="model-text">Select a Model</span>
+          <span class="dropdown-arrow">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </span>
+        </div>
+
+        <!-- Flyout panel: search + options. Revealed when #model-options is shown. -->
+        <div class="model-flyout">
+          <div id="model-search-container">
+            <div class="search-input-wrapper">
+              <span class="search-icon">
+                <svg class="icon icon-sm" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </span>
+              <input type="text" id="model-search" placeholder="Search models...">
+            </div>
+            <div class="controls-row">
+              <div class="toggle-container">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="show-open-router">
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Show OpenRouter</span>
+              </div>
+              <div class="toggle-container" id="prompt-cache-container" style="display: inline;">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="enable-prompt-cache">
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label" title="Enable prompt caching for Claude models to reduce costs and latency">Cache Prompts</span>
+              </div>
+              <button id="refresh-models" class="refresh-btn" title="Refresh models" aria-label="Refresh models">
+                <span class="refresh-icon">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                </span>
+              </button>
+            </div>
+          </div>
+          <div id="model-options" class="select-options">
+            <!-- Models will be populated dynamically -->
+            <div id="loading-models" class="loading-indicator">
+              <div class="loading-spinner"></div>
+              <span>Loading models...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <!-- NEW: manual light/dark toggle (persisted in localStorage) -->
+      <button id="theme-toggle" class="icon-btn" title="Toggle theme" aria-label="Toggle theme">
+        <svg class="icon icon-sun" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="icon icon-moon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <!-- Config actions (open the editors below) -->
+      <button id="edit-instructions-btn" class="icon-btn" title="Edit instructions" aria-label="Edit instructions">
+        <svg class="icon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      </button>
+      <button id="edit-env-btn" class="icon-btn" title="Edit environment variables" aria-label="Edit environment variables">
+        <svg class="icon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===================== BODY (aside + main) ===================== -->
+  <div class="app-body">
+
+    <!-- Sidebar for Chat History -->
+    <aside id="sidebar">
+      <div class="sidebar-title">Chat History</div>
+      <div id="chatList"></div>
+      <div id="summariesButtonContainer">
+        <button id="summariesButton">Summaries Only</button>
+      </div>
+    </aside>
+
+    <!-- Main Chat Interface -->
+    <main class="app-main">
+      <div id="chat-container">
+        <div id="chat-box">
+          <div class="message response welcome-message">
+            <div class="welcome-content">
+              <h3>Welcome to GPT Portal!</h3>
+              <p>Select a model above to start chatting with your preferred AI assistant.</p>
+              <div class="welcome-features">
+                <span class="feature-badge">Multi-LLM Support</span>
+                <span class="feature-badge">Voice Input</span>
+                <span class="feature-badge">File Upload</span>
+                <span class="feature-badge">Export Chats</span>
+                <span class="feature-badge">Web Search</span>
+                <span class="feature-badge">Python</span>
+              </div>
+            </div>
+            <button class="copy-btn" title="Copy" onclick="copyToClipboard(this.parentElement.textContent)">
+              <svg class="icon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Docked Composer -->
+        <div class="composer">
+          <div id="image-preview"></div>
+
+          <!-- Context Window Usage Indicator -->
+          <div id="context-indicator" class="context-indicator">
+            <div class="context-bar">
+              <div id="context-fill" class="context-fill"></div>
+            </div>
+            <div class="context-text">
+              <span id="context-used">0</span> / <span id="context-limit">8000</span> tokens
+            </div>
+          </div>
+
+          <!-- Input Area -->
+          <textarea id="message-input" placeholder="Type your message here... (Ctrl+Enter to send)"></textarea>
+
+          <!-- Control Buttons (real flex toolbar) -->
+          <div class="input-controls">
+            <button type="button" id="clipboard-button" class="icon-btn" title="Upload file" aria-label="Upload file">
+              <svg class="icon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            </button>
+            <input type="file" id="file-input" accept="*/*"/>
+            <button type="button" id="export-button" class="icon-btn" title="Export chat" aria-label="Export chat">
+              <svg class="icon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+            <button type="button" id="voice-button" class="icon-btn" title="Voice input" aria-label="Voice input">
+              <svg class="icon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+            </button>
+            <div id="voice-indicator" class="voice-indicator">
+              <svg class="icon icon-sm" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+              Voice Mode ON
+            </div>
+
+            <!-- Mode Selector -->
+            <div class="custom-select" id="mode-selector">Assistants Mode</div>
+
+            <span class="toolbar-spacer"></span>
+
+            <button id="send-button" class="btn-primary">
+              <span class="send-icon">
+                <svg class="icon" viewBox="0 0 24 24" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+              </span>
+              <span class="send-text">Send</span>
+            </button>
+          </div>
+
+          <div id="upload-status"></div>
+
+          <!-- Advanced model parameters (collapsible) -->
+          <details class="composer-advanced">
+            <summary>Model parameters</summary>
+            <div class="advanced-grid">
+              <!-- Temperature and Token Sliders.
+                   NOTE: #temperature-value / #tokens-value are kept as separate
+                   siblings (not nested in <label>) because app.js overwrites the
+                   label's textContent during init, which would remove them. -->
+              <div id="temperature-slider-container">
+                <label for="temperature-slider">Temperature:</label>
+                <span id="temperature-value">1.0</span>
+                <input type="range" id="temperature-slider" min="0" max="2" step="0.1" value="1">
+              </div>
+
+              <div id="tokens-slider-container">
+                <label for="tokens-slider">Max Tokens:</label>
+                <span id="tokens-value">8000</span>
+                <input type="range" id="tokens-slider" min="1000" max="100000" step="500" value="8000">
+                <span id="tokens-limit">(Model limit: <span id="model-token-limit">8000</span>)</span>
+              </div>
+
+              <!-- GPT-5 Specific Controls -->
+              <div id="gpt5-controls" style="display: none;">
+                <div id="reasoning-effort-container">
+                  <label for="reasoning-effort-select">Reasoning Effort:</label>
+                  <select id="reasoning-effort-select">
+                    <option value="none">None - No additional reasoning</option>
+                    <option value="minimal">Minimal - Fastest response</option>
+                    <option value="low">Low - Quick reasoning</option>
+                    <option value="medium" selected>Medium - Balanced reasoning</option>
+                    <option value="high">High - Thorough reasoning</option>
+                    <option value="xhigh">Extra High - Maximum reasoning</option>
+                  </select>
+                  <span class="param-help">Higher effort = better reasoning but slower response</span>
+                </div>
+
+                <div id="verbosity-container">
+                  <label for="verbosity-select">Verbosity:</label>
+                  <select id="verbosity-select">
+                    <option value="low">Low - Concise responses</option>
+                    <option value="medium" selected>Medium - Balanced detail</option>
+                    <option value="high">High - Detailed responses</option>
+                  </select>
+                  <span class="param-help">Controls response length and detail</span>
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+    </main>
   </div>
 
-  <!-- Prompt Templates Sidebar -->
+  <!-- Prompt Templates Sidebar (off-canvas right) -->
   <div id="promptBar">
     <div id="promptList"></div>
     <button id="copyPromptButton"></button>
   </div>
-  <div id="toggleRightArrow">&#x25C0;</div>
-  
+  <div id="toggleRightArrow" role="button" tabindex="0" title="Toggle prompt templates" aria-label="Toggle prompt templates">
+    <svg class="icon icon-sm" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+  </div>
+
   <!-- Custom Tooltip -->
   <div id="custom-tooltip"></div>
-  
-  <!-- Enhanced Model Selector with Dynamic Loading -->
-  <div id="model-selector-container">
-    <div class="custom-select" id="selected-model">
-      <span class="model-icon">🤖</span>
-      <span class="model-text">Select a Model</span>
-      <span class="dropdown-arrow">▼</span>
-    </div>
-    <div id="model-search-container">
-      <div class="search-input-wrapper">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="model-search" placeholder="Search models...">
-      </div>
-      <div class="controls-row">
-        <div class="toggle-container">
-          <label class="toggle-switch">
-            <input type="checkbox" id="show-open-router">
-            <span class="toggle-slider"></span>
-          </label>
-          <span class="toggle-label">Show OpenRouter</span>
-        </div>
-        <div class="toggle-container" id="prompt-cache-container" style="display: inline;">
-          <label class="toggle-switch">
-            <input type="checkbox" id="enable-prompt-cache">
-            <span class="toggle-slider"></span>
-          </label>
-          <span class="toggle-label" title="Enable prompt caching for Claude models to reduce costs and latency">Cache Prompts</span>
-        </div>
-        <button id="refresh-models" class="refresh-btn" title="Refresh models">
-          <span class="refresh-icon">🔄</span>
-        </button>
-      </div>
-    </div>
-    <div id="model-options" class="select-options">
-      <!-- Models will be populated dynamically -->
-      <div id="loading-models" class="loading-indicator">
-        <div class="loading-spinner"></div>
-        <span>Loading models...</span>
-      </div>
-    </div>
-  </div>
+</div>
 
-  <!-- Main Chat Interface -->
-  <div id="chat-container">
-    <div id="chat-box">
-      <div class="message response welcome-message">
-        <div class="welcome-content">
-          <h3>Welcome to GPT Portal!</h3>
-          <p>Select a model above to start chatting with your preferred AI assistant.</p>
-          <div class="welcome-features">
-            <span class="feature-badge">Multi-LLM Support</span>
-            <span class="feature-badge">Voice Input</span>
-            <span class="feature-badge">File Upload</span>
-            <span class="feature-badge">Export Chats</span>
-            <span class="feature-badge">Web Search</span>
-            <span class="feature-badge">Python</span>
-          </div>
-        </div>
-        <button class="copy-btn" onclick="copyToClipboard(this.parentElement.textContent)">📋</button>
-      </div>
+<!-- Enhanced Instructions Editor -->
+<div id="edit-instructions-container" class="setup-editor-container" style="display:none;">
+  <div class="setup-editor-header">
+    <div class="setup-editor-title">
+      <span class="setup-editor-icon">
+        <svg class="icon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      </span>
+      <h4>Instructions Editor</h4>
     </div>
-    
-    <!-- Input Area -->
-    <textarea id="message-input" placeholder="Type your message here... (Ctrl+Enter to send)"></textarea>
-    
-    <!-- Context Window Usage Indicator -->
-    <div id="context-indicator" class="context-indicator">
-      <div class="context-bar">
-        <div id="context-fill" class="context-fill"></div>
-      </div>
-      <div class="context-text">
-        <span id="context-used">0</span> / <span id="context-limit">8000</span> tokens
-      </div>
-    </div>
-    
-    <!-- Control Buttons -->
-    <div class="input-controls">
-      <button type="button" id="clipboard-button" title="Upload file">📎</button>
-      <input type="file" id="file-input" accept="*/*"/>
-      <button type="button" id="export-button" title="Export chat">📤</button>
-      <button type="button" id="voice-button" title="Voice input">🎤</button>
-      <div id="voice-indicator" class="voice-indicator">🎙️ Voice Mode ON</div>
-      <button id="send-button">
-        <span class="send-icon">📤</span>
-        <span class="send-text">Send</span>
-      </button>
-    </div>
-    
-    <!-- Mode Selector -->
-    <div class="custom-select" id="mode-selector">Assistants Mode</div>
-    <div id="upload-status"></div>
-    <div id="image-preview"></div>
-    
-    <!-- Temperature and Token Sliders -->
-    <div id="temperature-slider-container">
-      <label for="temperature-slider">Temperature:</label>
-      <input type="range" id="temperature-slider" min="0" max="2" step="0.1" value="1">
-      <span id="temperature-value">1.0</span>
-    </div>
-    
-    <div id="tokens-slider-container">
-      <label for="tokens-slider">Max Tokens:</label>
-      <input type="range" id="tokens-slider" min="1000" max="100000" step="500" value="8000">
-      <span id="tokens-value">8000</span>
-      <span id="tokens-limit">(Model limit: <span id="model-token-limit">8000</span>)</span>
-    </div>
-    
-    <!-- GPT-5 Specific Controls -->
-    <div id="gpt5-controls" style="display: none;">
-      <div id="reasoning-effort-container">
-        <label for="reasoning-effort-select">Reasoning Effort:</label>
-        <select id="reasoning-effort-select">
-          <option value="none">None - No additional reasoning</option>
-          <option value="minimal">Minimal - Fastest response</option>
-          <option value="low">Low - Quick reasoning</option>
-          <option value="medium" selected>Medium - Balanced reasoning</option>
-          <option value="high">High - Thorough reasoning</option>
-          <option value="xhigh">Extra High - Maximum reasoning</option>
-        </select>
-        <span class="param-help">💡 Higher effort = better reasoning but slower response</span>
-      </div>
-      
-      <div id="verbosity-container">
-        <label for="verbosity-select">Verbosity:</label>
-        <select id="verbosity-select">
-          <option value="low">Low - Concise responses</option>
-          <option value="medium" selected>Medium - Balanced detail</option>
-          <option value="high">High - Detailed responses</option>
-        </select>
-        <span class="param-help">💡 Controls response length and detail</span>
-      </div>
-    </div>
+    <button class="setup-editor-close" title="Close" aria-label="Close" onclick="document.getElementById('edit-instructions-container').style.display='none'; document.body.style.overflow=''">
+      <svg class="icon icon-sm" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
   </div>
-
-  <!-- Enhanced Setup Controls -->
-  <div class="setup-controls-section">
-    <div class="setup-controls-header">
-      <h3>Configuration</h3>
-      <span class="setup-controls-subtitle">Manage your application settings</span>
+  <div class="setup-editor-content">
+    <div class="setup-editor-toolbar">
+      <div class="setup-editor-info">
+        <span class="info-badge">System Prompts</span>
+        <span class="info-text">Define how the AI should behave and respond</span>
+      </div>
     </div>
-    
-    <div class="setup-controls-grid">
-      <button id="edit-instructions-btn" class="setup-control-btn">
-        <div class="setup-btn-icon">📝</div>
-        <div class="setup-btn-content">
-          <span class="setup-btn-title">Edit Instructions</span>
-          <span class="setup-btn-desc">Modify system prompts and behavior</span>
+    <div class="setup-editor-field">
+      <textarea id="instructions-content" placeholder="Enter your system instructions here..."></textarea>
+      <div class="textarea-footer">
+        <div class="count-group">
+          <span class="char-count">Characters: <span id="instructions-char-count">0</span></span>
+          <span class="token-count">Tokens: <span id="instructions-token-count">0</span></span>
         </div>
-        <div class="setup-btn-arrow">❯</div>
+        <div class="model-select-mini">
+          <select id="instructions-model-select" class="mini-model-select">
+            <option value="gpt-4o">GPT-4o</option>
+            <option value="gpt-4o-mini">GPT-4o Mini</option>
+            <option value="claude-3-5-sonnet-latest">Claude 3.5 Sonnet</option>
+            <option value="claude-3-5-haiku-latest">Claude 3.5 Haiku</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="setup-editor-actions">
+      <button class="setup-action-btn secondary" onclick="document.getElementById('edit-instructions-container').style.display='none'; document.body.style.overflow=''">
+        <span>Cancel</span>
       </button>
-      
-      <button id="edit-env-btn" class="setup-control-btn">
-        <div class="setup-btn-icon">🔐</div>
-        <div class="setup-btn-content">
-          <span class="setup-btn-title">Edit Environment Variables</span>
-          <span class="setup-btn-desc">Configure API keys and settings</span>
-        </div>
-        <div class="setup-btn-arrow">❯</div>
+      <button class="setup-action-btn primary" onclick="window.portalInitializer ? window.portalInitializer.enhancedSaveChanges() : saveChanges()">
+        <span class="action-icon">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        </span>
+        <span>Save Changes</span>
       </button>
-    </div>
-  </div>
-  
-  <!-- Enhanced Instructions Editor -->
-  <div id="edit-instructions-container" class="setup-editor-container" style="display:none;">
-    <div class="setup-editor-header">
-      <div class="setup-editor-title">
-        <span class="setup-editor-icon">📝</span>
-        <h4>Instructions Editor</h4>
-      </div>
-      <button class="setup-editor-close" onclick="document.getElementById('edit-instructions-container').style.display='none'; document.body.style.overflow=''">
-        <span>✕</span>
-      </button>
-    </div>
-    <div class="setup-editor-content">
-      <div class="setup-editor-toolbar">
-        <div class="setup-editor-info">
-          <span class="info-badge">System Prompts</span>
-          <span class="info-text">Define how the AI should behave and respond</span>
-        </div>
-      </div>
-      <div class="setup-editor-field">
-        <textarea id="instructions-content" placeholder="Enter your system instructions here..."></textarea>
-        <div class="textarea-footer">
-          <div class="count-group">
-            <span class="char-count">Characters: <span id="instructions-char-count">0</span></span>
-            <span class="token-count">Tokens: <span id="instructions-token-count">0</span></span>
-          </div>
-          <div class="model-select-mini">
-            <select id="instructions-model-select" class="mini-model-select">
-              <option value="gpt-4o">GPT-4o</option>
-              <option value="gpt-4o-mini">GPT-4o Mini</option>
-              <option value="claude-3-5-sonnet-latest">Claude 3.5 Sonnet</option>
-              <option value="claude-3-5-haiku-latest">Claude 3.5 Haiku</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div class="setup-editor-actions">
-        <button class="setup-action-btn secondary" onclick="document.getElementById('edit-instructions-container').style.display='none'; document.body.style.overflow=''">
-          <span>Cancel</span>
-        </button>
-        <button class="setup-action-btn primary" onclick="window.portalInitializer ? window.portalInitializer.enhancedSaveChanges() : saveChanges()">
-          <span class="action-icon">💾</span>
-          <span>Save Changes</span>
-        </button>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Enhanced Environment Variables Editor -->
-  <div id="edit-env-container" class="setup-editor-container" style="display:none;">
-    <div class="setup-editor-header">
-      <div class="setup-editor-title">
-        <span class="setup-editor-icon">🔐</span>
-        <h4>Environment Variables</h4>
-      </div>
-      <button class="setup-editor-close" onclick="document.getElementById('edit-env-container').style.display='none'; document.body.style.overflow=''">
-        <span>✕</span>
-      </button>
-    </div>
-    <div class="setup-editor-content">
-      <div class="setup-editor-toolbar">
-        <div class="setup-editor-info">
-          <span class="info-badge warning">Sensitive Data</span>
-          <span class="info-text">Store API keys and configuration securely</span>
-        </div>
-      </div>
-      <div class="setup-editor-field">
-        <textarea id="env-content" placeholder="KEY=value\nANOTHER_KEY=another_value"></textarea>
-        <div class="textarea-footer">
-          <div class="count-group">
-            <span class="char-count">Lines: <span id="env-line-count">0</span></span>
-            <span class="token-count">Tokens: <span id="env-token-count">0</span></span>
-          </div>
-          <div class="model-select-mini">
-            <select id="env-model-select" class="mini-model-select">
-              <option value="gpt-4o">GPT-4o</option>
-              <option value="gpt-4o-mini">GPT-4o Mini</option>
-              <option value="claude-3-5-sonnet-latest">Claude 3.5 Sonnet</option>
-              <option value="claude-3-5-haiku-latest">Claude 3.5 Haiku</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div class="setup-editor-actions">
-        <button class="setup-action-btn secondary" onclick="document.getElementById('edit-env-container').style.display='none'; document.body.style.overflow=''">
-          <span>Cancel</span>
-        </button>
-        <button class="setup-action-btn primary" onclick="window.portalInitializer ? window.portalInitializer.enhancedSaveEnvChanges() : saveEnvChanges()">
-          <span class="action-icon">💾</span>
-          <span>Save Changes</span>
-        </button>
-      </div>
     </div>
   </div>
 </div>
+
+<!-- Enhanced Environment Variables Editor -->
+<div id="edit-env-container" class="setup-editor-container" style="display:none;">
+  <div class="setup-editor-header">
+    <div class="setup-editor-title">
+      <span class="setup-editor-icon">
+        <svg class="icon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </span>
+      <h4>Environment Variables</h4>
+    </div>
+    <button class="setup-editor-close" title="Close" aria-label="Close" onclick="document.getElementById('edit-env-container').style.display='none'; document.body.style.overflow=''">
+      <svg class="icon icon-sm" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="setup-editor-content">
+    <div class="setup-editor-toolbar">
+      <div class="setup-editor-info">
+        <span class="info-badge warning">Sensitive Data</span>
+        <span class="info-text">Store API keys and configuration securely</span>
+      </div>
+    </div>
+    <div class="setup-editor-field">
+      <textarea id="env-content" placeholder="KEY=value\nANOTHER_KEY=another_value"></textarea>
+      <div class="textarea-footer">
+        <div class="count-group">
+          <span class="char-count">Lines: <span id="env-line-count">0</span></span>
+          <span class="token-count">Tokens: <span id="env-token-count">0</span></span>
+        </div>
+        <div class="model-select-mini">
+          <select id="env-model-select" class="mini-model-select">
+            <option value="gpt-4o">GPT-4o</option>
+            <option value="gpt-4o-mini">GPT-4o Mini</option>
+            <option value="claude-3-5-sonnet-latest">Claude 3.5 Sonnet</option>
+            <option value="claude-3-5-haiku-latest">Claude 3.5 Haiku</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="setup-editor-actions">
+      <button class="setup-action-btn secondary" onclick="document.getElementById('edit-env-container').style.display='none'; document.body.style.overflow=''">
+        <span>Cancel</span>
+      </button>
+      <button class="setup-action-btn primary" onclick="window.portalInitializer ? window.portalInitializer.enhancedSaveEnvChanges() : saveEnvChanges()">
+        <span class="action-icon">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        </span>
+        <span>Save Changes</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Wire up the theme toggle button (helpers defined in the head bootstrap). -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn && window.__toggleTheme) {
+      themeBtn.addEventListener('click', window.__toggleTheme);
+    }
+  });
+</script>
 
 <!-- Load Enhanced Modular System -->
 
@@ -343,12 +444,12 @@
   window.GPTPortalLoader = {
     loadedModules: new Set(),
     failedModules: new Set(),
-    
+
     async loadModule(name, path, required = true) {
       if (this.loadedModules.has(name)) {
         return true;
       }
-      
+
       try {
         await this.loadScript(path);
         this.loadedModules.add(name);
@@ -357,14 +458,14 @@
       } catch (error) {
         this.failedModules.add(name);
         console.error(`✗ Failed to load module ${name}:`, error);
-        
+
         if (required) {
           throw new Error(`Required module ${name} failed to load`);
         }
         return false;
       }
     },
-    
+
     loadScript(src) {
       return new Promise((resolve, reject) => {
         const script = document.createElement('script');
@@ -374,20 +475,20 @@
         document.head.appendChild(script);
       });
     },
-    
+
     async loadAllModules() {
       console.log('🚀 Loading GPTPortal modules...');
-      
+
       // Load required modules first
       for (const module of window.GPTPortalConfig.modules.required) {
         await this.loadModule(module, `js/modules/${module}.js`, true);
       }
-      
+
       // Load optional modules (best effort)
       for (const module of window.GPTPortalConfig.modules.optional) {
         await this.loadModule(module, `js/modules/${module}.js`, false);
       }
-      
+
       console.log(`📦 Loaded ${this.loadedModules.size} modules successfully`);
       if (this.failedModules.size > 0) {
         console.warn(`⚠️ Failed to load ${this.failedModules.size} optional modules:`, Array.from(this.failedModules));
@@ -417,41 +518,41 @@
 <script>
 document.addEventListener('DOMContentLoaded', async function() {
   console.log('🎯 GPTPortal Enhanced System Starting...');
-  
+
   const startTime = performance.now();
   let initializationSuccess = false;
-  
+
   try {
     // Wait for all modules to be available
     await waitForModules();
-    
+
     // Initialize the enhanced system
     if (window.portalInitializer) {
       await window.portalInitializer.initialize();
       initializationSuccess = true;
-      
+
       const loadTime = Math.round(performance.now() - startTime);
       console.log(`🎉 GPTPortal Enhanced System ready in ${loadTime}ms`);
-      
+
       // Show initialization success
       showInitializationStatus('success', `System initialized in ${loadTime}ms`);
-      
+
     } else {
       throw new Error('Portal initializer not available');
     }
-    
+
   } catch (error) {
     console.error('💥 Enhanced system initialization failed:', error);
     console.log('🔄 Falling back to basic functionality...');
-    
+
     // Fallback to basic functionality
     initializeBasicFunctionality();
     showInitializationStatus('warning', 'Using basic functionality due to initialization issues');
   }
-  
+
   // Setup global error handler
   setupGlobalErrorHandler();
-  
+
   // Setup performance monitoring
   setupPerformanceMonitoring();
 });
@@ -462,27 +563,27 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function waitForModules() {
   const requiredClasses = [
     'PortalInitializer',
-    'DynamicModelManager', 
+    'DynamicModelManager',
     'ModelSearchManager',
     'ModelUIManager',
     'MessageHandler'
   ];
-  
+
   const maxWait = 10000; // 10 seconds
   const checkInterval = 100; // 100ms
   const startTime = Date.now();
-  
+
   while (Date.now() - startTime < maxWait) {
     const allAvailable = requiredClasses.every(className => window[className]);
-    
+
     if (allAvailable) {
       console.log('✓ All required modules available');
       return;
     }
-    
+
     await new Promise(resolve => setTimeout(resolve, checkInterval));
   }
-  
+
   const missing = requiredClasses.filter(className => !window[className]);
   throw new Error(`Required modules not available after ${maxWait}ms: ${missing.join(', ')}`);
 }
@@ -492,22 +593,22 @@ async function waitForModules() {
  */
 function initializeBasicFunctionality() {
   console.log('🔧 Initializing basic functionality...');
-  
+
   // Basic model selector
   const selectedModel = document.getElementById('selected-model');
   const modelOptions = document.getElementById('model-options');
-  
+
   if (selectedModel && modelOptions) {
     selectedModel.addEventListener('click', () => {
       const isVisible = modelOptions.style.display === 'block';
       modelOptions.style.display = isVisible ? 'none' : 'block';
     });
   }
-  
+
   // Basic send button
   const sendButton = document.getElementById('send-button');
   const messageInput = document.getElementById('message-input');
-  
+
   if (sendButton && messageInput) {
     sendButton.addEventListener('click', () => {
       const message = messageInput.value.trim();
@@ -516,17 +617,17 @@ function initializeBasicFunctionality() {
         messageInput.value = '';
       }
     });
-    
+
     messageInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
         sendButton.click();
       }
     });
   }
-  
+
   // Basic file input - removed to prevent duplicate listeners
   // Event handling is managed by UIManager module
-  
+
   console.log('✓ Basic functionality initialized');
 }
 
@@ -539,9 +640,9 @@ function showInitializationStatus(type, message) {
     warning: { icon: '⚠️', color: '#FF9800' },
     error: { icon: '❌', color: '#F44336' }
   };
-  
+
   const status = statusTypes[type] || statusTypes.warning;
-  
+
   // Create status element
   const statusElement = document.createElement('div');
   statusElement.style.cssText = `
@@ -559,9 +660,9 @@ function showInitializationStatus(type, message) {
     transition: opacity 0.3s ease;
   `;
   statusElement.innerHTML = `${status.icon} ${message}`;
-  
+
   document.body.appendChild(statusElement);
-  
+
   // Auto-remove after 5 seconds
   setTimeout(() => {
     statusElement.style.opacity = '0';
@@ -579,20 +680,20 @@ function showInitializationStatus(type, message) {
 function setupGlobalErrorHandler() {
   window.addEventListener('error', (event) => {
     console.error('Global error:', event.error);
-    
+
     // Show user-friendly error message for critical errors
     if (event.error && event.error.message && !event.error.handled) {
       showInitializationStatus('error', 'An unexpected error occurred. Please refresh the page.');
       event.error.handled = true;
     }
   });
-  
+
   window.addEventListener('unhandledrejection', (event) => {
     console.error('Unhandled promise rejection:', event.reason);
-    
+
     // Prevent the default browser behavior
     event.preventDefault();
-    
+
     // Show user-friendly error message
     showInitializationStatus('warning', 'A background operation failed. Functionality may be limited.');
   });

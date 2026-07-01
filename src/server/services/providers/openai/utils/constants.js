@@ -23,85 +23,47 @@ const MODEL_TYPES = {
 };
 
 // Chat Completions models
+// Legacy, non-reasoning chat models -> Chat Completions API
 const CHAT_MODELS = [
-  'gpt-4',
-  'gpt-4-turbo',
   'gpt-4o',
-  'gpt-4.1',
   'gpt-4o-mini',
+  'gpt-4.1',
   'gpt-4.1-mini',
-  'gpt-4.1-nano',
-  'gpt-3.5-turbo',
-  'gpt-3.5-turbo-0125'
+  'gpt-4.1-nano'
 ];
 
-// Chat Completions models with web search
-const WEB_SEARCH_CHAT_MODELS = [
-  'gpt-4o-search-preview',
-  'gpt-4o-mini-search-preview'
-];
+// Chat Completions models with web search (dedicated search-preview models retired)
+const WEB_SEARCH_CHAT_MODELS = [];
 
-// Reasoning models (use Responses API)
+// Reasoning models -> Responses API (reasoning.effort control)
 const REASONING_MODELS = [
-  'gpt-5',
-  'gpt-5-mini',
-  'gpt-5-nano',
-  'gpt-5-chat-latest',
+  'gpt-5.5',
+  'gpt-5.5-pro',
+  'gpt-5.4',
+  'gpt-5.4-mini',
+  'gpt-5.4-nano',
+  'gpt-5.3-codex',
   'gpt-5.2',
-  'o1',
-  'o1-preview',
-  'o1-mini',
-  'o3',
-  'o3-mini',
-  'o4',
-  'o4-mini',
-  'o1-pro',
-  'o3-pro'
+  'o4-mini'
 ];
 
-// Deep research models (use Responses API with web search)
-const DEEP_RESEARCH_MODELS = [
-  'o3-deep-research',
-  'o4-mini-deep-research'
-];
+// Dedicated deep-research models retired; use gpt-5.x + web search instead
+const DEEP_RESEARCH_MODELS = [];
 
-// Models that support web search via Responses API
-const WEB_SEARCH_RESPONSES_MODELS = [
-  'gpt-4.1',
-  'gpt-4o',
-  'gpt-4o-mini',
-  'gpt-4.1-mini',
-  'o3-deep-research',
-  'o4-mini-deep-research'
-];
+// Models that AUTO-enable web search via the Responses API. Kept empty by default so
+// reasoning requests stay clean; add ids here to opt a model into always-on web search.
+const WEB_SEARCH_RESPONSES_MODELS = [];
 
-// Models that support Code Interpreter via Responses API
-const CODE_INTERPRETER_MODELS = [
-  'gpt-5',
-  'gpt-5-mini',
-  'gpt-5-nano',
-  'gpt-5-chat-latest',
-  'gpt-4.1',
-  'gpt-4o', 
-  'gpt-4o-mini',
-  'gpt-4.1-mini',
-  'gpt-4.1-nano',
-  'o1',
-  'o1-preview',
-  'o1-mini',
-  'o3',
-  'o3-mini',
-  'o4',
-  'o4-mini',
-  'o1-pro',
-  'o3-pro'
-];
+// Models that AUTO-enable Code Interpreter via the Responses API. Kept empty by default;
+// add ids here to opt a model into always-on code execution.
+const CODE_INTERPRETER_MODELS = [];
 
 // Image generation models
 const IMAGE_MODELS = [
-  'gpt-image-1',
-  'dall-e-3',
-  'dall-e-2'
+  'gpt-image-2',
+  'gpt-image-1.5',
+  'gpt-image-1-mini',
+  'gpt-image-1'
 ];
 
 // Audio models

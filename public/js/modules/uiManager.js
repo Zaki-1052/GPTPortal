@@ -92,26 +92,31 @@ class UIManager {
   }
 
   setupSidebar() {
+    // Single source of truth for the sidebar toggle. Stage 1's CSS keys off the
+    // inline display value (#sidebar default display:none; [style*='block'] ->
+    // display:flex), so we toggle display here rather than using transform.
     const toggleArrow = document.getElementById('toggleArrow');
     const sidebar = document.getElementById('sidebar');
 
     if (toggleArrow && sidebar) {
       toggleArrow.addEventListener('click', () => {
-        this.sidebarVisible = !this.sidebarVisible;
-        sidebar.style.transform = this.sidebarVisible ? 'translateX(0)' : 'translateX(-100%)';
+        this.sidebarVisible = sidebar.style.display !== 'block';
+        sidebar.style.display = this.sidebarVisible ? 'block' : 'none';
         toggleArrow.innerHTML = this.sidebarVisible ? '&#x25C0;' : '&#x25B6;';
       });
     }
   }
 
   setupPromptBar() {
+    // Off-canvas prompt bar: Stage 1's CSS defaults #promptBar to display:none,
+    // so toggle display (block) to reveal it — consistent with the sidebar.
     const toggleRightArrow = document.getElementById('toggleRightArrow');
     const promptBar = document.getElementById('promptBar');
 
     if (toggleRightArrow && promptBar) {
       toggleRightArrow.addEventListener('click', () => {
-        this.promptBarVisible = !this.promptBarVisible;
-        promptBar.style.transform = this.promptBarVisible ? 'translateX(0)' : 'translateX(100%)';
+        this.promptBarVisible = promptBar.style.display !== 'block';
+        promptBar.style.display = this.promptBarVisible ? 'block' : 'none';
         toggleRightArrow.innerHTML = this.promptBarVisible ? '&#x25B6;' : '&#x25C0;';
       });
     }
@@ -199,25 +204,8 @@ class UIManager {
       text-align: center;
     `;
     
-    // Add CSS for drop zone content
-    const style = document.createElement('style');
-    style.textContent = `
-      .drop-zone-content {
-        padding: 40px;
-        border: 3px dashed #fff;
-        border-radius: 20px;
-        background: rgba(255, 255, 255, 0.1);
-      }
-      .drop-zone-icon {
-        font-size: 64px;
-        margin-bottom: 20px;
-      }
-      .drop-zone-text {
-        font-size: 24px;
-        font-weight: bold;
-      }
-    `;
-    document.head.appendChild(style);
+    // No runtime <style> injection: the overlay's #drop-zone / .drop-zone-*
+    // classes are styled by the stylesheet (see new-class note for Stage 1).
     document.body.appendChild(dropZone);
 
     // Prevent default drag behaviors on document

@@ -237,16 +237,17 @@ class GPTPortalApp {
   }
 
   setupEnhancedFeatures() {
-    // Add CSS for sliders first
-    this.addSliderCSS();
-    
+    // Sliders are styled by Stage 1 tokens (no runtime <style> injection).
+
+    // Theme toggle (light/dark) + persistence
+    this.setupThemeToggle();
+
     // Enhanced temperature and token sliders
     this.setupTemperatureSlider();
     this.setupTokensSlider();
-    
-    // Enhanced sidebar toggles
-    this.setupSidebarToggles();
-    
+
+    // Sidebar toggles are owned by UIManager (single source of truth).
+
     // Enhanced keyboard shortcuts
     this.setupEnhancedKeyboardShortcuts();
     
@@ -266,6 +267,51 @@ class GPTPortalApp {
     if (this.dynamicModelManager && this.dynamicModelManager.models && Object.keys(this.dynamicModelManager.models).length > 0) {
       this.dynamicModelManager.populateModelSelector();
     }
+  }
+
+  /**
+   * Wire the header #theme-toggle to flip [data-theme] on <html> and persist
+   * to localStorage('gptportal-theme'); apply the saved/preferred theme on load.
+   * The portal.html <head> bootstrap sets the theme pre-paint (and may attach
+   * its own click handler), so we clone-replace the button to guarantee a
+   * single canonical listener here.
+   */
+  setupThemeToggle() {
+    if (this._themeToggleInitialized) return;
+
+    const KEY = 'gptportal-theme';
+    const root = document.documentElement;
+
+    // Apply-on-load: honor a saved choice, else the OS preference. The head
+    // bootstrap usually set this pre-paint; recompute defensively (no persist).
+    if (!root.getAttribute('data-theme')) {
+      let saved = null;
+      try { saved = localStorage.getItem(KEY); } catch (e) {}
+      const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+      root.setAttribute('data-theme', saved || (prefersLight ? 'light' : 'dark'));
+    }
+
+    const btn = document.getElementById('theme-toggle');
+    if (!btn) {
+      this._themeToggleInitialized = true;
+      return;
+    }
+
+    // Drop any listener wired in portal.html by replacing the node, then own
+    // the click behavior here so a single toggle fires per click.
+    const freshBtn = btn.cloneNode(true);
+    if (btn.parentNode) {
+      btn.parentNode.replaceChild(freshBtn, btn);
+    }
+
+    freshBtn.addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem(KEY, next); } catch (e) {}
+      console.log('Theme set to:', next);
+    });
+
+    this._themeToggleInitialized = true;
   }
 
   setupTemperatureSlider() {
@@ -297,30 +343,13 @@ class GPTPortalApp {
     tempSlider.step = '0.1';
     tempSlider.value = window.temperature || 1;
 
-    // Update display
+    // Update display (track/thumb/value colors come from Stage 1 tokens)
     tempValueDisplay.textContent = (window.temperature || 1).toFixed(1);
-
-    // Set initial color
-    const initialTempPercentage = ((window.temperature || 1) - 0) / (2 - 0) * 100;
-    const initialTempColor = initialTempPercentage < 50
-      ? `rgb(${Math.round(initialTempPercentage * 2.55)}, 255, 0)`
-      : `rgb(255, ${Math.round(255 - (initialTempPercentage - 50) * 5.1)}, 0)`;
-    tempValueDisplay.style.color = initialTempColor;
-    tempSlider.style.setProperty('--thumb-color', initialTempColor);
 
     // Add event listener (only once since we prevent re-initialization)
     const tempInputHandler = function() {
       window.temperature = parseFloat(this.value);
       tempValueDisplay.textContent = window.temperature.toFixed(1);
-
-      const tempPercentage = (window.temperature - 0) / (2 - 0) * 100;
-      const tempColor = tempPercentage < 50
-        ? `rgb(${Math.round(tempPercentage * 2.55)}, 255, 0)`
-        : `rgb(255, ${Math.round(255 - (tempPercentage - 50) * 5.1)}, 0)`;
-
-      tempValueDisplay.style.color = tempColor;
-      this.style.setProperty('--thumb-color', tempColor);
-
       console.log('Temperature updated:', window.temperature);
     };
 
@@ -362,25 +391,11 @@ class GPTPortalApp {
       modelTokenLimit.textContent = '8000';
     }
 
-    // Set initial color - start with blue for default value
-    const initialTokensColor = 'rgb(0, 128, 255)'; // Blue color for initial state
-    tokensValueDisplay.style.color = initialTokensColor;
-    tokensSlider.style.setProperty('--thumb-color', initialTokensColor);
-
-    // Add event listener (only once since we prevent re-initialization)
+    // Add event listener (only once since we prevent re-initialization).
+    // Track/thumb/value colors come from Stage 1 tokens.
     const tokensInputHandler = (e) => {
       window.tokens = parseInt(e.target.value);
       tokensValueDisplay.textContent = window.tokens.toLocaleString();
-
-      const maxTokens = this.getMaxTokensByModel(window.currentModelID || 'default');
-      const tokensPercentage = (window.tokens - 1000) / (maxTokens - 1000) * 100;
-      const tokensColor = tokensPercentage < 50
-        ? `rgb(${Math.round(tokensPercentage * 2.55)}, 255, 0)`
-        : `rgb(255, ${Math.round(255 - (tokensPercentage - 50) * 5.1)}, 0)`;
-
-      tokensValueDisplay.style.color = tokensColor;
-      e.target.style.setProperty('--thumb-color', tokensColor);
-
       console.log('Tokens updated:', window.tokens);
     };
 
@@ -481,31 +496,6 @@ class GPTPortalApp {
     }
   }
 
-  setupSidebarToggles() {
-    // Left sidebar toggle
-    const toggleArrow = document.getElementById('toggleArrow');
-    const sidebar = document.getElementById('sidebar');
-    
-    if (toggleArrow && sidebar) {
-      toggleArrow.addEventListener('click', () => {
-        const isVisible = sidebar.style.display === 'block';
-        sidebar.style.display = isVisible ? 'none' : 'block';
-        toggleArrow.innerHTML = isVisible ? '&#x25B6;' : '&#x25C0;';
-      });
-    }
-
-    // Right sidebar toggle
-    const toggleRightArrow = document.getElementById('toggleRightArrow');
-    const promptBar = document.getElementById('promptBar');
-    
-    if (toggleRightArrow && promptBar) {
-      toggleRightArrow.addEventListener('click', () => {
-        const isVisible = promptBar.style.display === 'block';
-        promptBar.style.display = isVisible ? 'none' : 'block';
-        toggleRightArrow.innerHTML = isVisible ? '&#x25C0;' : '&#x25B6;';
-      });
-    }
-  }
 
   setupEnhancedKeyboardShortcuts() {
     // Avoid duplicate keyboard shortcut listeners
@@ -705,10 +695,7 @@ class GPTPortalApp {
     if (tokensSlider && tokensValue) {
       tokensSlider.value = window.tokens || 8000;
       tokensValue.textContent = (window.tokens || 8000).toLocaleString();
-      // Set initial blue color instead of triggering input event
-      const initialTokensColor = 'rgb(0, 128, 255)';
-      tokensValue.style.color = initialTokensColor;
-      tokensSlider.style.setProperty('--thumb-color', initialTokensColor);
+      // Track/thumb/value colors are supplied by Stage 1 tokens.
     }
   }
 
@@ -732,148 +719,6 @@ class GPTPortalApp {
       temperature: window.temperature,
       tokens: window.tokens
     };
-  }
-
-  addSliderCSS() {
-    const style = document.createElement('style');
-    style.textContent = `
-      .slider-container {
-        margin: 10px 0;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-      
-      .slider-container label {
-        font-weight: bold;
-        color: white;
-        min-width: 120px;
-      }
-      
-      #temperature-slider, #tokens-slider {
-        flex-grow: 1;
-        height: 8px;
-        -webkit-appearance: none;
-        appearance: none;
-        background: linear-gradient(to right, #0000ff 0%, #00ff00 50%, #ffff00 75%, #ff0000 100%);
-        outline: none;
-        border-radius: 5px;
-        --thumb-color: rgb(0, 255, 0);
-      }
-      
-      #tokens-slider {
-        background: linear-gradient(to right, #0000ff 0%, #00ff00 50%, #ffff00 75%, #ff0000 100%);
-      }
-      
-      #temperature-slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: var(--thumb-color, #00ff00);
-        cursor: pointer;
-        border: 2px solid white;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      }
-      
-      #tokens-slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: var(--thumb-color, #00ff00);
-        cursor: pointer;
-        border: 2px solid white;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      }
-      
-      #temperature-slider::-moz-range-thumb {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: var(--thumb-color, #00ff00);
-        cursor: pointer;
-        border: 2px solid white;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      }
-      
-      #tokens-slider::-moz-range-thumb {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: var(--thumb-color, #00ff00);
-        cursor: pointer;
-        border: 2px solid white;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      }
-      
-      #temperature-value, #tokens-value {
-        font-weight: bold;
-        min-width: 40px;
-        color: #00ff00;
-      }
-      
-      #tokens-limit {
-        font-size: 0.9em;
-        color: #666;
-      }
-      
-      #model-token-limit {
-        color: #ccc;
-      }
-      
-      /* GPT-5 Specific Controls */
-      #gpt5-controls {
-        margin-top: 15px;
-        padding: 15px;
-        background: rgba(0, 0, 0, 0.3);
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-      
-      #reasoning-effort-container,
-      #verbosity-container {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 10px;
-      }
-      
-      #reasoning-effort-container label,
-      #verbosity-container label {
-        min-width: 120px;
-        font-weight: bold;
-        color: #fff;
-      }
-      
-      #reasoning-effort-select,
-      #verbosity-select {
-        flex: 1;
-        padding: 5px 10px;
-        background: #333;
-        color: #fff;
-        border: 1px solid #555;
-        border-radius: 4px;
-        font-size: 14px;
-      }
-      
-      #reasoning-effort-select:focus,
-      #verbosity-select:focus {
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-      }
-      
-      .param-help {
-        font-size: 12px;
-        color: #aaa;
-        margin-left: 10px;
-      }
-    `;
-    document.head.appendChild(style);
   }
 
   fixModelSelector() {

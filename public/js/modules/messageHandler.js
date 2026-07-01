@@ -129,11 +129,11 @@ class MessageHandler {
   showCopyFeedback(button) {
     const originalText = button.textContent;
     button.textContent = 'Copied!';
-    button.style.backgroundColor = '#4CAF50';
-    
+    button.classList.add('copied');
+
     setTimeout(() => {
       button.textContent = originalText;
-      button.style.backgroundColor = '';
+      button.classList.remove('copied');
     }, 1500);
   }
 
@@ -191,16 +191,15 @@ class MessageHandler {
     const imageElement = document.createElement('img');
     imageElement.src = imageSrc;
     imageElement.alt = "Generated Image";
-    imageElement.classList.add('generated-image');
-    imageElement.style.cssText = 'max-width: 100%; height: auto; border-radius: 8px;';
-    
+    imageElement.classList.add('generated-image'); // sized by Stage 1 `.message img`
+
     element.appendChild(imageElement);
-    
-    // Add download button
+
+    // Add download button (styled via `.download-btn` — see new-class note).
     const downloadBtn = this.createButton('Download', () => {
       this.downloadImage(imageSrc);
     });
-    downloadBtn.style.marginTop = '10px';
+    downloadBtn.className = 'download-btn';
     element.appendChild(downloadBtn);
   }
 
@@ -210,19 +209,14 @@ class MessageHandler {
    * @param {string} message - Error message
    */
   renderErrorMessage(element, message) {
-    element.style.color = '#e66767';
-    element.style.backgroundColor = '#2a1f1f';
-    element.style.border = '1px solid #e66767';
-    element.style.borderRadius = '8px';
-    element.style.padding = '12px';
-    
+    // Styling comes from Stage 1's `.message.error` tokens (class already set).
     const icon = document.createElement('span');
+    icon.className = 'message-icon';
     icon.textContent = '⚠️ ';
-    icon.style.marginRight = '8px';
-    
+
     const text = document.createElement('span');
     text.textContent = message;
-    
+
     element.appendChild(icon);
     element.appendChild(text);
   }
@@ -233,21 +227,14 @@ class MessageHandler {
    * @param {string} message - System message
    */
   renderSystemMessage(element, message) {
-    element.style.color = '#888';
-    element.style.backgroundColor = '#1a1a1a';
-    element.style.border = '1px solid #333';
-    element.style.borderRadius = '8px';
-    element.style.padding = '8px 12px';
-    element.style.fontStyle = 'italic';
-    element.style.fontSize = '14px';
-    
+    // Styling comes from Stage 1's `.message.system` tokens (class already set).
     const icon = document.createElement('span');
+    icon.className = 'message-icon';
     icon.textContent = 'ℹ️ ';
-    icon.style.marginRight = '6px';
-    
+
     const text = document.createElement('span');
     text.textContent = message;
-    
+
     element.appendChild(icon);
     element.appendChild(text);
   }
@@ -258,12 +245,7 @@ class MessageHandler {
    * @param {string} message - Message content
    */
   renderTextMessage(element, message) {
-    
-    if (message.includes('```')) {
-      this.renderMessageWithCodeBlocks(element, message);
-    } else {
-      this.renderSimpleTextMessage(element, message);
-    }
+    this.renderRichText(element, message);
 
     // Add main copy button
     const copyButton = this.createCopyButton(message);
@@ -272,6 +254,165 @@ class MessageHandler {
     // Add screenshot button
     const screenshotButton = this.createScreenshotButton(element);
     element.appendChild(screenshotButton);
+  }
+
+  /**
+   * Shared rich-text renderer: routes to the code-block-aware or simple
+   * markdown path. Reused by displayMessage (non-streaming) and by
+   * finalizeStreamingResponse so both share one render pipeline.
+   * @param {HTMLElement} element - Parent to append rendered content to
+   * @param {string} message - Message content
+   */
+  renderRichText(element, message) {
+    if (message.includes('```')) {
+      this.renderMessageWithCodeBlocks(element, message);
+    } else {
+      this.renderSimpleTextMessage(element, message);
+    }
+  }
+
+  /* =======================================================================
+   * STREAMING RENDER API (consumed by ChatManager's SSE reader)
+   * Incrementally shows plaintext deltas + reasoning, then runs the full
+   * markdown/highlight/KaTeX pipeline on the complete text at the end.
+   * ===================================================================== */
+
+  /**
+   * Create + append an empty assistant message ready to receive streamed
+   * deltas. Contains a hidden reasoning block and a live plaintext area.
+   * @returns {Object} handle used by the append/finalize helpers
+   */
+  beginStreamingResponse() {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message', 'response');
+    messageElement.dataset.messageId = `msg-${this.messageCounter++}`;
+    messageElement.dataset.timestamp = new Date().toISOString();
+    messageElement.dataset.streaming = 'true';
+
+    // Collapsible reasoning area — hidden until a thinking delta arrives.
+    const thinkingEl = document.createElement('details');
+    thinkingEl.className = 'thinking-block';
+    thinkingEl.hidden = true;
+    const summary = document.createElement('summary');
+    summary.textContent = 'Reasoning';
+    const thinkingContentEl = document.createElement('div');
+    thinkingContentEl.className = 'thinking-content';
+    thinkingEl.appendChild(summary);
+    thinkingEl.appendChild(thinkingContentEl);
+    messageElement.appendChild(thinkingEl);
+
+    // Live plaintext area (replaced by the full render on finalize).
+    const liveTextEl = document.createElement('div');
+    liveTextEl.className = 'message-text streaming-text';
+    const caretEl = document.createElement('span');
+    caretEl.className = 'streaming-cursor';
+    liveTextEl.appendChild(caretEl);
+    messageElement.appendChild(liveTextEl);
+
+    this.appendToChat(messageElement);
+
+    return {
+      element: messageElement,
+      thinkingEl,
+      thinkingContentEl,
+      liveTextEl,
+      caretEl,
+      textBuffer: '',
+      thinkingBuffer: ''
+    };
+  }
+
+  /**
+   * Append an answer-text delta to the live area (keeps the caret trailing).
+   * @param {Object} handle - handle from beginStreamingResponse
+   * @param {string} delta - text fragment
+   */
+  appendStreamingText(handle, delta) {
+    if (!handle || !delta) return;
+    handle.textBuffer += delta;
+    if (handle.liveTextEl) {
+      // textContent preserves the raw stream; caret re-appended at the tail.
+      handle.liveTextEl.textContent = handle.textBuffer;
+      if (handle.caretEl) handle.liveTextEl.appendChild(handle.caretEl);
+    }
+    this.scrollChatToBottom();
+  }
+
+  /**
+   * Reveal (once) and append to the collapsible reasoning block.
+   * @param {Object} handle - handle from beginStreamingResponse
+   * @param {string} delta - reasoning fragment
+   */
+  appendStreamingThinking(handle, delta) {
+    if (!handle || !delta) return;
+    handle.thinkingBuffer += delta;
+    if (handle.thinkingEl && handle.thinkingEl.hidden) {
+      handle.thinkingEl.hidden = false;
+      handle.thinkingEl.open = true; // expanded while actively streaming
+    }
+    if (handle.thinkingContentEl) {
+      handle.thinkingContentEl.textContent = handle.thinkingBuffer;
+    }
+    this.scrollChatToBottom();
+  }
+
+  /**
+   * Replace the live plaintext with the full render pipeline output
+   * (marked -> DOMPurify -> highlight.js -> KaTeX) and attach the message
+   * action buttons. Collapses or drops the reasoning block as appropriate.
+   * @param {Object} handle - handle from beginStreamingResponse
+   * @param {string} fullText - the complete answer text
+   * @returns {HTMLElement} the finalized message element
+   */
+  finalizeStreamingResponse(handle, fullText) {
+    if (!handle) return null;
+    const element = handle.element;
+
+    // Drop the transient live plaintext area.
+    if (handle.liveTextEl && handle.liveTextEl.parentNode) {
+      handle.liveTextEl.parentNode.removeChild(handle.liveTextEl);
+    }
+
+    // Keep captured reasoning (collapsed); remove the block if none arrived.
+    if (handle.thinkingEl) {
+      if (handle.thinkingBuffer) {
+        handle.thinkingEl.hidden = false;
+        handle.thinkingEl.open = false;
+      } else if (handle.thinkingEl.parentNode) {
+        handle.thinkingEl.parentNode.removeChild(handle.thinkingEl);
+      }
+    }
+
+    const text = (fullText != null ? fullText : handle.textBuffer) || '';
+
+    // Full render — reuses the exact non-streaming pipeline.
+    this.renderRichText(element, text);
+    element.appendChild(this.createCopyButton(text));
+    element.appendChild(this.createScreenshotButton(element));
+
+    element.dataset.streaming = 'false';
+    this.addToHistory('assistant', text);
+    this.scrollChatToBottom();
+    return element;
+  }
+
+  /**
+   * Remove a streaming message element (used when a stream errors before
+   * producing any answer text).
+   * @param {Object} handle - handle from beginStreamingResponse
+   */
+  discardStreamingResponse(handle) {
+    if (handle && handle.element && handle.element.parentNode) {
+      handle.element.parentNode.removeChild(handle.element);
+    }
+  }
+
+  /**
+   * Scroll the chat viewport to the newest content.
+   */
+  scrollChatToBottom() {
+    const chatBox = document.getElementById('chat-box');
+    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
   }
 
   /**
@@ -305,24 +446,22 @@ class MessageHandler {
     const language = languageMatch ? languageMatch[0].trim() : '';
     const actualCode = codeContent.replace(/^[^\n]+/, '').trim();
 
-    // Create code container
+    // Create code container. Styling (dark code palette, header row, layout)
+    // comes from Stage 1's token-based `.code-block` rules — no inline styles.
     const codeContainer = document.createElement('div');
     codeContainer.className = 'code-block';
-    codeContainer.style.cssText = 'position: relative; margin: 10px 0; background-color: #1e1e1e; border-radius: 8px; overflow: hidden;';
 
     // Add language label if present
     if (language) {
       const langLabel = document.createElement('div');
       langLabel.className = 'code-language';
       langLabel.textContent = language;
-      langLabel.style.cssText = 'background-color: #333; color: #888; padding: 6px 12px; font-size: 12px; border-bottom: 1px solid #444;';
       codeContainer.appendChild(langLabel);
     }
 
     // Create pre/code elements
     const pre = document.createElement('pre');
-    pre.style.cssText = 'margin: 0; padding: 16px; overflow-x: auto; background-color: transparent;';
-    
+
     const codeElement = document.createElement('code');
     codeElement.textContent = actualCode;
     codeElement.className = language ? `language-${language}` : '';
@@ -340,16 +479,9 @@ class MessageHandler {
     pre.appendChild(codeElement);
     codeContainer.appendChild(pre);
 
-    // Add copy code button
+    // Add copy code button. Position + theme come from Stage 1's
+    // `.code-block .copy-btn` rules (class set by createCopyButton).
     const copyCodeButton = this.createCopyButton(actualCode, 'Copy Code');
-    copyCodeButton.style.cssText = 'position: absolute; top: 8px; right: 8px; background-color: #444; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;';
-    copyCodeButton.addEventListener('mouseenter', () => {
-      copyCodeButton.style.backgroundColor = '#555';
-    });
-    copyCodeButton.addEventListener('mouseleave', () => {
-      copyCodeButton.style.backgroundColor = '#444';
-    });
-    
     codeContainer.appendChild(copyCodeButton);
     parent.appendChild(codeContainer);
   }
@@ -523,30 +655,12 @@ class MessageHandler {
    * @returns {HTMLElement} Button element
    */
   createButton(text, onClick) {
+    // Visual styling is supplied by the caller-assigned class (.copy-btn,
+    // .screenshot-btn, .download-btn) via Stage 1 tokens — no inline styles.
     const button = document.createElement('button');
+    button.type = 'button';
     button.textContent = text;
-    button.style.cssText = `
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      margin: 4px 4px 0 0;
-      transition: background-color 0.2s;
-    `;
-    
     button.addEventListener('click', onClick);
-    
-    button.addEventListener('mouseenter', () => {
-      button.style.backgroundColor = '#45a049';
-    });
-    
-    button.addEventListener('mouseleave', () => {
-      button.style.backgroundColor = '#4CAF50';
-    });
-    
     return button;
   }
 
@@ -557,18 +671,9 @@ class MessageHandler {
   appendToChat(messageElement) {
     const chatBox = document.getElementById('chat-box');
     if (chatBox) {
+      // Entrance animation is supplied by Stage 1's `.message` keyframes.
       chatBox.appendChild(messageElement);
       chatBox.scrollTop = chatBox.scrollHeight;
-      
-      // Add entrance animation
-      messageElement.style.opacity = '0';
-      messageElement.style.transform = 'translateY(20px)';
-      
-      requestAnimationFrame(() => {
-        messageElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-        messageElement.style.opacity = '1';
-        messageElement.style.transform = 'translateY(0)';
-      });
     }
   }
 
@@ -796,11 +901,11 @@ class MessageHandler {
   showCopyFeedback(button) {
     const originalText = button.textContent;
     button.textContent = 'Copied!';
-    button.style.backgroundColor = '#45a049';
-    
+    button.classList.add('copied');
+
     setTimeout(() => {
       button.textContent = originalText;
-      button.style.backgroundColor = '#4CAF50';
+      button.classList.remove('copied');
     }, 1500);
   }
 
@@ -1074,13 +1179,11 @@ class MessageHandler {
   showScreenshotFeedback(button) {
     const originalText = button.textContent;
     button.textContent = '✅';
-    button.style.backgroundColor = '#4CAF50';
-    button.style.transform = 'scale(1.1)';
-    
+    button.classList.add('copied');
+
     setTimeout(() => {
       button.textContent = originalText;
-      button.style.backgroundColor = '';
-      button.style.transform = '';
+      button.classList.remove('copied');
     }, 2000);
   }
 
@@ -1091,12 +1194,12 @@ class MessageHandler {
   showScreenshotError(button) {
     const originalText = button.textContent;
     button.textContent = '❌';
-    button.style.backgroundColor = '#f44336';
+    button.classList.add('failed');
     button.title = 'Screenshot failed - clipboard not supported';
-    
+
     setTimeout(() => {
       button.textContent = originalText;
-      button.style.backgroundColor = '';
+      button.classList.remove('failed');
       button.title = 'Copy screenshot to clipboard';
     }, 3000);
   }

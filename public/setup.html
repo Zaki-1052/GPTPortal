@@ -4,15 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to GPTPortal Setup</title>
+
+    <!-- Theme bootstrap: set data-theme before paint (shared with the portal). -->
+    <script>
+        (function () {
+            var KEY = 'gptportal-theme';
+            var saved = null;
+            try { saved = localStorage.getItem(KEY); } catch (e) {}
+            var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+            var theme = saved || (prefersLight ? 'light' : 'dark');
+            document.documentElement.setAttribute('data-theme', theme);
+            window.__setTheme = function (t) {
+                document.documentElement.setAttribute('data-theme', t);
+                try { localStorage.setItem(KEY, t); } catch (e) {}
+            };
+            window.__toggleTheme = function () {
+                var cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+                window.__setTheme(cur);
+            };
+        })();
+    </script>
+
     <link rel="stylesheet" href="setup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Manual light/dark toggle (persisted in localStorage) -->
+    <button id="theme-toggle" type="button" title="Toggle theme" aria-label="Toggle theme">
+        <svg class="icon icon-sun" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="icon icon-moon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+
     <div class="container">
         <h1>Welcome to GPT Portal</h1>
         <p>Please fill in the form below to set up your account. Refer to the <a href="https://github.com/Zaki-1052/GPTPortal" target="_blank" rel="noopener noreferrer">GPT Portal Documentation</a> for information on how to obtain the required API keys.</p>
-        
+
         <div class="security-notice">
-            This information is purely stored locally to your computer, and cannot be transmitted over the internet!
+            <svg class="icon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>This information is purely stored locally to your computer, and cannot be transmitted over the internet!</span>
         </div>
 
         <form id="setupForm">
@@ -20,12 +51,12 @@
                 <h3>Authentication</h3>
                 <p>Set up your login credentials for accessing GPT Portal</p>
             </div>
-            
+
             <div class="form-group required">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" placeholder="Enter your username" required>
             </div>
-            
+
             <div class="form-group required">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" placeholder="Enter your password" required>
@@ -35,56 +66,60 @@
                 <h3>API Keys</h3>
                 <p>Provide API keys for the services you wish to use</p>
             </div>
-            
+
             <div class="form-group recommended">
                 <label for="openaiApiKey">OpenAI API Key</label>
                 <input type="text" id="openaiApiKey" name="openaiApiKey" placeholder="sk-...">
             </div>
-            
+
             <div class="form-group encouraged">
                 <label for="claudeApiKey">Claude API Key</label>
                 <input type="text" id="claudeApiKey" name="claudeApiKey" placeholder="sk-ant-...">
             </div>
-            
+
             <div class="form-group optional">
                 <label for="googleApiKey">Google API Key</label>
                 <input type="text" id="googleApiKey" name="googleApiKey" placeholder="AIza...">
             </div>
-            
+
             <div class="form-group optional">
                 <label for="mistralApiKey">Mistral API Key</label>
                 <input type="text" id="mistralApiKey" name="mistralApiKey" placeholder="API key">
             </div>
-            
+
             <div class="form-group optional">
                 <label for="groqApiKey">GROQ API Key</label>
                 <input type="text" id="groqApiKey" name="groqApiKey" placeholder="gsk_...">
             </div>
-            
+
             <div class="form-group optional">
                 <label for="openrouterApiKey">OpenRouter API Key</label>
                 <input type="text" id="openrouterApiKey" name="openrouterApiKey" placeholder="sk-or-v1-...">
             </div>
-            
+
             <div class="form-group optional">
                 <label for="codestralApiKey">Codestral API Key</label>
                 <input type="text" id="codestralApiKey" name="codestralApiKey" placeholder="API key">
             </div>
-            
+
             <button type="submit" id="submitBtn">
-                <span>🚀 Submit</span>
+                <svg class="icon icon-sm" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+                <span>Submit</span>
             </button>
         </form>
     </div>
     <script src="script.js"></script>
-    
+
     <script>
+        // Wire the theme toggle (helpers defined in the head bootstrap).
+        document.getElementById('theme-toggle').addEventListener('click', window.__toggleTheme);
+
         document.getElementById('setupForm').addEventListener('submit', function (event) {
             event.preventDefault();
-            
+
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.innerHTML;
-            
+
             // Add loading state
             submitBtn.classList.add('loading');
             submitBtn.disabled = true;
@@ -119,14 +154,14 @@
                     // Show success message with modern styling
                     document.body.innerHTML = `
                         <div class="completion-message">
-                            <h2>✅ Setup Complete!</h2>
+                            <h2>Setup Complete!</h2>
                             <p>Your GPT Portal has been configured successfully.</p>
                             <p>Please restart the server and access the web app at <a href="/portal" id="portalLink">the portal</a></p>
                             <p><strong>Command copied to clipboard:</strong> <code>node server.js</code></p>
                             <p><em>Redirecting to portal in 10 seconds...</em></p>
                         </div>
                     `;
-                    
+
                     // Set the correct portal URL with current port
                     const portalLink = document.getElementById('portalLink');
                     const currentPort = window.location.port;
@@ -134,7 +169,7 @@
                     const portalUrl = `http://${currentHost}:${currentPort}/portal`;
                     portalLink.href = portalUrl;
                     portalLink.textContent = `${currentHost}:${currentPort}/portal`;
-                    
+
                     // Redirect to /portal after 10 seconds
                     setTimeout(() => {
                         window.location.href = '/portal';
@@ -168,6 +203,6 @@
             });
         });
     </script>
-    
+
 </body>
 </html>

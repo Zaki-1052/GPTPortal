@@ -321,16 +321,16 @@
     "category": "claude",
     "description": "This model always redirects to the latest model in the Claude Fable family.",
     "pricing": {
-      "input": 10,
-      "output": 50
+      "input": -1000000,
+      "output": -1000000
     },
     "contextWindow": 1000000,
     "supportsVision": true,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 1000000,
-      "max_completion_tokens": 128000,
-      "is_moderated": true
+      "context_length": null,
+      "max_completion_tokens": null,
+      "is_moderated": false
     },
     "architecture": {
       "modality": "text+image+file->text",
@@ -348,42 +348,6 @@
     "openRouterData": {
       "id": "~anthropic/claude-fable-latest",
       "created": 1781029944,
-      "per_request_limits": null
-    }
-  },
-  "anthropic/claude-fable-5": {
-    "name": "Anthropic: Claude Fable 5",
-    "provider": "openrouter",
-    "category": "claude",
-    "description": "Claude Fable 5 is a Mythos-class model from Anthropic, built for autonomous knowledge work and coding. It supports text, image, and file inputs with text output, with reasoning support and...",
-    "pricing": {
-      "input": 10,
-      "output": 50
-    },
-    "contextWindow": 1000000,
-    "supportsVision": true,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 1000000,
-      "max_completion_tokens": 128000,
-      "is_moderated": true
-    },
-    "architecture": {
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "file"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Claude",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "anthropic/claude-fable-5",
-      "created": 1781007515,
       "per_request_limits": null
     }
   },
@@ -1815,15 +1779,15 @@
     "category": "deepseek",
     "description": "DeepSeek V4 Flash is an efficiency-optimized Mixture-of-Experts model from DeepSeek with 284B total parameters and 13B activated parameters, supporting a 1M-token context window. It is designed for fast inference and...",
     "pricing": {
-      "input": 0.098,
-      "output": 0.196
+      "input": 0.09,
+      "output": 0.18
     },
     "contextWindow": 1048576,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 1048575,
-      "max_completion_tokens": null,
+      "context_length": 1048576,
+      "max_completion_tokens": 16384,
       "is_moderated": false
     },
     "architecture": {
@@ -4356,15 +4320,15 @@
     "category": "other",
     "description": "MiniMax-M2.1 is a lightweight, state-of-the-art large language model optimized for coding, agentic workflows, and modern application development. With only 10 billion activated parameters, it delivers a major jump in real-world...",
     "pricing": {
-      "input": 0.29,
-      "output": 0.95
+      "input": 0.3,
+      "output": 1.2
     },
     "contextWindow": 204800,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 196608,
-      "max_completion_tokens": 196608,
+      "context_length": 204800,
+      "max_completion_tokens": 131072,
       "is_moderated": false
     },
     "architecture": {
@@ -5348,7 +5312,7 @@
     "supportsFunction": false,
     "topProvider": {
       "context_length": 262144,
-      "max_completion_tokens": 262144,
+      "max_completion_tokens": 100352,
       "is_moderated": false
     },
     "architecture": {
@@ -5551,14 +5515,14 @@
     "description": "MiniMax-M2 is a compact, high-efficiency large language model optimized for end-to-end coding and agentic workflows. With 10 billion activated parameters (230 billion total), it delivers near-frontier intelligence across general reasoning,...",
     "pricing": {
       "input": 0.255,
-      "output": 1
+      "output": 1.02
     },
     "contextWindow": 204800,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 196608,
-      "max_completion_tokens": 196608,
+      "context_length": 204800,
+      "max_completion_tokens": 131072,
       "is_moderated": false
     },
     "architecture": {
@@ -6770,15 +6734,15 @@
     "category": "qwen",
     "description": "Qwen3-30B-A3B-Thinking-2507 is a 30B parameter Mixture-of-Experts reasoning model optimized for complex tasks requiring extended multi-step thinking. The model is designed specifically for “thinking mode,” where internal reasoning traces are separated...",
     "pricing": {
-      "input": 0.08,
-      "output": 0.39999999999999997
+      "input": 0.13,
+      "output": 1.56
     },
     "contextWindow": 131072,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 131072,
-      "max_completion_tokens": 131072,
+      "context_length": 81920,
+      "max_completion_tokens": 32768,
       "is_moderated": false
     },
     "architecture": {
@@ -8515,14 +8479,14 @@
     "category": "qwen",
     "description": "Qwen3-8B is a dense 8.2B parameter causal language model from the Qwen3 series, designed for both reasoning-heavy tasks and efficient dialogue. It supports seamless switching between \"thinking\" mode for math,...",
     "pricing": {
-      "input": 0.049999999999999996,
-      "output": 0.39999999999999997
+      "input": 0.117,
+      "output": 0.45499999999999996
     },
     "contextWindow": 131072,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 40960,
+      "context_length": 131072,
       "max_completion_tokens": 8192,
       "is_moderated": false
     },

@@ -10,7 +10,20 @@ class ModelUIManager {
     
     // Category collapse states
     this.collapsedCategories = new Set();
-    
+
+    // Inline-SVG provider marks (16px, currentColor) shown next to model names.
+    this.PROVIDER_LOGOS = {
+      anthropic: '<svg class="model-logo" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 6.4L20 8l-4.6 4.2L18 20l-6-3.6L6 20l2.6-7.8L4 8l6.2.4z"/></svg>',
+      openai: '<svg class="model-logo" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8.66 5v10L12 22l-8.66-5V7z"/></svg>',
+      gemini: '<svg class="model-logo" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c.5 5.2 4.8 9.5 10 10-5.2.5-9.5 4.8-10 10-.5-5.2-4.8-9.5-10-10 5.2-.5 9.5-4.8 10-10z"/></svg>',
+      grok: '<svg class="model-logo" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>',
+      deepseek: '<svg class="model-logo" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none"/></svg>',
+      llama: '<svg class="model-logo" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l9 16H3z"/></svg>',
+      mistral: '<svg class="model-logo" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="5" width="18" height="4"/><rect x="3" y="15" width="18" height="4"/></svg>',
+      kimi: '<svg class="model-logo" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',
+      generic: '<svg class="model-logo" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="7"/></svg>'
+    };
+
     // Bind methods to maintain context
     this.handleDropdownToggle = this.handleDropdownToggle.bind(this);
     this.handleOutsideClick = this.handleOutsideClick.bind(this);
@@ -462,7 +475,14 @@ class ModelUIManager {
   createButtonContent(model) {
     const content = document.createElement('div');
     content.style.cssText = 'display: flex; justify-content: space-between; align-items: center; width: 100%;';
-    
+
+    // Provider logo (inline SVG mark, inherits currentColor)
+    const logo = document.createElement('span');
+    logo.className = 'model-logo-wrap';
+    logo.style.cssText = 'display: inline-flex; align-items: center; flex-shrink: 0; margin-right: 8px;';
+    logo.innerHTML = this.getProviderLogo(model);
+    content.appendChild(logo);
+
     // Model name
     const nameSpan = document.createElement('span');
     nameSpan.textContent = model.name || model.id;
@@ -508,6 +528,35 @@ class ModelUIManager {
     content.appendChild(badgesContainer);
     
     return content;
+  }
+
+  /**
+   * Resolve a small inline-SVG provider logo for a model, matched by regex
+   * against the model id / name / provider. Marks use currentColor so they
+   * inherit the option text color and stay theme-safe. Returns an SVG string.
+   * @param {Object} model - Model data
+   * @returns {string} Inline SVG markup for the provider mark
+   */
+  getProviderLogo(model) {
+    const hay = `${model.id || ''} ${model.name || ''} ${model.provider || ''}`.toLowerCase();
+
+    // Order matters: the llama/groq/gpt-oss check precedes the gpt/openai
+    // check so "gpt-oss" resolves to the open-model mark, not the OpenAI one.
+    const marks = [
+      { re: /claude|anthropic/, svg: this.PROVIDER_LOGOS.anthropic },
+      { re: /gemini|google/, svg: this.PROVIDER_LOGOS.gemini },
+      { re: /grok|xai/, svg: this.PROVIDER_LOGOS.grok },
+      { re: /deepseek/, svg: this.PROVIDER_LOGOS.deepseek },
+      { re: /mistral|magistral|codestral|devstral/, svg: this.PROVIDER_LOGOS.mistral },
+      { re: /kimi|moonshot/, svg: this.PROVIDER_LOGOS.kimi },
+      { re: /llama|groq|gpt-oss/, svg: this.PROVIDER_LOGOS.llama },
+      { re: /gpt|openai|o\d/, svg: this.PROVIDER_LOGOS.openai }
+    ];
+
+    for (const mark of marks) {
+      if (mark.re.test(hay)) return mark.svg;
+    }
+    return this.PROVIDER_LOGOS.generic;
   }
 
   /**

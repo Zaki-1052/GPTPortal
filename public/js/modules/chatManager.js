@@ -406,17 +406,12 @@ class ChatManager {
         tokens: window.tokens || 8000
       };
       endpoint = '/assistant';
-    } else if (currentModelID && currentModelID.includes('gemini')) {
-      payload = {
-        prompt: message,
-        model: currentModelID,
-        imageParts: imageFilename ? [{ filename: imageFilename, mimeType: 'image/jpeg' }] : []
-      };
-      endpoint = '/gemini';
     } else {
-      // Get cache preference from model config
-      const cachePreference = this.modelConfig && typeof this.modelConfig.getPromptCachePreference === 'function' 
-        ? this.modelConfig.getPromptCachePreference() 
+      // All chat models (including Gemini) route through /message; the backend
+      // selects the provider from modelID. reasoningEffort/verbosity are always
+      // sent (default 'medium'), and streaming is requested via stream:true.
+      const cachePreference = this.modelConfig && typeof this.modelConfig.getPromptCachePreference === 'function'
+        ? this.modelConfig.getPromptCachePreference()
         : 'auto';
 
       payload = {
@@ -427,16 +422,13 @@ class ChatManager {
         file: this.fileUrl,
         temperature: window.temperature || 1,
         tokens: window.tokens || 8000,
-        cachePreference: cachePreference
+        cachePreference: cachePreference,
+        reasoningEffort: window.reasoningEffort || 'medium',
+        verbosity: window.verbosity || 'medium',
+        stream: true
       };
-      
-      // Add GPT-5 specific parameters
-      if (currentModelID && currentModelID.startsWith('gpt-5')) {
-        payload.reasoningEffort = window.reasoningEffort || 'medium';
-        payload.verbosity = window.verbosity || 'medium';
-      }
       endpoint = '/message';
-      
+
       // Debug logging for image fix verification
       if (imageUrl) {
         console.log('=== Payload Image Debug ===');
@@ -446,24 +438,30 @@ class ChatManager {
       }
     }
 
+    const wantsStream = payload.stream === true;
+    const isDeepResearch = currentModelID === 'o3-deep-research' || currentModelID === 'o4-mini-deep-research';
+
     try {
       console.log('Sending to:', endpoint, payload);
-      
+
       // Show progress indicator for deep research models
-      if (currentModelID === 'o3-deep-research' || currentModelID === 'o4-mini-deep-research') {
+      if (isDeepResearch) {
         this.showDeepResearchProgress();
       }
-      
+
+      const headers = { 'Content-Type': 'application/json' };
+      if (wantsStream) {
+        headers['Accept'] = 'text/event-stream';
+      }
+
       const response = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: headers,
         body: JSON.stringify(payload)
       });
 
       // Hide progress indicator for deep research models
-      if (currentModelID === 'o3-deep-research' || currentModelID === 'o4-mini-deep-research') {
+      if (isDeepResearch) {
         this.hideDeepResearchProgress();
       }
 
@@ -471,43 +469,186 @@ class ChatManager {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-      console.log('Response data:', data);
-      console.log('Endpoint:', endpoint);
+      const contentType = response.headers.get('Content-Type') || '';
+      const isEventStream = contentType.includes('text/event-stream');
 
-      // Determine response format based on endpoint
-      let messageContent;
-      if (endpoint.includes('gemini')) {
-        messageContent = data.text || 'No response received.';
-      } else if (endpoint.includes('assistant')) {
-        messageContent = data.text || 'No response received.';
+      if (wantsStream && isEventStream && response.body && typeof response.body.getReader === 'function') {
+        // Server-Sent Events: render incrementally as deltas arrive.
+        await this.consumeSSEStream(response);
       } else {
-        messageContent = data.text || 'No response received.';
-      }
-      
-      console.log('Extracted message content:', messageContent);
+        // Non-streaming fallback: assistant endpoint, or a model the backend
+        // chose not to stream. Parse the single JSON body as before.
+        const data = await response.json();
+        console.log('Response data:', data);
+        const messageContent = data.text || 'No response received.';
 
-      const shouldReadAloud = this.isVoiceTranscription || (window.isVoiceTranscription || false);
-      this.displayMessage(messageContent, 'response', shouldReadAloud);
-      this.isVoiceTranscription = false;
-      if (window.isVoiceTranscription !== undefined) {
-        window.isVoiceTranscription = false;
-      }
-      
-      // Clean up selected image after successful send
-      if (this.selectedImage) {
-        console.log('Clearing selectedImage after successful send:', this.selectedImage);
-        this.selectedImage = null;
-        // Clear image preview if it exists
-        const preview = document.getElementById('image-preview');
-        if (preview) {
-          preview.innerHTML = '';
+        const shouldReadAloud = this.isVoiceTranscription || (window.isVoiceTranscription || false);
+        this.displayMessage(messageContent, 'response', shouldReadAloud);
+        this.isVoiceTranscription = false;
+        if (window.isVoiceTranscription !== undefined) {
+          window.isVoiceTranscription = false;
         }
       }
-      
+
+      // Clean up selected image after a successful send (both paths).
+      this.resetAfterSend();
+
     } catch (error) {
       console.error('Error sending message to server:', error);
+      if (isDeepResearch) {
+        this.hideDeepResearchProgress();
+      }
       this.displayMessage('Error sending message. Please try again.', 'error');
+    }
+  }
+
+  /**
+   * Consume a Server-Sent Events response from /message, rendering answer and
+   * reasoning deltas incrementally via MessageHandler, then finalizing with a
+   * full markdown/highlight/KaTeX render. Event contract (see streamUtils):
+   *   {type:'text', value} {type:'thinking', value} {type:'error', value}
+   *   {type:'usage'|'done', usage}
+   * @param {Response} response - fetch Response with a text/event-stream body
+   * @returns {Promise<{answer:string, usage:object|null}>}
+   */
+  async consumeSSEStream(response) {
+    const handle = this.messageHandler ? this.messageHandler.beginStreamingResponse() : null;
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    let buffer = '';
+    let answer = '';
+    let finalUsage = null;
+    let errorText = '';
+    let sawError = false;
+
+    const handleEvent = (evt) => {
+      if (!evt || !evt.type) return;
+      switch (evt.type) {
+        case 'text':
+          answer += evt.value || '';
+          if (handle) this.messageHandler.appendStreamingText(handle, evt.value || '');
+          break;
+        case 'thinking':
+          if (handle) this.messageHandler.appendStreamingThinking(handle, evt.value || '');
+          break;
+        case 'error':
+          sawError = true;
+          errorText = evt.value || 'An error occurred while streaming the response.';
+          break;
+        case 'usage':
+        case 'done':
+          if (evt.usage) finalUsage = evt.usage;
+          break;
+        default:
+          break;
+      }
+    };
+
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        // SSE events are separated by a blank line ("\n\n").
+        let sepIndex;
+        while ((sepIndex = buffer.indexOf('\n\n')) !== -1) {
+          const rawEvent = buffer.slice(0, sepIndex);
+          buffer = buffer.slice(sepIndex + 2);
+          handleEvent(this.parseSSEEvent(rawEvent));
+        }
+      }
+
+      // Flush any trailing event not terminated by a blank line.
+      buffer += decoder.decode();
+      if (buffer.trim()) {
+        handleEvent(this.parseSSEEvent(buffer));
+      }
+    } catch (streamErr) {
+      console.error('SSE stream read error:', streamErr);
+      if (!answer) {
+        sawError = true;
+        if (!errorText) errorText = 'Streaming connection interrupted.';
+      }
+    }
+
+    // Finalize the assistant message.
+    if (handle) {
+      if (answer.length > 0) {
+        this.messageHandler.finalizeStreamingResponse(handle, answer);
+      } else {
+        this.messageHandler.discardStreamingResponse(handle);
+      }
+    } else if (answer.length > 0) {
+      this.displayMessage(answer, 'response');
+    }
+
+    // Surface any streamed error as a separate error message.
+    if (sawError) {
+      this.displayMessage(errorText, 'error');
+    }
+
+    // Mirror displayMessage's bookkeeping for the streaming path: push the
+    // assistant turn to ChatManager history and refresh the context meter.
+    if (answer.length > 0) {
+      this.conversationHistory.push({ role: 'assistant', content: answer });
+      if (this.contextTracker) {
+        this.contextTracker.updateConversationHistory(this.conversationHistory);
+      }
+
+      const shouldReadAloud = this.isVoiceTranscription || (window.isVoiceTranscription || false);
+      if (shouldReadAloud && window.callTTSAPI) {
+        window.callTTSAPI(answer);
+      }
+    }
+    this.isVoiceTranscription = false;
+    if (window.isVoiceTranscription !== undefined) {
+      window.isVoiceTranscription = false;
+    }
+
+    return { answer, usage: finalUsage };
+  }
+
+  /**
+   * Parse a single SSE event block into its JSON payload object.
+   * Concatenates any "data:" lines (SSE allows multiple) and JSON-parses them.
+   * @param {string} rawEvent - text of one event (lines, no trailing blank)
+   * @returns {object|null} parsed contract event, or null if not parseable
+   */
+  parseSSEEvent(rawEvent) {
+    const dataLines = [];
+    for (const line of rawEvent.split('\n')) {
+      const clean = line.replace(/\r$/, '');
+      if (clean.startsWith('data:')) {
+        dataLines.push(clean.slice(5).replace(/^ /, ''));
+      }
+    }
+    if (dataLines.length === 0) return null;
+
+    const dataStr = dataLines.join('\n');
+    if (dataStr === '[DONE]') return { type: 'done' };
+
+    try {
+      return JSON.parse(dataStr);
+    } catch (e) {
+      console.warn('Failed to parse SSE data:', dataStr, e);
+      return null;
+    }
+  }
+
+  /**
+   * Reset per-message state after a successful send (clears the pending image
+   * and its preview). Shared by the streaming and JSON response paths.
+   */
+  resetAfterSend() {
+    if (this.selectedImage) {
+      console.log('Clearing selectedImage after successful send:', this.selectedImage);
+      this.selectedImage = null;
+      const preview = document.getElementById('image-preview');
+      if (preview) {
+        preview.innerHTML = '';
+      }
     }
   }
 
