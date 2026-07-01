@@ -4,11 +4,13 @@
 - Root entrypoint: `server.js` (starts Express via `src/server/core/Application`).
 - Server code: `src/server/` with `core/` (app wiring), `routes/` (HTTP endpoints), `services/` (AI providers, export, tokens), `middleware/` (auth, uploads), `utils/`.
 - Client assets: `public/` (static files, `uploads/` for chats, prompts, images).
-- Configuration: `.env` (use `.env.example` as a template); Docker: `dockerfile`, `docker-compose.yml`.
+- Configuration: `.env` (use `.env.example` as a template); Docker: `Dockerfile`, `docker-compose.yml`.
+- Model catalog: `public/js/data/models.json` is the single source of truth for models, pricing, and routing. See `MODEL_UPDATE.md` before adding a model or provider.
 
 ## Build, Test, and Development Commands
 - Install: `npm install` — install Node dependencies.
-- Run: `npm start` — start the server (reads `PORT_SERVER`, `HOST`).
+- Run: `npm start` (or `node server.js`) — start the server (reads `PORT_SERVER`, `HOST`).
+- Test: `npm test` — runs `scripts/smoke-test.js`, validating the model catalog (schema, duplicate keys, category consistency, non-zero pricing, no retired ids) and provider routing. No API keys required. Run it after any change to `models.json` or provider routing.
 - Docker run: `docker compose up` — run via Docker (respects env vars).
 - Health check: `curl http://localhost:3000/health` — quick server status.
 
@@ -19,9 +21,10 @@
 - Formatting: no enforced linter; match existing style and file layout.
 
 ## Testing Guidelines
-- Framework: no formal test suite yet. Prefer targeted manual checks:
+- Smoke test: `npm test` (`scripts/smoke-test.js`) validates the catalog and routing offline. Keep it green.
+- Beyond that, prefer targeted manual checks:
   - `GET /health`, `GET /api/system/status`
-  - Chat and AI endpoints mounted by `RouteManager` (e.g., `/transcribe`, `/tts`, `/generate-image`).
+  - Chat and AI endpoints mounted by `RouteManager` (e.g., `/message`, `/compare`, `/transcribe`, `/tts`, `/generate-image`).
 - Suggested (optional): add Jest + Supertest for routes; place tests under `src/__tests__/` mirroring paths.
 
 ## Commit & Pull Request Guidelines

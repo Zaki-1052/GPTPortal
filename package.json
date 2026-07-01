@@ -1,15 +1,26 @@
 {
   "name": "gptportal",
-  "version": "1.0.0",
-  "description": "",
+  "version": "2.0.0",
+  "description": "Self-hosted, local-first web portal for chatting with many LLM providers (OpenAI, Anthropic, Google, xAI, DeepSeek, Groq, Moonshot, Mistral, OpenRouter, and local OpenAI-compatible endpoints) through one streaming interface.",
   "main": "server.js",
   "scripts": {
     "test": "node scripts/smoke-test.js",
     "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "llm",
+    "openai",
+    "anthropic",
+    "claude",
+    "gemini",
+    "chatbot",
+    "openrouter",
+    "ollama",
+    "express",
+    "self-hosted"
+  ],
+  "author": "Zakir Alibhai",
+  "license": "MIT",
   "dependencies": {
     "@google/genai": "^2.10.0",
     "axios": "^1.7.4",

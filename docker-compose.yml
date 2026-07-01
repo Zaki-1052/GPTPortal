@@ -4,8 +4,8 @@ services:
     image: ghcr.io/zaki-1052/gptportal:latest
     volumes:
       - ./.env:/app/.env #env variables for the app
-      # - ./instructions.md:/app/public/instructions.md # OPTIONAL customize openai prompt
-      # - ./geminiMessage.txt:/app/public/geminiMessage.txt # OPTIONAL customize gemini prompt
+      # - ./public/instructions.md:/app/public/instructions.md # OPTIONAL customize the system prompt
+      # - ./public/claudeInstructions.xml:/app/public/claudeInstructions.xml # OPTIONAL customize Claude instructions
 
     ports:
       - 3000:3000
