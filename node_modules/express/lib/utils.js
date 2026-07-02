@@ -287,7 +287,8 @@ function createETagGenerator (options) {
 
 function parseExtendedQueryString(str) {
   return qs.parse(str, {
-    allowPrototypes: true
+    allowPrototypes: true,
+    arrayLimit: 1000
   });
 }
 

@@ -1,7 +1,5 @@
 'use strict';
 
-var parseUrl = require('url').parse;
-
 var DEFAULT_PORTS = {
   ftp: 21,
   gopher: 70,
@@ -11,18 +9,22 @@ var DEFAULT_PORTS = {
   wss: 443,
 };
 
-var stringEndsWith = String.prototype.endsWith || function(s) {
-  return s.length <= this.length &&
-    this.indexOf(s, this.length - s.length) !== -1;
-};
+function parseUrl(urlString) {
+  try {
+    return new URL(urlString);
+  } catch {
+    return null;
+  }
+}
 
 /**
- * @param {string|object} url - The URL, or the result from url.parse.
+ * @param {string|object|URL} url - The URL as a string or URL instance, or a
+ *   compatible object (such as the result from legacy url.parse).
  * @return {string} The URL of the proxy that should handle the request to the
  *  given URL. If no proxy is set, this will be an empty string.
  */
-function getProxyForUrl(url) {
-  var parsedUrl = typeof url === 'string' ? parseUrl(url) : url || {};
+export function getProxyForUrl(url) {
+  var parsedUrl = (typeof url === 'string' ? parseUrl(url) : url) || {};
   var proto = parsedUrl.protocol;
   var hostname = parsedUrl.host;
   var port = parsedUrl.port;
@@ -39,11 +41,7 @@ function getProxyForUrl(url) {
     return '';  // Don't proxy URLs that match NO_PROXY.
   }
 
-  var proxy =
-    getEnv('npm_config_' + proto + '_proxy') ||
-    getEnv(proto + '_proxy') ||
-    getEnv('npm_config_proxy') ||
-    getEnv('all_proxy');
+  var proxy = getEnv(proto + '_proxy') || getEnv('all_proxy');
   if (proxy && proxy.indexOf('://') === -1) {
     // Missing scheme in proxy, default to the requested URL's scheme.
     proxy = proto + '://' + proxy;
@@ -60,8 +58,7 @@ function getProxyForUrl(url) {
  * @private
  */
 function shouldProxy(hostname, port) {
-  var NO_PROXY =
-    (getEnv('npm_config_no_proxy') || getEnv('no_proxy')).toLowerCase();
+  var NO_PROXY = getEnv('no_proxy').toLowerCase();
   if (!NO_PROXY) {
     return true;  // Always proxy if NO_PROXY is not set.
   }
@@ -90,7 +87,7 @@ function shouldProxy(hostname, port) {
       parsedProxyHostname = parsedProxyHostname.slice(1);
     }
     // Stop proxying if the hostname ends with the no_proxy host.
-    return !stringEndsWith.call(hostname, parsedProxyHostname);
+    return !hostname.endsWith(parsedProxyHostname);
   });
 }
 
@@ -104,5 +101,3 @@ function shouldProxy(hostname, port) {
 function getEnv(key) {
   return process.env[key.toLowerCase()] || process.env[key.toUpperCase()] || '';
 }
-
-exports.getProxyForUrl = getProxyForUrl;

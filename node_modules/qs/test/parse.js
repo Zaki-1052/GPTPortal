@@ -9,9 +9,16 @@ var SaferBuffer = require('safer-buffer').Buffer;
 var v = require('es-value-fixtures');
 var inspect = require('object-inspect');
 var emptyTestCases = require('./empty-keys-cases').emptyTestCases;
+var hasProto = require('has-proto')();
 
 var qs = require('../');
 var utils = require('../lib/utils');
+
+var characterizeParse = function characterizeParse(st, input, opts, expected, label) {
+    var result;
+    st.doesNotThrow(function () { result = qs.parse(input, opts); }, label + ': does not throw');
+    st.deepEqual(result, expected, label + ': parses to the current lenient output');
+};
 
 test('parse()', function (t) {
     t.test('parses a simple string', function (st) {
@@ -117,7 +124,7 @@ test('parse()', function (t) {
         st.end();
     });
 
-    t.test('should decode dot in key of object, and allow enabling dot notation when decodeDotInKeys is set to true and allowDots is undefined', function (st) {
+    t.test('decodes dot in key of object, and allow enabling dot notation when decodeDotInKeys is set to true and allowDots is undefined', function (st) {
         st.deepEqual(
             qs.parse(
                 'name%252Eobj%252Esubobject.first%252Egodly%252Ename=John&name%252Eobj%252Esubobject.last=Doe',
@@ -130,7 +137,7 @@ test('parse()', function (t) {
         st.end();
     });
 
-    t.test('should throw when decodeDotInKeys is not of type boolean', function (st) {
+    t.test('throws when decodeDotInKeys is not of type boolean', function (st) {
         st['throws'](
             function () { qs.parse('foo[]&bar=baz', { decodeDotInKeys: 'foobar' }); },
             TypeError
@@ -160,7 +167,7 @@ test('parse()', function (t) {
         st.end();
     });
 
-    t.test('should throw when allowEmptyArrays is not of type boolean', function (st) {
+    t.test('throws when allowEmptyArrays is not of type boolean', function (st) {
         st['throws'](
             function () { qs.parse('foo[]&bar=baz', { allowEmptyArrays: 'foobar' }); },
             TypeError
@@ -209,6 +216,21 @@ test('parse()', function (t) {
     t.test('uses original key when depth = 0', function (st) {
         st.deepEqual(qs.parse('a[0]=b&a[1]=c', { depth: 0 }), { 'a[0]': 'b', 'a[1]': 'c' });
         st.deepEqual(qs.parse('a[0][0]=b&a[0][1]=c&a[1]=d&e=2', { depth: 0 }), { 'a[0][0]': 'b', 'a[0][1]': 'c', 'a[1]': 'd', e: '2' });
+        st.deepEqual(qs.parse('a.b=c', { depth: 0, allowDots: true }), { 'a[b]': 'c' }, 'normalizes dots before applying depth-0 behavior');
+        st.deepEqual(qs.parse('toString=foo', { depth: 0 }), {}, 'respects prototype guard at depth 0');
+        st.deepEqual(qs.parse('toString=foo', { depth: 0, allowPrototypes: true }), { toString: 'foo' }, 'allows prototypes at depth 0 when enabled');
+        st.end();
+    });
+
+    t.test('ignores prototype keys when depth = 0 and allowPrototypes is false', function (st) {
+        st.deepEqual(qs.parse('toString=foo', { depth: 0 }), {});
+        st.deepEqual(qs.parse('hasOwnProperty=bar', { depth: 0 }), {});
+        st.deepEqual(qs.parse('toString=foo&a=b', { depth: 0 }), { a: 'b' });
+        st.end();
+    });
+
+    t.test('allows prototype keys when depth = 0 and allowPrototypes is true', function (st) {
+        st.deepEqual(qs.parse('toString=foo', { depth: 0, allowPrototypes: true }), { toString: 'foo' });
         st.end();
     });
 
@@ -234,11 +256,11 @@ test('parse()', function (t) {
         st.deepEqual(qs.parse('a=b&a[0]=c'), { a: ['b', 'c'] });
 
         st.deepEqual(qs.parse('a[1]=b&a=c', { arrayLimit: 20 }), { a: ['b', 'c'] });
-        st.deepEqual(qs.parse('a[]=b&a=c', { arrayLimit: 0 }), { a: ['b', 'c'] });
+        st.deepEqual(qs.parse('a[]=b&a=c', { arrayLimit: 0 }), { a: { 0: 'b', 1: 'c' } });
         st.deepEqual(qs.parse('a[]=b&a=c'), { a: ['b', 'c'] });
 
         st.deepEqual(qs.parse('a=b&a[1]=c', { arrayLimit: 20 }), { a: ['b', 'c'] });
-        st.deepEqual(qs.parse('a=b&a[]=c', { arrayLimit: 0 }), { a: ['b', 'c'] });
+        st.deepEqual(qs.parse('a=b&a[]=c', { arrayLimit: 0 }), { a: { 0: 'b', 1: 'c' } });
         st.deepEqual(qs.parse('a=b&a[]=c'), { a: ['b', 'c'] });
 
         st.end();
@@ -247,6 +269,94 @@ test('parse()', function (t) {
     t.test('parses a nested array', function (st) {
         st.deepEqual(qs.parse('a[b][]=c&a[b][]=d'), { a: { b: ['c', 'd'] } });
         st.deepEqual(qs.parse('a[>=]=25'), { a: { '>=': '25' } });
+        st.end();
+    });
+
+    t.test('parses keys with literal [] inside a bracket group (#493)', function (st) {
+        // A bracket pair inside a bracket group should be treated literally as part of the key
+        st.deepEqual(
+            qs.parse('search[withbracket[]]=foobar'),
+            { search: { 'withbracket[]': 'foobar' } },
+            'treats inner [] literally when inside a bracket group'
+        );
+
+        // Single-level variant
+        st.deepEqual(
+            qs.parse('a[b[]]=c'),
+            { a: { 'b[]': 'c' } },
+            'keeps "b[]" as a literal key'
+        );
+
+        // Nested with an array push on the outer level
+        st.deepEqual(
+            qs.parse('list[][x[]]=y'),
+            { list: [{ 'x[]': 'y' }] },
+            'preserves inner [] while still treating outer [] as array push'
+        );
+
+        // Multiple nested bracket pairs: inner [] remains literal as part of the key
+        st.deepEqual(
+            qs.parse('a[b[c[]]]=d'),
+            { a: { 'b[c[]]': 'd' } },
+            'treats "b[c[]]" as a literal key inside the bracket group'
+        );
+
+        // Depth limits with literal brackets: preserve inner [] while limiting bracket-group parsing
+        st.deepEqual(
+            qs.parse('a[b[c[]]][d]=e', { depth: 1 }),
+            { a: { 'b[c[]]': { '[d]': 'e' } } },
+            'respects depth: 1 and preserves literal inner [] in the parsed key'
+        );
+
+        // Unterminated inner bracket group is wrapped as a literal remainder segment
+        st.deepEqual(
+            qs.parse('a[[]b=c'),
+            { a: { '[[]b': 'c' } },
+            'handles unterminated inner bracket groups without throwing'
+        );
+
+        st.end();
+    });
+
+    t.test('currently parses unbalanced bracket keys after a parent leniently to literal segments (issue #558)', function (st) {
+        characterizeParse(st, 'a[bc=v', undefined, { a: { '[bc': 'v' } }, 'unclosed group after a parent');
+        characterizeParse(st, 'a[=v', undefined, { a: { '[': 'v' } }, 'bare unclosed bracket after a parent');
+        characterizeParse(st, 'a[b][c=v', undefined, { a: { b: { '[c': 'v' } } }, 'unclosed group after a valid one');
+        characterizeParse(st, 'a[b]c[d=v', undefined, { a: { b: { '[d': 'v' } } }, 'unclosed group after text following a valid one');
+        characterizeParse(st, 'filters[customtags:Env: Prod=v', undefined, { filters: { '[customtags:Env: Prod': 'v' } }, 'the issue #558 reproduction');
+        characterizeParse(st, '][a=v', undefined, { ']': { '[a': 'v' } }, 'stray close bracket before an unclosed group');
+        characterizeParse(st, 'a][b=v', undefined, { 'a]': { '[b': 'v' } }, 'stray close bracket inside the parent');
+        st.end();
+    });
+
+    t.test('currently parses unbalanced bracket keys containing inner brackets leniently (issue #558)', function (st) {
+        characterizeParse(st, 'a[b[c=v', undefined, { a: { '[b[c': 'v' } }, 'unclosed group containing an inner bracket');
+        characterizeParse(st, 'a[b[c]=v', undefined, { a: { '[b[c]': 'v' } }, 'unbalanced group with an inner bracket and one close');
+        characterizeParse(st, 'a[b][c[d=v', undefined, { a: { b: { '[c[d': 'v' } } }, 'unclosed inner-bracket group after a valid one');
+        st.end();
+    });
+
+    t.test('currently parses bracket-prefixed unbalanced keys leniently (issue #558)', function (st) {
+        characterizeParse(st, '[abc=v', undefined, { '[abc': 'v' }, 'key starting with an unclosed bracket');
+        characterizeParse(st, '[[]b=v', undefined, { '[[]b': 'v' }, 'key starting with an unbalanced bracket group');
+        st.end();
+    });
+
+    t.test('lenient unbalanced-bracket handling currently depends on the depth option (issue #558)', function (st) {
+        characterizeParse(st, 'a[b]c[d]e[f=v', { depth: 5 }, { a: { b: { d: { '[f': 'v' } } } }, 'consumes groups up to the depth budget then keeps the unclosed remainder literal');
+        characterizeParse(st, 'a[b]c[d]e[f=v', { depth: 1 }, { a: { b: { '[d]e[f': 'v' } } }, 'a lower depth keeps more of the unclosed remainder literal');
+        characterizeParse(st, 'a[bc=v', { depth: 0 }, { 'a[bc': 'v' }, 'depth 0 keeps the entire key literal');
+        st.end();
+    });
+
+    t.test('currently parses an allowDots key with a trailing unclosed bracket leniently (issue #558)', function (st) {
+        characterizeParse(st, 'a.b[c=v', { allowDots: true }, { a: { b: { '[c': 'v' } } }, 'allowDots expands the dot then keeps the unclosed bracket literal');
+        st.end();
+    });
+
+    t.test('valid and stray-close bracket keys are unaffected by unbalanced-bracket handling', function (st) {
+        characterizeParse(st, 'a]b=v', undefined, { 'a]b': 'v' }, 'stray close bracket with no open bracket stays a flat key');
+        characterizeParse(st, 'a[b]extra=v', undefined, { a: { b: 'v' } }, 'text after a balanced group is ignored');
         st.end();
     });
 
@@ -260,11 +370,11 @@ test('parse()', function (t) {
     });
 
     t.test('limits specific array indices to arrayLimit', function (st) {
-        st.deepEqual(qs.parse('a[20]=a', { arrayLimit: 20 }), { a: ['a'] });
-        st.deepEqual(qs.parse('a[21]=a', { arrayLimit: 20 }), { a: { 21: 'a' } });
+        st.deepEqual(qs.parse('a[19]=a', { arrayLimit: 20 }), { a: ['a'] });
+        st.deepEqual(qs.parse('a[20]=a', { arrayLimit: 20 }), { a: { 20: 'a' } });
 
-        st.deepEqual(qs.parse('a[20]=a'), { a: ['a'] });
-        st.deepEqual(qs.parse('a[21]=a'), { a: { 21: 'a' } });
+        st.deepEqual(qs.parse('a[19]=a'), { a: ['a'] });
+        st.deepEqual(qs.parse('a[20]=a'), { a: { 20: 'a' } });
         st.end();
     });
 
@@ -363,7 +473,7 @@ test('parse()', function (t) {
         );
         st.deepEqual(
             qs.parse('a[]=b&a[]&a[]=c&a[]=', { strictNullHandling: true, arrayLimit: 0 }),
-            { a: ['b', null, 'c', ''] },
+            { a: { 0: 'b', 1: null, 2: 'c', 3: '' } },
             'with arrayLimit 0 + array brackets: null then empty string works'
         );
 
@@ -374,7 +484,7 @@ test('parse()', function (t) {
         );
         st.deepEqual(
             qs.parse('a[]=b&a[]=&a[]=c&a[]', { strictNullHandling: true, arrayLimit: 0 }),
-            { a: ['b', '', 'c', null] },
+            { a: { 0: 'b', 1: '', 2: 'c', 3: null } },
             'with arrayLimit 0 + array brackets: empty string then null works'
         );
 
@@ -443,7 +553,7 @@ test('parse()', function (t) {
         st.end();
     });
 
-    t.test('should not throw when a native prototype has an enumerable property', function (st) {
+    t.test('does not throw when a native prototype has an enumerable property', function (st) {
         st.intercept(Object.prototype, 'crash', { value: '' });
         st.intercept(Array.prototype, 'crash', { value: '' });
 
@@ -482,7 +592,7 @@ test('parse()', function (t) {
 
     t.test('allows overriding array limit', function (st) {
         st.deepEqual(qs.parse('a[0]=b', { arrayLimit: -1 }), { a: { 0: 'b' } });
-        st.deepEqual(qs.parse('a[0]=b', { arrayLimit: 0 }), { a: ['b'] });
+        st.deepEqual(qs.parse('a[0]=b', { arrayLimit: 0 }), { a: { 0: 'b' } });
 
         st.deepEqual(qs.parse('a[-1]=b', { arrayLimit: -1 }), { a: { '-1': 'b' } });
         st.deepEqual(qs.parse('a[-1]=b', { arrayLimit: 0 }), { a: { '-1': 'b' } });
@@ -664,6 +774,21 @@ test('parse()', function (t) {
         st.end();
     });
 
+    t.test('does not crash on multi-step circular references', function (st) {
+        var a = {};
+        a.b = { c: { d: a } };
+
+        var parsed;
+
+        st.doesNotThrow(function () {
+            parsed = qs.parse({ foo: a });
+        });
+
+        st.equal('foo' in parsed, true, 'parsed has "foo" property');
+        st.equal(parsed.foo.b.c.d, parsed.foo, 'the multi-step cycle is preserved');
+        st.end();
+    });
+
     t.test('does not crash when parsing deep objects', function (st) {
         var parsed;
         var str = 'foo';
@@ -691,9 +816,8 @@ test('parse()', function (t) {
         st.end();
     });
 
-    t.test('parses null objects correctly', { skip: !Object.create }, function (st) {
-        var a = Object.create(null);
-        a.b = 'c';
+    t.test('parses null objects correctly', { skip: !hasProto }, function (st) {
+        var a = { __proto__: null, b: 'c' };
 
         st.deepEqual(qs.parse(a), { b: 'c' });
         var result = qs.parse({ a: a });
@@ -784,27 +908,55 @@ test('parse()', function (t) {
 
     t.test('add keys to objects', function (st) {
         st.deepEqual(
-            qs.parse('a[b]=c&a=d'),
+            qs.parse('a[b]=c&a=d', { strictMerge: false }),
             { a: { b: 'c', d: true } },
             'can add keys to objects'
         );
 
         st.deepEqual(
-            qs.parse('a[b]=c&a=toString'),
+            qs.parse('a[b]=c&a=toString', { strictMerge: false }),
             { a: { b: 'c' } },
             'can not overwrite prototype'
         );
 
         st.deepEqual(
-            qs.parse('a[b]=c&a=toString', { allowPrototypes: true }),
+            qs.parse('a[b]=c&a=toString', { strictMerge: false, allowPrototypes: true }),
             { a: { b: 'c', toString: true } },
             'can overwrite prototype with allowPrototypes true'
         );
 
         st.deepEqual(
-            qs.parse('a[b]=c&a=toString', { plainObjects: true }),
+            qs.parse('a[b]=c&a=toString', { strictMerge: false, plainObjects: true }),
             { __proto__: null, a: { __proto__: null, b: 'c', toString: true } },
             'can overwrite prototype with plainObjects true'
+        );
+
+        st.end();
+    });
+
+    t.test('strictMerge wraps object and primitive into an array', function (st) {
+        st.deepEqual(
+            qs.parse('a[b]=c&a=d'),
+            { a: [{ b: 'c' }, 'd'] },
+            'object then primitive produces array'
+        );
+
+        st.deepEqual(
+            qs.parse('a=d&a[b]=c'),
+            { a: ['d', { b: 'c' }] },
+            'primitive then object produces array'
+        );
+
+        st.deepEqual(
+            qs.parse('a[b]=c&a=toString'),
+            { a: [{ b: 'c' }, 'toString'] },
+            'prototype-colliding value is preserved in array'
+        );
+
+        st.deepEqual(
+            qs.parse('a[b]=c&a=toString', { plainObjects: true }),
+            { __proto__: null, a: [{ __proto__: null, b: 'c' }, 'toString'] },
+            'plainObjects preserved in array wrapping'
         );
 
         st.end();
@@ -870,17 +1022,41 @@ test('parse()', function (t) {
         st.end();
     });
 
-    t.test('can return null objects', { skip: !Object.create }, function (st) {
-        var expected = Object.create(null);
-        expected.a = Object.create(null);
-        expected.a.b = 'c';
-        expected.a.hasOwnProperty = 'd';
+    t.test('object-valued input with own `__proto__` does not mutate sub-object [[Prototype]]', function (st) {
+        // JSON.parse creates own data `__proto__` properties (via CreateDataProperty),
+        // which would trigger the Object.prototype.__proto__ accessor if merged via `acc[key] = value`.
+        var out = qs.parse({
+            'user[name]': 'alice',
+            user: JSON.parse('{"__proto__":{"isAdmin":true}}')
+        }, { allowPrototypes: false });
+
+        st.equal(out.user.name, 'alice', 'name from bracket key is preserved');
+        st.equal(out.user.isAdmin, undefined, 'attacker-controlled inherited property is not exposed');
+        st.equal(Object.getPrototypeOf(out.user), Object.prototype, 'sub-object [[Prototype]] is unchanged');
+        st.equal(Object.prototype.isAdmin, undefined, 'Object.prototype is not polluted');
+
+        st.end();
+    });
+
+    t.test('can return null objects', { skip: !hasProto }, function (st) {
+        var expected = {
+            __proto__: null,
+            a: {
+                __proto__: null,
+                b: 'c',
+                hasOwnProperty: 'd'
+            }
+        };
         st.deepEqual(qs.parse('a[b]=c&a[hasOwnProperty]=d', { plainObjects: true }), expected);
-        st.deepEqual(qs.parse(null, { plainObjects: true }), Object.create(null));
-        var expectedArray = Object.create(null);
-        expectedArray.a = Object.create(null);
-        expectedArray.a[0] = 'b';
-        expectedArray.a.c = 'd';
+        st.deepEqual(qs.parse(null, { plainObjects: true }), { __proto__: null });
+        var expectedArray = {
+            __proto__: null,
+            a: {
+                __proto__: null,
+                0: 'b',
+                c: 'd'
+            }
+        };
         st.deepEqual(qs.parse('a[]=b&a[c]=d', { plainObjects: true }), expectedArray);
         st.end();
     });
@@ -957,7 +1133,7 @@ test('parse()', function (t) {
         st.end();
     });
 
-    t.test('should ignore an utf8 sentinel with an unknown value', function (st) {
+    t.test('ignores an utf8 sentinel with an unknown value', function (st) {
         st.deepEqual(qs.parse('utf8=foo&' + urlEncodedOSlashInUtf8 + '=' + urlEncodedOSlashInUtf8, { charsetSentinel: true, charset: 'utf-8' }), { ø: 'ø' });
         st.end();
     });
@@ -988,6 +1164,20 @@ test('parse()', function (t) {
         st.end();
     });
 
+    t.test('handles a custom decoder returning `null`, with a string key of `null`', function (st) {
+        st.deepEqual(
+            qs.parse('null=1&ToNull=2', {
+                decoder: function (str, defaultDecoder, charset) {
+                    return str === 'ToNull' ? null : defaultDecoder(str, defaultDecoder, charset);
+                }
+            }),
+            { 'null': '1' },
+            '"null" key is not overridden by `null` decoder result'
+        );
+
+        st.end();
+    });
+
     t.test('does not interpret numeric entities in iso-8859-1 when `interpretNumericEntities` is absent', function (st) {
         st.deepEqual(qs.parse('foo=' + urlEncodedNumSmiley, { charset: 'iso-8859-1' }), { foo: '&#9786;' });
         st.end();
@@ -995,6 +1185,15 @@ test('parse()', function (t) {
 
     t.test('does not interpret numeric entities when the charset is utf-8, even when `interpretNumericEntities`', function (st) {
         st.deepEqual(qs.parse('foo=' + urlEncodedNumSmiley, { charset: 'utf-8', interpretNumericEntities: true }), { foo: '&#9786;' });
+        st.end();
+    });
+
+    t.test('interpretNumericEntities with comma:true and iso charset does not crash', function (st) {
+        st.deepEqual(
+            qs.parse('b&a[]=1,' + urlEncodedNumSmiley, { comma: true, charset: 'iso-8859-1', interpretNumericEntities: true }),
+            { b: '', a: ['1,☺'] }
+        );
+
         st.end();
     });
 
@@ -1015,6 +1214,331 @@ test('parse()', function (t) {
         };
 
         st.deepEqual(qs.parse('KeY=vAlUe', { decoder: decoder }), { key: 'VALUE' });
+
+        var noopDecoder = function () { return 'x'; };
+        noopDecoder();
+        st['throws'](
+            function () { decoder('x', noopDecoder, 'utf-8', 'unknown'); },
+            'this should never happen! type: unknown',
+            'decoder throws for unexpected type'
+        );
+
+        st.end();
+    });
+
+    t.test('parameter limit tests', function (st) {
+        st.test('does not throw error when within parameter limit', function (sst) {
+            var result = qs.parse('a=1&b=2&c=3', { parameterLimit: 5, throwOnLimitExceeded: true });
+            sst.deepEqual(result, { a: '1', b: '2', c: '3' }, 'parses without errors');
+            sst.end();
+        });
+
+        st.test('throws error when throwOnLimitExceeded is present but not boolean', function (sst) {
+            sst['throws'](
+                function () {
+                    qs.parse('a=1&b=2&c=3&d=4&e=5&f=6', { parameterLimit: 3, throwOnLimitExceeded: 'true' });
+                },
+                new TypeError('`throwOnLimitExceeded` option must be a boolean'),
+                'throws error when throwOnLimitExceeded is present and not boolean'
+            );
+            sst.end();
+        });
+
+        st.test('throws error when parameter limit exceeded', function (sst) {
+            sst['throws'](
+                function () {
+                    qs.parse('a=1&b=2&c=3&d=4&e=5&f=6', { parameterLimit: 3, throwOnLimitExceeded: true });
+                },
+                new RangeError('Parameter limit exceeded. Only 3 parameters allowed.'),
+                'throws error when parameter limit is exceeded'
+            );
+
+            sst['throws'](
+                function () {
+                    qs.parse('a=1&b=2', { parameterLimit: 1, throwOnLimitExceeded: true });
+                },
+                new RangeError('Parameter limit exceeded. Only 1 parameter allowed.'),
+                'throws error with singular "parameter" when parameterLimit is 1'
+            );
+            sst.end();
+        });
+
+        st.test('silently truncates when throwOnLimitExceeded is not given', function (sst) {
+            var result = qs.parse('a=1&b=2&c=3&d=4&e=5', { parameterLimit: 3 });
+            sst.deepEqual(result, { a: '1', b: '2', c: '3' }, 'parses and truncates silently');
+            sst.end();
+        });
+
+        st.test('silently truncates when parameter limit exceeded without error', function (sst) {
+            var result = qs.parse('a=1&b=2&c=3&d=4&e=5', { parameterLimit: 3, throwOnLimitExceeded: false });
+            sst.deepEqual(result, { a: '1', b: '2', c: '3' }, 'parses and truncates silently');
+            sst.end();
+        });
+
+        st.test('allows unlimited parameters when parameterLimit set to Infinity', function (sst) {
+            var result = qs.parse('a=1&b=2&c=3&d=4&e=5&f=6', { parameterLimit: Infinity });
+            sst.deepEqual(result, { a: '1', b: '2', c: '3', d: '4', e: '5', f: '6' }, 'parses all parameters without truncation');
+            sst.end();
+        });
+
+        st.test('allows unlimited parameters when parameterLimit is Infinity and throwOnLimitExceeded is true', function (sst) {
+            var result = qs.parse('a=1&b=2&c=3&d=4&e=5&f=6', { parameterLimit: Infinity, throwOnLimitExceeded: true });
+            sst.deepEqual(result, { a: '1', b: '2', c: '3', d: '4', e: '5', f: '6' }, 'parses all parameters without truncation or throwing');
+            sst.end();
+        });
+
+        st.end();
+    });
+
+    t.test('array limit tests', function (st) {
+        st.test('does not throw error when array is within limit', function (sst) {
+            var result = qs.parse('a[]=1&a[]=2&a[]=3', { arrayLimit: 5, throwOnLimitExceeded: true });
+            sst.deepEqual(result, { a: ['1', '2', '3'] }, 'parses array without errors');
+            sst.end();
+        });
+
+        st.test('throws error when throwOnLimitExceeded is present but not boolean for array limit', function (sst) {
+            sst['throws'](
+                function () {
+                    qs.parse('a[]=1&a[]=2&a[]=3&a[]=4', { arrayLimit: 3, throwOnLimitExceeded: 'true' });
+                },
+                new TypeError('`throwOnLimitExceeded` option must be a boolean'),
+                'throws error when throwOnLimitExceeded is present and not boolean for array limit'
+            );
+            sst.end();
+        });
+
+        st.test('throws error when array limit exceeded', function (sst) {
+            // 4 elements exceeds limit of 3
+            sst['throws'](
+                function () {
+                    qs.parse('a[]=1&a[]=2&a[]=3&a[]=4', { arrayLimit: 3, throwOnLimitExceeded: true });
+                },
+                new RangeError('Array limit exceeded. Only 3 elements allowed in an array.'),
+                'throws error when array limit is exceeded'
+            );
+            sst.end();
+        });
+
+        st.test('does not throw when at limit', function (sst) {
+            // 3 elements = limit of 3, should not throw
+            var result = qs.parse('a[]=1&a[]=2&a[]=3', { arrayLimit: 3, throwOnLimitExceeded: true });
+            sst.ok(Array.isArray(result.a), 'result is an array');
+            sst.deepEqual(result.a, ['1', '2', '3'], 'all values present');
+            sst.end();
+        });
+
+        st.test('converts array to object if length is greater than limit', function (sst) {
+            var result = qs.parse('a[1]=1&a[2]=2&a[3]=3&a[4]=4&a[5]=5&a[6]=6', { arrayLimit: 5 });
+
+            sst.deepEqual(result, { a: { 1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6' } }, 'parses into object if array length is greater than limit');
+            sst.end();
+        });
+
+        st.test('throws error when indexed notation exceeds arrayLimit with throwOnLimitExceeded', function (sst) {
+            sst['throws'](
+                function () {
+                    qs.parse('a[1001]=b', { arrayLimit: 1000, throwOnLimitExceeded: true });
+                },
+                new RangeError('Array limit exceeded. Only 1000 elements allowed in an array.'),
+                'throws error for a single index exceeding arrayLimit'
+            );
+
+            sst['throws'](
+                function () {
+                    qs.parse('a[0]=1&a[1]=2&a[2]=3&a[10]=4', { arrayLimit: 6, throwOnLimitExceeded: true, allowSparse: true });
+                },
+                new RangeError('Array limit exceeded. Only 6 elements allowed in an array.'),
+                'throws error when a sparse index exceeds arrayLimit'
+            );
+
+            sst['throws'](
+                function () {
+                    qs.parse('a[2]=b', { arrayLimit: 1, throwOnLimitExceeded: true });
+                },
+                new RangeError('Array limit exceeded. Only 1 element allowed in an array.'),
+                'throws error with singular "element" when arrayLimit is 1'
+            );
+
+            sst.end();
+        });
+
+        st.test('does not throw for indexed notation within arrayLimit with throwOnLimitExceeded', function (sst) {
+            var result = qs.parse('a[4]=b', { arrayLimit: 5, throwOnLimitExceeded: true, allowSparse: true });
+            sst.ok(Array.isArray(result.a), 'result is an array');
+            sst.equal(result.a.length, 5, 'array has correct length');
+            sst.equal(result.a[4], 'b', 'value at index 4 is correct');
+            sst.end();
+        });
+
+        st.test('silently converts to object for indexed notation exceeding arrayLimit without throwOnLimitExceeded', function (sst) {
+            var result = qs.parse('a[1001]=b', { arrayLimit: 1000 });
+            sst.deepEqual(result, { a: { 1001: 'b' } }, 'converts to object without throwing');
+            sst.end();
+        });
+
+        st.test('throws when duplicate bracket keys exceed arrayLimit with throwOnLimitExceeded', function (sst) {
+            sst['throws'](
+                function () {
+                    qs.parse('a[]=1&a[]=2&a[]=3&a[]=4&a[]=5&a[]=6', { arrayLimit: 5, throwOnLimitExceeded: true });
+                },
+                new RangeError('Array limit exceeded. Only 5 elements allowed in an array.'),
+                'throws error when duplicate bracket notation exceeds array limit'
+            );
+            sst.end();
+        });
+
+        st.test('throws when cumulative comma + duplicate-key combine exceeds arrayLimit', function (sst) {
+            sst['throws'](
+                function () {
+                    qs.parse('a=1,2,3&a=4,5,6', { comma: true, arrayLimit: 5, throwOnLimitExceeded: true });
+                },
+                new RangeError('Array limit exceeded. Only 5 elements allowed in an array.'),
+                'throws when comma groups within the limit cumulatively exceed it across duplicate keys'
+            );
+
+            sst['throws'](
+                function () {
+                    qs.parse('a=v,v,v,v,v&a=v,v,v,v,v&a=v,v,v,v,v', { comma: true, arrayLimit: 5, throwOnLimitExceeded: true });
+                },
+                new RangeError('Array limit exceeded. Only 5 elements allowed in an array.'),
+                'throws on a subsequent part once the cumulative array is already over the limit'
+            );
+            sst.end();
+        });
+
+        st.test('throws when plain duplicate keys combine past arrayLimit at the boundary', function (sst) {
+            sst['throws'](
+                function () { qs.parse('a=x&a=y', { arrayLimit: 1, throwOnLimitExceeded: true }); },
+                new RangeError('Array limit exceeded. Only 1 element allowed in an array.'),
+                'duplicate scalar keys'
+            );
+
+            sst['throws'](
+                function () { qs.parse('a[]=x&a[]=y', { arrayLimit: 1, throwOnLimitExceeded: true }); },
+                new RangeError('Array limit exceeded. Only 1 element allowed in an array.'),
+                'duplicate bracket keys'
+            );
+            sst.end();
+        });
+
+        st.test('throws when mixed index and key notation merge past arrayLimit', function (sst) {
+            sst['throws'](
+                function () { qs.parse('a=x&a[0]=y', { arrayLimit: 1, throwOnLimitExceeded: true }); },
+                new RangeError('Array limit exceeded. Only 1 element allowed in an array.'),
+                'scalar then index that overflows on merge'
+            );
+
+            sst['throws'](
+                function () { qs.parse('a[0]=1&a[1]=2&a=3', { arrayLimit: 1, throwOnLimitExceeded: true }); },
+                new RangeError('Array limit exceeded. Only 1 element allowed in an array.'),
+                'indexed array then scalar that overflows on merge'
+            );
+            sst.end();
+        });
+
+        st.test('enforces arrayLimit on merge at the boundary, consistently with combine', function (sst) {
+            sst['throws'](
+                function () { qs.parse('a[0]=x&a=y', { arrayLimit: 1, throwOnLimitExceeded: true }); },
+                new RangeError('Array limit exceeded. Only 1 element allowed in an array.'),
+                'a trailing scalar merged into an at-limit array throws'
+            );
+            sst.deepEqual(
+                qs.parse('a[0]=x&a=y', { arrayLimit: 1 }),
+                { a: { 0: 'x', 1: 'y' } },
+                'and converts to an overflow object without throwOnLimitExceeded'
+            );
+
+            sst['throws'](
+                function () { qs.parse('a[0]=x&a[]=y', { arrayLimit: 1, throwOnLimitExceeded: true }); },
+                new RangeError('Array limit exceeded. Only 1 element allowed in an array.'),
+                'mixed index and bracket notation merged past the limit throws'
+            );
+            sst.deepEqual(
+                qs.parse('a[0]=x&a[]=y', { arrayLimit: 1 }),
+                { a: { 0: 'x', 1: 'y' } },
+                'mixed index and bracket notation converts like duplicate-bracket combine'
+            );
+
+            sst.end();
+        });
+
+        st.test('does not throw when cumulative comma combine stays within arrayLimit', function (sst) {
+            var result = qs.parse('a=1,2,3&a=4', { comma: true, arrayLimit: 5, throwOnLimitExceeded: true });
+            sst.deepEqual(result, { a: ['1', '2', '3', '4'] }, 'combined array within limit is preserved');
+            sst.end();
+        });
+
+        st.test('silently combines to an overflow object when throwOnLimitExceeded is not set', function (sst) {
+            var result = qs.parse('a=1,2,3&a=4,5,6', { comma: true, arrayLimit: 5 });
+            sst.deepEqual(result, { a: { 0: '1', 1: '2', 2: '3', 3: '4', 4: '5', 5: '6' } }, 'converts to object without throwing');
+            sst.end();
+        });
+
+        st.test('does not throw for comma groups nested under bracket notation, counting each group as one element', function (sst) {
+            var result = qs.parse('a[]=1,2,3&a[]=4,5,6', { comma: true, arrayLimit: 5, throwOnLimitExceeded: true });
+            sst.deepEqual(result, { a: [['1', '2', '3'], ['4', '5', '6']] }, 'nested comma groups count as one element each');
+            sst.end();
+        });
+
+        st.test('throws before splitting when a single comma value exceeds arrayLimit', function (sst) {
+            sst['throws'](
+                function () {
+                    qs.parse('a=1,2,3,4,5,6', { comma: true, arrayLimit: 5, throwOnLimitExceeded: true });
+                },
+                new RangeError('Array limit exceeded. Only 5 elements allowed in an array.'),
+                'a flat comma value over the limit throws'
+            );
+
+            sst['throws'](
+                function () {
+                    qs.parse('a=1,2', { comma: true, arrayLimit: 1, throwOnLimitExceeded: true });
+                },
+                new RangeError('Array limit exceeded. Only 1 element allowed in an array.'),
+                'singular message at arrayLimit 1'
+            );
+
+            sst['throws'](
+                function () {
+                    qs.parse('a[b]=1,2,3,4,5,6', { comma: true, arrayLimit: 5, throwOnLimitExceeded: true });
+                },
+                new RangeError('Array limit exceeded. Only 5 elements allowed in an array.'),
+                'a non-bracket nested key comma value over the limit throws'
+            );
+            sst.end();
+        });
+
+        st.test('does not throw for a single comma value within arrayLimit', function (sst) {
+            sst.deepEqual(
+                qs.parse('a=1,2,3', { comma: true, arrayLimit: 5, throwOnLimitExceeded: true }),
+                { a: ['1', '2', '3'] },
+                'within the limit'
+            );
+            sst.deepEqual(
+                qs.parse('a=1,2,3,4,5', { comma: true, arrayLimit: 5, throwOnLimitExceeded: true }),
+                { a: ['1', '2', '3', '4', '5'] },
+                'exactly at the limit'
+            );
+            sst.end();
+        });
+
+        st.test('does not throw for a bracketed comma group within arrayLimit', function (sst) {
+            var result = qs.parse('a[]=1,2,3,4,5,6', { comma: true, arrayLimit: 5, throwOnLimitExceeded: true });
+            sst.deepEqual(result, { a: [['1', '2', '3', '4', '5', '6']] }, 'a bracketed comma group is a single element');
+            sst.end();
+        });
+
+        st.test('throws for a bracketed comma group when arrayLimit is 0', function (sst) {
+            sst['throws'](
+                function () {
+                    qs.parse('a[]=1,2,3', { comma: true, arrayLimit: 0, throwOnLimitExceeded: true });
+                },
+                new RangeError('Array limit exceeded. Only 0 elements allowed in an array.'),
+                'a single bracketed element still exceeds arrayLimit 0'
+            );
+            sst.end();
+        });
+
         st.end();
     });
 
@@ -1066,6 +1590,34 @@ test('`duplicates` option', function (t) {
         'duplicates: last'
     );
 
+    t.test('bracket notation always combines regardless of duplicates', function (st) {
+        st.deepEqual(
+            qs.parse('a=1&a=2&b[]=1&b[]=2', { duplicates: 'last' }),
+            { a: '2', b: ['1', '2'] },
+            'duplicates last: unbracketed takes last, bracketed combines'
+        );
+
+        st.deepEqual(
+            qs.parse('b[]=1&b[]=2', { duplicates: 'last' }),
+            { b: ['1', '2'] },
+            'duplicates last: bracketed always combines'
+        );
+
+        st.deepEqual(
+            qs.parse('b[]=1&b[]=2', { duplicates: 'first' }),
+            { b: ['1', '2'] },
+            'duplicates first: bracketed always combines'
+        );
+
+        st.deepEqual(
+            qs.parse('a=1&a=2&b[]=1&b[]=2', { duplicates: 'first' }),
+            { a: '1', b: ['1', '2'] },
+            'duplicates first: unbracketed takes first, bracketed combines'
+        );
+
+        st.end();
+    });
+
     t.end();
 });
 
@@ -1076,7 +1628,7 @@ test('qs strictDepth option - throw cases', function (t) {
                 qs.parse('a[b][c][d][e][f][g][h][i]=j', { depth: 1, strictDepth: true });
             },
             RangeError,
-            'Should throw RangeError'
+            'throws RangeError'
         );
         st.end();
     });
@@ -1087,7 +1639,7 @@ test('qs strictDepth option - throw cases', function (t) {
                 qs.parse('a[0][1][2][3][4]=b', { depth: 3, strictDepth: true });
             },
             RangeError,
-            'Should throw RangeError'
+            'throws RangeError'
         );
         st.end();
     });
@@ -1098,7 +1650,7 @@ test('qs strictDepth option - throw cases', function (t) {
                 qs.parse('a[b][c][0][d][e]=f', { depth: 3, strictDepth: true });
             },
             RangeError,
-            'Should throw RangeError'
+            'throws RangeError'
         );
         st.end();
     });
@@ -1109,7 +1661,7 @@ test('qs strictDepth option - throw cases', function (t) {
                 qs.parse('a[b][c][d][e]=true&a[b][c][d][f]=42', { depth: 3, strictDepth: true });
             },
             RangeError,
-            'Should throw RangeError'
+            'throws RangeError'
         );
         st.end();
     });
@@ -1123,7 +1675,7 @@ test('qs strictDepth option - non-throw cases', function (t) {
                 qs.parse('a[b][c][d][e]=true&a[b][c][d][f]=42', { depth: 0, strictDepth: true });
             },
             RangeError,
-            'Should not throw RangeError'
+            'does not throw RangeError'
         );
         st.end();
     });
@@ -1132,7 +1684,7 @@ test('qs strictDepth option - non-throw cases', function (t) {
         st.doesNotThrow(
             function () {
                 var result = qs.parse('a[b]=c', { depth: 1, strictDepth: true });
-                st.deepEqual(result, { a: { b: 'c' } }, 'Should parse correctly');
+                st.deepEqual(result, { a: { b: 'c' } }, 'parses correctly');
             }
         );
         st.end();
@@ -1142,7 +1694,7 @@ test('qs strictDepth option - non-throw cases', function (t) {
         st.doesNotThrow(
             function () {
                 var result = qs.parse('a[b][c][d][e][f][g][h][i]=j', { depth: 1 });
-                st.deepEqual(result, { a: { b: { '[c][d][e][f][g][h][i]': 'j' } } }, 'Should parse with depth limit');
+                st.deepEqual(result, { a: { b: { '[c][d][e][f][g][h][i]': 'j' } } }, 'parses with depth limit');
             }
         );
         st.end();
@@ -1152,7 +1704,7 @@ test('qs strictDepth option - non-throw cases', function (t) {
         st.doesNotThrow(
             function () {
                 var result = qs.parse('a[b]=c', { depth: 1 });
-                st.deepEqual(result, { a: { b: 'c' } }, 'Should parse correctly');
+                st.deepEqual(result, { a: { b: 'c' } }, 'parses correctly');
             }
         );
         st.end();
@@ -1162,9 +1714,220 @@ test('qs strictDepth option - non-throw cases', function (t) {
         st.doesNotThrow(
             function () {
                 var result = qs.parse('a[b][c]=d', { depth: 2, strictDepth: true });
-                st.deepEqual(result, { a: { b: { c: 'd' } } }, 'Should parse correctly');
+                st.deepEqual(result, { a: { b: { c: 'd' } } }, 'parses correctly');
             }
         );
         st.end();
     });
+});
+
+test('DOS', function (t) {
+    var arr = [];
+    for (var i = 0; i < 105; i++) {
+        arr[arr.length] = 'x';
+    }
+    var attack = 'a[]=' + arr.join('&a[]=');
+    var result = qs.parse(attack, { arrayLimit: 100 });
+
+    t.notOk(Array.isArray(result.a), 'arrayLimit is respected: result is an object, not an array');
+    t.equal(Object.keys(result.a).length, 105, 'all values are preserved');
+
+    t.end();
+});
+
+test('arrayLimit boundary conditions', function (t) {
+    // arrayLimit is the max number of elements allowed in an array
+    t.test('exactly at the limit stays as array', function (st) {
+        // 3 elements = limit of 3
+        var result = qs.parse('a[]=1&a[]=2&a[]=3', { arrayLimit: 3 });
+        st.ok(Array.isArray(result.a), 'result is an array when count equals limit');
+        st.deepEqual(result.a, ['1', '2', '3'], 'all values present');
+        st.end();
+    });
+
+    t.test('one over the limit converts to object', function (st) {
+        // 4 elements exceeds limit of 3
+        var result = qs.parse('a[]=1&a[]=2&a[]=3&a[]=4', { arrayLimit: 3 });
+        st.notOk(Array.isArray(result.a), 'result is not an array when over limit');
+        st.deepEqual(result.a, { 0: '1', 1: '2', 2: '3', 3: '4' }, 'all values preserved as object');
+        st.end();
+    });
+
+    t.test('arrayLimit 1 with one value', function (st) {
+        // 1 element = limit of 1
+        var result = qs.parse('a[]=1', { arrayLimit: 1 });
+        st.ok(Array.isArray(result.a), 'result is an array when count equals limit');
+        st.deepEqual(result.a, ['1'], 'value preserved as array');
+        st.end();
+    });
+
+    t.test('arrayLimit 1 with two values converts to object', function (st) {
+        // 2 elements exceeds limit of 1
+        var result = qs.parse('a[]=1&a[]=2', { arrayLimit: 1 });
+        st.notOk(Array.isArray(result.a), 'result is not an array');
+        st.deepEqual(result.a, { 0: '1', 1: '2' }, 'all values preserved as object');
+        st.end();
+    });
+
+    t.end();
+});
+
+test('comma + arrayLimit', function (t) {
+    t.test('comma-separated values within arrayLimit stay as array', function (st) {
+        var result = qs.parse('a=1,2,3', { comma: true, arrayLimit: 5 });
+        st.ok(Array.isArray(result.a), 'result is an array');
+        st.deepEqual(result.a, ['1', '2', '3'], 'all values present');
+        st.end();
+    });
+
+    t.test('comma-separated values exceeding arrayLimit convert to object', function (st) {
+        var result = qs.parse('a=1,2,3,4', { comma: true, arrayLimit: 3 });
+        st.notOk(Array.isArray(result.a), 'result is not an array when over limit');
+        st.deepEqual(result.a, { 0: '1', 1: '2', 2: '3', 3: '4' }, 'all values preserved as object');
+        st.end();
+    });
+
+    t.test('comma-separated values exceeding arrayLimit with throwOnLimitExceeded throws', function (st) {
+        st['throws'](
+            function () {
+                qs.parse('a=1,2,3,4', { comma: true, arrayLimit: 3, throwOnLimitExceeded: true });
+            },
+            new RangeError('Array limit exceeded. Only 3 elements allowed in an array.'),
+            'throws error when comma-split exceeds array limit'
+        );
+
+        st['throws'](
+            function () {
+                qs.parse('a=1,2,3', { comma: true, arrayLimit: 1, throwOnLimitExceeded: true });
+            },
+            new RangeError('Array limit exceeded. Only 1 element allowed in an array.'),
+            'throws error with singular "element" when arrayLimit is 1'
+        );
+        st.end();
+    });
+
+    t.test('comma-separated values at exactly arrayLimit stay as array', function (st) {
+        var result = qs.parse('a=1,2,3', { comma: true, arrayLimit: 3 });
+        st.ok(Array.isArray(result.a), 'result is an array when exactly at limit');
+        st.deepEqual(result.a, ['1', '2', '3'], 'all values present');
+        st.end();
+    });
+
+    t.end();
+});
+
+test('mixed array and object notation', function (t) {
+    t.test('array brackets with object key - under limit', function (st) {
+        st.deepEqual(
+            qs.parse('a[]=b&a[c]=d'),
+            { a: { 0: 'b', c: 'd' } },
+            'mixing [] and [key] converts to object'
+        );
+        st.end();
+    });
+
+    t.test('array index with object key - under limit', function (st) {
+        st.deepEqual(
+            qs.parse('a[0]=b&a[c]=d'),
+            { a: { 0: 'b', c: 'd' } },
+            'mixing [0] and [key] produces object'
+        );
+        st.end();
+    });
+
+    t.test('plain value with array brackets - under limit', function (st) {
+        st.deepEqual(
+            qs.parse('a=b&a[]=c', { arrayLimit: 20 }),
+            { a: ['b', 'c'] },
+            'plain value combined with [] stays as array under limit'
+        );
+        st.end();
+    });
+
+    t.test('array brackets with plain value - under limit', function (st) {
+        st.deepEqual(
+            qs.parse('a[]=b&a=c', { arrayLimit: 20 }),
+            { a: ['b', 'c'] },
+            '[] combined with plain value stays as array under limit'
+        );
+        st.end();
+    });
+
+    t.test('plain value with array index - under limit', function (st) {
+        st.deepEqual(
+            qs.parse('a=b&a[0]=c', { arrayLimit: 20 }),
+            { a: ['b', 'c'] },
+            'plain value combined with [0] stays as array under limit'
+        );
+        st.end();
+    });
+
+    t.test('multiple plain values with duplicates combine', function (st) {
+        st.deepEqual(
+            qs.parse('a=b&a=c&a=d', { arrayLimit: 20 }),
+            { a: ['b', 'c', 'd'] },
+            'duplicate plain keys combine into array'
+        );
+        st.end();
+    });
+
+    t.test('multiple plain values exceeding limit', function (st) {
+        // 3 elements (indices 0-2), max index 2 > limit 1
+        st.deepEqual(
+            qs.parse('a=b&a=c&a=d', { arrayLimit: 1 }),
+            { a: { 0: 'b', 1: 'c', 2: 'd' } },
+            'duplicate plain keys convert to object when exceeding limit'
+        );
+        st.end();
+    });
+
+    t.test('mixed notation produces consistent results when arrayLimit is exceeded', function (st) {
+        var expected = { a: { 0: 'b', 1: 'c', 2: 'd' } };
+
+        st.deepEqual(
+            qs.parse('a[]=b&a[1]=c&a=d', { arrayLimit: -1 }),
+            expected,
+            'arrayLimit -1'
+        );
+
+        st.deepEqual(
+            qs.parse('a[]=b&a[1]=c&a=d', { arrayLimit: 0 }),
+            expected,
+            'arrayLimit 0'
+        );
+
+        st.deepEqual(
+            qs.parse('a[]=b&a[1]=c&a=d', { arrayLimit: 1 }),
+            expected,
+            'arrayLimit 1'
+        );
+
+        st.end();
+    });
+
+    t.test('uses existing array length for currentArrayLength when parsing object input with bracket keys', function (st) {
+        var input = {};
+        var arr = ['x', 'y'];
+        arr.a = ['z', 'w'];
+        input['a[]'] = arr;
+        st.deepEqual(qs.parse(input), { a: ['x', 'y'] }, 'parses object input with bracket keys using existing array values');
+        st.end();
+    });
+
+    t.test('throws with singular message when object input bracket key exceeds arrayLimit of 1', function (st) {
+        var input = {};
+        var arr = ['x'];
+        arr.a = ['z', 'w'];
+        input['a[]'] = arr;
+        st['throws'](
+            function () {
+                qs.parse(input, { throwOnLimitExceeded: true, arrayLimit: 1 });
+            },
+            new RangeError('Array limit exceeded. Only 1 element allowed in an array.'),
+            'throws singular error for object input exceeding arrayLimit 1'
+        );
+        st.end();
+    });
+
+    t.end();
 });

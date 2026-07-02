@@ -8,7 +8,8 @@ var SaferBuffer = require('safer-buffer').Buffer;
 var hasSymbols = require('has-symbols');
 var mockProperty = require('mock-property');
 var emptyTestCases = require('./empty-keys-cases').emptyTestCases;
-var hasBigInt = typeof BigInt === 'function';
+var hasProto = require('has-proto')();
+var hasBigInt = require('has-bigints')();
 
 test('stringify()', function (t) {
     t.test('stringifies a querystring object', function (st) {
@@ -650,10 +651,51 @@ test('stringify()', function (t) {
         st.end();
     });
 
-    t.test('stringifies a null object', { skip: !Object.create }, function (st) {
-        var obj = Object.create(null);
-        obj.a = 'b';
-        st.equal(qs.stringify(obj), 'a=b');
+    t.test('does not crash on null/undefined entries in arrayFormat=comma with encodeValuesOnly', function (st) {
+        st.doesNotThrow(
+            function () { qs.stringify({ a: [null, 'b'] }, { arrayFormat: 'comma', encodeValuesOnly: true }); },
+            'does not pass a raw null array entry to the encoder'
+        );
+        st.doesNotThrow(
+            function () { qs.stringify({ a: [undefined, 'b'] }, { arrayFormat: 'comma', encodeValuesOnly: true }); },
+            'does not pass a raw undefined array entry to the encoder'
+        );
+        st.doesNotThrow(
+            function () { qs.stringify({ a: [null] }, { arrayFormat: 'comma', encodeValuesOnly: true }); },
+            'does not crash on a single-null array'
+        );
+
+        st.equal(
+            qs.stringify({ a: [null, 'b'] }, { arrayFormat: 'comma', encodeValuesOnly: true }),
+            'a=,b',
+            'null entry joins as empty, comma stays unencoded under encodeValuesOnly'
+        );
+        st.equal(
+            qs.stringify({ a: [undefined, 'b'] }, { arrayFormat: 'comma', encodeValuesOnly: true }),
+            'a=,b',
+            'undefined entry joins as empty, comma stays unencoded under encodeValuesOnly'
+        );
+        st.equal(
+            qs.stringify({ a: [null] }, { arrayFormat: 'comma', encodeValuesOnly: true }),
+            'a=',
+            'single-null array stringifies as empty value'
+        );
+        st.equal(
+            qs.stringify({ a: [null] }, { arrayFormat: 'comma', encodeValuesOnly: true, strictNullHandling: true }),
+            'a',
+            'strictNullHandling drops the equals sign for a single-null array'
+        );
+        st.equal(
+            qs.stringify({ a: [null] }, { arrayFormat: 'comma', encodeValuesOnly: true, skipNulls: true }),
+            '',
+            'skipNulls drops a single-null array entirely'
+        );
+
+        st.end();
+    });
+
+    t.test('stringifies a null object', { skip: !hasProto }, function (st) {
+        st.equal(qs.stringify({ __proto__: null, a: 'b' }), 'a=b');
         st.end();
     });
 
@@ -665,11 +707,8 @@ test('stringify()', function (t) {
         st.end();
     });
 
-    t.test('stringifies an object with a null object as a child', { skip: !Object.create }, function (st) {
-        var obj = { a: Object.create(null) };
-
-        obj.a.b = 'c';
-        st.equal(qs.stringify(obj), 'a%5Bb%5D=c');
+    t.test('stringifies an object with a null object as a child', { skip: !hasProto }, function (st) {
+        st.equal(qs.stringify({ a: { __proto__: null, b: 'c' } }), 'a%5Bb%5D=c');
         st.end();
     });
 
@@ -824,6 +863,35 @@ test('stringify()', function (t) {
             ),
             'a%5Bb%5D%5B0%5D=1&a%5Bb%5D%5B2%5D=3',
             'default => indices'
+        );
+
+        st.end();
+    });
+
+    t.test('skips null/undefined entries in filter=array', function (st) {
+        st.doesNotThrow(
+            function () { qs.stringify({ a: 'b', undefined: 'x' }, { filter: ['a', undefined] }); },
+            'does not pass a raw undefined filter entry to the encoder'
+        );
+        st.doesNotThrow(
+            function () { qs.stringify({ a: 'b', 'null': 'x' }, { filter: ['a', null] }); },
+            'does not pass a raw null filter entry to the encoder'
+        );
+
+        st.equal(
+            qs.stringify({ a: 'b', undefined: 'x', c: 'd' }, { filter: ['a', undefined, 'c'] }),
+            'a=b&c=d',
+            'undefined filter entry is skipped, remaining keys are kept'
+        );
+        st.equal(
+            qs.stringify({ a: 'b', 'null': 'x', c: 'd' }, { filter: ['a', null, 'c'] }),
+            'a=b&c=d',
+            'null filter entry is skipped, remaining keys are kept'
+        );
+        st.equal(
+            qs.stringify({ a: 'b', 'null': 'x' }, { filter: [null] }),
+            '',
+            'filter array containing only null yields empty string'
         );
 
         st.end();
@@ -1115,6 +1183,28 @@ test('stringify()', function (t) {
         st.end();
     });
 
+    t.test('strictNullHandling: applies the formatter to the encoded key (RFC1738)', function (st) {
+        st.equal(
+            qs.stringify(
+                { 'a b': null, 'c d': 'e f' },
+                { strictNullHandling: false, format: 'RFC1738' }
+            ),
+            'a+b=&c+d=e+f',
+            'without: as expected'
+        );
+
+        st.equal(
+            qs.stringify(
+                { 'a b': null, 'c d': 'e f' },
+                { strictNullHandling: true, format: 'RFC1738' }
+            ),
+            'a+b&c+d=e+f',
+            'with: as expected'
+        );
+
+        st.end();
+    });
+
     t.test('throws if an invalid charset is specified', function (st) {
         st['throws'](function () {
             qs.stringify({ a: 'b' }, { charset: 'foobar' });
@@ -1148,6 +1238,12 @@ test('stringify()', function (t) {
             qs.stringify({ a: 'æ' }, { charsetSentinel: true, charset: 'iso-8859-1' }),
             'utf8=%26%2310003%3B&a=%E6',
             'adds the right sentinel when instructed to and the charset is iso-8859-1'
+        );
+
+        st.equal(
+            qs.stringify({ a: 1, b: 2 }, { charsetSentinel: true, delimiter: ';' }),
+            'utf8=%E2%9C%93;a=1;b=2',
+            'uses the configured delimiter after the sentinel'
         );
 
         st.end();
@@ -1192,6 +1288,15 @@ test('stringify()', function (t) {
         };
 
         st.deepEqual(qs.stringify({ KeY: 'vAlUe' }, { encoder: encoder }), 'key=VALUE');
+
+        var noopEncoder = function () { return 'x'; };
+        noopEncoder();
+        st['throws'](
+            function () { encoder('x', noopEncoder, 'utf-8', 'unknown'); },
+            'this should never happen! type: unknown',
+            'encoder throws for unexpected type'
+        );
+
         st.end();
     });
 
@@ -1254,7 +1359,7 @@ test('stringify()', function (t) {
         };
 
         st.equal(
-            qs.stringify(obj, { arrayFormat: 'bracket', charset: 'utf-8' }),
+            qs.stringify(obj, { arrayFormat: 'brackets', charset: 'utf-8' }),
             'foo=' + expected.join('')
         );
 
@@ -1292,6 +1397,51 @@ test('stringifies empty keys', function (t) {
         st.deepEqual(qs.stringify({ '': { '': [2, 3], a: 2 } }, { encode: false }), '[][0]=2&[][1]=3&[a]=2');
         st.deepEqual(qs.stringify({ '': { '': [2, 3] } }, { encode: false, arrayFormat: 'indices' }), '[][0]=2&[][1]=3');
         st.deepEqual(qs.stringify({ '': { '': [2, 3], a: 2 } }, { encode: false, arrayFormat: 'indices' }), '[][0]=2&[][1]=3&[a]=2');
+
+        st.end();
+    });
+
+    t.test('stringifies non-string keys', function (st) {
+        var S = Object('abc');
+        S.toString = function () {
+            return 'd';
+        };
+        var actual = qs.stringify({ a: 'b', 'false': {}, 1e+22: 'c', d: 'e' }, {
+            filter: ['a', false, null, 10000000000000000000000, S],
+            allowDots: true,
+            encodeDotInKeys: true
+        });
+
+        st.equal(actual, 'a=b&1e%2B22=c&d=e', 'stringifies correctly');
+
+        st.end();
+    });
+
+    t.test('round-trips keys containing percent-encoded bracket text', function (st) {
+        var cases = [
+            { 'a%5Bb': 'c' },
+            { 'a%5Db': 'c' },
+            { 'a%255Bb': 'c' },
+            { 'a%255Db': 'c' },
+            { a: { 'b%5Bc': 'd' } },
+            { a: { 'b%255Bc': 'd' } },
+            { 'a%5B%255Bb': 'c' }
+        ];
+        for (var i = 0; i < cases.length; i++) {
+            st.deepEqual(
+                qs.parse(qs.stringify(cases[i])),
+                cases[i],
+                'round-trips ' + JSON.stringify(cases[i])
+            );
+        }
+
+        st.end();
+    });
+
+    t.test('parses input containing percent-encoded bracket text without mangling', function (st) {
+        st.deepEqual(qs.parse('a%25255Bb=c'), { 'a%255Bb': 'c' }, 'a%25255Bb decodes to a%255Bb, not a%5Bb');
+        st.deepEqual(qs.parse('a%25255Db=c'), { 'a%255Db': 'c' }, 'a%25255Db decodes to a%255Db, not a%5Db');
+        st.deepEqual(qs.parse('a%5Bb%25255Bc%5D=d'), { a: { 'b%255Bc': 'd' } }, 'nested %25255B decodes to %255B inside segment, not %5B');
 
         st.end();
     });

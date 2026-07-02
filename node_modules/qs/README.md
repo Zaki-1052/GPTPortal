@@ -49,7 +49,7 @@ assert.deepEqual(qs.parse('foo[bar]=baz'), {
 });
 ```
 
-When using the `plainObjects` option the parsed value is returned as a null object, created via `Object.create(null)` and as such you should be aware that prototype methods will not exist on it and a user may set those names to whatever value they like:
+When using the `plainObjects` option the parsed value is returned as a null object, created via `{ __proto__: null }` and as such you should be aware that prototype methods will not exist on it and a user may set those names to whatever value they like:
 
 ```javascript
 var nullObject = qs.parse('a[hasOwnProperty]=b', { plainObjects: true });
@@ -135,6 +135,18 @@ var limited = qs.parse('a=b&c=d', { parameterLimit: 1 });
 assert.deepEqual(limited, { a: 'b' });
 ```
 
+If you want an error to be thrown whenever the a limit is exceeded (eg, `parameterLimit`, `arrayLimit`), set the `throwOnLimitExceeded` option to `true`. This option will generate a descriptive error if the query string exceeds a configured limit.
+```javascript
+try {
+    qs.parse('a=1&b=2&c=3&d=4', { parameterLimit: 3, throwOnLimitExceeded: true });
+} catch (err) {
+    assert(err instanceof Error);
+    assert.strictEqual(err.message, 'Parameter limit exceeded. Only 3 parameters allowed.');
+}
+```
+
+When `throwOnLimitExceeded` is set to `false` (default), **qs** will parse up to the specified `parameterLimit` and ignore the rest without throwing an error.
+
 To bypass the leading question mark, use `ignoreQueryPrefix`:
 
 ```javascript
@@ -171,7 +183,7 @@ var withDots = qs.parse('name%252Eobj.first=John&name%252Eobj.last=Doe', { decod
 assert.deepEqual(withDots, { 'name.obj': { first: 'John', last: 'Doe' }});
 ```
 
-Option `allowEmptyArrays` can be used to allowing empty array values in object
+Option `allowEmptyArrays` can be used to allow empty array values in an object
 ```javascript
 var withEmptyArrays = qs.parse('foo[]&bar=baz', { allowEmptyArrays: true });
 assert.deepEqual(withEmptyArrays, { foo: [], bar: 'baz' });
@@ -183,6 +195,11 @@ assert.deepEqual(qs.parse('foo=bar&foo=baz'), { foo: ['bar', 'baz'] });
 assert.deepEqual(qs.parse('foo=bar&foo=baz', { duplicates: 'combine' }), { foo: ['bar', 'baz'] });
 assert.deepEqual(qs.parse('foo=bar&foo=baz', { duplicates: 'first' }), { foo: 'bar' });
 assert.deepEqual(qs.parse('foo=bar&foo=baz', { duplicates: 'last' }), { foo: 'baz' });
+```
+
+Note that keys with bracket notation (`[]`) always combine into arrays, regardless of the `duplicates` setting:
+```javascript
+assert.deepEqual(qs.parse('a=1&a=2&b[]=1&b[]=2', { duplicates: 'last' }), { a: '2', b: ['1', '2'] });
 ```
 
 If you have to deal with legacy browsers or services, there's also support for decoding percent-encoded octets as iso-8859-1:
@@ -270,8 +287,8 @@ var withIndexedEmptyString = qs.parse('a[0]=b&a[1]=&a[2]=c');
 assert.deepEqual(withIndexedEmptyString, { a: ['b', '', 'c'] });
 ```
 
-**qs** will also limit specifying indices in an array to a maximum index of `20`.
-Any array members with an index of greater than `20` will instead be converted to an object with the index as the key.
+**qs** will also limit arrays to a maximum of `20` elements.
+Any array members with an index of `20` or greater will instead be converted to an object with the index as the key.
 This is needed to handle cases when someone sent, for example, `a[999999999]` and it will take significant time to iterate over this huge array.
 
 ```javascript
@@ -286,7 +303,20 @@ var withArrayLimit = qs.parse('a[1]=b', { arrayLimit: 0 });
 assert.deepEqual(withArrayLimit, { a: { '1': 'b' } });
 ```
 
-To disable array parsing entirely, set `parseArrays` to `false`.
+If you want to throw an error whenever the array limit is exceeded, set the `throwOnLimitExceeded` option to `true`. This option will generate a descriptive error if the query string exceeds a configured limit.
+```javascript
+try {
+    qs.parse('a[1]=b', { arrayLimit: 0, throwOnLimitExceeded: true });
+} catch (err) {
+    assert(err instanceof Error);
+    assert.strictEqual(err.message, 'Array limit exceeded. Only 0 elements allowed in an array.');
+}
+```
+
+When `throwOnLimitExceeded` is set to `false` (default), **qs** will parse up to the specified `arrayLimit` and if the limit is exceeded, the array will instead be converted to an object with the index as the key
+
+To prevent array syntax (`a[]`, `a[0]`) from being parsed as arrays, set `parseArrays` to `false`.
+Note that duplicate keys (e.g. `a=b&a=c`) may still produce arrays when `duplicates` is `'combine'` (the default).
 
 ```javascript
 var noParsingArrays = qs.parse('a[]=b', { parseArrays: false });
@@ -298,6 +328,19 @@ If you mix notations, **qs** will merge the two items into an object:
 ```javascript
 var mixedNotation = qs.parse('a[0]=b&a[b]=c');
 assert.deepEqual(mixedNotation, { a: { '0': 'b', b: 'c' } });
+```
+
+When a key appears as both a plain value and an object, **qs** will by default wrap the conflicting values in an array (`strictMerge` defaults to `true`):
+
+```javascript
+assert.deepEqual(qs.parse('a[b]=c&a=d'), { a: [{ b: 'c' }, 'd'] });
+assert.deepEqual(qs.parse('a=d&a[b]=c'), { a: ['d', { b: 'c' }] });
+```
+
+To restore the legacy behavior (where the primitive is used as a key with value `true`), set `strictMerge` to `false`:
+
+```javascript
+assert.deepEqual(qs.parse('a[b]=c&a=d', { strictMerge: false }), { a: { b: 'c', d: true } });
 ```
 
 You can also create arrays of objects:
@@ -486,6 +529,12 @@ The query string may optionally be prepended with a question mark:
 
 ```javascript
 assert.equal(qs.stringify({ a: 'b', c: 'd' }, { addQueryPrefix: true }), '?a=b&c=d');
+```
+
+Note that when the output is an empty string, the prefix will not be added:
+
+```javascript
+assert.equal(qs.stringify({}, { addQueryPrefix: true }), '');
 ```
 
 The delimiter may be overridden with stringify as well:
@@ -699,7 +748,7 @@ Save time, reduce risk, and improve code health, while paying the maintainers of
 [downloads-url]: https://npm-stat.com/charts.html?package=qs
 [codecov-image]: https://codecov.io/gh/ljharb/qs/branch/main/graphs/badge.svg
 [codecov-url]: https://app.codecov.io/gh/ljharb/qs/
-[actions-image]: https://img.shields.io/endpoint?url=https://github-actions-badge-u3jn4tfpocch.runkit.sh/ljharb/qs
+[actions-image]: https://img.shields.io/github/check-runs/ljharb/qs/main
 [actions-url]: https://github.com/ljharb/qs/actions
 
 ## Acknowledgements

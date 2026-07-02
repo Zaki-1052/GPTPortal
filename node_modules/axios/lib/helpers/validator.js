@@ -1,6 +1,6 @@
 'use strict';
 
-import {VERSION} from '../env/data.js';
+import { VERSION } from '../env/data.js';
 import AxiosError from '../core/AxiosError.js';
 
 const validators = {};
@@ -25,7 +25,15 @@ const deprecatedWarnings = {};
  */
 validators.transitional = function transitional(validator, version, message) {
   function formatMessage(opt, desc) {
-    return '[Axios v' + VERSION + '] Transitional option \'' + opt + '\'' + desc + (message ? '. ' + message : '');
+    return (
+      '[Axios v' +
+      VERSION +
+      "] Transitional option '" +
+      opt +
+      "'" +
+      desc +
+      (message ? '. ' + message : '')
+    );
   }
 
   // eslint-disable-next-line func-names
@@ -57,7 +65,7 @@ validators.spelling = function spelling(correctSpelling) {
     // eslint-disable-next-line no-console
     console.warn(`${opt} is likely a misspelling of ${correctSpelling}`);
     return true;
-  }
+  };
 };
 
 /**
@@ -71,19 +79,24 @@ validators.spelling = function spelling(correctSpelling) {
  */
 
 function assertOptions(options, schema, allowUnknown) {
-  if (typeof options !== 'object') {
+  if (typeof options !== 'object' || options === null) {
     throw new AxiosError('options must be an object', AxiosError.ERR_BAD_OPTION_VALUE);
   }
   const keys = Object.keys(options);
   let i = keys.length;
   while (i-- > 0) {
     const opt = keys[i];
-    const validator = schema[opt];
+    // Use hasOwnProperty so a polluted Object.prototype.<opt> cannot supply
+    // a non-function validator and cause a TypeError.
+    const validator = Object.prototype.hasOwnProperty.call(schema, opt) ? schema[opt] : undefined;
     if (validator) {
       const value = options[opt];
       const result = value === undefined || validator(value, opt, options);
       if (result !== true) {
-        throw new AxiosError('option ' + opt + ' must be ' + result, AxiosError.ERR_BAD_OPTION_VALUE);
+        throw new AxiosError(
+          'option ' + opt + ' must be ' + result,
+          AxiosError.ERR_BAD_OPTION_VALUE
+        );
       }
       continue;
     }
@@ -95,5 +108,5 @@ function assertOptions(options, schema, allowUnknown) {
 
 export default {
   assertOptions,
-  validators
+  validators,
 };
