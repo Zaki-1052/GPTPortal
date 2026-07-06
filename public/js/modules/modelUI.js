@@ -37,7 +37,6 @@ class ModelUIManager {
     this.modelManager = modelManager;
     this.loadUIPreferences();
     this.bindEvents();
-    this.setupDropdownStyling();
     console.log('Model UI manager initialized');
   }
 
@@ -178,35 +177,6 @@ class ModelUIManager {
   }
 
   /**
-   * Setup dropdown styling and positioning
-   */
-  setupDropdownStyling() {
-    const modelSelector = document.getElementById('model-selector-container');
-    const modelOptions = document.getElementById('model-options');
-    
-    if (modelSelector && modelOptions) {
-      // Ensure container has proper positioning
-      modelSelector.style.position = 'relative';
-      
-      // Enhanced dropdown styling
-      Object.assign(modelOptions.style, {
-        backgroundColor: '#2a2a2a',
-        border: '1px solid #555',
-        borderRadius: '5px',
-        zIndex: '1000',
-        maxHeight: '400px',
-        overflowY: 'auto',
-        padding: '10px',
-        display: 'none',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-        transition: `opacity ${this.animationDuration}ms ease-in-out`
-      });
-      
-      console.log('Dropdown styling configured');
-    }
-  }
-
-  /**
    * Populate model selector with enhanced UI
    * @param {Object} models - Models to display
    * @param {Object} categories - Model categories
@@ -336,9 +306,9 @@ class ModelUIManager {
     
     // Hide OpenRouter categories if toggle is off
     if (this.isOpenRouterCategory(categoryKey) && !this.getShowOpenRouter()) {
-      categoryDiv.style.display = 'none';
+      categoryDiv.hidden = true;
     }
-    
+
     return categoryDiv;
   }
 
@@ -352,46 +322,24 @@ class ModelUIManager {
     const categoryHeader = document.createElement('h4');
     categoryHeader.className = 'category-header';
     categoryHeader.dataset.category = categoryKey;
-    
+
+    // Chevron mark; CSS rotates it via .model-category[data-collapsed].
     const arrow = document.createElement('span');
     arrow.className = 'category-arrow';
-    arrow.innerHTML = '▼';
-    arrow.style.cssText = 'transition: transform 0.2s ease; margin-right: 8px; font-size: 12px;';
-    
+    arrow.innerHTML = '<svg class="icon icon-xs" viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>';
+
     const title = document.createElement('span');
+    title.className = 'category-name';
     title.textContent = categoryName;
-    
+
     categoryHeader.appendChild(arrow);
     categoryHeader.appendChild(title);
-    
-    // Styling
-    categoryHeader.style.cssText = `
-      margin: 10px 0 5px 0;
-      padding: 8px 12px;
-      background-color: #404245;
-      border-radius: 3px;
-      font-size: 14px;
-      cursor: pointer;
-      user-select: none;
-      display: flex;
-      align-items: center;
-      transition: background-color 0.2s ease;
-    `;
-    
-    // Add hover effects
-    categoryHeader.addEventListener('mouseenter', () => {
-      categoryHeader.style.backgroundColor = '#505355';
-    });
-    
-    categoryHeader.addEventListener('mouseleave', () => {
-      categoryHeader.style.backgroundColor = '#404245';
-    });
-    
-    // Add click handler for collapse/expand
+
+    // Collapse/expand on click; all presentation lives in the stylesheet.
     categoryHeader.addEventListener('click', () => {
       this.toggleCategoryCollapse(categoryKey);
     });
-    
+
     return categoryHeader;
   }
 
@@ -403,12 +351,7 @@ class ModelUIManager {
   createModelsContainer(models) {
     const modelsContainer = document.createElement('div');
     modelsContainer.className = 'models-container';
-    modelsContainer.style.cssText = `
-      overflow: hidden;
-      transition: max-height 0.3s ease-out;
-      max-height: 1000px;
-    `;
-    
+
     // Add models to container
     models.forEach(model => {
       const button = this.createModelButton(model);
@@ -432,33 +375,13 @@ class ModelUIManager {
     // Button content
     const buttonContent = this.createButtonContent(model);
     button.appendChild(buttonContent);
-    
-    // Enhanced styling
-    button.style.cssText = `
-      width: 100%;
-      text-align: left;
-      padding: 10px 12px;
-      margin: 2px 0;
-      background-color: #303134;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-size: 14px;
-      position: relative;
-      overflow: hidden;
-    `;
-    
-    // Add click handler
+
+    // All presentation (surface, border, hover) lives in the stylesheet.
     button.addEventListener('click', (e) => {
       e.stopPropagation();
       this.selectModel(model.id);
     });
-    
-    // Add hover effects
-    this.addButtonHoverEffects(button);
-    
+
     // Add tooltip if description exists
     if (model.description) {
       this.addTooltipToButton(button, model);
@@ -474,59 +397,49 @@ class ModelUIManager {
    */
   createButtonContent(model) {
     const content = document.createElement('div');
-    content.style.cssText = 'display: flex; justify-content: space-between; align-items: center; width: 100%;';
+    content.className = 'model-option-content';
 
     // Provider logo (inline SVG mark, inherits currentColor)
     const logo = document.createElement('span');
     logo.className = 'model-logo-wrap';
-    logo.style.cssText = 'display: inline-flex; align-items: center; flex-shrink: 0; margin-right: 8px;';
     logo.innerHTML = this.getProviderLogo(model);
     content.appendChild(logo);
 
     // Model name
     const nameSpan = document.createElement('span');
+    nameSpan.className = 'model-option-name';
     nameSpan.textContent = model.name || model.id;
-    nameSpan.style.cssText = 'flex: 1; margin-right: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
     content.appendChild(nameSpan);
-    
+
     // Badges container
     const badgesContainer = document.createElement('div');
-    badgesContainer.style.cssText = 'display: flex; gap: 4px; align-items: center; flex-shrink: 0;';
-    
+    badgesContainer.className = 'badges-container';
+
     // Provider badge
     if (model.provider) {
-      const providerBadge = this.createBadge(model.provider.toUpperCase(), '#555');
+      const providerBadge = this.createBadge(model.provider.toUpperCase(), 'provider');
       badgesContainer.appendChild(providerBadge);
     }
-    
-    // Feature badges
+
+    // Feature badges — tint keyed by data-feature (see stylesheet)
     if (model.supportsVision) {
-      const visionBadge = this.createBadge('👁️', '#2196F3', 'Vision Support');
-      badgesContainer.appendChild(visionBadge);
+      badgesContainer.appendChild(this.createBadge('👁️', 'vision', 'Vision Support'));
     }
-    
     if (model.supportsFunction) {
-      const functionBadge = this.createBadge('⚙️', '#4CAF50', 'Function Calling');
-      badgesContainer.appendChild(functionBadge);
+      badgesContainer.appendChild(this.createBadge('⚙️', 'tools', 'Function Calling'));
     }
-    
     if (model.supportsImageGeneration) {
-      const imageBadge = this.createBadge('🎨', '#FF9800', 'Image Generation');
-      badgesContainer.appendChild(imageBadge);
+      badgesContainer.appendChild(this.createBadge('🎨', 'image', 'Image Generation'));
     }
-    
     if (model.supportsSpeechToText) {
-      const speechBadge = this.createBadge('🎙️', '#0284c7', 'Speech to Text');
-      badgesContainer.appendChild(speechBadge);
+      badgesContainer.appendChild(this.createBadge('🎙️', 'stt', 'Speech to Text'));
     }
-    
     if (model.supportsTextToSpeech) {
-      const ttsBadge = this.createBadge('🔊', '#E91E63', 'Text to Speech');
-      badgesContainer.appendChild(ttsBadge);
+      badgesContainer.appendChild(this.createBadge('🔊', 'tts', 'Text to Speech'));
     }
-    
+
     content.appendChild(badgesContainer);
-    
+
     return content;
   }
 
@@ -560,42 +473,21 @@ class ModelUIManager {
   }
 
   /**
-   * Create a badge element
+   * Create a badge element. `feature` selects the tint via data-feature
+   * ('provider' | 'vision' | 'tools' | 'image' | 'stt' | 'tts'); the
+   * stylesheet owns all colors so badges stay theme-safe.
    * @param {string} text - Badge text
-   * @param {string} color - Badge background color
+   * @param {string} feature - Feature key used for tinting
    * @param {string} title - Tooltip title
    * @returns {HTMLElement} Badge element
    */
-  createBadge(text, color, title = '') {
+  createBadge(text, feature = 'provider', title = '') {
     const badge = document.createElement('span');
+    badge.className = 'model-badge';
+    badge.dataset.feature = feature;
     badge.textContent = text;
     badge.title = title;
-    badge.style.cssText = `
-      font-size: 10px;
-      background-color: ${color};
-      color: white;
-      padding: 2px 6px;
-      border-radius: 3px;
-      margin-left: 2px;
-      white-space: nowrap;
-    `;
     return badge;
-  }
-
-  /**
-   * Add hover effects to button
-   * @param {HTMLElement} button - Button element
-   */
-  addButtonHoverEffects(button) {
-    button.addEventListener('mouseenter', () => {
-      button.style.backgroundColor = '#505355';
-      button.style.transform = 'translateX(2px)';
-    });
-    
-    button.addEventListener('mouseleave', () => {
-      button.style.backgroundColor = '#303134';
-      button.style.transform = 'translateX(0)';
-    });
   }
 
   /**
@@ -640,50 +532,34 @@ class ModelUIManager {
     tooltip.className = 'model-tooltip';
     
     // Build tooltip content
-    let tooltipHTML = `<strong>${model.name || model.id}</strong>`;
-    
+    let tooltipHTML = `<strong class="tt-title">${model.name || model.id}</strong>`;
+
     if (model.description) {
-      tooltipHTML += `<br><span style="color: #ccc;">${model.description}</span>`;
+      tooltipHTML += `<span class="tt-desc">${model.description}</span>`;
     }
-    
+
     if (model.provider) {
-      tooltipHTML += `<br><em>Provider: ${model.provider}</em>`;
+      tooltipHTML += `<span class="tt-meta">Provider: ${model.provider}</span>`;
     }
-    
+
     if (model.contextWindow) {
-      tooltipHTML += `<br><small>Context: ${model.contextWindow.toLocaleString()} tokens</small>`;
+      tooltipHTML += `<span class="tt-meta tabular">Context: ${model.contextWindow.toLocaleString()} tokens</span>`;
     }
-    
+
     if (model.pricing && (model.pricing.input || model.pricing.output)) {
       const inputCost = model.pricing.input ? `$${model.pricing.input}/1M` : 'Free';
       const outputCost = model.pricing.output ? `$${model.pricing.output}/1M` : 'Free';
-      tooltipHTML += `<br><small>Cost: ${inputCost} in, ${outputCost} out</small>`;
+      tooltipHTML += `<span class="tt-price tabular">${inputCost} in · ${outputCost} out</span>`;
     }
-    
+
     tooltip.innerHTML = tooltipHTML;
-    
-    // Tooltip styling
-    tooltip.style.cssText = `
-      position: absolute;
-      background-color: #333;
-      color: white;
-      padding: 12px;
-      border-radius: 6px;
-      font-size: 12px;
-      max-width: 300px;
-      z-index: 1001;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      line-height: 1.4;
-      border: 1px solid #555;
-      opacity: 0;
-      transition: opacity 0.2s ease-in-out;
-    `;
-    
-    // Fade in tooltip
+
+    // All visual styling lives in the stylesheet; JS only drives geometry
+    // (positionTooltip) and the fade-in state class below.
     setTimeout(() => {
-      tooltip.style.opacity = '1';
+      tooltip.classList.add('is-visible');
     }, 10);
-    
+
     return tooltip;
   }
 
@@ -722,7 +598,7 @@ class ModelUIManager {
    */
   removeTooltip(tooltip) {
     if (tooltip && tooltip.parentNode) {
-      tooltip.style.opacity = '0';
+      tooltip.classList.remove('is-visible');
       setTimeout(() => {
         if (tooltip.parentNode) {
           tooltip.parentNode.removeChild(tooltip);
@@ -778,16 +654,8 @@ class ModelUIManager {
    * @param {boolean} collapsed - Whether to collapse
    */
   setCategoryCollapsed(categoryElement, collapsed) {
-    const arrow = categoryElement.querySelector('.category-arrow');
-    const modelsContainer = categoryElement.querySelector('.models-container');
-    
-    if (arrow) {
-      arrow.style.transform = collapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
-    }
-    
-    if (modelsContainer) {
-      modelsContainer.style.maxHeight = collapsed ? '0px' : '1000px';
-    }
+    // CSS keys arrow rotation + models-container max-height off this attribute.
+    categoryElement.dataset.collapsed = collapsed ? 'true' : 'false';
   }
 
   /**
@@ -798,11 +666,11 @@ class ModelUIManager {
     const noModelsDiv = document.createElement('div');
     noModelsDiv.className = 'no-models-message';
     noModelsDiv.innerHTML = `
-      <div style="text-align: center; padding: 40px 20px; color: #888;">
-        <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
-        <div style="font-size: 16px; margin-bottom: 8px;">No models found</div>
-        <div style="font-size: 14px; color: #666;">Try adjusting your search or filters</div>
-      </div>
+      <span class="no-models-icon" aria-hidden="true">
+        <svg class="icon icon-lg" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </span>
+      <div class="no-models-title">No models found</div>
+      <div class="no-models-hint">Try adjusting your search or filters</div>
     `;
     container.appendChild(noModelsDiv);
   }
@@ -811,30 +679,19 @@ class ModelUIManager {
    * Show refresh animation
    * @param {HTMLElement} button - Refresh button
    */
-  showRefreshAnimation(button) {
-    const originalText = button.textContent;
-    button.textContent = '⏳';
+  showRefreshAnimation() {
+    // Spin the refresh icon via a state class; @keyframes spin lives in the
+    // stylesheet. Resolve the button by id so the class lands on it even when
+    // the click event targets the inner icon.
+    const button = document.getElementById('refresh-models');
+    if (!button) return;
+
+    button.classList.add('is-loading');
     button.disabled = true;
-    button.style.animation = 'spin 1s linear infinite';
-    
-    // Add CSS for spin animation if not exists
-    if (!document.getElementById('refresh-animation-style')) {
-      const style = document.createElement('style');
-      style.id = 'refresh-animation-style';
-      style.textContent = `
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `;
-      document.head.appendChild(style);
-    }
-    
-    // Reset after 3 seconds
+
     setTimeout(() => {
-      button.textContent = originalText || '🔄';
+      button.classList.remove('is-loading');
       button.disabled = false;
-      button.style.animation = '';
     }, 3000);
   }
 

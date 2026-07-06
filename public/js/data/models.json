@@ -7,14 +7,23 @@
       "category": "gpt",
       "source": "core",
       "description": "OpenAI's flagship model for complex professional and agentic work, with configurable reasoning effort and a ~1M context window",
-      "pricing": { "input": 5.00, "output": 30.00, "cached": 0.50 },
+      "pricing": {
+        "input": 5,
+        "output": 30,
+        "cached": 0.5
+      },
       "contextWindow": 1050000,
       "maxTokens": 128000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsReasoning": true,
       "defaultReasoningEffort": "medium",
-      "knowledgeCutoff": "2025-12-01"
+      "knowledgeCutoff": "2025-12-01",
+      "apiData": {
+        "created": 1776824847,
+        "owned_by": "system",
+        "object": "model"
+      }
     },
     "gpt-5.5-pro": {
       "id": "gpt-5.5-pro",
@@ -23,13 +32,21 @@
       "category": "gpt",
       "source": "core",
       "description": "High-compute variant of GPT-5.5 for the most demanding reasoning tasks",
-      "pricing": { "input": 30.00, "output": 180.00 },
+      "pricing": {
+        "input": 30,
+        "output": 180
+      },
       "contextWindow": 1050000,
       "maxTokens": 128000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsReasoning": true,
-      "defaultReasoningEffort": "high"
+      "defaultReasoningEffort": "high",
+      "apiData": {
+        "created": 1776894349,
+        "owned_by": "system",
+        "object": "model"
+      }
     },
     "gpt-5.4": {
       "id": "gpt-5.4",
@@ -38,14 +55,23 @@
       "category": "gpt",
       "source": "core",
       "description": "Affordable standard GPT-5.x model with full built-in tool support and native compaction",
-      "pricing": { "input": 2.50, "output": 15.00, "cached": 0.25 },
+      "pricing": {
+        "input": 2.5,
+        "output": 15,
+        "cached": 0.25
+      },
       "contextWindow": 1050000,
       "maxTokens": 128000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsReasoning": true,
       "defaultReasoningEffort": "medium",
-      "knowledgeCutoff": "2025-08-31"
+      "knowledgeCutoff": "2025-08-31",
+      "apiData": {
+        "created": 1772691852,
+        "owned_by": "system",
+        "object": "model"
+      }
     },
     "gpt-5.4-mini": {
       "id": "gpt-5.4-mini",
@@ -54,13 +80,22 @@
       "category": "gpt",
       "source": "core",
       "description": "Strong, cost-efficient mini model for coding, computer use, and subagents",
-      "pricing": { "input": 0.75, "output": 4.50, "cached": 0.075 },
+      "pricing": {
+        "input": 0.75,
+        "output": 4.5,
+        "cached": 0.075
+      },
       "contextWindow": 400000,
       "maxTokens": 128000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsReasoning": true,
-      "defaultReasoningEffort": "medium"
+      "defaultReasoningEffort": "medium",
+      "apiData": {
+        "created": 1773451123,
+        "owned_by": "system",
+        "object": "model"
+      }
     },
     "gpt-5.4-nano": {
       "id": "gpt-5.4-nano",
@@ -69,13 +104,22 @@
       "category": "gpt",
       "source": "core",
       "description": "Cheapest GPT-5.x tier for high-throughput, simple tasks",
-      "pricing": { "input": 0.20, "output": 1.25, "cached": 0.02 },
+      "pricing": {
+        "input": 0.2,
+        "output": 1.25,
+        "cached": 0.02
+      },
       "contextWindow": 400000,
       "maxTokens": 128000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsReasoning": true,
-      "defaultReasoningEffort": "medium"
+      "defaultReasoningEffort": "medium",
+      "apiData": {
+        "created": 1773450870,
+        "owned_by": "system",
+        "object": "model"
+      }
     },
     "gpt-5.3-codex": {
       "id": "gpt-5.3-codex",
@@ -84,13 +128,22 @@
       "category": "gpt",
       "source": "core",
       "description": "Coding- and agentic-tuned GPT-5.x model",
-      "pricing": { "input": 1.75, "output": 14.00, "cached": 0.175 },
+      "pricing": {
+        "input": 1.75,
+        "output": 14,
+        "cached": 0.175
+      },
       "contextWindow": 400000,
       "maxTokens": 128000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsReasoning": true,
-      "defaultReasoningEffort": "medium"
+      "defaultReasoningEffort": "medium",
+      "apiData": {
+        "created": 1770537915,
+        "owned_by": "system",
+        "object": "model"
+      }
     },
     "gpt-5.2": {
       "id": "gpt-5.2",
@@ -99,14 +152,23 @@
       "category": "gpt",
       "source": "core",
       "description": "Previous-generation coding/agentic flagship (superseded by GPT-5.4/5.5; still callable)",
-      "pricing": { "input": 1.75, "output": 14.00, "cached": 0.175 },
+      "pricing": {
+        "input": 1.75,
+        "output": 14,
+        "cached": 0.175
+      },
       "contextWindow": 400000,
       "maxTokens": 128000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsReasoning": true,
       "defaultReasoningEffort": "none",
-      "knowledgeCutoff": "2025-08-31"
+      "knowledgeCutoff": "2025-08-31",
+      "apiData": {
+        "created": 1765313051,
+        "owned_by": "system",
+        "object": "model"
+      }
     },
     "gpt-4.1": {
       "id": "gpt-4.1",
@@ -115,11 +177,20 @@
       "category": "gpt",
       "source": "core",
       "description": "Non-reasoning model with a 1M-token context window",
-      "pricing": { "input": 2.00, "output": 8.00, "cached": 0.50 },
+      "pricing": {
+        "input": 2,
+        "output": 8,
+        "cached": 0.5
+      },
       "contextWindow": 1000000,
       "maxTokens": 32000,
       "supportsVision": true,
-      "supportsFunction": true
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1744316542,
+        "owned_by": "system",
+        "object": "model"
+      }
     },
     "gpt-4.1-mini": {
       "id": "gpt-4.1-mini",
@@ -128,11 +199,20 @@
       "category": "gpt",
       "source": "core",
       "description": "Fast, efficient 1M-context model",
-      "pricing": { "input": 0.40, "output": 1.60, "cached": 0.10 },
+      "pricing": {
+        "input": 0.4,
+        "output": 1.6,
+        "cached": 0.1
+      },
       "contextWindow": 1000000,
       "maxTokens": 32000,
       "supportsVision": true,
-      "supportsFunction": true
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1744318173,
+        "owned_by": "system",
+        "object": "model"
+      }
     },
     "gpt-4.1-nano": {
       "id": "gpt-4.1-nano",
@@ -141,11 +221,20 @@
       "category": "gpt",
       "source": "core",
       "description": "Most affordable 1M-context model",
-      "pricing": { "input": 0.10, "output": 0.40, "cached": 0.025 },
+      "pricing": {
+        "input": 0.1,
+        "output": 0.4,
+        "cached": 0.025
+      },
       "contextWindow": 1000000,
       "maxTokens": 32000,
       "supportsVision": true,
-      "supportsFunction": true
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1744321707,
+        "owned_by": "system",
+        "object": "model"
+      }
     },
     "gpt-4o": {
       "id": "gpt-4o",
@@ -154,11 +243,20 @@
       "category": "gpt",
       "source": "core",
       "description": "Legacy multimodal model (kept for compatibility)",
-      "pricing": { "input": 2.50, "output": 10.00, "cached": 1.25 },
+      "pricing": {
+        "input": 2.5,
+        "output": 10,
+        "cached": 1.25
+      },
       "contextWindow": 128000,
       "maxTokens": 16000,
       "supportsVision": true,
-      "supportsFunction": true
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1715367049,
+        "owned_by": "system",
+        "object": "model"
+      }
     },
     "gpt-4o-mini": {
       "id": "gpt-4o-mini",
@@ -167,13 +265,21 @@
       "category": "gpt",
       "source": "core",
       "description": "Legacy affordable multimodal model (kept for compatibility)",
-      "pricing": { "input": 0.15, "output": 0.60, "cached": 0.075 },
+      "pricing": {
+        "input": 0.15,
+        "output": 0.6,
+        "cached": 0.075
+      },
       "contextWindow": 128000,
       "maxTokens": 16000,
       "supportsVision": true,
-      "supportsFunction": true
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1721172741,
+        "owned_by": "system",
+        "object": "model"
+      }
     },
-
     "o4-mini": {
       "id": "o4-mini",
       "name": "o4-mini: Cheap Reasoning",
@@ -181,14 +287,22 @@
       "category": "reasoning",
       "source": "core",
       "description": "Cost-effective dedicated reasoning model",
-      "pricing": { "input": 1.10, "output": 4.40, "cached": 0.275 },
+      "pricing": {
+        "input": 1.1,
+        "output": 4.4,
+        "cached": 0.275
+      },
       "contextWindow": 200000,
       "maxTokens": 100000,
       "supportsVision": true,
       "supportsFunction": true,
-      "supportsReasoning": true
+      "supportsReasoning": true,
+      "apiData": {
+        "created": 1744225351,
+        "owned_by": "system",
+        "object": "model"
+      }
     },
-
     "claude-opus-4-8": {
       "id": "claude-opus-4-8",
       "name": "Claude Opus 4.8",
@@ -196,13 +310,22 @@
       "category": "claude",
       "source": "core",
       "description": "Anthropic's most capable Opus-tier model — state-of-the-art long-horizon agentic work, knowledge work, and memory",
-      "pricing": { "input": 5.00, "output": 25.00, "cached": 0.50, "cacheWrite": 6.25 },
+      "pricing": {
+        "input": 5,
+        "output": 25,
+        "cached": 0.5,
+        "cacheWrite": 6.25
+      },
       "contextWindow": 1000000,
       "maxTokens": 64000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsExtendedThinking": true,
-      "supportsReasoning": true
+      "supportsReasoning": true,
+      "apiData": {
+        "created_at": "2026-05-28T00:00:00Z",
+        "type": "model"
+      }
     },
     "claude-opus-4-7": {
       "id": "claude-opus-4-7",
@@ -211,13 +334,22 @@
       "category": "claude",
       "source": "core",
       "description": "Previous-generation Opus — highly autonomous, strong on agentic, vision, and memory tasks",
-      "pricing": { "input": 5.00, "output": 25.00, "cached": 0.50, "cacheWrite": 6.25 },
+      "pricing": {
+        "input": 5,
+        "output": 25,
+        "cached": 0.5,
+        "cacheWrite": 6.25
+      },
       "contextWindow": 1000000,
       "maxTokens": 64000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsExtendedThinking": true,
-      "supportsReasoning": true
+      "supportsReasoning": true,
+      "apiData": {
+        "created_at": "2026-04-14T00:00:00Z",
+        "type": "model"
+      }
     },
     "claude-sonnet-5": {
       "id": "claude-sonnet-5",
@@ -226,13 +358,22 @@
       "category": "claude",
       "source": "core",
       "description": "Best balance of speed and intelligence in the Sonnet tier — near-Opus quality on coding and agentic work",
-      "pricing": { "input": 3.00, "output": 15.00, "cached": 0.30, "cacheWrite": 3.75 },
+      "pricing": {
+        "input": 3,
+        "output": 15,
+        "cached": 0.3,
+        "cacheWrite": 3.75
+      },
       "contextWindow": 1000000,
       "maxTokens": 64000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsExtendedThinking": true,
-      "supportsReasoning": true
+      "supportsReasoning": true,
+      "apiData": {
+        "created_at": "2026-06-29T00:00:00Z",
+        "type": "model"
+      }
     },
     "claude-haiku-4-5-20251001": {
       "id": "claude-haiku-4-5-20251001",
@@ -241,13 +382,22 @@
       "category": "claude",
       "source": "core",
       "description": "Fastest Claude model with near-frontier intelligence",
-      "pricing": { "input": 1.00, "output": 5.00, "cached": 0.10, "cacheWrite": 1.25 },
+      "pricing": {
+        "input": 1,
+        "output": 5,
+        "cached": 0.1,
+        "cacheWrite": 1.25
+      },
       "contextWindow": 200000,
       "maxTokens": 64000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsExtendedThinking": true,
-      "knowledgeCutoff": "2025-02-28"
+      "knowledgeCutoff": "2025-02-28",
+      "apiData": {
+        "created_at": "2025-10-15T00:00:00Z",
+        "type": "model"
+      }
     },
     "claude-opus-4-5-20251101": {
       "id": "claude-opus-4-5-20251101",
@@ -256,13 +406,22 @@
       "category": "claude",
       "source": "core",
       "description": "Older Opus — high intelligence with adaptive thinking",
-      "pricing": { "input": 5.00, "output": 25.00, "cached": 0.50, "cacheWrite": 6.25 },
+      "pricing": {
+        "input": 5,
+        "output": 25,
+        "cached": 0.5,
+        "cacheWrite": 6.25
+      },
       "contextWindow": 200000,
       "maxTokens": 64000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsExtendedThinking": true,
-      "knowledgeCutoff": "2025-05-31"
+      "knowledgeCutoff": "2025-05-31",
+      "apiData": {
+        "created_at": "2025-11-24T00:00:00Z",
+        "type": "model"
+      }
     },
     "claude-sonnet-4-5-20250929": {
       "id": "claude-sonnet-4-5-20250929",
@@ -271,13 +430,22 @@
       "category": "claude",
       "source": "core",
       "description": "Previous-generation Sonnet with adaptive thinking",
-      "pricing": { "input": 3.00, "output": 15.00, "cached": 0.30, "cacheWrite": 3.75 },
+      "pricing": {
+        "input": 3,
+        "output": 15,
+        "cached": 0.3,
+        "cacheWrite": 3.75
+      },
       "contextWindow": 200000,
       "maxTokens": 64000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsExtendedThinking": true,
-      "knowledgeCutoff": "2025-01-31"
+      "knowledgeCutoff": "2025-01-31",
+      "apiData": {
+        "created_at": "2025-09-29T00:00:00Z",
+        "type": "model"
+      }
     },
     "claude-fable-5": {
       "id": "claude-fable-5",
@@ -286,15 +454,23 @@
       "category": "claude",
       "source": "core",
       "description": "Anthropic's most capable widely released model for the most demanding reasoning and long-horizon agentic work (thinking always on)",
-      "pricing": { "input": 10.00, "output": 50.00, "cached": 1.00, "cacheWrite": 12.50 },
+      "pricing": {
+        "input": 10,
+        "output": 50,
+        "cached": 1,
+        "cacheWrite": 12.5
+      },
       "contextWindow": 1000000,
       "maxTokens": 64000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsExtendedThinking": true,
-      "supportsReasoning": true
+      "supportsReasoning": true,
+      "apiData": {
+        "created_at": "2026-06-07T00:00:00Z",
+        "type": "model"
+      }
     },
-
     "gemini-3.5-flash": {
       "id": "gemini-3.5-flash",
       "name": "Gemini 3.5 Flash",
@@ -302,7 +478,11 @@
       "category": "gemini",
       "source": "core",
       "description": "Google's fast flagship — vision, audio, video, thinking, tools, and grounding with a 1M context window",
-      "pricing": { "input": 1.50, "output": 9.00, "cached": 0.15 },
+      "pricing": {
+        "input": 1.5,
+        "output": 9,
+        "cached": 0.15
+      },
       "contextWindow": 1048576,
       "maxTokens": 65536,
       "supportsVision": true,
@@ -316,7 +496,10 @@
       "category": "gemini",
       "source": "core",
       "description": "Deep reasoning and agentic model with vision, audio, and video understanding",
-      "pricing": { "input": 2.00, "output": 12.00 },
+      "pricing": {
+        "input": 2,
+        "output": 12
+      },
       "contextWindow": 1000000,
       "maxTokens": 64000,
       "supportsVision": true,
@@ -330,14 +513,16 @@
       "category": "gemini",
       "source": "core",
       "description": "High-throughput, low-cost multimodal model with minimal-default thinking",
-      "pricing": { "input": 0.25, "output": 1.50 },
+      "pricing": {
+        "input": 0.25,
+        "output": 1.5
+      },
       "contextWindow": 1000000,
       "maxTokens": 64000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsReasoning": true
     },
-
     "deepseek-v4-pro": {
       "id": "deepseek-v4-pro",
       "name": "DeepSeek V4 Pro",
@@ -345,7 +530,11 @@
       "category": "deepseek",
       "source": "core",
       "description": "DeepSeek's flagship hybrid thinking/non-thinking model with a 1M context window",
-      "pricing": { "input": 0.435, "output": 0.87, "cached": 0.003625 },
+      "pricing": {
+        "input": 0.435,
+        "output": 0.87,
+        "cached": 0.003625
+      },
       "contextWindow": 1000000,
       "maxTokens": 65536,
       "supportsVision": false,
@@ -359,7 +548,11 @@
       "category": "deepseek",
       "source": "core",
       "description": "Fast, cheap DeepSeek V4 hybrid thinking model with a 1M context window",
-      "pricing": { "input": 0.14, "output": 0.28, "cached": 0.0028 },
+      "pricing": {
+        "input": 0.14,
+        "output": 0.28,
+        "cached": 0.0028
+      },
       "contextWindow": 1000000,
       "maxTokens": 65536,
       "supportsVision": false,
@@ -373,7 +566,11 @@
       "category": "deepseek",
       "source": "core",
       "description": "Moonshot's agentic-coding model with autonomous execution and multi-agent orchestration",
-      "pricing": { "input": 0.95, "output": 4.00, "cached": 0.16 },
+      "pricing": {
+        "input": 0.95,
+        "output": 4,
+        "cached": 0.16
+      },
       "contextWindow": 256000,
       "maxTokens": 16000,
       "supportsVision": false,
@@ -388,7 +585,11 @@
       "category": "deepseek",
       "source": "core",
       "description": "Moonshot's strongest long-context coding and agentic model",
-      "pricing": { "input": 0.95, "output": 4.00, "cached": 0.19 },
+      "pricing": {
+        "input": 0.95,
+        "output": 4,
+        "cached": 0.19
+      },
       "contextWindow": 256000,
       "maxTokens": 16000,
       "supportsVision": false,
@@ -403,7 +604,11 @@
       "category": "deepseek",
       "source": "core",
       "description": "Moonshot vision + text model with thinking/non-thinking modes and tool use",
-      "pricing": { "input": 0.60, "output": 3.00, "cached": 0.10 },
+      "pricing": {
+        "input": 0.6,
+        "output": 3,
+        "cached": 0.1
+      },
       "contextWindow": 256000,
       "maxTokens": 16000,
       "supportsVision": true,
@@ -411,7 +616,6 @@
       "supportsReasoning": true,
       "supportsLongContext": true
     },
-
     "mistral-large-latest": {
       "id": "mistral-large-latest",
       "name": "Mistral Large 3",
@@ -419,7 +623,10 @@
       "category": "mistral",
       "source": "core",
       "description": "Mistral's flagship multimodal, tool-using open-weight model",
-      "pricing": { "input": 0.50, "output": 1.50 },
+      "pricing": {
+        "input": 0.5,
+        "output": 1.5
+      },
       "contextWindow": 128000,
       "maxTokens": 16000,
       "supportsVision": true,
@@ -432,7 +639,10 @@
       "category": "mistral",
       "source": "core",
       "description": "Balanced multimodal, agentic and coding model",
-      "pricing": { "input": 0.40, "output": 2.00 },
+      "pricing": {
+        "input": 0.4,
+        "output": 2
+      },
       "contextWindow": 128000,
       "maxTokens": 16000,
       "supportsVision": true,
@@ -445,7 +655,10 @@
       "category": "mistral",
       "source": "core",
       "description": "Hybrid instruct/reasoning/coding model with vision",
-      "pricing": { "input": 0.15, "output": 0.60 },
+      "pricing": {
+        "input": 0.15,
+        "output": 0.6
+      },
       "contextWindow": 131072,
       "maxTokens": 16000,
       "supportsVision": true,
@@ -458,7 +671,10 @@
       "category": "mistral",
       "source": "core",
       "description": "Transparent multilingual reasoning model with thinking traces",
-      "pricing": { "input": 2.00, "output": 5.00 },
+      "pricing": {
+        "input": 2,
+        "output": 5
+      },
       "contextWindow": 128000,
       "maxTokens": 16000,
       "supportsVision": false,
@@ -472,7 +688,10 @@
       "category": "mistral",
       "source": "core",
       "description": "Mistral code-completion model with fill-in-the-middle",
-      "pricing": { "input": 0.30, "output": 0.90 },
+      "pricing": {
+        "input": 0.3,
+        "output": 0.9
+      },
       "contextWindow": 256000,
       "maxTokens": 16000,
       "supportsVision": false,
@@ -485,13 +704,15 @@
       "category": "mistral",
       "source": "core",
       "description": "Mistral agentic coding model",
-      "pricing": { "input": 0.40, "output": 2.00 },
+      "pricing": {
+        "input": 0.4,
+        "output": 2
+      },
       "contextWindow": 128000,
       "maxTokens": 16000,
       "supportsVision": false,
       "supportsFunction": true
     },
-
     "llama-3.3-70b-versatile": {
       "id": "llama-3.3-70b-versatile",
       "name": "Llama 3.3 70B (Groq)",
@@ -499,7 +720,10 @@
       "category": "llama",
       "source": "core",
       "description": "Versatile Meta Llama model on Groq's fast LPU inference",
-      "pricing": { "input": 0.59, "output": 0.79 },
+      "pricing": {
+        "input": 0.59,
+        "output": 0.79
+      },
       "contextWindow": 131072,
       "maxTokens": 32000,
       "supportsVision": false,
@@ -512,7 +736,10 @@
       "category": "llama",
       "source": "core",
       "description": "Fast, cheap Meta Llama model on Groq",
-      "pricing": { "input": 0.05, "output": 0.08 },
+      "pricing": {
+        "input": 0.05,
+        "output": 0.08
+      },
       "contextWindow": 131072,
       "maxTokens": 32000,
       "supportsVision": false,
@@ -525,7 +752,10 @@
       "category": "llama",
       "source": "core",
       "description": "OpenAI open-weight reasoning model hosted on Groq",
-      "pricing": { "input": 0.15, "output": 0.60 },
+      "pricing": {
+        "input": 0.15,
+        "output": 0.6
+      },
       "contextWindow": 131072,
       "maxTokens": 65536,
       "supportsVision": false,
@@ -539,14 +769,16 @@
       "category": "llama",
       "source": "core",
       "description": "Fast OpenAI open-weight reasoning model hosted on Groq",
-      "pricing": { "input": 0.10, "output": 0.40 },
+      "pricing": {
+        "input": 0.1,
+        "output": 0.4
+      },
       "contextWindow": 131072,
       "maxTokens": 65536,
       "supportsVision": false,
       "supportsFunction": true,
       "supportsReasoning": true
     },
-
     "grok-4.3": {
       "id": "grok-4.3",
       "name": "Grok 4.3: Flagship",
@@ -554,7 +786,11 @@
       "category": "grok",
       "source": "core",
       "description": "xAI's flagship model with reasoning, vision, and tool use",
-      "pricing": { "input": 1.25, "output": 2.50, "cached": 0.20 },
+      "pricing": {
+        "input": 1.25,
+        "output": 2.5,
+        "cached": 0.2
+      },
       "contextWindow": 1000000,
       "maxTokens": 32000,
       "supportsVision": true,
@@ -569,14 +805,16 @@
       "category": "grok",
       "source": "core",
       "description": "xAI's agentic coding / web-dev model",
-      "pricing": { "input": 1.00, "output": 2.00 },
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
       "contextWindow": 256000,
       "maxTokens": 32000,
       "supportsVision": false,
       "supportsFunction": true,
       "supportsStructuredOutputs": true
     },
-
     "gpt-4o-mini-tts": {
       "id": "gpt-4o-mini-tts",
       "name": "GPT-4o Mini TTS",
@@ -584,15 +822,47 @@
       "category": "voice",
       "source": "core",
       "description": "Text-to-speech model with intelligent voice controls",
-      "pricing": { "input": 0.15, "output": 0.60 },
+      "pricing": {
+        "input": 0.15,
+        "output": 0.6
+      },
       "contextWindow": 128000,
       "maxTokens": 16000,
       "supportsVision": false,
       "supportsFunction": false,
       "supportsTextToSpeech": true,
-      "voiceOptions": ["alloy", "ash", "ballad", "coral", "echo", "fable", "nova", "onyx", "sage", "shimmer"],
-      "audioFormats": ["mp3", "opus", "aac", "flac", "wav", "pcm"],
-      "features": ["streaming", "instructions", "emotion_control", "speed_control", "accent_control"]
+      "voiceOptions": [
+        "alloy",
+        "ash",
+        "ballad",
+        "coral",
+        "echo",
+        "fable",
+        "nova",
+        "onyx",
+        "sage",
+        "shimmer"
+      ],
+      "audioFormats": [
+        "mp3",
+        "opus",
+        "aac",
+        "flac",
+        "wav",
+        "pcm"
+      ],
+      "features": [
+        "streaming",
+        "instructions",
+        "emotion_control",
+        "speed_control",
+        "accent_control"
+      ],
+      "apiData": {
+        "created": 1742403959,
+        "owned_by": "system",
+        "object": "model"
+      }
     },
     "gpt-4o-transcribe": {
       "id": "gpt-4o-transcribe",
@@ -601,15 +871,36 @@
       "category": "voice",
       "source": "core",
       "description": "High-quality speech-to-text model",
-      "pricing": { "input": 2.50, "output": 10.00 },
+      "pricing": {
+        "input": 2.5,
+        "output": 10
+      },
       "contextWindow": 128000,
       "maxTokens": 16000,
       "supportsVision": false,
       "supportsFunction": false,
       "supportsSpeechToText": true,
-      "audioFormats": ["mp3", "mp4", "mpeg", "mpga", "m4a", "wav", "webm"],
-      "features": ["streaming", "prompting", "json_output", "text_output"],
-      "maxFileSize": "25MB"
+      "audioFormats": [
+        "mp3",
+        "mp4",
+        "mpeg",
+        "mpga",
+        "m4a",
+        "wav",
+        "webm"
+      ],
+      "features": [
+        "streaming",
+        "prompting",
+        "json_output",
+        "text_output"
+      ],
+      "maxFileSize": "25MB",
+      "apiData": {
+        "created": 1742068463,
+        "owned_by": "system",
+        "object": "model"
+      }
     },
     "gpt-4o-mini-transcribe": {
       "id": "gpt-4o-mini-transcribe",
@@ -618,17 +909,37 @@
       "category": "voice",
       "source": "core",
       "description": "Fast, affordable speech-to-text model",
-      "pricing": { "input": 0.15, "output": 0.60 },
+      "pricing": {
+        "input": 0.15,
+        "output": 0.6
+      },
       "contextWindow": 128000,
       "maxTokens": 16000,
       "supportsVision": false,
       "supportsFunction": false,
       "supportsSpeechToText": true,
-      "audioFormats": ["mp3", "mp4", "mpeg", "mpga", "m4a", "wav", "webm"],
-      "features": ["streaming", "prompting", "json_output", "text_output"],
-      "maxFileSize": "25MB"
+      "audioFormats": [
+        "mp3",
+        "mp4",
+        "mpeg",
+        "mpga",
+        "m4a",
+        "wav",
+        "webm"
+      ],
+      "features": [
+        "streaming",
+        "prompting",
+        "json_output",
+        "text_output"
+      ],
+      "maxFileSize": "25MB",
+      "apiData": {
+        "created": 1742068596,
+        "owned_by": "system",
+        "object": "model"
+      }
     },
-
     "gpt-image-2": {
       "id": "gpt-image-2",
       "name": "GPT Image 2: Newest",
@@ -636,15 +947,33 @@
       "category": "image",
       "source": "core",
       "description": "OpenAI's newest image generation model with flexible sizes and high-fidelity inputs",
-      "pricing": { "input": 8.00, "output": 30.00 },
+      "pricing": {
+        "input": 8,
+        "output": 30
+      },
       "contextWindow": 128000,
       "maxTokens": 16000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsImageGeneration": true,
       "imageConfig": {
-        "quality": ["low", "medium", "high", "auto"],
-        "size": ["1024x1024", "1024x1536", "1536x1024", "auto"]
+        "quality": [
+          "low",
+          "medium",
+          "high",
+          "auto"
+        ],
+        "size": [
+          "1024x1024",
+          "1024x1536",
+          "1536x1024",
+          "auto"
+        ]
+      },
+      "apiData": {
+        "created": 1776399795,
+        "owned_by": "system",
+        "object": "model"
       }
     },
     "gpt-image-1.5": {
@@ -654,15 +983,33 @@
       "category": "image",
       "source": "core",
       "description": "Interim successor to GPT Image 1",
-      "pricing": { "input": 8.00, "output": 32.00 },
+      "pricing": {
+        "input": 8,
+        "output": 32
+      },
       "contextWindow": 128000,
       "maxTokens": 16000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsImageGeneration": true,
       "imageConfig": {
-        "quality": ["low", "medium", "high", "auto"],
-        "size": ["1024x1024", "1024x1536", "1536x1024", "auto"]
+        "quality": [
+          "low",
+          "medium",
+          "high",
+          "auto"
+        ],
+        "size": [
+          "1024x1024",
+          "1024x1536",
+          "1536x1024",
+          "auto"
+        ]
+      },
+      "apiData": {
+        "created": 1764030620,
+        "owned_by": "system",
+        "object": "model"
       }
     },
     "gpt-image-1-mini": {
@@ -672,15 +1019,33 @@
       "category": "image",
       "source": "core",
       "description": "Affordable image generation tier",
-      "pricing": { "input": 2.50, "output": 8.00 },
+      "pricing": {
+        "input": 2.5,
+        "output": 8
+      },
       "contextWindow": 128000,
       "maxTokens": 16000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsImageGeneration": true,
       "imageConfig": {
-        "quality": ["low", "medium", "high", "auto"],
-        "size": ["1024x1024", "1024x1536", "1536x1024", "auto"]
+        "quality": [
+          "low",
+          "medium",
+          "high",
+          "auto"
+        ],
+        "size": [
+          "1024x1024",
+          "1024x1536",
+          "1536x1024",
+          "auto"
+        ]
+      },
+      "apiData": {
+        "created": 1758845821,
+        "owned_by": "system",
+        "object": "model"
       }
     },
     "gpt-image-1": {
@@ -690,15 +1055,33 @@
       "category": "image",
       "source": "core",
       "description": "Predecessor image generation model (still available)",
-      "pricing": { "input": 2.50, "output": 10.00 },
+      "pricing": {
+        "input": 2.5,
+        "output": 10
+      },
       "contextWindow": 128000,
       "maxTokens": 16000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsImageGeneration": true,
       "imageConfig": {
-        "quality": ["low", "medium", "high", "auto"],
-        "size": ["1024x1024", "1024x1536", "1536x1024", "auto"]
+        "quality": [
+          "low",
+          "medium",
+          "high",
+          "auto"
+        ],
+        "size": [
+          "1024x1024",
+          "1024x1536",
+          "1536x1024",
+          "auto"
+        ]
+      },
+      "apiData": {
+        "created": 1745517030,
+        "owned_by": "system",
+        "object": "model"
       }
     },
     "gemini-3.1-flash-image": {
@@ -708,15 +1091,26 @@
       "category": "image",
       "source": "core",
       "description": "Gemini high-efficiency conversational image generation and editing",
-      "pricing": { "input": 0.50, "output": 60.00 },
+      "pricing": {
+        "input": 0.5,
+        "output": 60
+      },
       "contextWindow": 1000000,
       "maxTokens": 8000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsImageGeneration": true,
       "imageConfig": {
-        "quality": ["standard"],
-        "size": ["1:1", "3:4", "4:3", "9:16", "16:9"],
+        "quality": [
+          "standard"
+        ],
+        "size": [
+          "1:1",
+          "3:4",
+          "4:3",
+          "9:16",
+          "16:9"
+        ],
         "supportsConversational": true,
         "supportsPromptEnhancement": true
       }
@@ -728,61 +1122,2533 @@
       "category": "image",
       "source": "core",
       "description": "Gemini state-of-the-art contextual image creation and editing",
-      "pricing": { "input": 2.00, "output": 120.00 },
+      "pricing": {
+        "input": 2,
+        "output": 120
+      },
       "contextWindow": 1000000,
       "maxTokens": 8000,
       "supportsVision": true,
       "supportsFunction": true,
       "supportsImageGeneration": true,
       "imageConfig": {
-        "quality": ["standard"],
-        "size": ["1:1", "3:4", "4:3", "9:16", "16:9"],
+        "quality": [
+          "standard"
+        ],
+        "size": [
+          "1:1",
+          "3:4",
+          "4:3",
+          "9:16",
+          "16:9"
+        ],
         "supportsConversational": true,
         "supportsPromptEnhancement": true
       }
+    },
+    "text-embedding-ada-002": {
+      "id": "text-embedding-ada-002",
+      "name": "text-embedding-ada-002",
+      "provider": "openai",
+      "category": "other",
+      "source": "api",
+      "description": "OpenAI model: text-embedding-ada-002",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1671217299,
+        "owned_by": "openai-internal",
+        "object": "model"
+      }
+    },
+    "whisper-1": {
+      "id": "whisper-1",
+      "name": "whisper-1",
+      "provider": "openai",
+      "category": "other",
+      "source": "api",
+      "description": "OpenAI model: whisper-1",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1677532384,
+        "owned_by": "openai-internal",
+        "object": "model"
+      }
+    },
+    "gpt-3.5-turbo": {
+      "id": "gpt-3.5-turbo",
+      "name": "GPT-3.5: gpt-3.5-turbo",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-3.5-turbo",
+      "pricing": {
+        "input": 0.5,
+        "output": 1.5
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1677610602,
+        "owned_by": "openai",
+        "object": "model"
+      }
+    },
+    "tts-1": {
+      "id": "tts-1",
+      "name": "tts-1",
+      "provider": "openai",
+      "category": "other",
+      "source": "api",
+      "description": "OpenAI model: tts-1",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1681940951,
+        "owned_by": "openai-internal",
+        "object": "model"
+      }
+    },
+    "gpt-3.5-turbo-16k": {
+      "id": "gpt-3.5-turbo-16k",
+      "name": "GPT-3.5: gpt-3.5-turbo-16k",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-3.5-turbo-16k",
+      "pricing": {
+        "input": 0.5,
+        "output": 1.5
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1683758102,
+        "owned_by": "openai-internal",
+        "object": "model"
+      }
+    },
+    "gpt-4-0613": {
+      "id": "gpt-4-0613",
+      "name": "GPT-4: gpt-4-0613",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4-0613",
+      "pricing": {
+        "input": 30,
+        "output": 60
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1686588896,
+        "owned_by": "openai",
+        "object": "model"
+      }
+    },
+    "gpt-4": {
+      "id": "gpt-4",
+      "name": "GPT-4: gpt-4",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4",
+      "pricing": {
+        "input": 30,
+        "output": 60
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1687882411,
+        "owned_by": "openai",
+        "object": "model"
+      }
+    },
+    "davinci-002": {
+      "id": "davinci-002",
+      "name": "davinci-002",
+      "provider": "openai",
+      "category": "other",
+      "source": "api",
+      "description": "OpenAI model: davinci-002",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1692634301,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "babbage-002": {
+      "id": "babbage-002",
+      "name": "babbage-002",
+      "provider": "openai",
+      "category": "other",
+      "source": "api",
+      "description": "OpenAI model: babbage-002",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1692634615,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-3.5-turbo-instruct": {
+      "id": "gpt-3.5-turbo-instruct",
+      "name": "GPT-3.5: gpt-3.5-turbo-instruct",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-3.5-turbo-instruct",
+      "pricing": {
+        "input": 0.5,
+        "output": 1.5
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1692901427,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-3.5-turbo-instruct-0914": {
+      "id": "gpt-3.5-turbo-instruct-0914",
+      "name": "GPT-3.5: gpt-3.5-turbo-instruct-0914",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-3.5-turbo-instruct-0914",
+      "pricing": {
+        "input": 0.5,
+        "output": 1.5
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1694122472,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-3.5-turbo-1106": {
+      "id": "gpt-3.5-turbo-1106",
+      "name": "GPT-3.5: gpt-3.5-turbo-1106",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-3.5-turbo-1106",
+      "pricing": {
+        "input": 0.5,
+        "output": 1.5
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1698959748,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "tts-1-hd": {
+      "id": "tts-1-hd",
+      "name": "tts-1-hd",
+      "provider": "openai",
+      "category": "other",
+      "source": "api",
+      "description": "OpenAI model: tts-1-hd",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1699046015,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "tts-1-1106": {
+      "id": "tts-1-1106",
+      "name": "tts-1-1106",
+      "provider": "openai",
+      "category": "other",
+      "source": "api",
+      "description": "OpenAI model: tts-1-1106",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1699053241,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "tts-1-hd-1106": {
+      "id": "tts-1-hd-1106",
+      "name": "tts-1-hd-1106",
+      "provider": "openai",
+      "category": "other",
+      "source": "api",
+      "description": "OpenAI model: tts-1-hd-1106",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1699053533,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "text-embedding-3-small": {
+      "id": "text-embedding-3-small",
+      "name": "text-embedding-3-small",
+      "provider": "openai",
+      "category": "other",
+      "source": "api",
+      "description": "OpenAI model: text-embedding-3-small",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1705948997,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "text-embedding-3-large": {
+      "id": "text-embedding-3-large",
+      "name": "text-embedding-3-large",
+      "provider": "openai",
+      "category": "other",
+      "source": "api",
+      "description": "OpenAI model: text-embedding-3-large",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1705953180,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-3.5-turbo-0125": {
+      "id": "gpt-3.5-turbo-0125",
+      "name": "GPT-3.5: gpt-3.5-turbo-0125",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-3.5-turbo-0125",
+      "pricing": {
+        "input": 0.5,
+        "output": 1.5
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1706048358,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-4-turbo": {
+      "id": "gpt-4-turbo",
+      "name": "GPT-4: gpt-4-turbo",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4-turbo",
+      "pricing": {
+        "input": 10,
+        "output": 30
+      },
+      "contextWindow": 128000,
+      "maxTokens": 8000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1712361441,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-4-turbo-2024-04-09": {
+      "id": "gpt-4-turbo-2024-04-09",
+      "name": "GPT-4: gpt-4-turbo-2024-04-09",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4-turbo-2024-04-09",
+      "pricing": {
+        "input": 10,
+        "output": 30
+      },
+      "contextWindow": 128000,
+      "maxTokens": 8000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1712601677,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-4o-2024-05-13": {
+      "id": "gpt-4o-2024-05-13",
+      "name": "GPT-4o: gpt-4o-2024-05-13",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4o-2024-05-13",
+      "pricing": {
+        "input": 2.5,
+        "output": 10,
+        "cached": 1.25
+      },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1715368132,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-4o-mini-2024-07-18": {
+      "id": "gpt-4o-mini-2024-07-18",
+      "name": "GPT-4o: gpt-4o-mini-2024-07-18",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4o-mini-2024-07-18",
+      "pricing": {
+        "input": 0.15,
+        "output": 0.6,
+        "cached": 0.075
+      },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1721172717,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-4o-2024-08-06": {
+      "id": "gpt-4o-2024-08-06",
+      "name": "GPT-4o: gpt-4o-2024-08-06",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4o-2024-08-06",
+      "pricing": {
+        "input": 2.5,
+        "output": 10,
+        "cached": 1.25
+      },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1722814719,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "omni-moderation-latest": {
+      "id": "omni-moderation-latest",
+      "name": "omni-moderation-latest",
+      "provider": "openai",
+      "category": "other",
+      "source": "api",
+      "description": "OpenAI model: omni-moderation-latest",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1731689265,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "omni-moderation-2024-09-26": {
+      "id": "omni-moderation-2024-09-26",
+      "name": "omni-moderation-2024-09-26",
+      "provider": "openai",
+      "category": "other",
+      "source": "api",
+      "description": "OpenAI model: omni-moderation-2024-09-26",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1732734466,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "o1-2024-12-17": {
+      "id": "o1-2024-12-17",
+      "name": "GPT-o1: o1-2024-12-17",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "api",
+      "description": "OpenAI model: o1-2024-12-17",
+      "pricing": {
+        "input": 15,
+        "output": 60,
+        "cached": 7.5
+      },
+      "contextWindow": 128000,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "apiData": {
+        "created": 1734326976,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "o1": {
+      "id": "o1",
+      "name": "GPT-o1: o1",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "api",
+      "description": "OpenAI model: o1",
+      "pricing": {
+        "input": 15,
+        "output": 60,
+        "cached": 7.5
+      },
+      "contextWindow": 128000,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "apiData": {
+        "created": 1734375816,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "o3-mini": {
+      "id": "o3-mini",
+      "name": "o3-mini",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "api",
+      "description": "OpenAI model: o3-mini",
+      "pricing": {
+        "input": 1.1,
+        "output": 4.4,
+        "cached": 0.55
+      },
+      "contextWindow": 128000,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "apiData": {
+        "created": 1737146383,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "o3-mini-2025-01-31": {
+      "id": "o3-mini-2025-01-31",
+      "name": "o3-mini-2025-01-31",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "api",
+      "description": "OpenAI model: o3-mini-2025-01-31",
+      "pricing": {
+        "input": 1.1,
+        "output": 4.4,
+        "cached": 0.55
+      },
+      "contextWindow": 128000,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "apiData": {
+        "created": 1738010200,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-4o-2024-11-20": {
+      "id": "gpt-4o-2024-11-20",
+      "name": "GPT-4o: gpt-4o-2024-11-20",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4o-2024-11-20",
+      "pricing": {
+        "input": 2.5,
+        "output": 10,
+        "cached": 1.25
+      },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1739331543,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-4o-mini-search-preview-2025-03-11": {
+      "id": "gpt-4o-mini-search-preview-2025-03-11",
+      "name": "GPT-4o: gpt-4o-mini-search-preview-2025-03-11",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4o-mini-search-preview-2025-03-11",
+      "pricing": {
+        "input": 0.15,
+        "output": 0.6,
+        "cached": 0.075
+      },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1741390858,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-4o-mini-search-preview": {
+      "id": "gpt-4o-mini-search-preview",
+      "name": "GPT-4o: gpt-4o-mini-search-preview",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4o-mini-search-preview",
+      "pricing": {
+        "input": 0.15,
+        "output": 0.6,
+        "cached": 0.075
+      },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1741391161,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "o1-pro-2025-03-19": {
+      "id": "o1-pro-2025-03-19",
+      "name": "GPT-o1: o1-pro-2025-03-19",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "api",
+      "description": "OpenAI model: o1-pro-2025-03-19",
+      "pricing": {
+        "input": 150,
+        "output": 600
+      },
+      "contextWindow": 200000,
+      "maxTokens": 100000,
+      "supportsVision": true,
+      "supportsFunction": false,
+      "apiData": {
+        "created": 1742251504,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "o1-pro": {
+      "id": "o1-pro",
+      "name": "GPT-o1: o1-pro",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "api",
+      "description": "OpenAI model: o1-pro",
+      "pricing": {
+        "input": 150,
+        "output": 600
+      },
+      "contextWindow": 200000,
+      "maxTokens": 100000,
+      "supportsVision": true,
+      "supportsFunction": false,
+      "apiData": {
+        "created": 1742251791,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "o3-2025-04-16": {
+      "id": "o3-2025-04-16",
+      "name": "o3-2025-04-16",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "api",
+      "description": "OpenAI model: o3-2025-04-16",
+      "pricing": {
+        "input": 10,
+        "output": 40,
+        "cached": 2.5
+      },
+      "contextWindow": 128000,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "apiData": {
+        "created": 1744133301,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "o4-mini-2025-04-16": {
+      "id": "o4-mini-2025-04-16",
+      "name": "o4-mini-2025-04-16",
+      "provider": "openai",
+      "category": "other",
+      "source": "api",
+      "description": "OpenAI model: o4-mini-2025-04-16",
+      "pricing": {
+        "input": 1.1,
+        "output": 4.4,
+        "cached": 0.275
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1744133506,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "o3": {
+      "id": "o3",
+      "name": "o3",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "api",
+      "description": "OpenAI model: o3",
+      "pricing": {
+        "input": 10,
+        "output": 40,
+        "cached": 2.5
+      },
+      "contextWindow": 128000,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "apiData": {
+        "created": 1744225308,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-4.1-2025-04-14": {
+      "id": "gpt-4.1-2025-04-14",
+      "name": "GPT-4: gpt-4.1-2025-04-14",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4.1-2025-04-14",
+      "pricing": {
+        "input": 2,
+        "output": 8,
+        "cached": 0.5
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1744315746,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-4.1-mini-2025-04-14": {
+      "id": "gpt-4.1-mini-2025-04-14",
+      "name": "GPT-4: gpt-4.1-mini-2025-04-14",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4.1-mini-2025-04-14",
+      "pricing": {
+        "input": 0.4,
+        "output": 1.6,
+        "cached": 0.1
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1744317547,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-4.1-nano-2025-04-14": {
+      "id": "gpt-4.1-nano-2025-04-14",
+      "name": "GPT-4: gpt-4.1-nano-2025-04-14",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4.1-nano-2025-04-14",
+      "pricing": {
+        "input": 0.1,
+        "output": 0.4,
+        "cached": 0.025
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1744321025,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "o3-pro": {
+      "id": "o3-pro",
+      "name": "o3-pro",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "api",
+      "description": "OpenAI model: o3-pro",
+      "pricing": {
+        "input": 20,
+        "output": 80
+      },
+      "contextWindow": 200000,
+      "maxTokens": 100000,
+      "supportsVision": true,
+      "supportsFunction": false,
+      "apiData": {
+        "created": 1748475349,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "o3-pro-2025-06-10": {
+      "id": "o3-pro-2025-06-10",
+      "name": "o3-pro-2025-06-10",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "api",
+      "description": "OpenAI model: o3-pro-2025-06-10",
+      "pricing": {
+        "input": 20,
+        "output": 80
+      },
+      "contextWindow": 200000,
+      "maxTokens": 100000,
+      "supportsVision": true,
+      "supportsFunction": false,
+      "apiData": {
+        "created": 1749166761,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "o4-mini-deep-research": {
+      "id": "o4-mini-deep-research",
+      "name": "o4-mini-deep-research",
+      "provider": "openai",
+      "category": "other",
+      "source": "api",
+      "description": "OpenAI model: o4-mini-deep-research",
+      "pricing": {
+        "input": 1.1,
+        "output": 4.4,
+        "cached": 0.275
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1749685485,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "o3-deep-research": {
+      "id": "o3-deep-research",
+      "name": "o3-deep-research",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "api",
+      "description": "OpenAI model: o3-deep-research",
+      "pricing": {
+        "input": 10,
+        "output": 40,
+        "cached": 2.5
+      },
+      "contextWindow": 128000,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "apiData": {
+        "created": 1749840121,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-4o-transcribe-diarize": {
+      "id": "gpt-4o-transcribe-diarize",
+      "name": "GPT-4o: gpt-4o-transcribe-diarize",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4o-transcribe-diarize",
+      "pricing": {
+        "input": 2.5,
+        "output": 10,
+        "cached": 1.25
+      },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1750798887,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "o3-deep-research-2025-06-26": {
+      "id": "o3-deep-research-2025-06-26",
+      "name": "o3-deep-research-2025-06-26",
+      "provider": "openai",
+      "category": "reasoning",
+      "source": "api",
+      "description": "OpenAI model: o3-deep-research-2025-06-26",
+      "pricing": {
+        "input": 10,
+        "output": 40,
+        "cached": 2.5
+      },
+      "contextWindow": 128000,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": false,
+      "apiData": {
+        "created": 1750865219,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "o4-mini-deep-research-2025-06-26": {
+      "id": "o4-mini-deep-research-2025-06-26",
+      "name": "o4-mini-deep-research-2025-06-26",
+      "provider": "openai",
+      "category": "other",
+      "source": "api",
+      "description": "OpenAI model: o4-mini-deep-research-2025-06-26",
+      "pricing": {
+        "input": 1.1,
+        "output": 4.4,
+        "cached": 0.275
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1750866121,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5-chat-latest": {
+      "id": "gpt-5-chat-latest",
+      "name": "gpt-5-chat-latest",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5-chat-latest",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1754073306,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5-2025-08-07": {
+      "id": "gpt-5-2025-08-07",
+      "name": "gpt-5-2025-08-07",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5-2025-08-07",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1754075360,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5": {
+      "id": "gpt-5",
+      "name": "gpt-5",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1754425777,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5-mini-2025-08-07": {
+      "id": "gpt-5-mini-2025-08-07",
+      "name": "gpt-5-mini-2025-08-07",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5-mini-2025-08-07",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1754425867,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5-mini": {
+      "id": "gpt-5-mini",
+      "name": "gpt-5-mini",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5-mini",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1754425928,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5-nano-2025-08-07": {
+      "id": "gpt-5-nano-2025-08-07",
+      "name": "gpt-5-nano-2025-08-07",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5-nano-2025-08-07",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1754426303,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5-nano": {
+      "id": "gpt-5-nano",
+      "name": "gpt-5-nano",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5-nano",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1754426384,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-audio-2025-08-28": {
+      "id": "gpt-audio-2025-08-28",
+      "name": "gpt-audio-2025-08-28",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-audio-2025-08-28",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1756256146,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-realtime": {
+      "id": "gpt-realtime",
+      "name": "gpt-realtime",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-realtime",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1756271701,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-realtime-2025-08-28": {
+      "id": "gpt-realtime-2025-08-28",
+      "name": "gpt-realtime-2025-08-28",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-realtime-2025-08-28",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1756271773,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-audio": {
+      "id": "gpt-audio",
+      "name": "gpt-audio",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-audio",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1756339249,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5-codex": {
+      "id": "gpt-5-codex",
+      "name": "gpt-5-codex",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5-codex",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1757527818,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5-pro-2025-10-06": {
+      "id": "gpt-5-pro-2025-10-06",
+      "name": "gpt-5-pro-2025-10-06",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5-pro-2025-10-06",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1759469707,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5-pro": {
+      "id": "gpt-5-pro",
+      "name": "gpt-5-pro",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5-pro",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1759469822,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-audio-mini": {
+      "id": "gpt-audio-mini",
+      "name": "gpt-audio-mini",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-audio-mini",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1759512027,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-audio-mini-2025-10-06": {
+      "id": "gpt-audio-mini-2025-10-06",
+      "name": "gpt-audio-mini-2025-10-06",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-audio-mini-2025-10-06",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1759512137,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5-search-api": {
+      "id": "gpt-5-search-api",
+      "name": "gpt-5-search-api",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5-search-api",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1759514629,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-realtime-mini": {
+      "id": "gpt-realtime-mini",
+      "name": "gpt-realtime-mini",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-realtime-mini",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1759517133,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-realtime-mini-2025-10-06": {
+      "id": "gpt-realtime-mini-2025-10-06",
+      "name": "gpt-realtime-mini-2025-10-06",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-realtime-mini-2025-10-06",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1759517175,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "sora-2": {
+      "id": "sora-2",
+      "name": "sora-2",
+      "provider": "openai",
+      "category": "other",
+      "source": "api",
+      "description": "OpenAI model: sora-2",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1759708615,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "sora-2-pro": {
+      "id": "sora-2-pro",
+      "name": "sora-2-pro",
+      "provider": "openai",
+      "category": "other",
+      "source": "api",
+      "description": "OpenAI model: sora-2-pro",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1759708663,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5-search-api-2025-10-14": {
+      "id": "gpt-5-search-api-2025-10-14",
+      "name": "gpt-5-search-api-2025-10-14",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5-search-api-2025-10-14",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1760043960,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.1-chat-latest": {
+      "id": "gpt-5.1-chat-latest",
+      "name": "gpt-5.1-chat-latest",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.1-chat-latest",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1762547951,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.1-2025-11-13": {
+      "id": "gpt-5.1-2025-11-13",
+      "name": "gpt-5.1-2025-11-13",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.1-2025-11-13",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1762800353,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.1": {
+      "id": "gpt-5.1",
+      "name": "gpt-5.1",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.1",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1762800673,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.1-codex": {
+      "id": "gpt-5.1-codex",
+      "name": "gpt-5.1-codex",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.1-codex",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1762988221,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.1-codex-mini": {
+      "id": "gpt-5.1-codex-mini",
+      "name": "gpt-5.1-codex-mini",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.1-codex-mini",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1763007109,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.1-codex-max": {
+      "id": "gpt-5.1-codex-max",
+      "name": "gpt-5.1-codex-max",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.1-codex-max",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1763671532,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.2-2025-12-11": {
+      "id": "gpt-5.2-2025-12-11",
+      "name": "gpt-5.2-2025-12-11",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.2-2025-12-11",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1765313028,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.2-pro-2025-12-11": {
+      "id": "gpt-5.2-pro-2025-12-11",
+      "name": "gpt-5.2-pro-2025-12-11",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.2-pro-2025-12-11",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1765343959,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.2-pro": {
+      "id": "gpt-5.2-pro",
+      "name": "gpt-5.2-pro",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.2-pro",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1765343983,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.2-chat-latest": {
+      "id": "gpt-5.2-chat-latest",
+      "name": "gpt-5.2-chat-latest",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.2-chat-latest",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1765344352,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-4o-mini-transcribe-2025-12-15": {
+      "id": "gpt-4o-mini-transcribe-2025-12-15",
+      "name": "GPT-4o: gpt-4o-mini-transcribe-2025-12-15",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4o-mini-transcribe-2025-12-15",
+      "pricing": {
+        "input": 0.15,
+        "output": 0.6,
+        "cached": 0.075
+      },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1765610407,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-4o-mini-transcribe-2025-03-20": {
+      "id": "gpt-4o-mini-transcribe-2025-03-20",
+      "name": "GPT-4o: gpt-4o-mini-transcribe-2025-03-20",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4o-mini-transcribe-2025-03-20",
+      "pricing": {
+        "input": 0.15,
+        "output": 0.6,
+        "cached": 0.075
+      },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1765610545,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-4o-mini-tts-2025-03-20": {
+      "id": "gpt-4o-mini-tts-2025-03-20",
+      "name": "GPT-4o: gpt-4o-mini-tts-2025-03-20",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4o-mini-tts-2025-03-20",
+      "pricing": {
+        "input": 0.15,
+        "output": 0.6,
+        "cached": 0.075
+      },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1765610731,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-4o-mini-tts-2025-12-15": {
+      "id": "gpt-4o-mini-tts-2025-12-15",
+      "name": "GPT-4o: gpt-4o-mini-tts-2025-12-15",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4o-mini-tts-2025-12-15",
+      "pricing": {
+        "input": 0.15,
+        "output": 0.6,
+        "cached": 0.075
+      },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1765610837,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-realtime-mini-2025-12-15": {
+      "id": "gpt-realtime-mini-2025-12-15",
+      "name": "gpt-realtime-mini-2025-12-15",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-realtime-mini-2025-12-15",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1765612007,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-audio-mini-2025-12-15": {
+      "id": "gpt-audio-mini-2025-12-15",
+      "name": "gpt-audio-mini-2025-12-15",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-audio-mini-2025-12-15",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1765760008,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "chatgpt-image-latest": {
+      "id": "chatgpt-image-latest",
+      "name": "chatgpt-image-latest",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: chatgpt-image-latest",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1765925279,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.2-codex": {
+      "id": "gpt-5.2-codex",
+      "name": "gpt-5.2-codex",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.2-codex",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1766164985,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-realtime-1.5": {
+      "id": "gpt-realtime-1.5",
+      "name": "gpt-realtime-1.5",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-realtime-1.5",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1771461469,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-audio-1.5": {
+      "id": "gpt-audio-1.5",
+      "name": "gpt-audio-1.5",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-audio-1.5",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1771550885,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-4o-search-preview": {
+      "id": "gpt-4o-search-preview",
+      "name": "GPT-4o: gpt-4o-search-preview",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4o-search-preview",
+      "pricing": {
+        "input": 2.5,
+        "output": 10,
+        "cached": 1.25
+      },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1771905534,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-4o-search-preview-2025-03-11": {
+      "id": "gpt-4o-search-preview-2025-03-11",
+      "name": "GPT-4o: gpt-4o-search-preview-2025-03-11",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-4o-search-preview-2025-03-11",
+      "pricing": {
+        "input": 2.5,
+        "output": 10,
+        "cached": 1.25
+      },
+      "contextWindow": 128000,
+      "maxTokens": 16000,
+      "supportsVision": true,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1771905621,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.3-chat-latest": {
+      "id": "gpt-5.3-chat-latest",
+      "name": "gpt-5.3-chat-latest",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.3-chat-latest",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1772236571,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.4-2026-03-05": {
+      "id": "gpt-5.4-2026-03-05",
+      "name": "gpt-5.4-2026-03-05",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.4-2026-03-05",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1772654062,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.4-pro": {
+      "id": "gpt-5.4-pro",
+      "name": "gpt-5.4-pro",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.4-pro",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1772659601,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.4-pro-2026-03-05": {
+      "id": "gpt-5.4-pro-2026-03-05",
+      "name": "gpt-5.4-pro-2026-03-05",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.4-pro-2026-03-05",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1772659657,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.4-nano-2026-03-17": {
+      "id": "gpt-5.4-nano-2026-03-17",
+      "name": "gpt-5.4-nano-2026-03-17",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.4-nano-2026-03-17",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1773450837,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.4-mini-2026-03-17": {
+      "id": "gpt-5.4-mini-2026-03-17",
+      "name": "gpt-5.4-mini-2026-03-17",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.4-mini-2026-03-17",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1773451076,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-image-2-2026-04-21": {
+      "id": "gpt-image-2-2026-04-21",
+      "name": "gpt-image-2-2026-04-21",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-image-2-2026-04-21",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1776399994,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.5-2026-04-23": {
+      "id": "gpt-5.5-2026-04-23",
+      "name": "gpt-5.5-2026-04-23",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.5-2026-04-23",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1776839241,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-5.5-pro-2026-04-23": {
+      "id": "gpt-5.5-pro-2026-04-23",
+      "name": "gpt-5.5-pro-2026-04-23",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-5.5-pro-2026-04-23",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1776894470,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "chat-latest": {
+      "id": "chat-latest",
+      "name": "chat-latest",
+      "provider": "openai",
+      "category": "other",
+      "source": "api",
+      "description": "OpenAI model: chat-latest",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1777704602,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-realtime-translate": {
+      "id": "gpt-realtime-translate",
+      "name": "gpt-realtime-translate",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-realtime-translate",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1777950216,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-realtime-2": {
+      "id": "gpt-realtime-2",
+      "name": "gpt-realtime-2",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-realtime-2",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1778006032,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "gpt-realtime-whisper": {
+      "id": "gpt-realtime-whisper",
+      "name": "gpt-realtime-whisper",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: gpt-realtime-whisper",
+      "pricing": {
+        "input": 1,
+        "output": 2
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1778012060,
+        "owned_by": "system",
+        "object": "model"
+      }
+    },
+    "ft:gpt-3.5-turbo-0125:personal:date-translator:9UhSrV02:ckpt-step-100": {
+      "id": "ft:gpt-3.5-turbo-0125:personal:date-translator:9UhSrV02:ckpt-step-100",
+      "name": "GPT-3.5: ft:gpt-3.5-turbo-0125:personal:date-translator:9UhSrV02:ckpt-step-100",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: ft:gpt-3.5-turbo-0125:personal:date-translator:9UhSrV02:ckpt-step-100",
+      "pricing": {
+        "input": 0.5,
+        "output": 1.5
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1717103945,
+        "owned_by": "user-ngim8eihoypymo1292ncndft",
+        "object": "model"
+      }
+    },
+    "ft:gpt-3.5-turbo-0125:personal:date-translator:9UhSsDmO:ckpt-step-200": {
+      "id": "ft:gpt-3.5-turbo-0125:personal:date-translator:9UhSsDmO:ckpt-step-200",
+      "name": "GPT-3.5: ft:gpt-3.5-turbo-0125:personal:date-translator:9UhSsDmO:ckpt-step-200",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: ft:gpt-3.5-turbo-0125:personal:date-translator:9UhSsDmO:ckpt-step-200",
+      "pricing": {
+        "input": 0.5,
+        "output": 1.5
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1717103946,
+        "owned_by": "user-ngim8eihoypymo1292ncndft",
+        "object": "model"
+      }
+    },
+    "ft:gpt-3.5-turbo-0125:personal:date-translator:9UhSsUFR": {
+      "id": "ft:gpt-3.5-turbo-0125:personal:date-translator:9UhSsUFR",
+      "name": "GPT-3.5: ft:gpt-3.5-turbo-0125:personal:date-translator:9UhSsUFR",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: ft:gpt-3.5-turbo-0125:personal:date-translator:9UhSsUFR",
+      "pricing": {
+        "input": 0.5,
+        "output": 1.5
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1717103946,
+        "owned_by": "user-ngim8eihoypymo1292ncndft",
+        "object": "model"
+      }
+    },
+    "ft:gpt-3.5-turbo-0125:personal:date-translator:9UhTTOR7:ckpt-step-100": {
+      "id": "ft:gpt-3.5-turbo-0125:personal:date-translator:9UhTTOR7:ckpt-step-100",
+      "name": "GPT-3.5: ft:gpt-3.5-turbo-0125:personal:date-translator:9UhTTOR7:ckpt-step-100",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: ft:gpt-3.5-turbo-0125:personal:date-translator:9UhTTOR7:ckpt-step-100",
+      "pricing": {
+        "input": 0.5,
+        "output": 1.5
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1717103983,
+        "owned_by": "user-ngim8eihoypymo1292ncndft",
+        "object": "model"
+      }
+    },
+    "ft:gpt-3.5-turbo-0125:personal:date-translator:9UhTTo5i:ckpt-step-200": {
+      "id": "ft:gpt-3.5-turbo-0125:personal:date-translator:9UhTTo5i:ckpt-step-200",
+      "name": "GPT-3.5: ft:gpt-3.5-turbo-0125:personal:date-translator:9UhTTo5i:ckpt-step-200",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: ft:gpt-3.5-turbo-0125:personal:date-translator:9UhTTo5i:ckpt-step-200",
+      "pricing": {
+        "input": 0.5,
+        "output": 1.5
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1717103983,
+        "owned_by": "user-ngim8eihoypymo1292ncndft",
+        "object": "model"
+      }
+    },
+    "ft:gpt-3.5-turbo-0125:personal:date-translator:9UhTT9J7": {
+      "id": "ft:gpt-3.5-turbo-0125:personal:date-translator:9UhTT9J7",
+      "name": "GPT-3.5: ft:gpt-3.5-turbo-0125:personal:date-translator:9UhTT9J7",
+      "provider": "openai",
+      "category": "gpt",
+      "source": "api",
+      "description": "OpenAI model: ft:gpt-3.5-turbo-0125:personal:date-translator:9UhTT9J7",
+      "pricing": {
+        "input": 0.5,
+        "output": 1.5
+      },
+      "contextWindow": 8192,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created": 1717103983,
+        "owned_by": "user-ngim8eihoypymo1292ncndft",
+        "object": "model"
+      }
+    },
+    "claude-sonnet-4-6": {
+      "id": "claude-sonnet-4-6",
+      "name": "Claude Sonnet 4.6",
+      "provider": "anthropic",
+      "category": "claude",
+      "source": "api",
+      "description": "Anthropic model: Claude Sonnet 4.6",
+      "pricing": {
+        "input": 3,
+        "output": 15
+      },
+      "contextWindow": 200000,
+      "maxTokens": 8000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created_at": "2026-02-17T00:00:00Z",
+        "type": "model"
+      }
+    },
+    "claude-opus-4-6": {
+      "id": "claude-opus-4-6",
+      "name": "Claude Opus 4.6",
+      "provider": "anthropic",
+      "category": "claude",
+      "source": "api",
+      "description": "Anthropic model: Claude Opus 4.6",
+      "pricing": {
+        "input": 15,
+        "output": 75
+      },
+      "contextWindow": 200000,
+      "maxTokens": 100000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created_at": "2026-02-04T00:00:00Z",
+        "type": "model"
+      }
+    },
+    "claude-opus-4-1-20250805": {
+      "id": "claude-opus-4-1-20250805",
+      "name": "Claude Opus 4.1",
+      "provider": "anthropic",
+      "category": "claude",
+      "source": "api",
+      "description": "Anthropic model: Claude Opus 4.1",
+      "pricing": {
+        "input": 15,
+        "output": 75
+      },
+      "contextWindow": 200000,
+      "maxTokens": 100000,
+      "supportsVision": false,
+      "supportsFunction": true,
+      "apiData": {
+        "created_at": "2025-08-05T00:00:00Z",
+        "type": "model"
+      }
     }
   },
-
   "categories": {
     "gpt": {
       "name": "GPT Models",
-      "models": ["gpt-5.5", "gpt-5.5-pro", "gpt-5.4", "gpt-5.4-mini", "gpt-5.4-nano", "gpt-5.3-codex", "gpt-5.2", "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano", "gpt-4o", "gpt-4o-mini"]
+      "models": [
+        "gpt-5.5",
+        "gpt-5.5-pro",
+        "gpt-5.4",
+        "gpt-5.4-mini",
+        "gpt-5.4-nano",
+        "gpt-5.3-codex",
+        "gpt-5.2",
+        "gpt-4.1",
+        "gpt-4.1-mini",
+        "gpt-4.1-nano",
+        "gpt-4o",
+        "gpt-4o-mini"
+      ]
     },
     "claude": {
       "name": "Claude Models",
-      "models": ["claude-opus-4-8", "claude-opus-4-7", "claude-sonnet-5", "claude-haiku-4-5-20251001", "claude-opus-4-5-20251101", "claude-sonnet-4-5-20250929", "claude-fable-5"]
+      "models": [
+        "claude-opus-4-8",
+        "claude-opus-4-7",
+        "claude-sonnet-5",
+        "claude-haiku-4-5-20251001",
+        "claude-opus-4-5-20251101",
+        "claude-sonnet-4-5-20250929",
+        "claude-fable-5"
+      ]
     },
     "gemini": {
       "name": "Gemini Models",
-      "models": ["gemini-3.5-flash", "gemini-3.1-pro-preview", "gemini-3.1-flash-lite"]
+      "models": [
+        "gemini-3.5-flash",
+        "gemini-3.1-pro-preview",
+        "gemini-3.1-flash-lite"
+      ]
     },
     "reasoning": {
       "name": "Reasoning Models",
-      "models": ["o4-mini"]
+      "models": [
+        "o4-mini"
+      ]
     },
     "deepseek": {
       "name": "DeepSeek & Kimi Models",
-      "models": ["deepseek-v4-pro", "deepseek-v4-flash", "kimi-k2.6", "kimi-k2.7-code", "kimi-k2.5"]
+      "models": [
+        "deepseek-v4-pro",
+        "deepseek-v4-flash",
+        "kimi-k2.6",
+        "kimi-k2.7-code",
+        "kimi-k2.5"
+      ]
     },
     "mistral": {
       "name": "Mistral Models",
-      "models": ["mistral-large-latest", "mistral-medium-latest", "mistral-small-latest", "magistral-medium-latest", "codestral-latest", "devstral-2"]
+      "models": [
+        "mistral-large-latest",
+        "mistral-medium-latest",
+        "mistral-small-latest",
+        "magistral-medium-latest",
+        "codestral-latest",
+        "devstral-2"
+      ]
     },
     "llama": {
       "name": "Groq Models",
-      "models": ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "openai/gpt-oss-120b", "openai/gpt-oss-20b"]
+      "models": [
+        "llama-3.3-70b-versatile",
+        "llama-3.1-8b-instant",
+        "openai/gpt-oss-120b",
+        "openai/gpt-oss-20b"
+      ]
     },
     "grok": {
       "name": "Grok Models",
-      "models": ["grok-4.3", "grok-build-0.1"]
+      "models": [
+        "grok-4.3",
+        "grok-build-0.1"
+      ]
     },
     "voice": {
       "name": "Voice Models",
-      "models": ["gpt-4o-mini-tts", "gpt-4o-transcribe", "gpt-4o-mini-transcribe"]
+      "models": [
+        "gpt-4o-mini-tts",
+        "gpt-4o-transcribe",
+        "gpt-4o-mini-transcribe"
+      ]
     },
     "image": {
       "name": "Image Models",
-      "models": ["gpt-image-2", "gpt-image-1.5", "gpt-image-1-mini", "gpt-image-1", "gemini-3.1-flash-image", "gemini-3-pro-image"]
+      "models": [
+        "gpt-image-2",
+        "gpt-image-1.5",
+        "gpt-image-1-mini",
+        "gpt-image-1",
+        "gemini-3.1-flash-image",
+        "gemini-3-pro-image"
+      ]
     }
+  },
+  "lastSync": "2026-07-04T09:46:47.480Z",
+  "syncStats": {
+    "discovered": 140,
+    "added": 0,
+    "updated": 113
   }
 }

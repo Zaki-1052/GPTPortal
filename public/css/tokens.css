@@ -1,0 +1,250 @@
+/* public/css/tokens.css
+ * GPTPortal — "Precision Instrument" design tokens.
+ *
+ * Single source of truth for every custom property. Colors are OKLCH and
+ * theme-scoped across four blocks (:root default = dark, [data-theme='dark'],
+ * [data-theme='light'], and the prefers-color-scheme fallback). Shared tokens
+ * (type scale, spacing, radii, motion, provider hues) and the legacy aliases
+ * that keep pre-redesign rules rendering live ONCE in :root — custom-property
+ * substitution resolves per element at use time, so an alias declared here
+ * inherits whichever themed value is in scope where it is used.
+ */
+
+:root {
+  /* ---- Radii --------------------------------------------------------- */
+  --radius-xs: 4px;
+  --radius-sm: 7px;
+  --radius: 11px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-pill: 999px;
+
+  /* ---- Spacing (4px grid) -------------------------------------------- */
+  --space-0: 2px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* ---- Typography ---------------------------------------------------- */
+  --font-display: 'Bricolage Grotesque', 'Instrument Sans', system-ui, sans-serif;
+  --font-ui: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+
+  /* Modular scale — 1.2 (minor third), rem-based; display sizes fluid */
+  --text-2xs: 0.6875rem;  /* 11px */
+  --text-xs:  0.75rem;    /* 12px */
+  --text-sm:  0.8125rem;  /* 13px */
+  --text-base: 0.9375rem; /* 15px */
+  --text-md:  1rem;       /* 16px */
+  --text-lg:  1.125rem;   /* 18px */
+  --text-xl:  clamp(1.25rem, 1.12rem + 0.55vw, 1.4rem);
+  --text-2xl: clamp(1.5rem, 1.3rem + 0.95vw, 1.8rem);
+  --text-3xl: clamp(1.95rem, 1.55rem + 1.9vw, 2.6rem);
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-display: 700;
+
+  --leading-tight: 1.18;
+  --leading-snug: 1.35;
+  --leading-normal: 1.6;
+
+  --tracking-tighter: -0.02em;
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+  --tracking-wider: 0.08em;
+
+  --header-h: 58px;
+
+  /* ---- Motion -------------------------------------------------------- */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.5, 1);
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 320ms;
+
+  /* ---- Code palette (theme-independent; pairs with highlight.js
+     github-dark, which stays dark in both themes for token legibility) */
+  --code-bg: #0d1117;
+  --code-surface: #161b22;
+  --code-border: #2a303c;
+  --code-text: #e6e9ee;
+
+  /* =================================================================
+     DARK THEME (default) — semantic colors
+     ================================================================= */
+  --color-canvas:        oklch(0.155 0.014 264);
+  --color-surface:       oklch(0.196 0.016 262);
+  --color-surface-2:     oklch(0.236 0.018 262);
+  --color-surface-3:     oklch(0.283 0.020 261);
+  --color-border:        oklch(0.99 0 0 / 0.09);
+  --color-border-strong: oklch(0.99 0 0 / 0.16);
+  --color-text:          oklch(0.945 0.006 250);
+  --color-text-muted:    oklch(0.705 0.014 256);
+  --color-text-faint:    oklch(0.560 0.016 258);
+  --color-accent:        oklch(0.80 0.128 182);
+  --color-accent-hover:  oklch(0.86 0.132 182);
+  --color-accent-contrast: oklch(0.20 0.035 195);
+  --color-accent-soft:   color-mix(in oklab, var(--color-accent) 16%, transparent);
+  --color-danger:        oklch(0.702 0.176 22);
+  --color-success:       oklch(0.760 0.150 158);
+  --color-warning:       oklch(0.820 0.145 78);
+  --color-info:          oklch(0.720 0.130 244);
+
+  --shadow-1: 0 1px 2px oklch(0 0 0 / 0.42), 0 0 0 0.5px oklch(0 0 0 / 0.30);
+  --shadow-2: 0 14px 38px -10px oklch(0 0 0 / 0.58), 0 2px 8px oklch(0 0 0 / 0.36);
+  --elev-pop: 0 24px 64px -14px oklch(0 0 0 / 0.68), 0 4px 16px oklch(0 0 0 / 0.42);
+  --glow-accent: 0 0 0 1px var(--color-accent-soft),
+                 0 10px 34px -12px oklch(0.80 0.128 182 / 0.40);
+
+  /* Atmosphere — consumed by base.css body::before / ::after */
+  --atmo-glow-1: oklch(0.80 0.13 182 / 0.11);
+  --atmo-glow-2: oklch(0.60 0.16 278 / 0.09);
+  --atmo-noise-opacity: 0.030;
+
+  /* ---- Provider accent hues (dark-tuned) ----------------------------- */
+  --provider-openai:     oklch(0.72 0.110 168);
+  --provider-anthropic:  oklch(0.72 0.115 46);
+  --provider-google:     oklch(0.68 0.150 264);
+  --provider-mistral:    oklch(0.74 0.175 58);
+  --provider-meta:       oklch(0.64 0.160 250);
+  --provider-deepseek:   oklch(0.62 0.170 285);
+  --provider-xai:        oklch(0.78 0.014 258);
+  --provider-openrouter: oklch(0.68 0.160 318);
+  --provider-gemini:     var(--provider-google);
+  --provider-llama:      var(--provider-meta);
+  --provider-grok:       var(--provider-xai);
+  --provider-generic:    var(--color-accent);
+
+  /* =================================================================
+     LEGACY ALIASES — declared once; resolve per-theme at use time.
+     (Kept so pre-redesign rules keep rendering; removed in Phase 6.)
+     ================================================================= */
+  --bg: var(--color-canvas);
+  --surface: var(--color-surface);
+  --surface-2: var(--color-surface-2);
+  --border: var(--color-border);
+  --text: var(--color-text);
+  --text-muted: var(--color-text-muted);
+  --accent: var(--color-accent);
+  --accent-contrast: var(--color-accent-contrast);
+  --danger: var(--color-danger);
+  --success: var(--color-success);
+  --warning: var(--color-warning);
+  --font-sans: var(--font-ui);
+
+  color-scheme: dark;
+}
+
+/* Explicit dark selection (manual toggle) — identical to :root defaults */
+[data-theme='dark'] {
+  --color-canvas:        oklch(0.155 0.014 264);
+  --color-surface:       oklch(0.196 0.016 262);
+  --color-surface-2:     oklch(0.236 0.018 262);
+  --color-surface-3:     oklch(0.283 0.020 261);
+  --color-border:        oklch(0.99 0 0 / 0.09);
+  --color-border-strong: oklch(0.99 0 0 / 0.16);
+  --color-text:          oklch(0.945 0.006 250);
+  --color-text-muted:    oklch(0.705 0.014 256);
+  --color-text-faint:    oklch(0.560 0.016 258);
+  --color-accent:        oklch(0.80 0.128 182);
+  --color-accent-hover:  oklch(0.86 0.132 182);
+  --color-accent-contrast: oklch(0.20 0.035 195);
+  --color-danger:        oklch(0.702 0.176 22);
+  --color-success:       oklch(0.760 0.150 158);
+  --color-warning:       oklch(0.820 0.145 78);
+  --color-info:          oklch(0.720 0.130 244);
+  --atmo-glow-1: oklch(0.80 0.13 182 / 0.11);
+  --atmo-glow-2: oklch(0.60 0.16 278 / 0.09);
+  --atmo-noise-opacity: 0.030;
+  color-scheme: dark;
+}
+
+/* =====================================================================
+   LIGHT THEME — warm paper white
+   ===================================================================== */
+[data-theme='light'] {
+  --color-canvas:        oklch(0.980 0.005 95);
+  --color-surface:       oklch(1.000 0 0);
+  --color-surface-2:     oklch(0.966 0.005 95);
+  --color-surface-3:     oklch(0.935 0.006 95);
+  --color-border:        oklch(0.20 0.02 262 / 0.12);
+  --color-border-strong: oklch(0.20 0.02 262 / 0.20);
+  --color-text:          oklch(0.255 0.016 262);
+  --color-text-muted:    oklch(0.470 0.020 260);
+  --color-text-faint:    oklch(0.600 0.020 258);
+  --color-accent:        oklch(0.550 0.110 184);
+  --color-accent-hover:  oklch(0.480 0.110 184);
+  --color-accent-contrast: oklch(0.995 0 0);
+  --color-danger:        oklch(0.540 0.205 25);
+  --color-success:       oklch(0.560 0.140 158);
+  --color-warning:       oklch(0.640 0.150 66);
+  --color-info:          oklch(0.540 0.160 250);
+
+  --shadow-1: 0 1px 2px oklch(0.30 0.02 262 / 0.10);
+  --shadow-2: 0 14px 34px -10px oklch(0.30 0.03 262 / 0.16), 0 2px 6px oklch(0.30 0.02 262 / 0.08);
+  --elev-pop: 0 24px 60px -16px oklch(0.30 0.03 262 / 0.22), 0 4px 14px oklch(0.30 0.02 262 / 0.10);
+  --glow-accent: 0 0 0 1px var(--color-accent-soft),
+                 0 10px 30px -12px oklch(0.55 0.11 184 / 0.28);
+
+  --atmo-glow-1: oklch(0.72 0.12 184 / 0.10);
+  --atmo-glow-2: oklch(0.65 0.15 278 / 0.07);
+  --atmo-noise-opacity: 0.018;
+
+  --provider-openai:     oklch(0.55 0.110 168);
+  --provider-anthropic:  oklch(0.55 0.130 44);
+  --provider-google:     oklch(0.52 0.170 264);
+  --provider-mistral:    oklch(0.58 0.190 55);
+  --provider-meta:       oklch(0.50 0.180 252);
+  --provider-deepseek:   oklch(0.50 0.185 285);
+  --provider-xai:        oklch(0.42 0.014 258);
+  --provider-openrouter: oklch(0.52 0.180 320);
+
+  color-scheme: light;
+}
+
+/* No manual choice yet + OS prefers light → adopt light tokens */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --color-canvas:        oklch(0.980 0.005 95);
+    --color-surface:       oklch(1.000 0 0);
+    --color-surface-2:     oklch(0.966 0.005 95);
+    --color-surface-3:     oklch(0.935 0.006 95);
+    --color-border:        oklch(0.20 0.02 262 / 0.12);
+    --color-border-strong: oklch(0.20 0.02 262 / 0.20);
+    --color-text:          oklch(0.255 0.016 262);
+    --color-text-muted:    oklch(0.470 0.020 260);
+    --color-text-faint:    oklch(0.600 0.020 258);
+    --color-accent:        oklch(0.550 0.110 184);
+    --color-accent-hover:  oklch(0.480 0.110 184);
+    --color-accent-contrast: oklch(0.995 0 0);
+    --color-danger:        oklch(0.540 0.205 25);
+    --color-success:       oklch(0.560 0.140 158);
+    --color-warning:       oklch(0.640 0.150 66);
+    --color-info:          oklch(0.540 0.160 250);
+    --shadow-1: 0 1px 2px oklch(0.30 0.02 262 / 0.10);
+    --shadow-2: 0 14px 34px -10px oklch(0.30 0.03 262 / 0.16), 0 2px 6px oklch(0.30 0.02 262 / 0.08);
+    --elev-pop: 0 24px 60px -16px oklch(0.30 0.03 262 / 0.22), 0 4px 14px oklch(0.30 0.02 262 / 0.10);
+    --atmo-glow-1: oklch(0.72 0.12 184 / 0.10);
+    --atmo-glow-2: oklch(0.65 0.15 278 / 0.07);
+    --atmo-noise-opacity: 0.018;
+    --provider-openai:     oklch(0.55 0.110 168);
+    --provider-anthropic:  oklch(0.55 0.130 44);
+    --provider-google:     oklch(0.52 0.170 264);
+    --provider-mistral:    oklch(0.58 0.190 55);
+    --provider-meta:       oklch(0.50 0.180 252);
+    --provider-deepseek:   oklch(0.50 0.185 285);
+    --provider-xai:        oklch(0.42 0.014 258);
+    --provider-openrouter: oklch(0.52 0.180 320);
+    color-scheme: light;
+  }
+}

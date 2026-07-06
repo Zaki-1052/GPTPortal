@@ -311,27 +311,19 @@ class PortalInitializer {
     .then(response => response.json())
     .then(data => {
       console.log('Success:', data);
-      alert('Changes saved successfully');
       const container = document.getElementById('edit-instructions-container');
       if (container) container.style.display = 'none';
-      
-      document.body.innerHTML = '<h2>Complete. Please restart the server and access the web app at <a href="http://localhost:3000">localhost:3000</a>. Simply paste `node server.js` into your Terminal to start again, reloading the page.</h2>';
-      
-      fetch('/shutdown-server', {
-        method: 'POST'
-      }).then(restartResponse => {
-        if (restartResponse.ok) {
-          console.log('Server shutdown initiated');
-        } else {
-          console.error('Failed to initiate server shutdown');
-        }
-      }).catch(err => {
-        console.error('Error:', err);
-      });
+      document.body.classList.remove('modal-open');
+      if (window.Toast) window.Toast.success('Instructions saved.', { title: 'Saved' });
+      // RestartOverlay POSTs /shutdown-server, then polls until the server is
+      // back and reloads — no document.body wipe, no hardcoded port.
+      if (window.RestartOverlay) {
+        window.RestartOverlay.begin({ message: 'Applying your new instructions…' });
+      }
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('An error occurred during setup. Please try again.');
+      if (window.Toast) window.Toast.error('Could not save instructions. Please try again.', { title: 'Save failed' });
     });
   }
 
@@ -358,27 +350,17 @@ class PortalInitializer {
     .then(response => response.json())
     .then(data => {
       console.log('Success:', data);
-      alert('Changes saved successfully');
       const container = document.getElementById('edit-env-container');
       if (container) container.style.display = 'none';
-      
-      document.body.innerHTML = '<h2>Setup is complete. Please restart the server and access the web app at <a href="http://localhost:3000">localhost:3000</a>. Simply paste `node server.js` into your Terminal to start again, reloading the page.</h2>';
-      
-      fetch('/shutdown-server', {
-        method: 'POST'
-      }).then(restartResponse => {
-        if (restartResponse.ok) {
-          console.log('Server shutdown initiated');
-        } else {
-          console.error('Failed to initiate server shutdown');
-        }
-      }).catch(err => {
-        console.error('Error:', err);
-      });
+      document.body.classList.remove('modal-open');
+      if (window.Toast) window.Toast.success('Environment variables saved.', { title: 'Saved' });
+      if (window.RestartOverlay) {
+        window.RestartOverlay.begin({ message: 'Applying your new environment…' });
+      }
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('An error occurred during setup. Please try again.');
+      if (window.Toast) window.Toast.error('Could not save environment variables. Please try again.', { title: 'Save failed' });
     });
   }
 
@@ -752,11 +734,11 @@ class PortalInitializer {
       
       // Add color coding based on content length
       if (count > 10000) {
-        charCountElement.style.color = '#ff6b35';
+        charCountElement.dataset.level = 'danger';
       } else if (count > 5000) {
-        charCountElement.style.color = '#ff9500';
+        charCountElement.dataset.level = 'warn';
       } else {
-        charCountElement.style.color = '#6e7681';
+        charCountElement.dataset.level = 'muted';
       }
     }
     
@@ -784,13 +766,13 @@ class PortalInitializer {
         
         // Color coding based on token count
         if (tokenCount > 50000) {
-          tokenCountElement.style.color = '#ff6b35';
+          tokenCountElement.dataset.level = 'danger';
         } else if (tokenCount > 20000) {
-          tokenCountElement.style.color = '#ff9500';
+          tokenCountElement.dataset.level = 'warn';
         } else if (tokenCount > 5000) {
-          tokenCountElement.style.color = '#58a6ff';
+          tokenCountElement.dataset.level = 'info';
         } else {
-          tokenCountElement.style.color = '#00d084';
+          tokenCountElement.dataset.level = 'ok';
         }
         
       } catch (error) {
@@ -801,7 +783,7 @@ class PortalInitializer {
         // Fallback to estimation
         const estimatedTokens = Math.ceil(textarea.value.length / 4);
         tokenCountElement.textContent = `~${estimatedTokens.toLocaleString()}`;
-        tokenCountElement.style.color = '#6e7681';
+        tokenCountElement.dataset.level = 'muted';
         tokenCountElement.title = 'Estimated (tiktoken unavailable)';
       }
     }
@@ -822,11 +804,11 @@ class PortalInitializer {
       
       // Add color coding based on line count
       if (lines > 100) {
-        lineCountElement.style.color = '#ff6b35';
+        lineCountElement.dataset.level = 'danger';
       } else if (lines > 50) {
-        lineCountElement.style.color = '#ff9500';
+        lineCountElement.dataset.level = 'warn';
       } else {
-        lineCountElement.style.color = '#6e7681';
+        lineCountElement.dataset.level = 'muted';
       }
     }
     
@@ -854,13 +836,13 @@ class PortalInitializer {
         
         // Color coding based on token count (env vars are usually much smaller)
         if (tokenCount > 10000) {
-          tokenCountElement.style.color = '#ff6b35';
+          tokenCountElement.dataset.level = 'danger';
         } else if (tokenCount > 5000) {
-          tokenCountElement.style.color = '#ff9500';
+          tokenCountElement.dataset.level = 'warn';
         } else if (tokenCount > 1000) {
-          tokenCountElement.style.color = '#58a6ff';
+          tokenCountElement.dataset.level = 'info';
         } else {
-          tokenCountElement.style.color = '#00d084';
+          tokenCountElement.dataset.level = 'ok';
         }
         
       } catch (error) {
@@ -871,7 +853,7 @@ class PortalInitializer {
         // Fallback to estimation
         const estimatedTokens = Math.ceil(textarea.value.length / 4);
         tokenCountElement.textContent = `~${estimatedTokens.toLocaleString()}`;
-        tokenCountElement.style.color = '#6e7681';
+        tokenCountElement.dataset.level = 'muted';
         tokenCountElement.title = 'Estimated (tiktoken unavailable)';
       }
     }
@@ -887,7 +869,7 @@ class PortalInitializer {
     // Show loading state
     const saveBtn = document.querySelector('#edit-instructions-container .setup-action-btn.primary');
     if (saveBtn) {
-      saveBtn.innerHTML = '<span class="action-icon">⏳</span><span>Saving...</span>';
+      saveBtn.innerHTML = '<span class="action-icon spin"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg></span><span>Saving...</span>';
       saveBtn.disabled = true;
     }
     
@@ -904,7 +886,7 @@ class PortalInitializer {
     // Show loading state
     const saveBtn = document.querySelector('#edit-env-container .setup-action-btn.primary');
     if (saveBtn) {
-      saveBtn.innerHTML = '<span class="action-icon">⏳</span><span>Saving...</span>';
+      saveBtn.innerHTML = '<span class="action-icon spin"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg></span><span>Saving...</span>';
       saveBtn.disabled = true;
     }
     

@@ -212,7 +212,7 @@ class MessageHandler {
     // Styling comes from Stage 1's `.message.error` tokens (class already set).
     const icon = document.createElement('span');
     icon.className = 'message-icon';
-    icon.textContent = '⚠️ ';
+    icon.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
 
     const text = document.createElement('span');
     text.textContent = message;
@@ -230,7 +230,7 @@ class MessageHandler {
     // Styling comes from Stage 1's `.message.system` tokens (class already set).
     const icon = document.createElement('span');
     icon.className = 'message-icon';
-    icon.textContent = 'ℹ️ ';
+    icon.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
 
     const text = document.createElement('span');
     text.textContent = message;
@@ -632,7 +632,7 @@ class MessageHandler {
    * @returns {HTMLElement} Screenshot button
    */
   createScreenshotButton(messageElement) {
-    const button = this.createButton('📷', async () => {
+    const button = this.createButton('', async () => {
       try {
         await this.captureAndCopyScreenshot(messageElement);
         this.showScreenshotFeedback(button);
@@ -641,10 +641,11 @@ class MessageHandler {
         this.showScreenshotError(button);
       }
     });
-    
+
     button.className = 'screenshot-btn';
     button.title = 'Copy screenshot to clipboard';
-    
+    button.innerHTML = '<svg class="icon" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+
     return button;
   }
 
@@ -1177,12 +1178,12 @@ class MessageHandler {
    * @param {HTMLElement} button - Screenshot button
    */
   showScreenshotFeedback(button) {
-    const originalText = button.textContent;
-    button.textContent = '✅';
+    const original = button.innerHTML;
+    button.innerHTML = '<svg class="icon" viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
     button.classList.add('copied');
 
     setTimeout(() => {
-      button.textContent = originalText;
+      button.innerHTML = original;
       button.classList.remove('copied');
     }, 2000);
   }
@@ -1192,13 +1193,13 @@ class MessageHandler {
    * @param {HTMLElement} button - Screenshot button
    */
   showScreenshotError(button) {
-    const originalText = button.textContent;
-    button.textContent = '❌';
+    const original = button.innerHTML;
+    button.innerHTML = '<svg class="icon" viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
     button.classList.add('failed');
     button.title = 'Screenshot failed - clipboard not supported';
 
     setTimeout(() => {
-      button.textContent = originalText;
+      button.innerHTML = original;
       button.classList.remove('failed');
       button.title = 'Copy screenshot to clipboard';
     }, 3000);

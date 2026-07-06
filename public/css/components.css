@@ -1,0 +1,162 @@
+/* public/css/components.css
+ * GPTPortal — shared UI primitives used by both the portal and setup pages:
+ * toast notifications, modal chrome, the restart overlay, and the keyboard
+ * shortcuts help sheet. Loaded after base.css, before page styles.
+ */
+
+/* =========================================================================
+   TOAST NOTIFICATIONS (window.Toast)
+   ========================================================================= */
+#toast-region {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  z-index: 12000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: min(380px, calc(100vw - var(--space-6)));
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-3, var(--surface-2));
+  border: 1px solid var(--color-border-strong);
+  border-left: 3px solid var(--color-accent);
+  border-radius: var(--radius);
+  box-shadow: var(--elev-pop, var(--shadow-2));
+  color: var(--text);
+  pointer-events: auto;
+  cursor: default;
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+  transition: opacity var(--dur-2) var(--ease-out-quart),
+              transform var(--dur-2) var(--ease-out-quart);
+}
+.toast.is-visible { opacity: 1; transform: none; }
+.toast.is-leaving { opacity: 0; transform: translateY(6px) scale(0.98); }
+.toast--success { border-left-color: var(--color-success); }
+.toast--error   { border-left-color: var(--color-danger); }
+.toast--warning { border-left-color: var(--color-warning); }
+.toast--info    { border-left-color: var(--color-info); }
+.toast-icon { flex: 0 0 auto; margin-top: 1px; }
+.toast--success .toast-icon { color: var(--color-success); }
+.toast--error   .toast-icon { color: var(--color-danger); }
+.toast--warning .toast-icon { color: var(--color-warning); }
+.toast--info    .toast-icon { color: var(--color-info); }
+.toast-body { flex: 1 1 auto; min-width: 0; }
+.toast-title { font-weight: 600; font-size: var(--text-sm); margin-bottom: 1px; }
+.toast-message { font-size: var(--text-sm); color: var(--text-muted); word-wrap: break-word; }
+.toast-close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  padding: 2px;
+  border: none;
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+  transition: color var(--dur-1) var(--ease-out-quart);
+}
+.toast-close:hover { color: var(--text); }
+
+/* =========================================================================
+   MODAL CONTROLLER (window.Modal) — scroll lock + backdrop live here; the
+   dialog cards themselves are styled per-page (setup-editor-container, etc.)
+   ========================================================================= */
+body.modal-open { overflow: hidden; }
+
+/* =========================================================================
+   RESTART OVERLAY (window.RestartOverlay)
+   ========================================================================= */
+#restart-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 13000;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  text-align: center;
+  background: color-mix(in srgb, var(--bg) 84%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+#restart-overlay.is-open { display: flex; }
+.restart-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: 520px;
+  padding: var(--space-7) var(--space-6);
+  background: var(--surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-pop, var(--shadow-2));
+}
+.restart-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+.restart-title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  margin: 0;
+}
+.restart-status { color: var(--text-muted); font-size: var(--text-base); margin: 0; }
+.restart-hint {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-faint);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+.restart-hint code { color: var(--accent); }
+.restart-reload-btn { margin-top: var(--space-2); }
+
+/* =========================================================================
+   KEYBOARD SHORTCUTS HELP (window.Shortcuts help sheet, Cmd/Ctrl + /)
+   ========================================================================= */
+.shortcuts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2) var(--space-5);
+  padding: var(--space-2) 0;
+}
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+.shortcut-desc { color: var(--text-muted); font-size: var(--text-sm); }
+.shortcut-keys { display: inline-flex; gap: var(--space-1); flex: 0 0 auto; }
+kbd.key {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  line-height: 1.6;
+  min-width: 20px;
+  text-align: center;
+  padding: 1px var(--space-2);
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--color-border-strong);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-sm);
+}
+@media (max-width: 560px) {
+  .shortcuts-grid { grid-template-columns: 1fr; }
+}

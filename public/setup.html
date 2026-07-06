@@ -25,10 +25,13 @@
         })();
     </script>
 
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="setup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:ital,wght@0,400..700;1,400..600&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Manual light/dark toggle (persisted in localStorage) -->
@@ -108,8 +111,7 @@
             </button>
         </form>
     </div>
-    <script src="script.js"></script>
-
+    <script src="js/modules/toast.js"></script>
     <script>
         // Wire the theme toggle (helpers defined in the head bootstrap).
         document.getElementById('theme-toggle').addEventListener('click', window.__toggleTheme);
@@ -192,14 +194,18 @@
                     submitBtn.classList.remove('loading');
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
-                    alert('An error occurred during setup. Please try again.');
+                    window.Toast
+                      ? window.Toast.error('An error occurred during setup. Please try again.', { title: 'Setup failed' })
+                      : console.error('Setup failed');
                 }
             }).catch(err => {
                 // Remove loading state and show error
                 submitBtn.classList.remove('loading');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
-                alert('Error: ' + err.message);
+                window.Toast
+                  ? window.Toast.error(err.message, { title: 'Setup error' })
+                  : console.error('Setup error:', err.message);
             });
         });
     </script>

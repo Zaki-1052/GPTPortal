@@ -346,16 +346,6 @@ class ChatManager {
     imageElement.classList.add('generated-image');
     imageElement.title = `Generated using ${result.model || 'AI model'}`;
 
-    // Trigger image download with better filename
-    const downloadLink = document.createElement('a');
-    downloadLink.href = imageUrl;
-    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-    const modelName = (result.model || 'generated').replace(/[^a-zA-Z0-9]/g, '-');
-    downloadLink.download = `${modelName}-image-${timestamp}.png`;
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-
     const chatBox = document.getElementById('chat-box');
     if (chatBox) {
       chatBox.appendChild(imageElement);
@@ -1106,20 +1096,11 @@ class ChatManager {
             </li>`;
         }).join('');
 
-        // Add tooltip functionality
+        // Surface each prompt's description where the dead custom-tooltip
+        // hook used to be wired: native title attributes on the links.
         document.querySelectorAll('#promptList li a').forEach(item => {
-          item.addEventListener('mouseover', (event) => {
-            const promptName = event.currentTarget.getAttribute('data-prompt');
-            const info = promptInfo[promptName];
-            if (info && window.showCustomTooltip) {
-              window.showCustomTooltip(`${info.name}: ${info.description}`, event.currentTarget);
-            }
-          });
-          item.addEventListener('mouseout', () => {
-            if (window.hideCustomTooltip) {
-              window.hideCustomTooltip();
-            }
-          });
+          const info = promptInfo[item.getAttribute('data-prompt')];
+          if (info) item.title = `${info.name}: ${info.description}`;
         });
       }
     } catch (error) {

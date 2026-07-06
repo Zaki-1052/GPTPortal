@@ -80,44 +80,45 @@ class UIManager {
     buttons.forEach(button => {
       const text = button.textContent.toLowerCase();
       const matches = text.includes(searchTerm.toLowerCase());
-      button.style.display = matches ? 'block' : 'none';
+      button.hidden = !matches;
     });
   }
 
   toggleOpenRouterModels(show) {
     const openRouterModels = document.querySelectorAll('.openrouter-model');
     openRouterModels.forEach(model => {
-      model.style.display = show ? 'block' : 'none';
+      model.hidden = !show;
     });
   }
 
   setupSidebar() {
-    // Single source of truth for the sidebar toggle. Stage 1's CSS keys off the
-    // inline display value (#sidebar default display:none; [style*='block'] ->
-    // display:flex), so we toggle display here rather than using transform.
+    // Single source of truth for the sidebar toggle. Visibility is a class
+    // (#sidebar.is-open) so the CSS owns the transition and there is no inline
+    // style string to key selectors off. The toggle keeps its SVG glyph; only
+    // aria-expanded reflects state.
     const toggleArrow = document.getElementById('toggleArrow');
     const sidebar = document.getElementById('sidebar');
 
     if (toggleArrow && sidebar) {
+      toggleArrow.setAttribute('aria-expanded', 'false');
       toggleArrow.addEventListener('click', () => {
-        this.sidebarVisible = sidebar.style.display !== 'block';
-        sidebar.style.display = this.sidebarVisible ? 'block' : 'none';
-        toggleArrow.innerHTML = this.sidebarVisible ? '&#x25C0;' : '&#x25B6;';
+        this.sidebarVisible = sidebar.classList.toggle('is-open');
+        toggleArrow.setAttribute('aria-expanded', this.sidebarVisible ? 'true' : 'false');
       });
     }
   }
 
   setupPromptBar() {
-    // Off-canvas prompt bar: Stage 1's CSS defaults #promptBar to display:none,
-    // so toggle display (block) to reveal it — consistent with the sidebar.
+    // Off-canvas prompt bar: revealed via #promptBar.is-open, consistent with
+    // the sidebar. No inline styles, no glyph swap.
     const toggleRightArrow = document.getElementById('toggleRightArrow');
     const promptBar = document.getElementById('promptBar');
 
     if (toggleRightArrow && promptBar) {
+      toggleRightArrow.setAttribute('aria-expanded', 'false');
       toggleRightArrow.addEventListener('click', () => {
-        this.promptBarVisible = promptBar.style.display !== 'block';
-        promptBar.style.display = this.promptBarVisible ? 'block' : 'none';
-        toggleRightArrow.innerHTML = this.promptBarVisible ? '&#x25B6;' : '&#x25C0;';
+        this.promptBarVisible = promptBar.classList.toggle('is-open');
+        toggleRightArrow.setAttribute('aria-expanded', this.promptBarVisible ? 'true' : 'false');
       });
     }
   }
@@ -179,33 +180,18 @@ class UIManager {
     const chatContainer = document.getElementById('chat-container');
     const messageInput = document.getElementById('message-input');
     
-    // Create visual feedback element
+    // Create visual feedback element. All presentation (fixed overlay, blur,
+    // centering) lives in the stylesheet; visibility is the .is-active class.
     const dropZone = document.createElement('div');
     dropZone.id = 'drop-zone';
     dropZone.innerHTML = `
       <div class="drop-zone-content">
-        <div class="drop-zone-icon">📁</div>
+        <div class="drop-zone-icon">
+          <svg class="icon" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
         <div class="drop-zone-text">Drop files here to upload</div>
       </div>
     `;
-    dropZone.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      display: none;
-      z-index: 10000;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      font-size: 24px;
-      text-align: center;
-    `;
-    
-    // No runtime <style> injection: the overlay's #drop-zone / .drop-zone-*
-    // classes are styled by the stylesheet (see new-class note for Stage 1).
     document.body.appendChild(dropZone);
 
     // Prevent default drag behaviors on document
@@ -219,7 +205,7 @@ class UIManager {
     // Show drop zone when dragging over the document
     document.addEventListener('dragenter', (e) => {
       if (e.dataTransfer.types.includes('Files')) {
-        dropZone.style.display = 'flex';
+        dropZone.classList.add('is-active');
       }
     });
 
@@ -227,15 +213,15 @@ class UIManager {
     document.addEventListener('dragleave', (e) => {
       // Only hide if we're leaving the entire document
       if (e.clientX === 0 && e.clientY === 0) {
-        dropZone.style.display = 'none';
+        dropZone.classList.remove('is-active');
       }
     });
 
     // Handle drop on drop zone
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
-      dropZone.style.display = 'none';
-      
+      dropZone.classList.remove('is-active');
+
       const files = Array.from(e.dataTransfer.files);
       if (files.length > 0) {
         // Handle single file for now, can be extended for multiple files
@@ -248,8 +234,8 @@ class UIManager {
       if (element) {
         element.addEventListener('drop', (e) => {
           e.preventDefault();
-          dropZone.style.display = 'none';
-          
+          dropZone.classList.remove('is-active');
+
           const files = Array.from(e.dataTransfer.files);
           if (files.length > 0) {
             this.handleFileUpload(files[0]);
@@ -310,7 +296,7 @@ class UIManager {
       const fileDiv = document.createElement('div');
       fileDiv.className = 'file-attachment';
       fileDiv.innerHTML = `
-        <span>📎 ${originalName}</span>
+        <span class="file-attachment-name"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg> ${originalName}</span>
         <a href="/uploads/${filename}" target="_blank">View</a>
       `;
       chatContainer.appendChild(fileDiv);
@@ -321,12 +307,12 @@ class UIManager {
     const uploadStatus = document.getElementById('upload-status');
     if (uploadStatus) {
       uploadStatus.textContent = message;
-      uploadStatus.style.color = '#4CAF50';
-      uploadStatus.style.fontWeight = 'bold';
-      
+      uploadStatus.classList.add('is-success');
+
       // Clear the message after 5 seconds (longer duration to match user expectations)
       setTimeout(() => {
         uploadStatus.textContent = '';
+        uploadStatus.classList.remove('is-success');
       }, 5000);
     } else {
       // Fallback to console if upload-status element doesn't exist
@@ -335,15 +321,9 @@ class UIManager {
   }
 
   showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-      notification.remove();
-    }, 3000);
+    // Delegate to the shared toast system (kept as a method for back-compat).
+    if (window.Toast) { window.Toast.show(message, { type }); return; }
+    console.log('[notify]', type, message);
   }
 
   updateTokenCount(inputTokens, outputTokens, cost) {

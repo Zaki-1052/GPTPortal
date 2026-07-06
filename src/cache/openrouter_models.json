@@ -1,4 +1,72 @@
 {
+  "poolside/laguna-xs-2.1:free": {
+    "name": "Poolside: Laguna XS 2.1 (free)",
+    "provider": "openrouter",
+    "category": "other",
+    "description": "Laguna XS 2.1 is the latest coding agent model in the 33B-A3B category from [Poolside](https://poolside.ai/) and a step forward from their Laguna XS.2 model (released in April 2026). It combines...",
+    "pricing": {
+      "input": 0,
+      "output": 0
+    },
+    "contextWindow": 262144,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 262144,
+      "max_completion_tokens": 32768,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Other",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "poolside/laguna-xs-2.1:free",
+      "created": 1783002429,
+      "per_request_limits": null
+    }
+  },
+  "poolside/laguna-xs-2.1": {
+    "name": "Poolside: Laguna XS 2.1",
+    "provider": "openrouter",
+    "category": "other",
+    "description": "Laguna XS 2.1 is the latest coding agent model in the 33B-A3B category from [Poolside](https://poolside.ai/) and a step forward from their Laguna XS.2 model (released in April 2026). It combines...",
+    "pricing": {
+      "input": 0.06,
+      "output": 0.12
+    },
+    "contextWindow": 262144,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 262144,
+      "max_completion_tokens": 32768,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Other",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "poolside/laguna-xs-2.1",
+      "created": 1783002429,
+      "per_request_limits": null
+    }
+  },
   "anthropic/claude-sonnet-5": {
     "name": "Anthropic: Claude Sonnet 5",
     "provider": "openrouter",
@@ -218,15 +286,15 @@
     "category": "other",
     "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workflows, project-level software engineering,...",
     "pricing": {
-      "input": 0.9299999999999999,
-      "output": 3
+      "input": 0.742,
+      "output": 2.332
     },
     "contextWindow": 1048576,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 1048576,
-      "max_completion_tokens": 32768,
+      "context_length": 1024000,
+      "max_completion_tokens": 128000,
       "is_moderated": false
     },
     "architecture": {
@@ -1386,8 +1454,8 @@
     "category": "other",
     "description": "This model always redirects to the latest model in the MoonshotAI Kimi family.",
     "pricing": {
-      "input": 0.55,
-      "output": 3.1999999999999997
+      "input": 0.66,
+      "output": 3.41
     },
     "contextWindow": 262144,
     "supportsVision": true,
@@ -2129,8 +2197,8 @@
     "category": "other",
     "description": "Kimi K2.6 is Moonshot AI's next-generation multimodal model, designed for long-horizon coding, coding-driven UI/UX generation, and multi-agent orchestration. It handles complex end-to-end coding tasks across Python, Rust, and Go, and...",
     "pricing": {
-      "input": 0.55,
-      "output": 3.1999999999999997
+      "input": 0.66,
+      "output": 3.41
     },
     "contextWindow": 262144,
     "supportsVision": true,
@@ -2200,15 +2268,15 @@
     "category": "other",
     "description": "GLM-5.1 delivers a major leap in coding capability, with particularly significant gains in handling long-horizon tasks. Unlike previous models built around minute-level interactions, GLM-5.1 can work independently and continuously on...",
     "pricing": {
-      "input": 0.975,
-      "output": 4.300000000000001
+      "input": 0.966,
+      "output": 3.036
     },
     "contextWindow": 202752,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
-      "context_length": 65536,
-      "max_completion_tokens": null,
+      "context_length": 200000,
+      "max_completion_tokens": 128000,
       "is_moderated": false
     },
     "architecture": {
@@ -2907,15 +2975,15 @@
     "category": "other",
     "description": "NVIDIA Nemotron 3 Super is a 120B-parameter open hybrid MoE model, activating just 12B parameters for maximum compute efficiency and accuracy in complex multi-agent applications. Built on a hybrid Mamba-Transformer...",
     "pricing": {
-      "input": 0.08499999999999999,
-      "output": 0.39999999999999997
+      "input": 0.08,
+      "output": 0.44999999999999996
     },
     "contextWindow": 1000000,
     "supportsVision": false,
     "supportsFunction": false,
     "topProvider": {
       "context_length": 262144,
-      "max_completion_tokens": 16384,
+      "max_completion_tokens": null,
       "is_moderated": false
     },
     "architecture": {
@@ -5761,8 +5829,8 @@
     "category": "qwen",
     "description": "Qwen3-VL-8B-Instruct is a multimodal vision-language model from the Qwen3-VL series, built for high-fidelity understanding and reasoning across text, images, and video. It features improved multimodal fusion with Interleaved-MRoPE for long-horizon...",
     "pricing": {
-      "input": 0.08,
-      "output": 0.5
+      "input": 0.117,
+      "output": 0.45499999999999996
     },
     "contextWindow": 256000,
     "supportsVision": true,
@@ -10448,40 +10516,6 @@
       "per_request_limits": null
     }
   },
-  "inflection/inflection-3-pi": {
-    "name": "Inflection: Inflection 3 Pi",
-    "provider": "openrouter",
-    "category": "other",
-    "description": "Inflection 3 Pi powers Inflection's [Pi](https://pi.ai) chatbot, including backstory, emotional intelligence, productivity, and safety. It has access to recent news, and excels in scenarios like customer support and roleplay. Pi...",
-    "pricing": {
-      "input": 2.5,
-      "output": 10
-    },
-    "contextWindow": 8000,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 8000,
-      "max_completion_tokens": 1024,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Other",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "inflection/inflection-3-pi",
-      "created": 1728604800,
-      "per_request_limits": null
-    }
-  },
   "inflection/inflection-3-productivity": {
     "name": "Inflection: Inflection 3 Productivity",
     "provider": "openrouter",
@@ -10512,6 +10546,40 @@
     },
     "openRouterData": {
       "id": "inflection/inflection-3-productivity",
+      "created": 1728604800,
+      "per_request_limits": null
+    }
+  },
+  "inflection/inflection-3-pi": {
+    "name": "Inflection: Inflection 3 Pi",
+    "provider": "openrouter",
+    "category": "other",
+    "description": "Inflection 3 Pi powers Inflection's [Pi](https://pi.ai) chatbot, including backstory, emotional intelligence, productivity, and safety. It has access to recent news, and excels in scenarios like customer support and roleplay. Pi...",
+    "pricing": {
+      "input": 2.5,
+      "output": 10
+    },
+    "contextWindow": 8000,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 8000,
+      "max_completion_tokens": 1024,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Other",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "inflection/inflection-3-pi",
       "created": 1728604800,
       "per_request_limits": null
     }
@@ -10547,6 +10615,74 @@
     "openRouterData": {
       "id": "thedrummer/rocinante-12b",
       "created": 1727654400,
+      "per_request_limits": null
+    }
+  },
+  "meta-llama/llama-3.2-3b-instruct:free": {
+    "name": "Meta: Llama 3.2 3B Instruct (free)",
+    "provider": "openrouter",
+    "category": "llama",
+    "description": "Llama 3.2 3B is a 3-billion-parameter multilingual large language model, optimized for advanced natural language processing tasks like dialogue generation, reasoning, and summarization. Designed with the latest transformer architecture, it...",
+    "pricing": {
+      "input": 0,
+      "output": 0
+    },
+    "contextWindow": 131072,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 131072,
+      "max_completion_tokens": null,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Llama3",
+      "instruct_type": "llama3"
+    },
+    "openRouterData": {
+      "id": "meta-llama/llama-3.2-3b-instruct:free",
+      "created": 1727222400,
+      "per_request_limits": null
+    }
+  },
+  "meta-llama/llama-3.2-3b-instruct": {
+    "name": "Meta: Llama 3.2 3B Instruct",
+    "provider": "openrouter",
+    "category": "llama",
+    "description": "Llama 3.2 3B is a 3-billion-parameter multilingual large language model, optimized for advanced natural language processing tasks like dialogue generation, reasoning, and summarization. Designed with the latest transformer architecture, it...",
+    "pricing": {
+      "input": 0.0509,
+      "output": 0.335
+    },
+    "contextWindow": 131072,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 80000,
+      "max_completion_tokens": 80000,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Llama3",
+      "instruct_type": "llama3"
+    },
+    "openRouterData": {
+      "id": "meta-llama/llama-3.2-3b-instruct",
+      "created": 1727222400,
       "per_request_limits": null
     }
   },
@@ -10615,74 +10751,6 @@
     },
     "openRouterData": {
       "id": "meta-llama/llama-3.2-11b-vision-instruct",
-      "created": 1727222400,
-      "per_request_limits": null
-    }
-  },
-  "meta-llama/llama-3.2-3b-instruct:free": {
-    "name": "Meta: Llama 3.2 3B Instruct (free)",
-    "provider": "openrouter",
-    "category": "llama",
-    "description": "Llama 3.2 3B is a 3-billion-parameter multilingual large language model, optimized for advanced natural language processing tasks like dialogue generation, reasoning, and summarization. Designed with the latest transformer architecture, it...",
-    "pricing": {
-      "input": 0,
-      "output": 0
-    },
-    "contextWindow": 131072,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 131072,
-      "max_completion_tokens": null,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Llama3",
-      "instruct_type": "llama3"
-    },
-    "openRouterData": {
-      "id": "meta-llama/llama-3.2-3b-instruct:free",
-      "created": 1727222400,
-      "per_request_limits": null
-    }
-  },
-  "meta-llama/llama-3.2-3b-instruct": {
-    "name": "Meta: Llama 3.2 3B Instruct",
-    "provider": "openrouter",
-    "category": "llama",
-    "description": "Llama 3.2 3B is a 3-billion-parameter multilingual large language model, optimized for advanced natural language processing tasks like dialogue generation, reasoning, and summarization. Designed with the latest transformer architecture, it...",
-    "pricing": {
-      "input": 0.0509,
-      "output": 0.335
-    },
-    "contextWindow": 131072,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 80000,
-      "max_completion_tokens": 80000,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "Llama3",
-      "instruct_type": "llama3"
-    },
-    "openRouterData": {
-      "id": "meta-llama/llama-3.2-3b-instruct",
       "created": 1727222400,
       "per_request_limits": null
     }
@@ -11097,42 +11165,6 @@
       "per_request_limits": null
     }
   },
-  "openai/gpt-4o-mini-2024-07-18": {
-    "name": "OpenAI: GPT-4o-mini (2024-07-18)",
-    "provider": "openrouter",
-    "category": "gpt",
-    "description": "GPT-4o mini is OpenAI's newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced small model, it is many multiples more affordable...",
-    "pricing": {
-      "input": 0.15,
-      "output": 0.6
-    },
-    "contextWindow": 128000,
-    "supportsVision": true,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 128000,
-      "max_completion_tokens": 16384,
-      "is_moderated": true
-    },
-    "architecture": {
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "file"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "GPT",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "openai/gpt-4o-mini-2024-07-18",
-      "created": 1721260800,
-      "per_request_limits": null
-    }
-  },
   "openai/gpt-4o-mini": {
     "name": "OpenAI: GPT-4o-mini",
     "provider": "openrouter",
@@ -11165,6 +11197,42 @@
     },
     "openRouterData": {
       "id": "openai/gpt-4o-mini",
+      "created": 1721260800,
+      "per_request_limits": null
+    }
+  },
+  "openai/gpt-4o-mini-2024-07-18": {
+    "name": "OpenAI: GPT-4o-mini (2024-07-18)",
+    "provider": "openrouter",
+    "category": "gpt",
+    "description": "GPT-4o mini is OpenAI's newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced small model, it is many multiples more affordable...",
+    "pricing": {
+      "input": 0.15,
+      "output": 0.6
+    },
+    "contextWindow": 128000,
+    "supportsVision": true,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 128000,
+      "max_completion_tokens": 16384,
+      "is_moderated": true
+    },
+    "architecture": {
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "file"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "GPT",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "openai/gpt-4o-mini-2024-07-18",
       "created": 1721260800,
       "per_request_limits": null
     }
@@ -11203,42 +11271,6 @@
       "per_request_limits": null
     }
   },
-  "openai/gpt-4o-2024-05-13": {
-    "name": "OpenAI: GPT-4o (2024-05-13)",
-    "provider": "openrouter",
-    "category": "gpt",
-    "description": "GPT-4o (\"o\" for \"omni\") is OpenAI's latest AI model, supporting both text and image inputs with text outputs. It maintains the intelligence level of [GPT-4 Turbo](/models/openai/gpt-4-turbo) while being twice as...",
-    "pricing": {
-      "input": 5,
-      "output": 15
-    },
-    "contextWindow": 128000,
-    "supportsVision": true,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 128000,
-      "max_completion_tokens": 4096,
-      "is_moderated": false
-    },
-    "architecture": {
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "file"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "GPT",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "openai/gpt-4o-2024-05-13",
-      "created": 1715558400,
-      "per_request_limits": null
-    }
-  },
   "openai/gpt-4o": {
     "name": "OpenAI: GPT-4o",
     "provider": "openrouter",
@@ -11271,6 +11303,42 @@
     },
     "openRouterData": {
       "id": "openai/gpt-4o",
+      "created": 1715558400,
+      "per_request_limits": null
+    }
+  },
+  "openai/gpt-4o-2024-05-13": {
+    "name": "OpenAI: GPT-4o (2024-05-13)",
+    "provider": "openrouter",
+    "category": "gpt",
+    "description": "GPT-4o (\"o\" for \"omni\") is OpenAI's latest AI model, supporting both text and image inputs with text outputs. It maintains the intelligence level of [GPT-4 Turbo](/models/openai/gpt-4-turbo) while being twice as...",
+    "pricing": {
+      "input": 5,
+      "output": 15
+    },
+    "contextWindow": 128000,
+    "supportsVision": true,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 128000,
+      "max_completion_tokens": 4096,
+      "is_moderated": false
+    },
+    "architecture": {
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "file"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "GPT",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "openai/gpt-4o-2024-05-13",
       "created": 1715558400,
       "per_request_limits": null
     }
@@ -11760,40 +11828,6 @@
       "per_request_limits": null
     }
   },
-  "openai/gpt-3.5-turbo": {
-    "name": "OpenAI: GPT-3.5 Turbo",
-    "provider": "openrouter",
-    "category": "gpt",
-    "description": "GPT-3.5 Turbo is OpenAI's fastest model. It can understand and generate natural language or code, and is optimized for chat and traditional completion tasks.\n\nTraining data up to Sep 2021.",
-    "pricing": {
-      "input": 0.5,
-      "output": 1.5
-    },
-    "contextWindow": 16385,
-    "supportsVision": false,
-    "supportsFunction": false,
-    "topProvider": {
-      "context_length": 16385,
-      "max_completion_tokens": 4096,
-      "is_moderated": true
-    },
-    "architecture": {
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "tokenizer": "GPT",
-      "instruct_type": null
-    },
-    "openRouterData": {
-      "id": "openai/gpt-3.5-turbo",
-      "created": 1685232000,
-      "per_request_limits": null
-    }
-  },
   "openai/gpt-4": {
     "name": "OpenAI: GPT-4",
     "provider": "openrouter",
@@ -11824,6 +11858,40 @@
     },
     "openRouterData": {
       "id": "openai/gpt-4",
+      "created": 1685232000,
+      "per_request_limits": null
+    }
+  },
+  "openai/gpt-3.5-turbo": {
+    "name": "OpenAI: GPT-3.5 Turbo",
+    "provider": "openrouter",
+    "category": "gpt",
+    "description": "GPT-3.5 Turbo is OpenAI's fastest model. It can understand and generate natural language or code, and is optimized for chat and traditional completion tasks.\n\nTraining data up to Sep 2021.",
+    "pricing": {
+      "input": 0.5,
+      "output": 1.5
+    },
+    "contextWindow": 16385,
+    "supportsVision": false,
+    "supportsFunction": false,
+    "topProvider": {
+      "context_length": 16385,
+      "max_completion_tokens": 4096,
+      "is_moderated": true
+    },
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "GPT",
+      "instruct_type": null
+    },
+    "openRouterData": {
+      "id": "openai/gpt-3.5-turbo",
       "created": 1685232000,
       "per_request_limits": null
     }

@@ -1,102 +1,12 @@
 /* public/setup.css
- * First-run API-key setup — matches the GPTPortal "Developer Console" system.
- * Shares the same token layer and teal accent as chat.css. No glassmorphism.
- * Fonts loaded via <link> in setup.html (IBM Plex Sans + JetBrains Mono).
+ * First-run API-key setup. Design tokens and reset come from css/tokens.css
+ * and css/base.css (shared with the portal); this file only adds the
+ * setup-page layout. Fully rebuilt in Phase 5.
  */
-
-/* =========================================================================
-   DESIGN TOKENS (light + dark) — mirrors chat.css
-   ========================================================================= */
-:root {
-  --radius-sm: 6px;
-  --radius: 10px;
-  --radius-lg: 16px;
-
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 24px;
-  --space-6: 32px;
-
-  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-
-  /* Dark default */
-  --bg: #0e1116;
-  --surface: #161a22;
-  --surface-2: #1e232d;
-  --border: #2a303c;
-  --text: #e6e9ee;
-  --text-muted: #9aa4b2;
-  --accent: #2dd4bf;
-  --accent-contrast: #04211d;
-  --danger: #f87171;
-  --success: #34d399;
-  --warning: #fbbf24;
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.40);
-  --shadow-2: 0 8px 28px rgba(0, 0, 0, 0.45);
-  color-scheme: dark;
-}
-
-[data-theme='dark'] {
-  --bg: #0e1116;
-  --surface: #161a22;
-  --surface-2: #1e232d;
-  --border: #2a303c;
-  --text: #e6e9ee;
-  --text-muted: #9aa4b2;
-  --accent: #2dd4bf;
-  --accent-contrast: #04211d;
-  --danger: #f87171;
-  --success: #34d399;
-  --warning: #fbbf24;
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.40);
-  --shadow-2: 0 8px 28px rgba(0, 0, 0, 0.45);
-  color-scheme: dark;
-}
-
-[data-theme='light'] {
-  --bg: #f7f8fa;
-  --surface: #ffffff;
-  --surface-2: #f0f2f5;
-  --border: #e3e6eb;
-  --text: #10141a;
-  --text-muted: #5b6472;
-  --accent: #0d9488;
-  --accent-contrast: #ffffff;
-  --danger: #dc2626;
-  --success: #059669;
-  --warning: #d97706;
-  --shadow-1: 0 1px 2px rgba(16, 20, 26, 0.06);
-  --shadow-2: 0 8px 24px rgba(16, 20, 26, 0.10);
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme]) {
-    --bg: #f7f8fa;
-    --surface: #ffffff;
-    --surface-2: #f0f2f5;
-    --border: #e3e6eb;
-    --text: #10141a;
-    --text-muted: #5b6472;
-    --accent: #0d9488;
-    --accent-contrast: #ffffff;
-    --danger: #dc2626;
-    --success: #059669;
-    --warning: #d97706;
-    --shadow-1: 0 1px 2px rgba(16, 20, 26, 0.06);
-    --shadow-2: 0 8px 24px rgba(16, 20, 26, 0.10);
-    color-scheme: light;
-  }
-}
 
 /* =========================================================================
    BASE
    ========================================================================= */
-* { box-sizing: border-box; }
-
 body {
   margin: 0;
   padding: var(--space-5);

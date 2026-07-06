@@ -259,10 +259,7 @@ class GPTPortalApp {
     
     // Prompt caching controls
     this.setupPromptCacheControls();
-    
-    // Fix model selector dropdown
-    this.fixModelSelector();
-    
+
     // Ensure model selector is populated (only if models are already loaded)
     if (this.dynamicModelManager && this.dynamicModelManager.models && Object.keys(this.dynamicModelManager.models).length > 0) {
       this.dynamicModelManager.populateModelSelector();
@@ -593,12 +590,12 @@ class GPTPortalApp {
           this.modelConfig.assistantsMode = !this.modelConfig.assistantsMode;
           
           if (this.modelConfig.assistantsMode) {
-            modeSelector.style.backgroundColor = '#4CAF50';
+            modeSelector.classList.add('is-active');
             modeSelector.textContent = 'Assistants Mode ON';
             this.modelConfig.isAssistants = true;
             this.modelConfig.currentModelID = 'gpt-4-turbo';
           } else {
-            modeSelector.style.backgroundColor = '';
+            modeSelector.classList.remove('is-active');
             modeSelector.textContent = 'Assistants Mode';
             this.modelConfig.isAssistants = false;
           }
@@ -649,8 +646,8 @@ class GPTPortalApp {
     const loadingModels = document.getElementById('loading-models');
     if (loadingModels) {
       loadingModels.innerHTML = `
-        <div style="color: #e66767; text-align: center; padding: 20px;">
-          <strong>Error loading models</strong><br>
+        <div class="load-error">
+          <strong>Error loading models</strong>
           <small>Using fallback functionality</small>
         </div>
       `;
@@ -719,38 +716,6 @@ class GPTPortalApp {
       temperature: window.temperature,
       tokens: window.tokens
     };
-  }
-
-  fixModelSelector() {
-    console.log('🔧 fixModelSelector() called');
-    const selectedModel = document.getElementById('selected-model');
-    const modelOptions = document.getElementById('model-options');
-    const modelSelector = document.getElementById('model-selector-container');
-    
-    if (selectedModel && modelOptions && modelSelector) {
-      console.log('🔧 Before fixModelSelector - display:', window.getComputedStyle(modelOptions).display);
-      // Make sure container has proper positioning
-      modelSelector.style.position = 'relative';
-      
-      // Ensure the dropdown toggle works
-      selectedModel.style.cursor = 'pointer';
-      
-      // Don't add any click handlers here - let dynamicModelManager handle all click events
-      // This prevents duplicate event handlers
-      
-      // Ensure dropdown styling - let CSS handle positioning, just ensure basic properties
-      modelOptions.style.backgroundColor = '#2a2a2a';
-      modelOptions.style.border = '1px solid #555';
-      modelOptions.style.borderRadius = '5px';
-      modelOptions.style.zIndex = '1000';
-      modelOptions.style.maxHeight = '300px';
-      modelOptions.style.overflowY = 'auto';
-      modelOptions.style.padding = '10px';
-      modelOptions.style.display = 'none'; // Initially hidden
-      
-      console.log('🔧 After fixModelSelector - display set to none');
-      console.log('🔧 After fixModelSelector - computed display:', window.getComputedStyle(modelOptions).display);
-    }
   }
 
   setupPromptCacheControls() {

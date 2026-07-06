@@ -1,0 +1,148 @@
+/* public/css/base.css
+ * GPTPortal — base layer: reset, root typography, atmosphere, scrollbars,
+ * focus, icon primitives. Loaded after tokens.css, before page styles.
+ */
+
+/* =========================================================================
+   RESET
+   ========================================================================= */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+/* Make the hidden attribute authoritative even against component display rules
+   (e.g. .standard-model { display:block }). State toggles rely on this. */
+[hidden] { display: none !important; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-canvas);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  font-feature-settings: 'ss01', 'cv01';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Fluid, characterful headings default to the display face */
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-display);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color var(--dur-1) var(--ease-out-quart);
+}
+a:hover { color: color-mix(in oklab, var(--color-accent) 78%, var(--color-text)); }
+
+/* Numeric data (pricing, token counts, context) reads as a precision readout */
+.tabular,
+.mono-data {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'zero' 1;
+  letter-spacing: -0.01em;
+}
+
+/* Accessible focus — accent ring, keyboard users only */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+:focus:not(:focus-visible) { outline: none; }
+
+/* =========================================================================
+   ATMOSPHERE — layered radial glow + fine grain behind the whole app.
+   Both pseudo-elements sit above the base canvas but below app content.
+   ========================================================================= */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(128% 82% at 12% -12%, var(--atmo-glow-1), transparent 56%),
+    radial-gradient(112% 70% at 102% -4%, var(--atmo-glow-2), transparent 52%);
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--atmo-noise-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+}
+
+/* =========================================================================
+   SCROLLBARS — thin, token-tinted, cross-browser
+   ========================================================================= */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--color-text-muted) 40%, transparent) transparent;
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--color-text-muted) 30%, transparent);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklab, var(--color-text-muted) 52%, transparent);
+  background-clip: padding-box;
+}
+
+/* =========================================================================
+   ICON PRIMITIVES (inline SVG stroke icons)
+   ========================================================================= */
+.icon {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  vertical-align: middle;
+  flex: 0 0 auto;
+  stroke: currentColor;
+  fill: none;
+  pointer-events: none;
+}
+.icon-xs { width: 14px; height: 14px; }
+.icon-sm { width: 16px; height: 16px; }
+.icon-lg { width: 24px; height: 24px; }
+
+/* Theme toggle shows the icon of the theme you'd switch TO */
+[data-theme='dark'] #theme-toggle .icon-moon { display: none; }
+[data-theme='light'] #theme-toggle .icon-sun { display: none; }
+
+/* =========================================================================
+   MOTION / CONTRAST PREFERENCES
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  body::before,
+  body::after { display: none; }
+}

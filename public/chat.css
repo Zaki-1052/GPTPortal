@@ -1,189 +1,10 @@
 /* public/chat.css
- * GPTPortal — "Developer Console" visual system.
- * Full redesign: single token layer (light + dark), no glassmorphism,
- * semantic shell layout, teal accent, inline-SVG iconography.
- * Fonts are loaded via <link> in portal.html (IBM Plex Sans + JetBrains Mono).
+ * GPTPortal — portal page styles (shell, header, sidebar, chat, messages,
+ * code, composer, model picker, modals, presets, compare).
+ * Design tokens live in css/tokens.css; reset/base/atmosphere/icons in
+ * css/base.css. This file consumes those tokens. (Renamed to css/app.css
+ * and rewritten section-by-section during the Phase 4 visual redesign.)
  */
-
-/* =========================================================================
-   1. DESIGN TOKENS
-   Colors are theme-scoped; sizing/typography tokens are shared.
-   The inline theme script in portal.html sets <html data-theme="…">
-   before paint; prefers-color-scheme is used as the no-preference default.
-   ========================================================================= */
-:root {
-  /* Shared, theme-independent tokens */
-  --radius-sm: 6px;
-  --radius: 10px;
-  --radius-lg: 16px;
-
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 24px;
-  --space-6: 32px;
-
-  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-
-  --header-h: 60px;
-
-  /* Code blocks stay dark in both themes so the highlight.js github-dark
-     token palette (loaded from CDN) remains legible. Defined as tokens
-     so component rules never reference raw literals. */
-  --code-bg: #0d1117;
-  --code-surface: #161b22;
-  --code-border: #2a303c;
-  --code-text: #e6e9ee;
-
-  /* Default (dark) color tokens */
-  --bg: #0e1116;
-  --surface: #161a22;
-  --surface-2: #1e232d;
-  --border: #2a303c;
-  --text: #e6e9ee;
-  --text-muted: #9aa4b2;
-  --accent: #2dd4bf;
-  --accent-contrast: #04211d;
-  --danger: #f87171;
-  --success: #34d399;
-  --warning: #fbbf24;
-
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.40);
-  --shadow-2: 0 8px 28px rgba(0, 0, 0, 0.45);
-
-  color-scheme: dark;
-}
-
-/* Explicit dark selection (manual toggle) */
-[data-theme='dark'] {
-  --bg: #0e1116;
-  --surface: #161a22;
-  --surface-2: #1e232d;
-  --border: #2a303c;
-  --text: #e6e9ee;
-  --text-muted: #9aa4b2;
-  --accent: #2dd4bf;
-  --accent-contrast: #04211d;
-  --danger: #f87171;
-  --success: #34d399;
-  --warning: #fbbf24;
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.40);
-  --shadow-2: 0 8px 28px rgba(0, 0, 0, 0.45);
-  color-scheme: dark;
-}
-
-/* Light palette */
-[data-theme='light'] {
-  --bg: #f7f8fa;
-  --surface: #ffffff;
-  --surface-2: #f0f2f5;
-  --border: #e3e6eb;
-  --text: #10141a;
-  --text-muted: #5b6472;
-  --accent: #0d9488;
-  --accent-contrast: #ffffff;
-  --danger: #dc2626;
-  --success: #059669;
-  --warning: #d97706;
-  --shadow-1: 0 1px 2px rgba(16, 20, 26, 0.06);
-  --shadow-2: 0 8px 24px rgba(16, 20, 26, 0.10);
-  color-scheme: light;
-}
-
-/* No manual choice yet + OS prefers light → adopt light tokens */
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme]) {
-    --bg: #f7f8fa;
-    --surface: #ffffff;
-    --surface-2: #f0f2f5;
-    --border: #e3e6eb;
-    --text: #10141a;
-    --text-muted: #5b6472;
-    --accent: #0d9488;
-    --accent-contrast: #ffffff;
-    --danger: #dc2626;
-    --success: #059669;
-    --warning: #d97706;
-    --shadow-1: 0 1px 2px rgba(16, 20, 26, 0.06);
-    --shadow-2: 0 8px 24px rgba(16, 20, 26, 0.10);
-    color-scheme: light;
-  }
-}
-
-/* =========================================================================
-   2. BASE / RESET
-   ========================================================================= */
-* { box-sizing: border-box; }
-
-html, body {
-  height: 100%;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-sans);
-  font-size: 15px;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-
-a {
-  color: var(--accent);
-  text-decoration: none;
-  transition: color 0.15s ease;
-}
-a:hover { color: color-mix(in srgb, var(--accent) 80%, var(--text)); }
-
-/* Focus rings — accessible, accent-tinted, only for keyboard users */
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
-}
-
-/* Thin, token-based scrollbars */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--text-muted) 40%, transparent) transparent;
-}
-*::-webkit-scrollbar { width: 10px; height: 10px; }
-*::-webkit-scrollbar-track { background: transparent; }
-*::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--text-muted) 32%, transparent);
-  border-radius: 8px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-*::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--text-muted) 55%, transparent);
-  background-clip: padding-box;
-}
-
-/* =========================================================================
-   3. INLINE ICON PRIMITIVES
-   ========================================================================= */
-.icon {
-  width: 20px;
-  height: 20px;
-  display: inline-block;
-  vertical-align: middle;
-  flex: 0 0 auto;
-  stroke: currentColor;
-  fill: none;
-  pointer-events: none;
-}
-.icon-sm { width: 16px; height: 16px; }
-.icon-lg { width: 24px; height: 24px; }
-
-/* Theme toggle shows the icon of the theme you'd switch TO */
-[data-theme='dark'] #theme-toggle .icon-moon { display: none; }
-[data-theme='light'] #theme-toggle .icon-sun { display: none; }
 
 /* Shared square/ghost button used for header + toolbar controls */
 .icon-btn {
@@ -252,8 +73,15 @@ a:hover { color: color-mix(in srgb, var(--accent) 80%, var(--text)); }
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-2) var(--space-4);
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+  border-bottom: 1px solid transparent;
+  border-image: linear-gradient(90deg,
+    transparent,
+    color-mix(in srgb, var(--color-border-strong) 100%, transparent) 20%,
+    color-mix(in srgb, var(--color-border-strong) 100%, transparent) 80%,
+    transparent) 1;
   position: relative;
   z-index: 40;
 }
@@ -280,14 +108,36 @@ a:hover { color: color-mix(in srgb, var(--accent) 80%, var(--text)); }
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  font-weight: 600;
-  font-size: 15px;
-  letter-spacing: -0.01em;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-lg);
+  letter-spacing: var(--tracking-tight);
   color: var(--text);
   white-space: nowrap;
 }
-.brand .icon { color: var(--accent); }
-.brand-sub { color: var(--text-muted); font-weight: 400; font-size: 13px; }
+.brand .icon { color: var(--accent); filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 45%, transparent)); }
+.brand-sub {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  padding-left: var(--space-1);
+}
+
+/* ---- Orchestrated page-load reveal (gated on .js-loaded; motion-safe) ---- */
+@keyframes riseIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.js-loaded .app-header { animation: riseIn var(--dur-3) var(--ease-out-quart) both; }
+.js-loaded #sidebar.is-open { animation: riseIn var(--dur-3) var(--ease-out-quart) both; }
+.js-loaded #chat-box { animation: riseIn var(--dur-3) var(--ease-out-quart) 0.05s both; }
+.js-loaded .composer { animation: riseIn var(--dur-3) var(--ease-out-quart) 0.12s both; }
+@media (prefers-reduced-motion: reduce) {
+  .js-loaded .app-header,
+  .js-loaded #sidebar.is-open,
+  .js-loaded #chat-box,
+  .js-loaded .composer { animation: none; }
+}
 
 .app-body {
   flex: 1 1 auto;
@@ -318,7 +168,7 @@ a:hover { color: color-mix(in srgb, var(--accent) 80%, var(--text)); }
   overflow-y: auto;
   min-height: 0;
 }
-#sidebar[style*='block'] { display: flex !important; }
+#sidebar.is-open { display: flex; }
 
 .sidebar-title {
   padding: var(--space-4) var(--space-4) var(--space-2);
@@ -375,9 +225,13 @@ a:hover { color: color-mix(in srgb, var(--accent) 80%, var(--text)); }
   border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
 }
 
-/* Legacy left-edge toggle: repurposed as the header sidebar toggle button.
-   JS still rewrites its innerHTML (▶/◀) on toggle, so the glyph is the
-   collapse indicator once interacted with. */
+/* Header sidebar toggle button. Keeps its SVG glyph; aria-expanded reflects
+   state and CSS tints it accent while the sidebar is open. */
+#toggleArrow[aria-expanded='true'],
+#toggleRightArrow[aria-expanded='true'] {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+}
 #toggleArrow {
   display: inline-flex;
   align-items: center;
@@ -418,6 +272,7 @@ a:hover { color: color-mix(in srgb, var(--accent) 80%, var(--text)); }
   text-align: left;
   box-shadow: var(--shadow-2);
 }
+#promptBar.is-open { display: block; }
 #promptBar a {
   display: block;
   padding: var(--space-2) var(--space-3);
@@ -539,18 +394,21 @@ a:hover { color: color-mix(in srgb, var(--accent) 80%, var(--text)); }
   color: var(--text);
 }
 
-/* System notices — override JS inline styling to stay on-theme */
+/* System notices (icon + text set by messageHandler; no inline styles now) */
 .message.system {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
   align-self: center;
   max-width: 90%;
-  background: var(--surface-2) !important;
-  border: 1px solid var(--border) !important;
-  color: var(--text-muted) !important;
-  font-size: 13px !important;
-  font-style: normal !important;
-  border-radius: var(--radius) !important;
-  padding: var(--space-2) var(--space-3) !important;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-4);
 }
+.message.error { display: flex; align-items: flex-start; gap: var(--space-1); }
 
 .message p { margin: 0.5em 0; }
 .message p:first-child { margin-top: 0; }
@@ -733,24 +591,85 @@ a:hover { color: color-mix(in srgb, var(--accent) 80%, var(--text)); }
   border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
 }
 .copy-btn .icon { width: 15px; height: 15px; }
+.screenshot-btn .icon { width: 15px; height: 15px; }
+.copy-btn.copied, .screenshot-btn.copied { color: var(--success); border-color: color-mix(in srgb, var(--success) 55%, var(--border)); opacity: 1; }
+.screenshot-btn.failed { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 55%, var(--border)); opacity: 1; }
 
-/* --- Welcome card -------------------------------------------------------- */
-.welcome-message {
-  align-self: stretch;
-  background: color-mix(in srgb, var(--accent) 7%, var(--surface)) !important;
-  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border)) !important;
+/* Inline status icon prefixed to error / system messages */
+.message-icon { display: inline-flex; vertical-align: middle; margin-right: var(--space-2); }
+.message.error .message-icon { color: var(--danger); }
+.message.system .message-icon { color: var(--text-muted); }
+
+/* --- Welcome hero (empty state) ----------------------------------------- */
+.welcome-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin: auto 0;
+  padding: var(--space-6) var(--space-2);
+  animation: riseIn var(--dur-3) var(--ease-out-quart) both;
 }
-.welcome-content h3 { margin: 0 0 var(--space-2); font-size: 20px; font-weight: 600; }
-.welcome-content p { margin: 0 0 var(--space-3); color: var(--text-muted); }
-.welcome-features { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.feature-badge {
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: 500;
+.welcome-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
   color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
-  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-soft);
+}
+.welcome-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tighter);
+  background: linear-gradient(135deg, var(--text), color-mix(in srgb, var(--accent) 55%, var(--text)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.welcome-sub {
+  margin: 0;
+  max-width: 52ch;
+  font-size: var(--text-lg);
+  color: var(--text-muted);
+  line-height: var(--leading-snug);
+}
+.welcome-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+.quick-action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text);
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: transform var(--dur-1) var(--ease-out-quart),
+              border-color var(--dur-1) var(--ease-out-quart),
+              background var(--dur-1) var(--ease-out-quart),
+              color var(--dur-1) var(--ease-out-quart);
+}
+.quick-action .icon { color: var(--accent); }
+.quick-action:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  background: var(--color-accent-soft);
+  color: var(--text);
 }
 
 /* =========================================================================
@@ -762,10 +681,19 @@ a:hover { color: color-mix(in srgb, var(--accent) 80%, var(--text)); }
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-3);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-1);
+  margin-bottom: var(--space-1);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2);
+  transition: border-color var(--dur-2) var(--ease-out-quart),
+              box-shadow var(--dur-2) var(--ease-out-quart);
+}
+.composer:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  box-shadow: var(--shadow-2), var(--glow-accent);
 }
 
 #image-preview {
@@ -815,30 +743,26 @@ a:hover { color: color-mix(in srgb, var(--accent) 80%, var(--text)); }
 #context-limit { color: var(--text-muted); }
 
 /* Input textarea */
+/* Textarea is seamless inside the composer pill — the pill itself carries the
+   border + focus glow (see .composer:focus-within). */
 #message-input {
   width: 100%;
   min-height: 52px;
   max-height: 300px;
-  padding: var(--space-3) var(--space-4);
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-2);
+  background: transparent;
+  border: none;
   color: var(--text);
   font-family: inherit;
-  font-size: 15px;
+  font-size: var(--text-md);
   line-height: 1.6;
   resize: none;
   outline: none;
   overflow-y: auto;
   white-space: pre-wrap;
   word-wrap: break-word;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-#message-input:focus {
-  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
-}
-#message-input::placeholder { color: var(--text-muted); }
+#message-input::placeholder { color: var(--text-faint); }
 
 /* Helper toolbar — real flex row (no absolute positioning) */
 .input-controls {
@@ -891,12 +815,19 @@ a:hover { color: color-mix(in srgb, var(--accent) 80%, var(--text)); }
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 #mode-selector:hover { color: var(--text); background: var(--surface-2); }
+/* Assistants Mode active state (replaces the old inline #4CAF50 background). */
+#mode-selector.is-active {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+}
 
 #upload-status {
   font-size: 13px;
   color: var(--success);
   text-align: center;
 }
+#upload-status.is-success { font-weight: 600; }
 #upload-status:empty { display: none; }
 
 /* Advanced model parameters (collapsible) */
@@ -1046,6 +977,10 @@ input[type='range']::-moz-range-track { height: 6px; background: var(--border); 
   min-width: 0;
 }
 
+/* Positioning context for the absolutely-positioned .model-flyout
+   (previously set inline by app.js fixModelSelector, now removed). */
+#model-selector-container { position: relative; }
+
 /* Trigger button */
 #selected-model,
 .custom-select#selected-model {
@@ -1184,22 +1119,28 @@ input[type='range']::-moz-range-track { height: 6px; background: var(--border); 
 }
 .refresh-btn:hover { color: var(--text); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
 .refresh-icon { display: inline-flex; }
+.refresh-btn.is-loading { pointer-events: none; opacity: 0.7; }
+.refresh-btn.is-loading .refresh-icon { animation: spin 0.9s linear infinite; }
+/* Spinning inline icon utility (save buttons, etc.) */
+.spin { display: inline-flex; animation: spin 0.9s linear infinite; }
 
-/* Options list — override JS inline (fixModelSelector sets a grey bg) so the
-   flyout surface shows through cleanly. */
+/* Options list. JS toggles inline display:block; the flyout wrapper provides
+   the surface, so the list itself is a transparent scroll region. */
 #model-options,
 .select-options {
-  display: none;               /* JS toggles inline display:block */
+  display: none;
   position: static;
-  width: 100% !important;
+  width: 100%;
   max-height: 360px;
   overflow-y: auto;
-  padding: 0 !important;
-  background: transparent !important;
-  border: none !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
+/* Rotate the trigger chevron while the flyout is open. */
+#model-selector-container:has(#model-options[style*='block']) .dropdown-arrow { transform: rotate(180deg); }
 
 /* Category groups */
 .model-category { margin-bottom: var(--space-3); }
@@ -1220,8 +1161,43 @@ input[type='range']::-moz-range-track { height: 6px; background: var(--border); 
   user-select: none;
 }
 .category-header:hover { background: var(--surface); color: var(--text); }
-.category-arrow { display: inline-flex; transition: transform 0.15s ease; font-size: 10px; }
-.models-container { display: flex; flex-direction: column; gap: var(--space-1); }
+.category-name { flex: 1 1 auto; }
+.category-arrow { display: inline-flex; transition: transform var(--dur-2) var(--ease-out-quart); }
+.category-arrow .icon { width: 14px; height: 14px; }
+.model-category[data-collapsed='true'] .category-arrow { transform: rotate(-90deg); }
+
+/* Collapsible models list — max-height keyed off the category state attr. */
+.models-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  overflow: hidden;
+  max-height: 1400px;
+  transition: max-height var(--dur-3) var(--ease-out-quart);
+}
+.model-category[data-collapsed='true'] .models-container { max-height: 0; }
+
+/* Model option internal layout */
+.model-option-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+.model-logo-wrap {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  color: var(--text-muted);
+}
+.model-logo-wrap .model-logo { width: 16px; height: 16px; }
+.model-option-name {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.badges-container { display: inline-flex; align-items: center; gap: var(--space-1); flex: 0 0 auto; }
 
 /* Model option buttons */
 .select-options button,
@@ -1249,16 +1225,36 @@ input[type='range']::-moz-range-track { height: 6px; background: var(--border); 
 .openrouter-model { border-style: dashed; }
 
 .model-badge, .badges-container span {
-  display: inline-block;
-  margin-left: var(--space-1);
+  display: inline-flex;
+  align-items: center;
   padding: 1px var(--space-2);
-  border-radius: 999px;
-  font-size: 10px;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-2xs);
   font-weight: 600;
+  line-height: 1.5;
   color: var(--text-muted);
-  background: color-mix(in srgb, var(--text-muted) 16%, transparent);
+  background: color-mix(in srgb, var(--text-muted) 15%, transparent);
 }
-.no-models-message { padding: var(--space-5); text-align: center; color: var(--text-muted); }
+/* Feature chips: subtle tint keyed off data-feature (emoji glyph carries its
+   own color in Phase 2; Phase 4 swaps to sprite icons + fuller tinting). */
+.model-badge[data-feature='vision'] { background: color-mix(in srgb, var(--color-info) 18%, transparent); }
+.model-badge[data-feature='tools']  { background: color-mix(in srgb, var(--color-success) 18%, transparent); }
+.model-badge[data-feature='image']  { background: color-mix(in srgb, var(--color-warning) 20%, transparent); }
+.model-badge[data-feature='stt']    { background: color-mix(in srgb, var(--provider-google) 20%, transparent); }
+.model-badge[data-feature='tts']    { background: color-mix(in srgb, var(--provider-openrouter) 20%, transparent); }
+
+.no-models-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-5);
+  text-align: center;
+  color: var(--text-muted);
+}
+.no-models-icon { color: var(--text-faint); }
+.no-models-title { font-size: var(--text-md); color: var(--text); }
+.no-models-hint { font-size: var(--text-sm); color: var(--text-faint); }
 
 .loading-indicator {
   display: flex;
@@ -1277,23 +1273,74 @@ input[type='range']::-moz-range-track { height: 6px; background: var(--border); 
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Tooltips */
-.tooltip,
-.model-tooltip,
-#custom-tooltip {
+/* Model hover tooltip. JS positions it (absolute + scroll offset) and toggles
+   .is-visible; all visual styling is here. */
+.model-tooltip {
   position: absolute;
-  display: none;
-  z-index: 500;
-  max-width: 360px;
-  padding: var(--space-2) var(--space-3);
-  background: var(--surface-2);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 320px;
+  padding: var(--space-3);
+  background: var(--surface-3, var(--surface-2));
   color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
   box-shadow: var(--shadow-2);
-  font-size: 13px;
+  font-size: var(--text-xs);
+  line-height: 1.5;
   word-wrap: break-word;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity var(--dur-2) var(--ease-out-quart),
+              transform var(--dur-2) var(--ease-out-quart);
 }
+.model-tooltip.is-visible { opacity: 1; transform: none; }
+.model-tooltip .tt-title { font-size: var(--text-sm); font-weight: 600; }
+.model-tooltip .tt-desc { color: var(--text-muted); }
+.model-tooltip .tt-meta { color: var(--text-faint); font-size: var(--text-2xs); }
+.model-tooltip .tt-price { color: var(--accent); }
+
+/* Model-load error card (replaces inline #e66767 markup in app.js). */
+.load-error {
+  text-align: center;
+  padding: var(--space-5);
+  color: var(--danger);
+}
+.load-error strong { display: block; margin-bottom: var(--space-1); }
+.load-error small { color: var(--text-muted); }
+
+/* =========================================================================
+   DRAG-AND-DROP OVERLAY (uiManager builds #drop-zone; toggles .is-active)
+   ========================================================================= */
+#drop-zone {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+#drop-zone.is-active { display: flex; }
+.drop-zone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-7) var(--space-8);
+  border: 2px dashed color-mix(in srgb, var(--accent) 55%, var(--border));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  box-shadow: var(--shadow-2);
+}
+.drop-zone-icon { color: var(--accent); }
+.drop-zone-icon .icon { width: 40px; height: 40px; }
+.drop-zone-text { font-family: var(--font-display); font-size: var(--text-lg); color: var(--text); }
 
 /* =========================================================================
    10. CONFIG MODALS (instructions / env editors)
@@ -1423,6 +1470,13 @@ input[type='range']::-moz-range-track { height: 6px; background: var(--border); 
 .token-count { color: var(--accent); }
 .token-count.loading { color: var(--text-muted); }
 .token-count.loading::after { content: '…'; }
+/* Threshold colour-coding set by portalInit via data-level (replaces the old
+   inline hex ladder #ff6b35 / #ff9500 / #58a6ff / #00d084 / #6e7681). */
+.char-count[data-level='danger'], .token-count[data-level='danger'] { color: var(--danger); }
+.char-count[data-level='warn'],   .token-count[data-level='warn']   { color: var(--warning); }
+.char-count[data-level='info'],   .token-count[data-level='info']   { color: var(--color-info); }
+.char-count[data-level='ok'],     .token-count[data-level='ok']     { color: var(--success); }
+.char-count[data-level='muted'],  .token-count[data-level='muted']  { color: var(--text-muted); }
 
 .mini-model-select { min-width: 140px; font-family: var(--font-mono); font-size: 12px; }
 
@@ -1489,53 +1543,10 @@ input[type='range']::-moz-range-track { height: 6px; background: var(--border); 
 }
 
 /* =========================================================================
-   12. RUNTIME-INJECTED STYLE OVERRIDES
-   app.js injects a <style> (rainbow slider tracks/thumbs, #00ff00 values,
-   GPT-5 selects) after load. These id-selector rules would win on source
-   order, so we neutralize the rainbow and re-theme with token !important.
-   ========================================================================= */
-#temperature-slider,
-#tokens-slider {
-  background: var(--border) !important;
-  height: 6px !important;
-  border-radius: 999px !important;
-}
-#temperature-slider::-webkit-slider-thumb,
-#tokens-slider::-webkit-slider-thumb {
-  background: var(--accent) !important;
-  border: 2px solid var(--surface) !important;
-  width: 16px !important;
-  height: 16px !important;
-  box-shadow: var(--shadow-1) !important;
-}
-#temperature-slider::-moz-range-thumb,
-#tokens-slider::-moz-range-thumb {
-  background: var(--accent) !important;
-  border: 2px solid var(--surface) !important;
-  width: 16px !important;
-  height: 16px !important;
-}
-#temperature-value,
-#tokens-value { color: var(--text) !important; }
-#tokens-limit { color: var(--text-muted) !important; }
-
-/* Re-theme the runtime GPT-5 control block */
-#gpt5-controls {
-  background: var(--surface-2) !important;
-  border: 1px solid var(--border) !important;
-}
-#reasoning-effort-container label,
-#verbosity-container label { color: var(--text) !important; }
-#reasoning-effort-select,
-#verbosity-select {
-  background: var(--bg) !important;
-  color: var(--text) !important;
-  border: 1px solid var(--border) !important;
-}
-.param-help { color: var(--text-muted) !important; }
-
-/* =========================================================================
-   13. KaTeX + accessibility preferences
+   12. KaTeX + accessibility preferences
+   (§12's old runtime-slider !important overrides were deleted — the rainbow
+   <style> injection they defended against no longer exists, and §7 styles the
+   sliders / GPT-5 controls directly.)
    ========================================================================= */
 .katex { color: var(--text) !important; }
 .katex-display { margin: 1em 0; text-align: center; }
@@ -1716,25 +1727,8 @@ input[type='range']::-moz-range-track { height: 6px; background: var(--border); 
 }
 @keyframes compareSpin { to { transform: rotate(360deg); } }
 
-/* ---- transient toast (used by presets) ---- */
-.gp-toast {
-  position: fixed;
-  bottom: var(--space-5);
-  left: 50%;
-  transform: translateX(-50%) translateY(12px);
-  padding: var(--space-3) var(--space-4);
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-2);
-  font-size: 13px;
-  z-index: 10001;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-.gp-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* (Legacy .gp-toast / .notification styles removed — both now route through
+   the shared #toast-region system in components.css.) */
 
 @media (max-width: 768px) {
   .compare-controls { grid-template-columns: 1fr; }

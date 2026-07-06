@@ -222,19 +222,10 @@
       });
     }
 
-    /* ---------- tiny transient toast ---------- */
+    /* ---------- transient toast (delegates to the shared system) ---------- */
     toast(message) {
-      let el = document.getElementById('gp-toast');
-      if (!el) {
-        el = document.createElement('div');
-        el.id = 'gp-toast';
-        el.className = 'gp-toast';
-        document.body.appendChild(el);
-      }
-      el.textContent = message;
-      el.classList.add('show');
-      clearTimeout(this._toastTimer);
-      this._toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+      if (window.Toast) { window.Toast.success(message, { title: 'Presets' }); return; }
+      console.log('[presets]', message);
     }
   }
 
